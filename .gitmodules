@@ -1,0 +1,3 @@
+[submodule "3rdparty/fluid"]
+	path = 3rdparty/fluid
+	url = https://github.com/lirios/fluid.git
