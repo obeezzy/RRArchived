@@ -1,8 +1,9 @@
-import QtQuick 2.9
+import QtQuick 2.10
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
+import "../common"
 
 FluidControls.Page {
     id: homePage
@@ -20,6 +21,14 @@ FluidControls.Page {
             toolTip: qsTr("More options")
         }
     ]
+
+    SaleHomeListView {
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            top: parent.top
+            bottom: parent.bottom
+        }
+    }
 
     FluidControls.FloatingActionButton {
         Material.background: Material.LightGreen

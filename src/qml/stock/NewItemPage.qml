@@ -1,9 +1,10 @@
-import QtQuick 2.9
+import QtQuick 2.10
 import QtQuick.Controls 2.2 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
+import "../singletons"
 
 FluidControls.Page {
     id: newItemPage
@@ -28,10 +29,10 @@ FluidControls.Page {
         text: qsTr("Add note")
     }
 
-    FluidControls.InfoBar {
-        id: infoBar
+    RRUi.SnackBar {
+        id: snackBar
         parent: FluidControls.ApplicationWindow.contentItem
-        duration: 4000
+        duration: GlobalSettings.shortToastDuration
     }
 
     QQC2.StackView {
@@ -47,6 +48,7 @@ FluidControls.Page {
         initialItem: Component {
             Item {
                 id: stackViewItem
+
                 Flickable {
                     anchors {
                         left: parent.left
@@ -64,7 +66,7 @@ FluidControls.Page {
                         id: detailCard
 
                         property bool userAddedCategory: false
-                        property string categoryText: null
+                        property string categoryText: ""
                         readonly property string defaultCategoryText: qsTr("No category added")
 
                         padding: 20
@@ -80,35 +82,76 @@ FluidControls.Page {
                                 right: parent.right
                             }
 
-                            height: column.height + 12
+                            height: itemInfoColumn.height + 12
 
-                            FluidControls.CircleImage {
-                                id: itemImage
+                            Column {
+                                id: imageColumn
                                 anchors {
                                     left: parent.left
                                     top: parent.top
                                 }
-
                                 width: 120
-                                height: 120
+                                spacing: 4
 
-                                Rectangle {
-                                    visible: itemImage.source === ""
-                                    anchors.fill: parent
-                                    radius: width / 2
-                                    color: Material.color(Material.Grey, Material.Shade300)
+                                FluidControls.CircleImage {
+                                    id: itemImage
+                                    anchors {
+                                        left: parent.left
+                                        right: parent.right
+                                    }
 
-                                    FluidControls.Icon {
-                                        anchors.centerIn: parent
-                                        name: "image/photo_camera"
+                                    height: width
+
+                                    Rectangle {
+                                        visible: itemImage.source === ""
+                                        anchors.fill: parent
+                                        radius: width / 2
+                                        color: Material.color(Material.Grey, Material.Shade300)
+
+                                        FluidControls.Icon {
+                                            anchors.centerIn: parent
+                                            color: "white"
+                                            name: "image/photo_camera"
+                                        }
+                                    }
+                                }
+
+                                Row {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    FluidControls.ToolButton {
+                                        id: takePhotoButton
+                                        icon.name: "image/photo_camera"
+
+                                        QQC2.ToolTip.visible: hovered
+                                        QQC2.ToolTip.delay: 1500
+                                        QQC2.ToolTip.text: qsTr("Take a photo")
+                                    }
+
+                                    FluidControls.ToolButton {
+                                        id: selectPhotoButton
+                                        icon.name: "image/photo"
+
+                                        QQC2.ToolTip.visible: hovered
+                                        QQC2.ToolTip.delay: 1500
+                                        QQC2.ToolTip.text: qsTr("Select image")
+                                    }
+
+                                    FluidControls.ToolButton {
+                                        id: deviceSearchButton
+                                        icon.name: "hardware/phonelink"
+
+                                        QQC2.ToolTip.visible: hovered
+                                        QQC2.ToolTip.delay: 1500
+                                        QQC2.ToolTip.text: qsTr("Start DeviceLink")
                                     }
                                 }
                             }
 
                             Column {
-                                id: column
+                                id: itemInfoColumn
                                 anchors {
-                                    left: itemImage.right
+                                    left: imageColumn.right
                                     right: parent.right
                                     top: parent.top
                                     margins: 20
@@ -149,7 +192,7 @@ FluidControls.Page {
                                             anchors.verticalCenter: parent.verticalCenter
                                             width: 200
                                             font.pixelSize: 17
-                                            color: detailCard.categoryText == null ? Material.color(Material.Grey) : "black"
+                                            color: detailCard.categoryText == "" ? Material.color(Material.Grey) : "black"
                                             text: detailCard.defaultCategoryText
                                             visible: detailCard.userAddedCategory || !categoryComboBox.count
                                         }
@@ -164,7 +207,7 @@ FluidControls.Page {
                                                 if (detailCard.userAddedCategory) {
                                                     if (categoryComboBox.count == 0) {
                                                         categoryLabel.text = detailCard.defaultCategoryText;
-                                                        detailCard.categoryText = null;
+                                                        detailCard.categoryText = "";
                                                     }
 
                                                     detailCard.userAddedCategory = false;
@@ -294,7 +337,7 @@ FluidControls.Page {
                                         }
 
                                         QQC2.SpinBox {
-                                            id: costPriceSpinbox
+                                            id: retailPriceSpinBox
                                             down.indicator: null
                                             up.indicator: null
                                             width: 50
@@ -305,12 +348,12 @@ FluidControls.Page {
                                             property real realValue: value / 100
 
                                             validator: DoubleValidator {
-                                                bottom: Math.min(costPriceSpinbox.from, costPriceSpinbox.to)
-                                                top:  Math.max(costPriceSpinbox.from, costPriceSpinbox.to)
+                                                bottom: Math.min(retailPriceSpinBox.from, retailPriceSpinBox.to)
+                                                top:  Math.max(retailPriceSpinBox.from, retailPriceSpinBox.to)
                                             }
 
                                             textFromValue: function(value, locale) {
-                                                return "\u20a6 " + Number(value / 100).toLocaleString(locale, 'f', costPriceSpinbox.decimals)
+                                                return "\u20a6 " + Number(value / 100).toLocaleString(locale, 'f', retailPriceSpinBox.decimals)
                                             }
 
                                             valueFromText: function(text, locale) {
@@ -332,13 +375,13 @@ FluidControls.Page {
                             unit: unitTextField.text
                             categoryNote: ""
                             itemNote: ""
-                            costPrice: costPriceSpinbox.value
-                            retailPrice: costPriceSpinbox.value
+                            costPrice: retailPriceSpinBox.value
+                            retailPrice: retailPriceSpinBox.value
                             tracked: trackedCheckBox.checked
                             divisible: divisibleCheckBox.checked
 
                             onSuccess: {
-                                infoBar.open(qsTr("Your item was successfully added!"));
+                                snackBar.open(qsTr("Your item was successfully added!"));
                                 animationStackView.replace(null, animationStackView.initialItem);
                             }
                             onError: {
@@ -376,10 +419,15 @@ FluidControls.Page {
                                 textField.placeholderText: qsTr("Category")
 
                                 onAccepted: {
-                                    if (textField.text.trim().length > 0) {
+                                    if (textField.text.trim().length > 0 && categoryComboBox.find(textField.text.trim()) === -1) {
                                         categoryLabel.text = textField.text;
                                         detailCard.categoryText = textField.text;
                                         detailCard.userAddedCategory = true;
+                                    } else if (categoryComboBox.find(textField.text.trim()) > -1) {
+                                        categoryLabel.text = detailCard.defaultCategoryText;
+                                        detailCard.categoryText = "";
+                                        detailCard.userAddedCategory = false;
+                                        categoryComboBox.currentIndex = categoryComboBox.find(textField.text.trim());
                                     }
                                 }
                                 onClosed: categoryInputDialogLoader.active = false;
@@ -387,7 +435,7 @@ FluidControls.Page {
                         }
 
                         function validateUserInput() {
-                            if (detailCard.categoryText.trim() == "") {
+                            if (detailCard.categoryText.trim() == "" && !categoryComboBox.visible) {
                                 failureAlertDialogLoader.message = qsTr("Category field is not set.    "); // Force dialog to stretch
                                 failureAlertDialogLoader.create();
                                 return false;

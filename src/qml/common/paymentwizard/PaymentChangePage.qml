@@ -20,6 +20,6 @@ QQC2.Page {
         }
         wrapMode: Text.WordWrap
         horizontalAlignment: Qt.AlignHCenter
-        text: qsTr("Please hand over %1 to the customer.").arg(Number(Math.abs(paymentChangePage.changeDue)).toLocaleCurrencyString(Qt.locale(GlobalSettings.locale)))
+        text: qsTr("Please hand over %1 to the customer.").arg(Number(Math.abs(paymentChangePage.changeDue)).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)))
     }
 }

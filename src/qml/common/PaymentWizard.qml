@@ -23,7 +23,7 @@ QQC2.Dialog {
     parent: QQC2.ApplicationWindow.contentItem
 
     width: 600
-    height: 400
+    height: 540
 
     focus: true
     modal: true
@@ -211,6 +211,9 @@ QQC2.Dialog {
                             break;
                         }
                     } else if (stackView.currentObjectName == "paymentCustomerDetailPage") {
+                        paymentWizard.customerName = stackView.currentItem.customerName;
+                        paymentWizard.customerPhoneNumber = stackView.currentItem.customerPhoneNumber;
+
                         if (paymentWizard.balance != 0)
                             stackView.push(paymentDueDatePage);
                         else
@@ -222,7 +225,7 @@ QQC2.Dialog {
                         stackView.push(paymentFinishPage);
                         // if (printCheckBox.checked)
                         //     RRWidgets.print(paymentInfo);
-                        paymentWizard.finished({ "customer_id": -1,
+                        paymentWizard.finished({ "client_id": -1,
                                                    "customer_name": paymentWizard.customerName,
                                                    "customer_phone_number": paymentWizard.customerPhoneNumber,
                                                    "total_cost": paymentWizard.totalCost,

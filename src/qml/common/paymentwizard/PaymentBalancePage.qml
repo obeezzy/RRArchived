@@ -37,9 +37,9 @@ QQC2.Page {
 
                 text: {
                     if (paymentBalancePage.hasCredit)
-                        return qsTr("You owe the customer <b>%1</b>. How would you like to handle this?").arg(Number(Math.abs(paymentBalancePage.balance)).toLocaleCurrencyString(Qt.locale(GlobalSettings.locale)));
+                        return qsTr("You owe the customer <b>%1</b>. How would you like to handle this?").arg(Number(Math.abs(paymentBalancePage.balance)).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)));
 
-                    return qsTr("The customer owes you <b>%1</b>. How would you like to handle this?").arg(Number(Math.abs(paymentBalancePage.balance)).toLocaleCurrencyString(Qt.locale(GlobalSettings.locale)));
+                    return qsTr("The customer owes you <b>%1</b>. How would you like to handle this?").arg(Number(Math.abs(paymentBalancePage.balance)).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)));
                 }
 
                 wrapMode: Text.Wrap

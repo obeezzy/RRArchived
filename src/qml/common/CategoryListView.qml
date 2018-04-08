@@ -11,6 +11,9 @@ ListView {
     property string filterText: ""
     property int filterColumn: -1
 
+    signal success(int successCode)
+    signal error(int errorCode)
+
     topMargin: 20
     bottomMargin: 20
     clip: true
@@ -19,6 +22,8 @@ ListView {
     model: RRModels.StockCategoryItemModel {
         filterText: categoryListView.filterText
         filterColumn: categoryListView.filterColumn
+        onSuccess: categoryListView.success(successCode);
+        onError: categoryListView.error(errorCode);
     }
 
     QQC2.ScrollBar.vertical: QQC2.ScrollBar {
@@ -104,4 +109,5 @@ ListView {
     }
 
     function refresh() { categoryListView.model.refresh(); }
+    function undoLastCommit() { categoryListView.model.undoLastCommit(); }
 }
