@@ -6,6 +6,7 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../common"
+import "../singletons"
 
 FluidControls.Page {
     id: newSalePage
@@ -81,7 +82,7 @@ FluidControls.Page {
     FluidControls.InfoBar {
         id: infoBar
         parent: FluidControls.ApplicationWindow.contentItem
-        duration: 4000
+        duration: GlobalSettings.shortToastDuration
         fullWidth: false
         onClicked: saleCartListView.undoLastTransaction();
 
@@ -179,7 +180,7 @@ FluidControls.Page {
                             }
                         }
 
-                        ChipListView {
+                        RRUi.ChipListView {
                             id: filterChipListView
                             height: 30
                             anchors {
@@ -449,6 +450,7 @@ FluidControls.Page {
                     active: false
                     sourceComponent: PaymentWizard {
                         totalCost: saleCartListView.totalCost
+                        balance: saleCartListView.totalCost
                         customerName: customerNameField.text
                         onFinished: saleCartListView.submitTransaction(paymentInfo);
                         onClosed: paymentWizardLoader.active = false;
@@ -460,7 +462,7 @@ FluidControls.Page {
                 Loader {
                     id: filterColumnDialogLoader
                     active: false
-                    sourceComponent: RadioButtonDialog {
+                    sourceComponent: RRUi.RadioButtonDialog {
                         title: qsTr("Choose filter sort")
                         model: privateProperties.filterModel
                         currentIndex: privateProperties.filterIndex
@@ -480,7 +482,7 @@ FluidControls.Page {
                 Loader {
                     id: sortOrderDialogLoader
                     active: false
-                    sourceComponent: RadioButtonDialog {
+                    sourceComponent: RRUi.RadioButtonDialog {
                         title: qsTr("Choose sort order")
                         model: privateProperties.sortModel
                         currentIndex: privateProperties.sortIndex

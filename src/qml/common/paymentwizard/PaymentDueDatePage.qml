@@ -29,7 +29,7 @@ QQC2.Page {
         }
 
         FluidControls.DateTimePicker {
-
+            prefer24Hour: false
         }
     }
 }

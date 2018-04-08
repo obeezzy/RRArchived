@@ -87,7 +87,7 @@ ListView {
             text: Number(cost).toLocaleCurrencyString(Qt.locale("en_NG"))
         }
 
-        QuantitySpinBox {
+        RRUi.QuantitySpinBox {
             id: quantitySpinBox
             quantity: model.quantity
             maximumQuantity: model.available_quantity
@@ -113,7 +113,7 @@ ListView {
     }
 
     function addItem(itemInfo) { saleCartListView.model.addItem(itemInfo); }
-    function submitTransaction() { saleCartListView.model.submitTransaction(); }
+    function submitTransaction(paymentInfo) { saleCartListView.model.submitTransaction(paymentInfo); }
     function suspendTransaction(params) { saleCartListView.model.suspendTransaction(params); }
     function undoLastTransaction() { saleCartListView.model.undoLastCommit(); }
     function clearAll() { saleCartListView.model.clearAll(); }

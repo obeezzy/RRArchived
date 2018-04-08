@@ -2,7 +2,6 @@ import QtQuick 2.10
 import QtQuick.Controls.Material 2.3
 import QtQuick.Controls 2.2 as QQC2
 import Fluid.Controls 1.0 as FluidControls
-import "../fontawesome"
 import "../models"
 
 FluidControls.Sidebar {
@@ -40,10 +39,10 @@ FluidControls.Sidebar {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: FontAwesome.fa_android
+                            //text: FontAwesome.fa_android
                             font {
                                 pixelSize: 100
-                                family: FontAwesome.fontFamily
+                                //family: FontAwesome.fontFamily
                             }
                         }
 

@@ -6,6 +6,7 @@ import Fluid.Core 1.0 as FluidCore
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../common"
+import "../singletons"
 
 FluidControls.Page {
     id: homePage
@@ -45,7 +46,7 @@ FluidControls.Page {
         }
     }
 
-    ChipListView {
+    RRUi.ChipListView {
         id: filterChipListView
         height: 30
         anchors {
@@ -82,6 +83,7 @@ FluidControls.Page {
 
         filterText: searchBar.text
         filterColumn: RRModels.StockCategoryItemModel.ItemColumn
+        bottomMargin: 100
 
         buttonRow: Row {
             spacing: 0
@@ -98,8 +100,25 @@ FluidControls.Page {
                 icon.name: "action/delete"
                 width: FluidControls.Units.iconSizes.medium
                 height: width
+                onClicked: categoryListView.model.removeItem(modelData.item_id);
             }
         }
+
+        onSuccess: {
+            switch (successCode) {
+            case RRModels.StockCategoryItemModel.ItemRemoved:
+                snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
+                break;
+            case RRModels.StockCategoryItemModel.UndoSuccessful:
+                snackBar.show(qsTr("Undo successful."));
+                break;
+            }
+        }
+    }
+
+    RRUi.SnackBar {
+        id: snackBar
+        onClicked: categoryListView.undoLastCommit();
     }
 
     QQC2.BusyIndicator {
@@ -150,4 +169,6 @@ FluidControls.Page {
             }
         ]
     }
+
+    QQC2.StackView.onActivated: categoryListView.refresh();
 }

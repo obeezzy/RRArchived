@@ -40,7 +40,7 @@ ListModel {
     ListElement {
         title: qsTr("Debtors")
         iconName: ""
-        fileName: "common/DashboardPage.qml"
+        fileName: "people/debtor/HomePage.qml"
     }
 
     ListElement {

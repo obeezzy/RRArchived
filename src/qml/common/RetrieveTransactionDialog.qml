@@ -98,7 +98,7 @@ QQC2.Dialog {
 
                 delegate: FluidControls.ListItem {
                     width: ListView.view.width
-                    height: 40
+                    height: Math.max(contentColumn.height, 40)
                     showDivider: true
 
                     onClicked: radioButton.checked = true;
@@ -121,10 +121,29 @@ QQC2.Dialog {
                             onCheckedChanged: listView.currentIndex = index;
                         }
 
-                        FluidControls.SubheadingLabel {
+                        Column {
+                            id: contentColumn
                             QQLayouts.Layout.alignment: Qt.AlignVCenter
                             QQLayouts.Layout.fillWidth: true
-                            text: customer_name
+                            spacing: 0
+
+                            FluidControls.SubheadingLabel {
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
+                                text: customer_name
+                            }
+
+                            FluidControls.SubheadingLabel {
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
+                                visible: note !== ""
+                                text: "\"" + note + "\""
+                                color: "darkgray"
+                            }
                         }
 
                         FluidControls.SubheadingLabel {
