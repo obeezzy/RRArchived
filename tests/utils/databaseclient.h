@@ -15,8 +15,6 @@ public:
     bool createTables();
     bool createUser();
 
-    bool addDummyItems();
-
     bool executeSql(const QString &sql);
 
     int userId() const;

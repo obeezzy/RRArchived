@@ -73,11 +73,9 @@ bool DatabaseClient::connectToTestDatabase()
         if (!DatabaseUtils::connectToDatabase(USERNAME, PASSWORD, DATABASENAME))
             return false;
 
-        creator.createTables();
-
         return true;
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.message();
+        qDebug() << "Exception caught:" << e.message() << e.userMessage();
     }
 
     return false;
@@ -100,7 +98,7 @@ bool DatabaseClient::createTables()
 
         return true;
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.message();
+        qDebug() << "Exception caught:" << e.message() << e.userMessage();
     }
 
     return false;
@@ -141,76 +139,4 @@ bool DatabaseClient::createUser()
     }
 
     return false;
-}
-
-bool DatabaseClient::addDummyItems()
-{
-//    QDateTime currentDateTime = QDateTime::currentDateTime();
-
-//    QSqlQuery q(m_connection);
-//    q.prepare("INSERT INTO category (category, created, last_edited, user_id) "
-//              "VALUES(:category, :created, :last_edited, :user_id)");
-//    q.bindValue(":category", "Beans");
-//    q.bindValue(":created", currentDateTime);
-//    q.bindValue(":last_edited", currentDateTime);
-//    q.bindValue("user_id", USER_ID);
-
-//    if (!q.exec()) {
-//        qDebug() << "Failed to add dummy item.";
-//        return false;
-//    }
-
-//    QSqlQuery q(m_connection);
-//    q.prepare("INSERT INTO category (category, created, last_edited, user_id) "
-//              "VALUES(:category, :created, :last_edited, :user_id)");
-//    q.bindValue(":category", "Noodles");
-//    q.bindValue(":created", currentDateTime);
-//    q.bindValue(":last_edited", currentDateTime);
-//    q.bindValue("user_id", USER_ID);
-
-//    if (!q.exec()) {
-//        qDebug() << "Failed to add dummy item.";
-//        return false;
-//    }
-
-//    QSqlQuery q(m_connection);
-//    q.prepare("INSERT INTO category (category, created, last_edited, user_id) "
-//              "VALUES(:category, :created, :last_edited, :user_id)");
-//    q.bindValue(":category", "Oil");
-//    q.bindValue(":created", currentDateTime);
-//    q.bindValue(":last_edited", currentDateTime);
-//    q.bindValue("user_id", USER_ID);
-
-//    if (!q.exec()) {
-//        qDebug() << "Failed to add dummy item.";
-//        return false;
-//    }
-
-//    QSqlQuery q(m_connection);
-//    q.prepare("INSERT INTO category (category, created, last_edited, user_id) "
-//              "VALUES(:category, :created, :last_edited, :user_id)");
-//    q.bindValue(":category", "Rice");
-//    q.bindValue(":created", currentDateTime);
-//    q.bindValue(":last_edited", currentDateTime);
-//    q.bindValue("user_id", USER_ID);
-
-//    if (!q.exec()) {
-//        qDebug() << "Failed to add dummy item.";
-//        return false;
-//    }
-
-//    QSqlQuery q(m_connection);
-//    q.prepare("INSERT INTO category (category, created, last_edited, user_id) "
-//              "VALUES(:category, :created, :last_edited, :user_id)");
-//    q.bindValue(":category", "Tomato Paste");
-//    q.bindValue(":created", currentDateTime);
-//    q.bindValue(":last_edited", currentDateTime);
-//    q.bindValue("user_id", USER_ID);
-
-//    if (!q.exec()) {
-//        qDebug() << "Failed to add dummy item.";
-//        return false;
-//    }
-
-    return true;
 }

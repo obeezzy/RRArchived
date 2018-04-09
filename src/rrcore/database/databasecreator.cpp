@@ -105,9 +105,9 @@ void DatabaseCreator::createDatabase(const QString &databaseName)
     }
 
     QSqlQuery q(m_connection);
-    if (!q.exec("CREATE DATABASE IF NOT EXISTS rr_test"))
+    if (!q.exec(QString("CREATE DATABASE IF NOT EXISTS %1").arg(databaseName)))
         throw DatabaseException(DatabaseException::ConnectToTestDatabaseFailed, q.lastError().text(),
-                                QString("Failed to create database rr_test."));
+                                QString("Failed to create database %1.").arg(databaseName));
 }
 
 void DatabaseCreator::dropDatabase(const QString &databaseName)
@@ -117,8 +117,9 @@ void DatabaseCreator::dropDatabase(const QString &databaseName)
     }
 
     QSqlQuery q(m_connection);
-    if (!q.exec("DROP DATABASE IF EXISTS rr_test"))
-        throw DatabaseException(DatabaseException::ConnectToTestDatabaseFailed, q.lastError().text(), QString("Failed to drop database rr_test."));
+    if (!q.exec(QString("DROP DATABASE IF EXISTS %1").arg(databaseName)))
+        throw DatabaseException(DatabaseException::ConnectToTestDatabaseFailed, q.lastError().text(),
+                                QString("Failed to drop database %1.").arg(databaseName));
 }
 
 void DatabaseCreator::createTables()
@@ -252,6 +253,7 @@ void DatabaseCreator::createTables()
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
                   "item_id INT(11) DEFAULT NULL, "
                   "quantity DOUBLE NOT NULL, "
+                  "unit_id INT(11) NOT NULL, "
                   "created DATETIME NOT NULL, "
                   "last_edited DATETIME NOT NULL, "
                   "user_id INT(11) NOT NULL, "
@@ -261,6 +263,18 @@ void DatabaseCreator::createTables()
 
         if (!q.exec())
             throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create damaged quantity table."));
+
+        // Create db info table
+        q.prepare("CREATE TABLE IF NOT EXISTS db_info ("
+                  "version VARCHAR(20) NOT NULL, "
+                  "rack_id VARCHAR(40) NOT NULL, "
+                  "created DATETIME NOT NULL, "
+                  "last_edited DATETIME NOT NULL, "
+                  "PRIMARY KEY (version)"
+                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create db info table."));
 
         // Create debt payment table
         q.prepare("CREATE TABLE IF NOT EXISTS debt_payment ("
@@ -409,7 +423,7 @@ void DatabaseCreator::createTables()
                   "short_form VARCHAR(10) DEFAULT NULL, "
                   "description VARCHAR(200) DEFAULT NULL, "
                   "barcode VARCHAR(70) DEFAULT NULL, "
-                  "divisible VARCHAR(11) DEFAULT '1', "
+                  "divisible int(11) DEFAULT 1, "
                   "image BLOB, "
                   "note_id INT(11) DEFAULT NULL, "
                   "archived INT(11) NOT NULL, "
@@ -471,10 +485,13 @@ void DatabaseCreator::createTables()
         // Create purchase transaction table
         q.prepare("CREATE TABLE IF NOT EXISTS purchase_transaction ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
-                  "name VARCHAR(50) DEFAULT NULL, "
-                  "client_id VARCHAR(50) DEFAULT NULL, "
-                  "suspended INT(11) NOT NULL DEFAULT '0', "
-                  "balance DECIMAL(19,2) DEFAULT '0.00', "
+                  "name VARCHAR(50) NOT NULL, "
+                  "client_id INT(11) DEFAULT NULL, "
+                  "total_cost DECIMAL(19,2) NOT NULL, "
+                  "amount_paid DECIMAL(19,2) NOT NULL, "
+                  "balance DECIMAL(19,2) NOT NULL, "
+                  "discount DECIMAL(19,2) NOT NULL, "
+                  "suspended INT(11) NOT NULL, "
                   "note_id INT(11) DEFAULT NULL, "
                   "archived INT(11) NOT NULL, "
                   "created DATETIME NOT NULL, "
@@ -495,10 +512,10 @@ void DatabaseCreator::createTables()
                   "quantity DOUBLE NOT NULL, "
                   "unit_id INT(11) NOT NULL, "
                   "cost DECIMAL(19,2) NOT NULL, "
-                  "discount DECIMAL(19,2) NOT NULL, "
+                  "discount DECIMAL(19,2) NOT NULL DEFAULT '0.00', "
                   "currency VARCHAR(4) NOT NULL, "
                   "note_id INT(11) DEFAULT NULL, "
-                  "archived INT(11) NOT NULL DEFAULT '0', "
+                  "archived INT(11) NOT NULL, "
                   "created DATETIME NOT NULL, "
                   "last_edited DATETIME NOT NULL, "
                   "user_id INT(11) NOT NULL, "
@@ -514,13 +531,13 @@ void DatabaseCreator::createTables()
                   "name VARCHAR(50) NOT NULL, "
                   "client_id INT(11) DEFAULT NULL, "
                   "total_cost DECIMAL(19,2) NOT NULL, "
-                  "amount_paid DECIMAL(19,2) DEFAULT '0.00', "
-                  "balance DECIMAL(19,2) DEFAULT '0.00', "
+                  "amount_paid DECIMAL(19,2) NOT NULL, "
+                  "balance DECIMAL(19,2) NOT NULL, "
                   "change_due DECIMAL(19,2) DEFAULT '0.00', "
-                  "discount DECIMAL(19,2) DEFAULT '0.00', "
-                  "suspended INT(11) NOT NULL DEFAULT '0', "
+                  "discount DECIMAL(19,2) NOT NULL, "
+                  "suspended INT(11) NOT NULL, "
                   "note_id INT(11) DEFAULT NULL, "
-                  "archived INT(11) NOT NULL DEFAULT '0', "
+                  "archived INT(11) NOT NULL, "
                   "created DATETIME NOT NULL, "
                   "last_edited DATETIME NOT NULL, "
                   "user_id INT(11) NOT NULL, "
@@ -537,9 +554,9 @@ void DatabaseCreator::createTables()
                   "unit VARCHAR(30) NOT NULL, "
                   "short_form VARCHAR(10) DEFAULT NULL, "
                   "base_unit_equivalent INT(11) NOT NULL, "
-                  "preferred INT(11) NOT NULL DEFAULT '0', "
-                  "cost_price DECIMAL(19,2) NOT NULL DEFAULT '0.00', "
-                  "retail_price DECIMAL(19,2) NOT NULL DEFAULT '0.00', "
+                  "preferred INT(11) NOT NULL DEFAULT 0, "
+                  "cost_price DECIMAL(19,2) NOT NULL, "
+                  "retail_price DECIMAL(19,2) NOT NULL, "
                   "currency VARCHAR(4) NOT NULL, "
                   "note_id INT(11) DEFAULT NULL, "
                   "archived INT(11) NOT NULL DEFAULT '0', "
@@ -618,7 +635,7 @@ void DatabaseCreator::createTables()
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
-    } catch (DatabaseException &e) {
+    } catch (DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

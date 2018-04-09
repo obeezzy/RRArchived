@@ -18,6 +18,7 @@ public:
 
 private Q_SLOTS:
     void initTestCase();
+    void init();
     void cleanupTestCase();
 
     void testSetCategory();
@@ -33,8 +34,9 @@ private Q_SLOTS:
     void testSetTracked();
     void testSetImageSource();
 
+    // Long-running tests
     void testPushNewItem();
-
+    void testPushSameItem();
 private:
     QMLStockItemPusher *m_stockItemPusher;
     DatabaseClient *m_client;
@@ -53,6 +55,10 @@ void QMLStockItemPusherTest::initTestCase()
     QVERIFY(m_client->initialize());
 }
 
+void QMLStockItemPusherTest::init()
+{
+}
+
 void QMLStockItemPusherTest::cleanupTestCase()
 {
     m_stockItemPusher->deleteLater();
@@ -69,6 +75,9 @@ void QMLStockItemPusherTest::testSetCategory()
 
     QCOMPARE(m_stockItemPusher->category(), "Category");
     QCOMPARE(categoryChangedSpy.count(), 1);
+
+    m_stockItemPusher->setCategory("Category");
+    QCOMPARE(categoryChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testSetItem()
@@ -80,6 +89,9 @@ void QMLStockItemPusherTest::testSetItem()
     m_stockItemPusher->setItem("Item");
 
     QCOMPARE(m_stockItemPusher->item(), "Item");
+    QCOMPARE(itemChangedSpy.count(), 1);
+
+    m_stockItemPusher->setItem("Item");
     QCOMPARE(itemChangedSpy.count(), 1);
 }
 
@@ -93,6 +105,9 @@ void QMLStockItemPusherTest::testSetDescription()
 
     QCOMPARE(m_stockItemPusher->description(), "Description");
     QCOMPARE(descriptionChangedSpy.count(), 1);
+
+    m_stockItemPusher->setDescription("Description");
+    QCOMPARE(descriptionChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testSetQuantity()
@@ -104,6 +119,9 @@ void QMLStockItemPusherTest::testSetQuantity()
     m_stockItemPusher->setQuantity(1.5);
 
     QCOMPARE(m_stockItemPusher->quantity(), 1.5);
+    QCOMPARE(quantityChangedSpy.count(), 1);
+
+    m_stockItemPusher->setQuantity(1.5);
     QCOMPARE(quantityChangedSpy.count(), 1);
 }
 
@@ -117,6 +135,9 @@ void QMLStockItemPusherTest::testSetUnit()
 
     QCOMPARE(m_stockItemPusher->unit(), "Unit");
     QCOMPARE(unitChangedSpy.count(), 1);
+
+    m_stockItemPusher->setUnit("Unit");
+    QCOMPARE(unitChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testSetCategoryNote()
@@ -128,6 +149,9 @@ void QMLStockItemPusherTest::testSetCategoryNote()
     m_stockItemPusher->setCategoryNote("Category note");
 
     QCOMPARE(m_stockItemPusher->categoryNote(), "Category note");
+    QCOMPARE(categoryNoteChangedSpy.count(), 1);
+
+    m_stockItemPusher->setCategoryNote("Category note");
     QCOMPARE(categoryNoteChangedSpy.count(), 1);
 }
 
@@ -141,6 +165,9 @@ void QMLStockItemPusherTest::testSetItemNote()
 
     QCOMPARE(m_stockItemPusher->itemNote(), "Item note");
     QCOMPARE(itemNoteChangedSpy.count(), 1);
+
+    m_stockItemPusher->setItemNote("Item note");
+    QCOMPARE(itemNoteChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testSetDivisible()
@@ -152,6 +179,9 @@ void QMLStockItemPusherTest::testSetDivisible()
     m_stockItemPusher->setDivisible(true);
 
     QCOMPARE(m_stockItemPusher->isDivisible(), true);
+    QCOMPARE(divisibleChangedSpy.count(), 1);
+
+    m_stockItemPusher->setDivisible(true);
     QCOMPARE(divisibleChangedSpy.count(), 1);
 }
 
@@ -165,6 +195,9 @@ void QMLStockItemPusherTest::testSetCostPrice()
 
     QCOMPARE(m_stockItemPusher->costPrice(), 1234.56);
     QCOMPARE(costPriceChangedSpy.count(), 1);
+
+    m_stockItemPusher->setCostPrice(1234.56);
+    QCOMPARE(costPriceChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testSetRetailPrice()
@@ -176,6 +209,9 @@ void QMLStockItemPusherTest::testSetRetailPrice()
     m_stockItemPusher->setRetailPrice(1234.56);
 
     QCOMPARE(m_stockItemPusher->retailPrice(), 1234.56);
+    QCOMPARE(retailPriceChangedSpy.count(), 1);
+
+    m_stockItemPusher->setRetailPrice(1234.56);
     QCOMPARE(retailPriceChangedSpy.count(), 1);
 }
 
@@ -189,6 +225,9 @@ void QMLStockItemPusherTest::testSetTracked()
 
     QCOMPARE(m_stockItemPusher->isTracked(), true);
     QCOMPARE(trackedChangedSpy.count(), 1);
+
+    m_stockItemPusher->setTracked(true);
+    QCOMPARE(trackedChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testSetImageSource()
@@ -201,11 +240,17 @@ void QMLStockItemPusherTest::testSetImageSource()
 
     QCOMPARE(m_stockItemPusher->imageSource(), "Image source");
     QCOMPARE(imageSourceChangedSpy.count(), 1);
+
+    m_stockItemPusher->setImageSource("Image source");
+    QCOMPARE(imageSourceChangedSpy.count(), 1);
 }
 
 void QMLStockItemPusherTest::testPushNewItem()
 {
     QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
+    QSignalSpy successSpy(m_stockItemPusher, &QMLStockItemPusher::success);
+
+    QVERIFY(m_client->initialize());
 
     m_stockItemPusher->setCategory("Category");
     m_stockItemPusher->setItem("Item");
@@ -224,7 +269,8 @@ void QMLStockItemPusherTest::testPushNewItem()
 
     QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000);
     QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
-    
+    QCOMPARE(successSpy.count(), 1);
+
     /*****************************************************************************************************************************/
     /************************************ DATABASE OPERATIONS ********************************************************************/
     /*****************************************************************************************************************************/
@@ -281,7 +327,7 @@ void QMLStockItemPusherTest::testPushNewItem()
     QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
 
     // Verify unit data
-    q.prepare("SELECT id, item_id, unit, base_unit_equivalent, preferred, cost_price, retail_price, archived, created, last_edited, user_id FROM unit");
+    q.prepare("SELECT id, item_id, unit, base_unit_equivalent, cost_price, retail_price, archived, created, last_edited, user_id FROM unit");
     QVERIFY(q.exec());
     QCOMPARE(q.size(), 1);
     QVERIFY(q.first());
@@ -289,12 +335,92 @@ void QMLStockItemPusherTest::testPushNewItem()
     QCOMPARE(q.value("item_id").toInt(), 1);
     QCOMPARE(q.value("unit").toString(), "Unit");
     QCOMPARE(q.value("base_unit_equivalent").toInt(), 1);
-    QCOMPARE(q.value("preferred").toBool(), true);
     QCOMPARE(q.value("cost_price").toDouble(), 10.85);
     QCOMPARE(q.value("retail_price").toDouble(), 20.12);
     QCOMPARE(q.value("archived").toBool(), false);
     QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
     QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
+    /*****************************************************************************************************************************/
+    /******************************************** END DATABASE OPERATIONS ********************************************************/
+    /*****************************************************************************************************************************/
+}
+
+void QMLStockItemPusherTest::testPushSameItem()
+{
+    QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
+    QSignalSpy errorSpy(m_stockItemPusher, &QMLStockItemPusher::error);
+    QSignalSpy successSpy(m_stockItemPusher, &QMLStockItemPusher::success);
+
+    QVERIFY(m_client->initialize());
+
+    m_stockItemPusher->setCategory("Category");
+    m_stockItemPusher->setItem("Item");
+    m_stockItemPusher->setDescription("Description");
+    m_stockItemPusher->setQuantity(10.5);
+    m_stockItemPusher->setUnit("Unit");
+    m_stockItemPusher->setCategoryNote("Category note");
+    m_stockItemPusher->setItemNote("Item note");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setCostPrice(10.85);
+    m_stockItemPusher->setRetailPrice(20.12);
+    m_stockItemPusher->setTracked(true);
+    m_stockItemPusher->setImageSource("Image source");
+
+    m_stockItemPusher->push();
+
+    QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000);
+    QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
+    QCOMPARE(successSpy.count(), 1);
+    busyChangedSpy.clear();
+
+    m_stockItemPusher->setCategory("Category");
+    m_stockItemPusher->setItem("Item");
+    m_stockItemPusher->setDescription("Description");
+    m_stockItemPusher->setQuantity(10.5);
+    m_stockItemPusher->setUnit("Unit");
+    m_stockItemPusher->setCategoryNote("Category note");
+    m_stockItemPusher->setItemNote("Item note");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setCostPrice(10.85);
+    m_stockItemPusher->setRetailPrice(20.12);
+    m_stockItemPusher->setTracked(true);
+    m_stockItemPusher->setImageSource("Image source");
+
+    m_stockItemPusher->push();
+
+    QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000);
+    QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
+    QCOMPARE(errorSpy.count(), 1);
+    QCOMPARE(errorSpy.takeFirst().first(), QMLStockItemPusher::DuplicateEntryFailure);
+
+    /*****************************************************************************************************************************/
+    /************************************ DATABASE OPERATIONS ********************************************************************/
+    /*****************************************************************************************************************************/
+    // Verify category data
+    QSqlQuery q(m_client->connection());
+    q.prepare("SELECT id, category, archived, created, last_edited, user_id FROM category");
+    QVERIFY(q.exec());
+    QCOMPARE(q.size(), 1);
+
+    // Verify item data
+    q.prepare("SELECT id, category_id, item, description, divisible, archived, created, last_edited, user_id FROM item");
+    QVERIFY(q.exec());
+    QCOMPARE(q.size(), 1);
+
+    // Verify current quantity data
+    q.prepare("SELECT id, item_id, quantity, unit_id, created, last_edited, user_id FROM current_quantity");
+    QVERIFY(q.exec());
+    QCOMPARE(q.size(), 1);
+
+    // Verify initial quantity data
+    q.prepare("SELECT id, item_id, quantity, unit_id, reason, archived, created, last_edited, user_id FROM initial_quantity");
+    QVERIFY(q.exec());
+    QCOMPARE(q.size(), 1);
+
+    // Verify unit data
+    q.prepare("SELECT id, item_id, unit, base_unit_equivalent, cost_price, retail_price, archived, created, last_edited, user_id FROM unit");
+    QVERIFY(q.exec());
+    QCOMPARE(q.size(), 1);
     /*****************************************************************************************************************************/
     /******************************************** END DATABASE OPERATIONS ********************************************************/
     /*****************************************************************************************************************************/

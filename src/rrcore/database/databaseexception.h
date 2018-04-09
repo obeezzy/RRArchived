@@ -31,7 +31,8 @@ public:
         CreateTableFailed,
         CreateUserFailed,
         InvalidArguments,
-        UndoFailed
+        UndoFailed,
+        DuplicateEntryFailure
     };
     explicit DatabaseException(int errorCode);
     explicit DatabaseException(int errorCode, const QString &message, const QString &userMessage = "");

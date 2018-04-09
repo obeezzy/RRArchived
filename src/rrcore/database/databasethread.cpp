@@ -59,8 +59,6 @@ void DatabaseThread::execute(const QueryRequest &request)
 
         if (!m_connection.isValid() && QSqlDatabase::database().isValid())
             m_connection = QSqlDatabase::database();
-        else
-            throw DatabaseException(DatabaseException::NoValidConnection, "No valid connection to a database.");
 
         switch (request.type()) {
         case QueryRequest::User:

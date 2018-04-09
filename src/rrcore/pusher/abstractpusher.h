@@ -20,8 +20,8 @@ protected:
     virtual void processResult(const QueryResult &result) = 0;
 signals:
     void busyChanged();
-    void success();
-    void error(int errorCode);
+    void success(int successCode = 0);
+    void error(int errorCode = 0);
     void executeRequest(const QueryRequest &);
 public slots:
     virtual void push() = 0;

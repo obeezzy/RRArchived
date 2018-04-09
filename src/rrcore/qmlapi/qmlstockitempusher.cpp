@@ -1,5 +1,6 @@
 #include "qmlstockitempusher.h"
 #include "database/databasethread.h"
+#include "database/databaseexception.h"
 
 QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
     AbstractPusher(parent),
@@ -220,7 +221,14 @@ void QMLStockItemPusher::processResult(const QueryResult &result)
     if (result.isSuccessful()) {
         emit success();
     } else {
-        emit error(1);
+        switch (result.errorCode()) {
+        case DatabaseException::DuplicateEntryFailure:
+            emit error(DuplicateEntryFailure);
+            break;
+        default:
+            emit error();
+            break;
+        }
     }
 }
 
