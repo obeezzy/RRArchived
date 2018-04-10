@@ -79,20 +79,9 @@ FluidControls.Page {
 
     ]
 
-    FluidControls.InfoBar {
+    RRUi.SnackBar {
         id: infoBar
-        parent: FluidControls.ApplicationWindow.contentItem
-        duration: GlobalSettings.shortToastDuration
-        fullWidth: false
         onClicked: saleCartListView.undoLastTransaction();
-
-        function show(text, buttonText) {
-            if (buttonText === undefined)
-                buttonText = ""
-
-            infoBar.buttonText = buttonText;
-            infoBar.open(text);
-        }
     }
 
     Loader {

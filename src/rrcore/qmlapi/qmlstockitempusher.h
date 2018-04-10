@@ -25,7 +25,7 @@ public:
 
     enum ErrorCode {
         Unknown,
-        InsertFailed
+        DuplicateEntryFailure
     }; Q_ENUM(ErrorCode)
 
     QString imageSource() const;
