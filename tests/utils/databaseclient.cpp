@@ -23,7 +23,12 @@ DatabaseClient::DatabaseClient()
 
 DatabaseClient::~DatabaseClient()
 {
-    disconnectFromTestDatabase();
+    try {
+        DatabaseCreator(m_connection).dropDatabase(DATABASENAME);
+        disconnectFromTestDatabase();
+    } catch (DatabaseException &e) {
+        qDebug() << "Exception caught:" << e.message() << e.userMessage();
+    }
 }
 
 bool DatabaseClient::initialize()

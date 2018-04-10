@@ -100,7 +100,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
 
 
         // Insert category
-        q.prepare("INSERT INTO category (category, short_form, note_id, archived, created, last_edited, user_id) "
+        q.prepare("INSERT IGNORE INTO category (category, short_form, note_id, archived, created, last_edited, user_id) "
                   "VALUES (:category, :short_form, :note_id, :archived, :created, :last_edited, :user_id)");
         q.bindValue(":category", params.value("category").toString());
         q.bindValue(":short_form", QVariant(QVariant::String));
@@ -113,9 +113,24 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         if (!q.exec())
             throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert category.");
 
-        categoryId = q.lastInsertId().toInt();
-        if (!categoryId)
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid category ID returned.");
+        if (q.numRowsAffected() > 0) {
+            categoryId = q.lastInsertId().toInt();
+            if (!categoryId)
+                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid category ID returned.");
+        } else {
+            // Insert category
+            q.prepare("SELECT id FROM category WHERE category = :category");
+            q.bindValue(":category", params.value("category").toString());
+
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert category.");
+
+            if (!q.first())
+                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), QString("Expected category ID for category '%1'.")
+                                        .arg(params.value("category").toString()));
+
+            categoryId = q.value("id").toInt();
+        }
 
         // Insert item
         q.prepare("INSERT INTO item (category_id, item, short_form, description, barcode, divisible, image, "

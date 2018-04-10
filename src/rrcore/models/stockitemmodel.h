@@ -7,6 +7,7 @@
 
 class StockItemModel : public AbstractVisualListModel
 {
+    Q_OBJECT
 public:
     explicit StockItemModel(QObject *parent = nullptr);
 

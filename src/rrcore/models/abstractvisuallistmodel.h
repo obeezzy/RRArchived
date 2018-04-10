@@ -28,7 +28,10 @@ public:
     bool isBusy() const;
 
     QString filterText() const;
+    void setFilterText(const QString &filterText);
+
     int filterColumn() const;
+    void setFilterColumn(int filterColumn);
 
     Q_INVOKABLE QVariant get(int row) const;
 
@@ -58,9 +61,6 @@ private:
     QString m_filterText;
     int m_filterColumn;
     QueryRequest m_lastRequest;
-
-    void setFilterText(const QString &filterText);
-    void setFilterColumn(int filterColumn);
 };
 
 #endif // ABSTRACTVISUALLISTMODEL_H

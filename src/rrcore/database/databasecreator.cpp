@@ -157,7 +157,8 @@ void DatabaseCreator::createTables()
                   "created DATETIME NOT NULL, "
                   "last_edited DATETIME NOT NULL, "
                   "user_id INT(11) NOT NULL, "
-                  "PRIMARY KEY (id)"
+                  "PRIMARY KEY (id), "
+                  "UNIQUE KEY category (category)"
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())

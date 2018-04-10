@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += core qml quick quickcontrols2 sql
+QT += core qml quick quickcontrols2 sql svg
 
 CONFIG += c++14
 

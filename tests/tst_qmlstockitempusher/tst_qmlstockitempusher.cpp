@@ -7,8 +7,6 @@
 #include "qmlapi/qmlstockitempusher.h"
 #include "../utils/databaseclient.h"
 
-const QString SELECT_INSERTED_ITEMS("SELECT ");
-
 class QMLStockItemPusherTest : public QObject
 {
     Q_OBJECT
@@ -37,6 +35,9 @@ private Q_SLOTS:
     // Long-running tests
     void testPushNewItem();
     void testPushSameItem();
+
+    // void testPushSameCategoryItems();
+    // void testPushDifferentCategoryItems();
 private:
     QMLStockItemPusher *m_stockItemPusher;
     DatabaseClient *m_client;
@@ -75,9 +76,10 @@ void QMLStockItemPusherTest::testSetCategory()
 
     QCOMPARE(m_stockItemPusher->category(), "Category");
     QCOMPARE(categoryChangedSpy.count(), 1);
+    categoryChangedSpy.clear();
 
     m_stockItemPusher->setCategory("Category");
-    QCOMPARE(categoryChangedSpy.count(), 1);
+    QCOMPARE(categoryChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetItem()
@@ -90,9 +92,10 @@ void QMLStockItemPusherTest::testSetItem()
 
     QCOMPARE(m_stockItemPusher->item(), "Item");
     QCOMPARE(itemChangedSpy.count(), 1);
+    itemChangedSpy.clear();
 
     m_stockItemPusher->setItem("Item");
-    QCOMPARE(itemChangedSpy.count(), 1);
+    QCOMPARE(itemChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetDescription()
@@ -105,9 +108,10 @@ void QMLStockItemPusherTest::testSetDescription()
 
     QCOMPARE(m_stockItemPusher->description(), "Description");
     QCOMPARE(descriptionChangedSpy.count(), 1);
+    descriptionChangedSpy.clear();
 
     m_stockItemPusher->setDescription("Description");
-    QCOMPARE(descriptionChangedSpy.count(), 1);
+    QCOMPARE(descriptionChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetQuantity()
@@ -120,9 +124,10 @@ void QMLStockItemPusherTest::testSetQuantity()
 
     QCOMPARE(m_stockItemPusher->quantity(), 1.5);
     QCOMPARE(quantityChangedSpy.count(), 1);
+    quantityChangedSpy.clear();
 
     m_stockItemPusher->setQuantity(1.5);
-    QCOMPARE(quantityChangedSpy.count(), 1);
+    QCOMPARE(quantityChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetUnit()
@@ -135,9 +140,10 @@ void QMLStockItemPusherTest::testSetUnit()
 
     QCOMPARE(m_stockItemPusher->unit(), "Unit");
     QCOMPARE(unitChangedSpy.count(), 1);
+    unitChangedSpy.clear();
 
     m_stockItemPusher->setUnit("Unit");
-    QCOMPARE(unitChangedSpy.count(), 1);
+    QCOMPARE(unitChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetCategoryNote()
@@ -150,9 +156,10 @@ void QMLStockItemPusherTest::testSetCategoryNote()
 
     QCOMPARE(m_stockItemPusher->categoryNote(), "Category note");
     QCOMPARE(categoryNoteChangedSpy.count(), 1);
+    categoryNoteChangedSpy.clear();
 
     m_stockItemPusher->setCategoryNote("Category note");
-    QCOMPARE(categoryNoteChangedSpy.count(), 1);
+    QCOMPARE(categoryNoteChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetItemNote()
@@ -165,9 +172,10 @@ void QMLStockItemPusherTest::testSetItemNote()
 
     QCOMPARE(m_stockItemPusher->itemNote(), "Item note");
     QCOMPARE(itemNoteChangedSpy.count(), 1);
+    itemNoteChangedSpy.clear();
 
     m_stockItemPusher->setItemNote("Item note");
-    QCOMPARE(itemNoteChangedSpy.count(), 1);
+    QCOMPARE(itemNoteChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetDivisible()
@@ -180,9 +188,10 @@ void QMLStockItemPusherTest::testSetDivisible()
 
     QCOMPARE(m_stockItemPusher->isDivisible(), true);
     QCOMPARE(divisibleChangedSpy.count(), 1);
+    divisibleChangedSpy.clear();
 
     m_stockItemPusher->setDivisible(true);
-    QCOMPARE(divisibleChangedSpy.count(), 1);
+    QCOMPARE(divisibleChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetCostPrice()
@@ -195,9 +204,10 @@ void QMLStockItemPusherTest::testSetCostPrice()
 
     QCOMPARE(m_stockItemPusher->costPrice(), 1234.56);
     QCOMPARE(costPriceChangedSpy.count(), 1);
+    costPriceChangedSpy.clear();
 
     m_stockItemPusher->setCostPrice(1234.56);
-    QCOMPARE(costPriceChangedSpy.count(), 1);
+    QCOMPARE(costPriceChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetRetailPrice()
@@ -210,9 +220,10 @@ void QMLStockItemPusherTest::testSetRetailPrice()
 
     QCOMPARE(m_stockItemPusher->retailPrice(), 1234.56);
     QCOMPARE(retailPriceChangedSpy.count(), 1);
+    retailPriceChangedSpy.clear();
 
     m_stockItemPusher->setRetailPrice(1234.56);
-    QCOMPARE(retailPriceChangedSpy.count(), 1);
+    QCOMPARE(retailPriceChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetTracked()
@@ -225,9 +236,10 @@ void QMLStockItemPusherTest::testSetTracked()
 
     QCOMPARE(m_stockItemPusher->isTracked(), true);
     QCOMPARE(trackedChangedSpy.count(), 1);
+    trackedChangedSpy.clear();
 
     m_stockItemPusher->setTracked(true);
-    QCOMPARE(trackedChangedSpy.count(), 1);
+    QCOMPARE(trackedChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testSetImageSource()
@@ -240,9 +252,10 @@ void QMLStockItemPusherTest::testSetImageSource()
 
     QCOMPARE(m_stockItemPusher->imageSource(), "Image source");
     QCOMPARE(imageSourceChangedSpy.count(), 1);
+    imageSourceChangedSpy.clear();
 
     m_stockItemPusher->setImageSource("Image source");
-    QCOMPARE(imageSourceChangedSpy.count(), 1);
+    QCOMPARE(imageSourceChangedSpy.count(), 0);
 }
 
 void QMLStockItemPusherTest::testPushNewItem()
@@ -267,7 +280,7 @@ void QMLStockItemPusherTest::testPushNewItem()
 
     m_stockItemPusher->push();
 
-    QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
     QCOMPARE(successSpy.count(), 1);
 
@@ -368,7 +381,7 @@ void QMLStockItemPusherTest::testPushSameItem()
 
     m_stockItemPusher->push();
 
-    QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
     QCOMPARE(successSpy.count(), 1);
     busyChangedSpy.clear();
