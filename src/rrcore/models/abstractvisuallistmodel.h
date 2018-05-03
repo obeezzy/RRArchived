@@ -43,8 +43,10 @@ protected:
     virtual void tryQuery() = 0;
     virtual void processResult(const QueryResult &result) = 0;
     virtual void filter();
-    virtual void saveRequest(const QueryResult &result);
     void setBusy(bool);
+
+    void setLastRequest(const QueryRequest &lastRequest);
+    QueryRequest lastRequest() const;
 signals:
     void executeRequest(const QueryRequest &request);
     void autoQueryChanged();
@@ -61,6 +63,8 @@ private:
     QString m_filterText;
     int m_filterColumn;
     QueryRequest m_lastRequest;
+
+    void saveRequest(const QueryResult &result);
 };
 
 #endif // ABSTRACTVISUALLISTMODEL_H

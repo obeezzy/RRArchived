@@ -15,11 +15,11 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
 
     try {
         if (request.command() == "add_sale_transaction")
-            addTransaction(request, result);
+            addSaleTransaction(request, result);
         else if (request.command() == "update_suspended_sale_transaction")
             updateSuspendedTransaction(request, result);
         else if (request.command() == "undo_add_sale_transaction")
-            undoAddTransaction(request, result);
+            undoAddSaleTransaction(request, result);
         else if (request.command() == "view_sale_cart")
             viewSaleCart(request, result);
         else if (request.command() == "view_sale_transactions")
@@ -42,7 +42,7 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
     return result;
 }
 
-void SaleSqlManager::addTransaction(const QueryRequest &request, QueryResult &result, bool skipSqlTransaction)
+void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult &result, bool skipSqlTransaction)
 {
     const QVariantMap params = request.params();
     QVariantList items = params.value("items").toList();
@@ -157,10 +157,12 @@ void SaleSqlManager::addTransaction(const QueryRequest &request, QueryResult &re
                                             QString("Insuffient quantity for item %1 -> available=%2, sold=%3").arg(itemInfo.value("item_id").toDouble(), availableQuantity, itemInfo.value("quantity").toDouble()));
 
                 // Insert into initial_quantity
-                q.prepare("INSERT INTO initial_quantity (item_id, quantity, archived, created, last_edited, user_id) "
-                          "VALUES (:item_id, :quantity, :archived, :created, :last_edited, :user_id)");
+                q.prepare("INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id) "
+                          "VALUES (:item_id, :quantity, :unit_id, :reason, :archived, :created, :last_edited, :user_id)");
                 q.bindValue(":item_id", itemInfo.value("item_id"));
                 q.bindValue(":quantity", availableQuantity);
+                q.bindValue(":unit_id", itemInfo.value("unit_id"));
+                q.bindValue(":reason", request.command());
                 q.bindValue(":archived", false);
                 q.bindValue(":created", currentDateTime);
                 q.bindValue(":last_edited", currentDateTime);
@@ -313,7 +315,7 @@ void SaleSqlManager::addTransaction(const QueryRequest &request, QueryResult &re
 
         result.setOutcome(outcome);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
+        if (!skipSqlTransaction && !DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
         throw;
@@ -346,7 +348,7 @@ void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResul
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        addTransaction(request, result, true);
+        addSaleTransaction(request, result, true);
 
         // STEP: Archive old sale transaction.
         q.prepare("UPDATE sale_transaction SET archived = :archived, last_edited = :last_edited, user_id = :user_id WHERE id = :transaction_id");
@@ -413,11 +415,13 @@ INNER JOIN category ON item.category_id = category.id
 LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 0 AND sale_item.archived = 0 AND sale_transaction.id = 3;
 */
     try {
-        q.prepare("SELECT sale_transaction.id as transaction_id, sale_transaction.name as customer_name, sale_transaction.client_id, "
+        q.prepare("SELECT sale_transaction.id as transaction_id, sale_transaction.name as customer_name, sale_transaction.client_id as client_id, "
+                  "client.phone_number as customer_phone_number, "
                   "sale_transaction.total_cost, sale_transaction.suspended, sale_transaction.note_id, sale_transaction.created, "
                   "sale_transaction.last_edited, sale_transaction.user_id, category.id as category_id, category.category, "
                   "sale_item.item_id, item.item, sale_item.unit_price as unit_price, "
                   "sale_item.quantity, current_quantity.quantity as available_quantity, unit.id as unit_id, unit.unit, "
+                  "unit.cost_price as cost_price, unit.retail_price as retail_price, "
                   "sale_item.cost, sale_item.discount, "
                   "sale_item.currency, note.note FROM (sale_item "
                   "INNER JOIN sale_transaction ON sale_item.sale_transaction_id = sale_transaction.id "
@@ -425,6 +429,7 @@ LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 
                   "INNER JOIN unit ON sale_item.item_id = unit.item_id "
                   "INNER JOIN current_quantity ON sale_item.item_id = current_quantity.item_id) "
                   "INNER JOIN category ON item.category_id = category.id "
+                  "LEFT JOIN client ON sale_transaction.client_id = client.id "
                   "LEFT JOIN note ON sale_item.note_id = note.id "
                   "WHERE sale_transaction.id = :transaction_id AND sale_transaction.archived = :sale_transaction_archived "
                   "AND sale_item.archived = :sale_item_archived");
@@ -443,6 +448,7 @@ LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 
 
         if (!items.isEmpty()) {
             outcome.insert("transaction_id", params.value("transaction_id"));
+            outcome.insert("client_id", items.first().toMap().value("client_id"));
             outcome.insert("customer_name", items.first().toMap().value("customer_name"));
             outcome.insert("customer_phone_number", items.first().toMap().value("customer_phone_number"));
             outcome.insert("total_cost", items.first().toMap().value("total_cost"));
@@ -456,7 +462,7 @@ LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 
     }
 }
 
-void SaleSqlManager::undoAddTransaction(const QueryRequest &request, QueryResult &result)
+void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryResult &result)
 {
     QVariantMap params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();

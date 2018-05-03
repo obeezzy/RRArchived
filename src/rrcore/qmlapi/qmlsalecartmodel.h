@@ -16,7 +16,6 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
     Q_PROPERTY(double totalCost READ totalCost NOTIFY totalCostChanged)
     Q_PROPERTY(double amountPaid READ amountPaid WRITE setAmountPaid NOTIFY amountPaidChanged)
-    Q_PROPERTY(QDateTime date READ date WRITE setDate NOTIFY dateChanged)
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
 
@@ -43,7 +42,8 @@ public:
 
     enum ErrorCodes {
         FailedToConnect,
-        FailedToSuspend
+        FailedToSuspend,
+        EmptyCartError
     }; Q_ENUM(ErrorCodes)
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
@@ -69,9 +69,6 @@ public:
     double amountPaid() const;
     void setAmountPaid(double amountPaid);
 
-    QDateTime date() const;
-    void setDate(const QDateTime &dateTime);
-
     Q_INVOKABLE void submitTransaction(const QVariantMap &paymentInfo = QVariantMap());
     Q_INVOKABLE void suspendTransaction(const QVariantMap &params = QVariantMap());
     Q_INVOKABLE void clearAll();
@@ -86,14 +83,12 @@ signals:
     void noteChanged();
     void totalCostChanged();
     void amountPaidChanged();
-    void dateChanged();
 public slots:
     void addItem(const QVariantMap &itemInfo);
     void setItemQuantity(int itemId, double quantity);
     void incrementItemQuantity(int itemId, double quantity = 1.0);
     void decrementItemQuantity(int itemId, double quantity = 1.0);
     void removeItem(int itemId);
-    void undoLastCommit() override final;
 private:
     qint64 m_transactionId;
     QString m_customerName;
@@ -102,11 +97,7 @@ private:
     QString m_note;
     double m_totalCost;
     double m_amountPaid;
-    QDateTime m_dateTime;
     QVariantList m_records;
-
-    int m_lastTransactionId;
-    int m_lastClientId;
 
     bool containsItem(int itemId);
     int indexOfItem(int itemId);
@@ -115,6 +106,8 @@ private:
 
     void setTotalCost(double totalCost);
     void calculateTotals();
+
+    void setClientId(int clientId);
 };
 
 #endif // QMLSALECARTMODEL_H

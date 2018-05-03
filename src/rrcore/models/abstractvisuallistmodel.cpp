@@ -140,3 +140,13 @@ void AbstractVisualListModel::setBusy(bool busy)
     m_busy = busy;
     emit busyChanged();
 }
+
+void AbstractVisualListModel::setLastRequest(const QueryRequest &lastRequest)
+{
+    m_lastRequest = lastRequest;
+}
+
+QueryRequest AbstractVisualListModel::lastRequest() const
+{
+    return m_lastRequest;
+}

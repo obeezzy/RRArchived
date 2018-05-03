@@ -429,9 +429,9 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         if (!q.exec())
             throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
 
-        if (!q.first())
+        if (!q.first()) {
             throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
-        else {
+        } else {
             QVariantMap outcome;
             outcome.insert("category_id", q.value("category_id"));
             outcome.insert("item_id", q.value("item_id"));

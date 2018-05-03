@@ -63,6 +63,9 @@ void QMLSaleHomeModel::processResult(const QueryResult &result)
 
     if (result.isSuccessful()) {
         beginResetModel();
+        qDeleteAll(m_dataModels);
+        m_dataModels.clear();
+
         m_records = result.outcome().toMap().value("records").toList();
 
         for (const QVariant &r : m_records) {

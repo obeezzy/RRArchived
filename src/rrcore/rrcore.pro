@@ -38,7 +38,8 @@ SOURCES += \
     sqlmanager/debtorsqlmanager.cpp \
     qmlapi/qmlsalehomemodel.cpp \
     models/saletotalrevenuemodel.cpp \
-    models/salemostsolditemmodel.cpp
+    models/salemostsolditemmodel.cpp \
+    qmlapi/qmldebtorpusher.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -72,4 +73,5 @@ HEADERS += \
     sqlmanager/debtorsqlmanager.h \
     qmlapi/qmlsalehomemodel.h \
     models/saletotalrevenuemodel.h \
-    models/salemostsolditemmodel.h
+    models/salemostsolditemmodel.h \
+    qmlapi/qmldebtorpusher.h

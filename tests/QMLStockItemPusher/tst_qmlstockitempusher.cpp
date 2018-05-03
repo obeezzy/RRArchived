@@ -15,9 +15,8 @@ public:
     QMLStockItemPusherTest();
 
 private Q_SLOTS:
-    void initTestCase();
     void init();
-    void cleanupTestCase();
+    void cleanup();
 
     void testSetCategory();
     void testSetItem();
@@ -48,19 +47,13 @@ QMLStockItemPusherTest::QMLStockItemPusherTest()
     QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
 }
 
-void QMLStockItemPusherTest::initTestCase()
+void QMLStockItemPusherTest::init()
 {
     m_stockItemPusher = new QMLStockItemPusher(this);
     m_client = new DatabaseClient;
-
-    QVERIFY(m_client->initialize());
 }
 
-void QMLStockItemPusherTest::init()
-{
-}
-
-void QMLStockItemPusherTest::cleanupTestCase()
+void QMLStockItemPusherTest::cleanup()
 {
     m_stockItemPusher->deleteLater();
     delete m_client;
