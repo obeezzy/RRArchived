@@ -34,7 +34,6 @@ FluidControls.Page {
         Material.background: Material.LightGreen
         Material.foreground: "white"
         icon.name: "content/add"
-        mini: true
 
         onClicked: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
 

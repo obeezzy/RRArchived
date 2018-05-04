@@ -11,7 +11,7 @@
 int main(int argc, char *argv[])
 {
     //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    setenv("QT_SCALE_FACTOR", "1.4", 1);
+    qputenv("QT_SCALE_FACTOR", "1.4");
     QApplication app(argc, argv);
 
     QApplication::setApplicationName("Record Rack");
@@ -25,9 +25,6 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
 
     QQmlApplicationEngine engine;
-    engine.addImportPath(QCoreApplication::applicationDirPath() + QDir::separator() + QLatin1String("..") +
-                             QDir::separator() + QLatin1String("fluid") + QDir::separator() + QLatin1String("qml"));
-    engine.addImportPath(QCoreApplication::applicationDirPath() + QDir::separator() + QLatin1String("qml"));
     engine.load(QUrl(QLatin1String("../../RecordRackDesktop/src/qml/main.qml")));
 
     if (engine.rootObjects().isEmpty())
