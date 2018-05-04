@@ -77,6 +77,7 @@ bool DatabaseClient::connectToTestDatabase()
 
         if (!m_connection.open())
             return false;
+
         if (!DatabaseUtils::connectToDatabase(USERNAME, PASSWORD, DATABASENAME))
             return false;
 
@@ -90,10 +91,12 @@ bool DatabaseClient::connectToTestDatabase()
 
 bool DatabaseClient::disconnectFromTestDatabase()
 {
-    if (m_connection.isValid() && m_connection.isOpen())
+    if (m_connection.isValid() && m_connection.isOpen()) {
         m_connection.close();
-    else
+        m_connection.setDatabaseName("mysql");
+    } else {
         return false;
+    }
 
     return true;
 }
@@ -102,7 +105,6 @@ bool DatabaseClient::createTables()
 {
     try {
         DatabaseCreator(m_connection).createTables();
-
         return true;
     } catch (DatabaseException &e) {
         qDebug() << "Exception caught:" << e.message() << e.userMessage();
@@ -139,7 +141,6 @@ bool DatabaseClient::createUser()
 {
     try {
         DatabaseCreator(m_connection).createRRUser("test");
-
         return true;
     } catch (DatabaseException &e) {
         qDebug() << "Exception caught:" << e.message();

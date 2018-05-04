@@ -189,8 +189,6 @@ void QMLSaleCartModel::submitTransaction(const QVariantMap &paymentInfo)
 
 void QMLSaleCartModel::suspendTransaction(const QVariantMap &params)
 {
-    qDebug() << "Suspend transaction: " << m_records;
-
     if (m_transactionId == -1)
         addTransaction( {{ "suspended", true }, { "note", params.value("note") } });
     else
@@ -410,7 +408,7 @@ void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
 
 void QMLSaleCartModel::setItemQuantity(int itemId, double quantity)
 {
-    if (itemId <= 0 || quantity < 0.0)
+    if (itemId <= 0 || quantity <= 0.0)
         return;
 
     const int row = indexOfItem(itemId);

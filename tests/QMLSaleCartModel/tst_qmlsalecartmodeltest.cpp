@@ -39,8 +39,9 @@ private Q_SLOTS:
     void testRetrieveSuspendedTransaction();
     void testSubmitEmptyTransaction();
     void testSuspendEmptyTransaction();
-
-    void testUpdateSuspendedTransaction(); // TODO
+    void testUpdateSuspendedTransaction();
+    void testRemoveItem();
+    void testSetItemQuantity();
 
 private:
     QMLStockItemPusher *m_stockItemPusher;
@@ -95,8 +96,6 @@ void QMLSaleCartModelTest::testSetTransactionId()
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
-        { "cost_price", 11.0 },
-        { "retail_price", 10.0 },
         { "unit_price", 13.0 },
         { "available_quantity", 10.0 }
     };
@@ -441,7 +440,148 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 
 void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
 {
+    QVERIFY(m_client->initialize());
 
+    // Push some items
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    const QVariantMap itemInfo {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "item_id", 1 },
+        { "item", "Item1" },
+        { "quantity", 1.0 },
+        { "unit_id", 1 },
+        { "unit", "Unit1" },
+        { "cost_price", 2.0 },
+        { "retail_price", 3.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    m_saleCartModel->setCustomerName("Customer");
+    m_saleCartModel->addItem(itemInfo);
+
+    m_saleCartModel->suspendTransaction();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+
+    m_saleCartModel->setTransactionId(1);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(m_saleCartModel->rowCount(), 1);
+
+    const QVariantMap itemInfo2 {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "item_id", 2 },
+        { "item", "Item2" },
+        { "quantity", 1.0 },
+        { "unit_id", 2 },
+        { "unit", "Unit2" },
+        { "cost_price", 2.0 },
+        { "retail_price", 3.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    m_saleCartModel->addItem(itemInfo2);
+    m_saleCartModel->suspendTransaction();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+
+    m_saleCartModel->setTransactionId(1);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(m_saleCartModel->rowCount(), 2);
+}
+
+void QMLSaleCartModelTest::testRemoveItem()
+{
+    QVERIFY(m_client->initialize());
+
+    // Push some items
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    const QVariantMap itemInfo {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "item_id", 1 },
+        { "item", "Item1" },
+        { "quantity", 1.0 },
+        { "unit_id", 1 },
+        { "unit", "Unit1" },
+        { "cost_price", 2.0 },
+        { "retail_price", 3.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    m_saleCartModel->addItem(itemInfo);
+    QCOMPARE(m_saleCartModel->rowCount(), 1);
+
+    m_saleCartModel->removeItem(1);
+    QCOMPARE(m_saleCartModel->rowCount(), 0);
+}
+
+void QMLSaleCartModelTest::testSetItemQuantity()
+{
+    QVERIFY(m_client->initialize());
+
+    // Push some items
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    const QVariantMap itemInfo {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "item_id", 1 },
+        { "item", "Item1" },
+        { "quantity", 1.0 },
+        { "unit_id", 1 },
+        { "unit", "Unit1" },
+        { "cost_price", 2.0 },
+        { "retail_price", 3.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    m_saleCartModel->addItem(itemInfo);
+    QCOMPARE(m_saleCartModel->rowCount(), 1);
+
+    m_saleCartModel->setItemQuantity(1, 5.5);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
+
+    m_saleCartModel->setItemQuantity(1, 0.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
+
+    m_saleCartModel->setItemQuantity(1, -1.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
+
+    m_saleCartModel->setItemQuantity(1, 8.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 8.0);
 }
 
 void QMLSaleCartModelTest::testSubmitTransaction()
