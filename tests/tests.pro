@@ -4,4 +4,6 @@ SUBDIRS += \
     QMLStockItemPusher \
     QMLStockCategoryItemModel \
     QMLDebtorModel \
-    QMLSaleCartModel
+    QMLSaleCartModel \
+    QMLUserProfile \
+    QMLDebtorPusher

@@ -379,22 +379,8 @@ void QMLStockItemPusherTest::testPushSameItem()
     QCOMPARE(successSpy.count(), 1);
     busyChangedSpy.clear();
 
-    m_stockItemPusher->setCategory("Category");
-    m_stockItemPusher->setItem("Item");
-    m_stockItemPusher->setDescription("Description");
-    m_stockItemPusher->setQuantity(10.5);
-    m_stockItemPusher->setUnit("Unit");
-    m_stockItemPusher->setCategoryNote("Category note");
-    m_stockItemPusher->setItemNote("Item note");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setCostPrice(10.85);
-    m_stockItemPusher->setRetailPrice(20.12);
-    m_stockItemPusher->setTracked(true);
-    m_stockItemPusher->setImageSource("Image source");
-
     m_stockItemPusher->push();
-
-    QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
     QCOMPARE(errorSpy.count(), 1);
     QCOMPARE(errorSpy.takeFirst().first(), QMLStockItemPusher::DuplicateEntryFailure);

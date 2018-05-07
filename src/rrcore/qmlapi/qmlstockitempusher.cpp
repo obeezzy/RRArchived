@@ -222,7 +222,7 @@ void QMLStockItemPusher::processResult(const QueryResult &result)
         emit success();
     } else {
         switch (result.errorCode()) {
-        case DatabaseException::DuplicateEntryFailure:
+        case int(DatabaseException::RRErrorCode::DuplicateEntryFailure):
             emit error(DuplicateEntryFailure);
             break;
         default:

@@ -148,8 +148,7 @@ void QMLStockCategoryItemModel::filter()
 
 void QMLStockCategoryItemModel::refresh()
 {
-    if (!isBusy())
-        tryQuery();
+    tryQuery();
 }
 
 void QMLStockCategoryItemModel::removeItem(int itemId)

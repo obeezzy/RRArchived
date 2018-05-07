@@ -26,13 +26,13 @@ void DatabaseCreator::runSqlOnTestDatabase(const QString &fileName)
 
     QFile file(fileName);
     if (QFileInfo(fileName).suffix() != "sql")
-        throw DatabaseException(DatabaseException::RunSqlOnTestDatabaseFailed, QString(),
+        throw DatabaseException(DatabaseException::RRErrorCode::RunSqlOnTestDatabaseFailed, QString(),
                                 QString("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
-        throw DatabaseException(DatabaseException::RunSqlOnTestDatabaseFailed, QString(),
+        throw DatabaseException(DatabaseException::RRErrorCode::RunSqlOnTestDatabaseFailed, QString(),
                                 QString("File '%1' is too large (larger than 50MB).").arg(fileName));
     if (!file.open(QFile::ReadOnly))
-        throw DatabaseException(DatabaseException::RunSqlOnTestDatabaseFailed, QString(),
+        throw DatabaseException(DatabaseException::RRErrorCode::RunSqlOnTestDatabaseFailed, QString(),
                                 QString("Failed to open '%1'").arg(fileName));
 
     QSqlDatabase connection;
@@ -106,7 +106,7 @@ void DatabaseCreator::createDatabase(const QString &databaseName)
 
     QSqlQuery q(m_connection);
     if (!q.exec(QString("CREATE DATABASE IF NOT EXISTS %1").arg(databaseName)))
-        throw DatabaseException(DatabaseException::ConnectToTestDatabaseFailed, q.lastError().text(),
+        throw DatabaseException(DatabaseException::RRErrorCode::ConnectToTestDatabaseFailed, q.lastError().text(),
                                 QString("Failed to create database %1.").arg(databaseName));
 }
 
@@ -118,7 +118,7 @@ void DatabaseCreator::dropDatabase(const QString &databaseName)
 
     QSqlQuery q(m_connection);
     if (!q.exec(QString("DROP DATABASE IF EXISTS %1").arg(databaseName)))
-        throw DatabaseException(DatabaseException::ConnectToTestDatabaseFailed, q.lastError().text(),
+        throw DatabaseException(DatabaseException::RRErrorCode::ConnectToTestDatabaseFailed, q.lastError().text(),
                                 QString("Failed to drop database %1.").arg(databaseName));
 }
 
@@ -128,7 +128,7 @@ void DatabaseCreator::createTables()
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         // Create business details table
         q.prepare("CREATE TABLE IF NOT EXISTS business_details ("
@@ -145,7 +145,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create business details table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create business details table."));
 
         // Create category table
         q.prepare("CREATE TABLE IF NOT EXISTS category ("
@@ -162,7 +162,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create category table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create category table."));
 
         // Create client table
         q.prepare("CREATE TABLE IF NOT EXISTS client ("
@@ -182,7 +182,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create client table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create client table."));
 
         // Create credit payment table
         q.prepare("CREATE TABLE IF NOT EXISTS credit_payment ("
@@ -202,7 +202,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create credit payment table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create credit payment table."));
 
         // Create creditor table
         q.prepare("CREATE TABLE IF NOT EXISTS creditor ("
@@ -217,7 +217,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create creditor table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create creditor table."));
 
         // Create current quantity table
         q.prepare("CREATE TABLE IF NOT EXISTS current_quantity ("
@@ -233,7 +233,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create current quantity table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create current quantity table."));
 
         // Create customer table
         q.prepare("CREATE TABLE IF NOT EXISTS customer ("
@@ -247,7 +247,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create customer table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create customer table."));
 
         // Create damaged quantity table
         q.prepare("CREATE TABLE IF NOT EXISTS damaged_quantity ("
@@ -263,7 +263,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create damaged quantity table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create damaged quantity table."));
 
         // Create db info table
         q.prepare("CREATE TABLE IF NOT EXISTS db_info ("
@@ -275,7 +275,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create db info table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create db info table."));
 
         // Create debt payment table
         q.prepare("CREATE TABLE IF NOT EXISTS debt_payment ("
@@ -295,7 +295,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create debt payment table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create debt payment table."));
 
         // Create debt transaction table
         q.prepare("CREATE TABLE IF NOT EXISTS debt_transaction ("
@@ -312,7 +312,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create debt transaction table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create debt transaction table."));
 
         // Create debtor table
         q.prepare("CREATE TABLE IF NOT EXISTS debtor ("
@@ -327,7 +327,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create debtor table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create debtor table."));
 
         // Create expense table
         q.prepare("CREATE TABLE IF NOT EXISTS expense ("
@@ -348,7 +348,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create expense table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create expense table."));
 
         // Create expense purpose table
         q.prepare("CREATE TABLE IF NOT EXISTS expense_purpose ("
@@ -362,7 +362,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create expense purpose table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create expense purpose table."));
 
         // Create income table
         q.prepare("CREATE TABLE IF NOT EXISTS income ("
@@ -383,7 +383,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create income table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create income table."));
 
         // Create income purpose table
         q.prepare("CREATE TABLE IF NOT EXISTS income_purpose ("
@@ -397,7 +397,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create income purpose table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create income purpose table."));
 
         // Create initial quantity table
         q.prepare("CREATE TABLE IF NOT EXISTS initial_quantity ("
@@ -414,7 +414,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create initial quantity table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create initial quantity table."));
 
         // Create item table
         q.prepare("CREATE TABLE IF NOT EXISTS item ("
@@ -437,7 +437,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create item table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create item table."));
 
         // Create last used date/time table
         q.prepare("CREATE TABLE IF NOT EXISTS last_used_date_time ("
@@ -447,7 +447,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create last used date/time table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create last used date/time table."));
 
         // Create note table
         q.prepare("CREATE TABLE IF NOT EXISTS note ("
@@ -461,7 +461,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create note table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create note table."));
 
         // Create purchase item table
         q.prepare("CREATE TABLE IF NOT EXISTS purchase_item ("
@@ -481,7 +481,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create purchase item table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create purchase item table."));
 
         // Create purchase transaction table
         q.prepare("CREATE TABLE IF NOT EXISTS purchase_transaction ("
@@ -502,7 +502,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create purchase transaction table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create purchase transaction table."));
 
         // Create sale item table
         q.prepare("CREATE TABLE IF NOT EXISTS sale_item ("
@@ -524,7 +524,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create sale item table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create sale item table."));
 
         // Create sale transaction table
         q.prepare("CREATE TABLE IF NOT EXISTS sale_transaction ("
@@ -546,7 +546,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create sale transaction table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create sale transaction table."));
 
         // Create unit table
         q.prepare("CREATE TABLE IF NOT EXISTS unit ("
@@ -568,7 +568,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create unit table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create unit table."));
 
         // Create unit relation table
         q.prepare("CREATE TABLE IF NOT EXISTS unit_relation ("
@@ -587,7 +587,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create unit relation table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create unit relation table."));
 
         // Create user table
         q.prepare("CREATE TABLE IF NOT EXISTS user ("
@@ -604,7 +604,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create user table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create user table."));
 
         // Create user privilege table
         q.prepare("CREATE TABLE IF NOT EXISTS user_privilege ("
@@ -616,7 +616,7 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create user privilege table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create user privilege table."));
 
         // Create vendor table
         q.prepare("CREATE TABLE IF NOT EXISTS vendor ("
@@ -632,10 +632,10 @@ void DatabaseCreator::createTables()
                   ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateTableFailed, q.lastError().text(), QString("Failed to create vendor table."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create vendor table."));
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
     } catch (DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
@@ -649,7 +649,7 @@ void DatabaseCreator::createRRUser(const QString &userName, bool active, bool pe
 
     try {
         if (userName.trimmed().isEmpty())
-            throw DatabaseException(DatabaseException::InvalidArguments, QString(), "User name is empty.");
+            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "User name is empty.");
         q.prepare("INSERT INTO user (user, active, pending, created, last_edited) "
                   "VALUES(:user, :active, :pending, :created, :last_edited)");
         q.bindValue(":user", userName);
@@ -659,7 +659,7 @@ void DatabaseCreator::createRRUser(const QString &userName, bool active, bool pe
         q.bindValue(":last_edited", currentDateTime);
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::CreateUserFailed, q.lastError().text(), QString("Failed to create RR user."));
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateUserFailed, q.lastError().text(), QString("Failed to create RR user."));
     } catch (DatabaseException &) {
         throw;
     }

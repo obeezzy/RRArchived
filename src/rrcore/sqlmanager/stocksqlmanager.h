@@ -15,9 +15,6 @@ private:
     void viewStockCategories(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
     void removeStockItem(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
     void undoRemoveStockItem(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
-
-    QByteArray imageToByteArray(const QString &imageSource);
-    QString byteArrayToImage(const QByteArray &imageData);
 };
 
 #endif // STOCKSQLMANAGER_H

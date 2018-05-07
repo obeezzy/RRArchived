@@ -11,13 +11,17 @@ class QMLDebtorModel : public AbstractVisualListModel
 public:
     enum Roles {
         ClientIdRole = Qt::UserRole,
-        NameRole,
-        TotalBalanceRole,
+        PreferredNameRole,
+        TotalDebtRole,
         NoteRole,
         CreatedRole,
         LastEditedRole,
         UserRole
     };
+
+    enum Column {
+        PreferredNameColumn, TotalDebtColumn
+    }; Q_ENUM(Column)
 
     explicit QMLDebtorModel(QObject *parent = nullptr);
 
@@ -29,8 +33,14 @@ protected:
     void tryQuery() override final;
     void processResult(const QueryResult &result) override final;
     void filter() override final;
+public slots:
+    void refresh();
+    void removeDebtor(int debtorId);
 private:
     QVariantList m_records;
+
+    void removeItemFromModel(int debtorId);
+    void undoRemoveItemFromModel(int debtorId, const QVariantMap &debtorInfo);
 };
 
 #endif // QMLDEBTORMODEL_H

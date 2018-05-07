@@ -16,6 +16,8 @@ public:
     enum ErrorCode {
         Unknown,
         NoUserNameProvided,
+        NoPasswordProvided,
+        InvalidUserName,
         IncorrectCredentials
     }; Q_ENUM(ErrorCode)
 
@@ -24,8 +26,9 @@ public:
 
     Q_INVOKABLE void signIn(const QString &userName, const QString &password);
     Q_INVOKABLE void signUp(const QString &userName, const QString &password);
+    Q_INVOKABLE void removeUser(const QString &userName);
 signals:
-    void requestSent(const QueryRequest &);
+    void executeRequest(const QueryRequest &);
     void busyChanged();
     void success();
     void error(int errorCode);

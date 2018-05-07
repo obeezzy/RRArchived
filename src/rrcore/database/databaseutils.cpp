@@ -1,5 +1,8 @@
 #include "databaseutils.h"
 #include <QSqlQuery>
+#include <QBuffer>
+#include <QImage>
+#include <QByteArray>
 
 DatabaseUtils::DatabaseUtils(QObject *parent)
     : QObject(parent)
@@ -25,14 +28,6 @@ bool DatabaseUtils::rollbackTransaction(QSqlQuery &q)
     return q.exec("ROLLBACK");
 }
 
-QVariant DatabaseUtils::lastInsertId(QSqlQuery &q)
-{
-    if (q.exec("SELECT LAST_INSERT_ID()") && q.first())
-        return q.value(0);
-
-    return false;
-}
-
 bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &password, const QString &databaseName)
 {
     QSqlDatabase connection;
@@ -53,4 +48,28 @@ bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &pa
         return false;
 
     return true;
+}
+
+QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource)
+{
+    if (imageSource.trimmed().isEmpty())
+        return QByteArray();
+
+    QImage image(imageSource);
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer);
+
+    return ba;
+}
+
+QString DatabaseUtils::byteArrayToImage(const QByteArray &imageData)
+{
+    if (imageData.isNull())
+        return QString();
+
+    QString imageSource;
+
+    return imageSource;
 }

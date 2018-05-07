@@ -13,7 +13,9 @@ public:
 
     QueryResult execute(const QueryRequest &request) override final;
 private:
-    void viewDebtors(const QueryRequest &, QueryResult &); // throws DatabaseException
+    void addDebtor(const QueryRequest &request); // throws DatabaseException!
+    void viewDebtors(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
+    void removeDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
 };
 
 #endif // DEBTORSQLMANAGER_H

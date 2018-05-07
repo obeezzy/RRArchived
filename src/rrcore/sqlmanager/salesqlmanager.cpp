@@ -29,7 +29,7 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_sale_home")
             viewSaleHome(request, result);
         else
-            throw DatabaseException(DatabaseException::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {
@@ -58,7 +58,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
 
     try {
         if (!skipSqlTransaction && !DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         // STEP: Get client ID
         if (!params.value("customer_phone_number").toString().trimmed().isEmpty() && !params.value("suspended").toBool()) {
@@ -66,7 +66,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":customer_phone_number", params.value("customer_phone_number"), QSql::Out);
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to get client ID.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to get client ID.");
 
             if (q.first())
                 clientId = q.value("id").toInt();
@@ -81,14 +81,14 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                 q.bindValue(":user_id", UserProfile::instance().userId());
 
                 if (!q.exec())
-                    throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert client ID.");
+                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert client ID.");
 
                 clientId = q.lastInsertId().toInt();
                 newClientId = clientId;
             }
 
             if (!clientId)
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Invalid sales transaction note ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Invalid sales transaction note ID returned.");
         }
 
         // STEP: Insert note
@@ -102,11 +102,11 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert sales transaction note.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert sales transaction note.");
 
             noteId = q.lastInsertId().toInt();
             if (!noteId)
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Invalid sales transaction note ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Invalid sales transaction note ID returned.");
         }
 
         // STEP: Insert sale transaction
@@ -127,11 +127,11 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert sale transaction.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert sale transaction.");
 
         saleTransactionId = q.lastInsertId().toInt();
         if (!saleTransactionId)
-            throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Invalid sale transaction ID returned.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Invalid sale transaction ID returned.");
 
         for (QVariant &item : items) {
             QVariantMap itemInfo = item.toMap();
@@ -145,15 +145,15 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                 q.bindValue(":item_id", itemInfo.value("item_id"), QSql::Out);
 
                 if (!q.exec())
-                    throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to get available quantity.");
+                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to get available quantity.");
 
                 if (q.first())
                     availableQuantity = q.value("quantity").toDouble();
                 else
-                    throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), QString("Item %1 does not exist in current quantity table.").arg(itemInfo.value("item_id").toInt()));
+                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), QString("Item %1 does not exist in current quantity table.").arg(itemInfo.value("item_id").toInt()));
 
                 if (availableQuantity < itemInfo.value("quantity").toDouble())
-                    throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(),
+                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
                                             QString("Insuffient quantity for item %1 -> available=%2, sold=%3").arg(itemInfo.value("item_id").toDouble(), availableQuantity, itemInfo.value("quantity").toDouble()));
 
                 // Insert into initial_quantity
@@ -169,7 +169,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                 q.bindValue(":user_id", UserProfile::instance().userId());
 
                 if (!q.exec())
-                    throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert initial quantity.");
+                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert initial quantity.");
 
                 itemInfo.insert("initial_quantity_id", q.lastInsertId());
 
@@ -182,7 +182,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                 q.bindValue(":user_id", UserProfile::instance().userId());
 
                 if (!q.exec())
-                    throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to update current quantity.");
+                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to update current quantity.");
             }
 
             // STEP: Insert sale item
@@ -204,7 +204,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert sale item.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert sale item.");
         }
 
         // STEP: Insert debt or credit
@@ -219,7 +219,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert debtor.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert debtor.");
 
             q.prepare("INSERT INTO debt_transaction (client_id, transaction_table, transaction_id, note_id, archived, created, last_edited, user_id) "
                       "VALUES (:client_id, :transaction_table, :transaction_id, :note_id, :archived, :created, :last_edited, :user_id)");
@@ -233,11 +233,11 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert debt transaction.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert debt transaction.");
 
             debtTransactionId = q.lastInsertId().toInt();
             if (!debtTransactionId)
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Invalid debt transaction ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Invalid debt transaction ID returned.");
 
             q.prepare("INSERT INTO debt_payment (debt_transaction_id, total_debt, amount_paid, balance, currency, due_date, note_id, "
                       "archived, created, last_edited, user_id) VALUES (:debt_transaction_id, :total_amount, :amount_paid, :balance, "
@@ -255,7 +255,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert debt payment.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert debt payment.");
         } else if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() < 0.0) {
             q.prepare("INSERT INTO creditor (client_id, note_id, archived, created, last_edited, user_id) "
                       "VALUES (:client_id, :note_id, :archived, :created, :last_edited, :user_id)");
@@ -267,7 +267,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert creditor.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert creditor.");
 
             q.prepare("INSERT INTO credit_transaction (client_id, transaction_table, transaction_id, note_id, archived, created, last_edited, user_id) "
                       "VALUES (:client_id, :transaction_table, :transaction_id, :note_id, :archived, :created, :last_edited, :user_id)");
@@ -281,11 +281,11 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert credit transaction.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert credit transaction.");
 
             creditTransactionId = q.lastInsertId().toInt();
             if (!creditTransactionId)
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Invalid credit transaction ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Invalid credit transaction ID returned.");
 
             q.prepare("INSERT INTO credit_payment (credit_transaction_id, total_amount, amount_paid, balance, currency, due_date, note_id, "
                       "archived, created, last_edited, user_id) VALUES (:credit_transaction_id, :total_amount, :amount_paid, :balance, "
@@ -303,11 +303,11 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddTransactionFailure, q.lastError().text(), "Failed to insert credit payment.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(), "Failed to insert credit payment.");
         }
 
         if (!skipSqlTransaction && !DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
 
         QVariantMap outcome;
         outcome.insert("client_id", newClientId);
@@ -340,13 +340,13 @@ void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResul
         q.bindValue(":suspended", true);
         q.bindValue(":archived", false);
         if (!q.exec())
-            throw DatabaseException(DatabaseException::UpdateTransactionFailure, q.lastError().text(), "Failed to fetch transaction ID.");
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to fetch transaction ID.");
 
         if (!q.first())
-            throw DatabaseException(DatabaseException::UpdateTransactionFailure, QString(), "Only suspended sale transactions can be updated.");
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Only suspended sale transactions can be updated.");
 
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         addSaleTransaction(request, result, true);
 
@@ -358,7 +358,7 @@ void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResul
         q.bindValue(":transaction_id", params.value("transaction_id"));
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale transaction.");
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale transaction.");
 
         // STEP: Archive old sale item.
         q.prepare("UPDATE sale_item SET archived = :archived, last_edited = :last_edited, user_id = :user_id "
@@ -369,10 +369,10 @@ void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResul
         q.bindValue(":transaction_id", params.value("transaction_id"));
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale item.");
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale item.");
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
@@ -438,7 +438,7 @@ LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 
         q.bindValue(":sale_item_archived", params.value("sale_item_archived", false), QSql::Out);
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale cart.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale cart.");
 
         QVariantMap outcome;
         QVariantList items;
@@ -471,7 +471,7 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         if (params.value("client_id").toInt() > 0) {
             q.prepare("UPDATE client SET archived = 1 - archived, last_edited = :last_edited, user_id = :user_id WHERE id = :client_id");
@@ -480,7 +480,7 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::UndoAddTransactionFailure, q.lastError().text(), "Failed to update client.");
+                throw DatabaseException(DatabaseException::RRErrorCode::UndoAddTransactionFailure, q.lastError().text(), "Failed to update client.");
         }
 
         if (params.value("transaction_id").toInt() > 0) {
@@ -491,7 +491,7 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::UndoAddTransactionFailure, q.lastError().text(), "Failed to update sale transaction.");
+                throw DatabaseException(DatabaseException::RRErrorCode::UndoAddTransactionFailure, q.lastError().text(), "Failed to update sale transaction.");
 
             q.prepare("UPDATE debt_transaction SET archived = 1 - archived, last_edited = :last_edited, user_id = :user_id "
                       "WHERE :transaction_table = :transaction_table AND transaction_id = :transaction_id");
@@ -501,7 +501,7 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::UndoAddTransactionFailure, q.lastError().text(), "Failed to update debt transaction.");
+                throw DatabaseException(DatabaseException::RRErrorCode::UndoAddTransactionFailure, q.lastError().text(), "Failed to update debt transaction.");
 
             q.prepare("UPDATE credit_transaction SET archived = 1 - archived, last_edited = :last_edited, user_id = :user_id "
                       "WHERE :transaction_table = :transaction_table AND transaction_id = :transaction_id");
@@ -511,7 +511,7 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::UndoAddTransactionFailure, q.lastError().text(), "Failed to update credit transaction.");
+                throw DatabaseException(DatabaseException::RRErrorCode::UndoAddTransactionFailure, q.lastError().text(), "Failed to update credit transaction.");
         }
 
 
@@ -530,10 +530,10 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::UndoAddTransactionFailure, q.lastError().text(), "Failed to update current quantity.");
+            throw DatabaseException(DatabaseException::RRErrorCode::UndoAddTransactionFailure, q.lastError().text(), "Failed to update current quantity.");
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
 
         result.setOutcome(request.params());
     } catch (DatabaseException &) {
@@ -560,7 +560,7 @@ void SaleSqlManager::viewSaleTransactions(const QueryRequest &request, QueryResu
         q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale transactions.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale transactions.");
 
         QVariantList transactions;
         while (q.next()) {
@@ -585,7 +585,7 @@ void SaleSqlManager::viewSaleItemsForTransaction(const QueryRequest &request, Qu
         q.bindValue(":archived", params.value("archived", false));
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale items for transaction.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale items for transaction.");
 
         QVariantList items;
         while (q.next()) {
@@ -619,7 +619,7 @@ void SaleSqlManager::viewSaleHome(const QueryRequest &request, QueryResult &resu
             q.bindValue(":to_date", params.value("to_date", QDate::currentDate()));
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::ViewSaleHomeFailure, q.lastError().text(), "Failed to fetch total revenue.");
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleHomeFailure, q.lastError().text(), "Failed to fetch total revenue.");
 
             QVariantList revenues;
             while (q.next()) {
@@ -661,7 +661,7 @@ LIMIT 5;
             q.bindValue(":limit", params.value("limit", 5));
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::ViewSaleHomeFailure, q.lastError().text(), "Failed to fetch most sold items.");
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleHomeFailure, q.lastError().text(), "Failed to fetch most sold items.");
 
             QVariantList mostSoldItems;
             while (q.next()) {

@@ -36,7 +36,7 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "undo_remove_stock_item")
             undoRemoveStockItem(request, result);
         else
-            throw DatabaseException(DatabaseException::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {
@@ -63,7 +63,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         // Insert category note
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
@@ -74,12 +74,12 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert category note.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category note.");
 
             categoryNoteId = q.lastInsertId().toInt();
 
             if (!categoryNoteId)
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid category note ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid category note ID returned.");
         }
 
         // Insert item note
@@ -91,11 +91,11 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
             q.bindValue(":user_id", UserProfile::instance().userId());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert item note.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert item note.");
 
             itemNoteId = q.lastInsertId().toInt();
             if (!itemNoteId)
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid item note ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid item note ID returned.");
         }
 
 
@@ -111,22 +111,22 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert category.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category.");
 
         if (q.numRowsAffected() > 0) {
             categoryId = q.lastInsertId().toInt();
             if (!categoryId)
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid category ID returned.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid category ID returned.");
         } else {
             // Insert category
             q.prepare("SELECT id FROM category WHERE category = :category");
             q.bindValue(":category", params.value("category").toString());
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert category.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category.");
 
             if (!q.first())
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), QString("Expected category ID for category '%1'.")
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), QString("Expected category ID for category '%1'.")
                                         .arg(params.value("category").toString()));
 
             categoryId = q.value("id").toInt();
@@ -143,7 +143,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":description", params.value("description").toString());
         q.bindValue(":barcode", QVariant(QVariant::String));
         q.bindValue(":divisible", params.value("divisible").toBool());
-        q.bindValue(":image", imageToByteArray(params.value("image_source").toString())); // Store image as BLOB
+        q.bindValue(":image", DatabaseUtils::imageToByteArray(params.value("image_source").toString())); // Store image as BLOB
         q.bindValue(":note_id", itemNoteId > 0 ? itemNoteId : QVariant(QVariant::Int));
         q.bindValue(":archived", false);
         q.bindValue(":created", currentDateTime);
@@ -151,15 +151,15 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec()) {
-            if (q.lastError().number() == 1062)
-                throw DatabaseException(DatabaseException::DuplicateEntryFailure, q.lastError().text(), "Failed to insert item because item already exists.");
+            if (q.lastError().number() == int(DatabaseException::MySqlErrorCode::DuplicateEntryError))
+                throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, q.lastError().text(), "Failed to insert item because item already exists.");
             else
-                throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert item.");
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert item.");
         }
 
         itemId = q.lastInsertId().toInt();
         if (!itemId)
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid item ID returned.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid item ID returned.");
 
 
         // Insert unit
@@ -182,11 +182,11 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert unit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert unit.");
 
         unitId = q.lastInsertId().toInt();
         if (!unitId)
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Invalid unit ID returned.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid unit ID returned.");
 
 
         // Insert quantity into initial_quantity table
@@ -202,7 +202,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert quantity into initial_quantity.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert quantity into initial_quantity.");
 
 
         // Insert unit into current_quantity table
@@ -216,10 +216,10 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::AddItemFailure, q.lastError().text(), "Failed to insert quantity into current_quantity.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert quantity into current_quantity.");
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
@@ -265,7 +265,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
         q.prepare(itemInfoQuery.arg(filterColumn, sortOrder));
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::ViewStockItemsFailed, q.lastError().text(), "Failed to fetch tracked stock items.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemsFailed, q.lastError().text(), "Failed to fetch tracked stock items.");
 
         QVariantMap categories;
         int itemCount = 0;
@@ -283,7 +283,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
                 itemRecord.insert("item", q.value("item"));
                 itemRecord.insert("description", q.value("description"));
                 itemRecord.insert("divisible", q.value("divisible"));
-                itemRecord.insert("image", byteArrayToImage(q.value("image").toByteArray()));
+                itemRecord.insert("image", DatabaseUtils::byteArrayToImage(q.value("image").toByteArray()));
                 itemRecord.insert("quantity", q.value("quantity"));
                 itemRecord.insert("unit", q.value("unit"));
                 itemRecord.insert("unit_id", q.value("unit_id"));
@@ -333,7 +333,7 @@ void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResu
         q.prepare("SELECT id as category_id, category FROM category WHERE archived = 0 ORDER BY LOWER(category) ASC");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::ViewStockCategoriesFailed, q.lastError().text(), "Failed to fetch categories.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockCategoriesFailed, q.lastError().text(), "Failed to fetch categories.");
 
         QVariantList categories;
 
@@ -356,9 +356,9 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
 
     try {
         if (params.value("item_id").toInt() <= 0)
-            throw DatabaseException(DatabaseException::InvalidArguments, QString(), "Item ID is null.");
+            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Item ID is null.");
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         QSqlQuery q(connection());
         q.prepare("UPDATE item SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :item_id");
@@ -367,7 +367,7 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to remove stock item.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove stock item.");
 
         q.prepare("SELECT category.id as category_id, item.id as item_id "
                   "FROM item "
@@ -376,10 +376,10 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
         q.bindValue(":item_id", params.value("item_id"), QSql::Out);
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
 
         if (!q.first())
-            throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
         else {
             QVariantMap outcome;
             outcome.insert("category_id", q.value("category_id"));
@@ -389,7 +389,7 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
         }
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
@@ -407,9 +407,9 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
 
     try {
         if (params.value("item_id").toInt() <= 0)
-            throw DatabaseException(DatabaseException::InvalidArguments, QString(), "Item ID is null.");
+            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Item ID is null.");
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         QSqlQuery q(connection());
         q.prepare("UPDATE item SET archived = 0, last_edited = :last_edited, user_id = :user_id WHERE id = :item_id");
@@ -418,7 +418,7 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::UndoFailed, q.lastError().text(), "Failed to undo stock item removal.");
+            throw DatabaseException(DatabaseException::RRErrorCode::UndoFailed, q.lastError().text(), "Failed to undo stock item removal.");
 
         q.prepare("SELECT category.id as category_id, item.id as item_id "
                   "FROM item "
@@ -427,10 +427,10 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         q.bindValue(":item_id", params.value("item_id"), QSql::Out);
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
 
         if (!q.first()) {
-            throw DatabaseException(DatabaseException::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
         } else {
             QVariantMap outcome;
             outcome.insert("category_id", q.value("category_id"));
@@ -440,35 +440,11 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         }
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
         throw;
     }
-}
-
-QByteArray StockSqlManager::imageToByteArray(const QString &imageSource)
-{
-    if (imageSource.trimmed().isEmpty())
-        return QByteArray();
-
-    QImage image(imageSource);
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer);
-
-    return ba;
-}
-
-QString StockSqlManager::byteArrayToImage(const QByteArray &imageData)
-{
-    if (imageData.isNull())
-        return QString();
-
-    QString imageSource;
-
-    return imageSource;
 }

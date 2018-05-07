@@ -7,9 +7,11 @@
 class DatabaseException : public std::exception
 {
 public:
-    enum ErrorCode {
+    enum class RRErrorCode {
         Unknown,
         SignInFailure,
+        SignUpFailure,
+        RemoveUserFailure,
         NoCommand,
         CommandNotFound,
         NoValidConnection,
@@ -25,6 +27,7 @@ public:
         ViewSaleTransactionFailure,
         ConnectToTestDatabaseFailed,
         RunSqlOnTestDatabaseFailed,
+        AddDebtorFailure,
         ViewDebtorsFailure,
         ViewSaleHomeFailure,
         RemoveStockItemFailed,
@@ -32,9 +35,16 @@ public:
         CreateUserFailed,
         InvalidArguments,
         UndoFailed,
-        DuplicateEntryFailure
+        DuplicateEntryFailure,
+        AmountOverpaid,
+        InvalidDueDate
+    };
+
+    enum class MySqlErrorCode {
+        DuplicateEntryError = 1062
     };
     explicit DatabaseException(int errorCode);
+    explicit DatabaseException(RRErrorCode errorCode, const QString &message, const QString &userMessage = "");
     explicit DatabaseException(int errorCode, const QString &message, const QString &userMessage = "");
     ~DatabaseException() throw ();
 

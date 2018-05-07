@@ -9,7 +9,7 @@ QMLUserProfile::QMLUserProfile(QObject *parent) :
     QObject(parent),
     m_busy(false)
 {
-    connect(this, &QMLUserProfile::requestSent, &DatabaseThread::instance(), &DatabaseThread::execute);
+    connect(this, &QMLUserProfile::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
     connect(&DatabaseThread::instance(), &DatabaseThread::resultsReady, this, &QMLUserProfile::processResult);
 }
 
@@ -32,19 +32,45 @@ void QMLUserProfile::signIn(const QString &userName, const QString &password)
     qDebug() << Q_FUNC_INFO << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
+    } else if (password.isEmpty()) {
+        emit error(NoPasswordProvided);
     } else {
         setBusy(true);
 
         QueryRequest request(this);
         request.setCommand("sign_in_user", { { "user_name", userName }, { "password", password } }, QueryRequest::User);
-        emit requestSent(request);
+        emit executeRequest(request);
     }
 }
 
 void QMLUserProfile::signUp(const QString &userName, const QString &password)
 {
     qDebug() << Q_FUNC_INFO << userName << password;
-    setBusy(true);
+    if (userName.trimmed().isEmpty()) {
+        emit error(NoUserNameProvided);
+    } else if (password.isEmpty()) {
+        emit error(NoPasswordProvided);
+    } else {
+        setBusy(true);
+
+        QueryRequest request(this);
+        request.setCommand("sign_up_user", { { "user_name", userName }, { "password", password } }, QueryRequest::User);
+        emit executeRequest(request);
+    }
+}
+
+void QMLUserProfile::removeUser(const QString &userName)
+{
+    qDebug() << Q_FUNC_INFO << userName;
+    if (userName.trimmed().isEmpty()) {
+        emit error(NoUserNameProvided);
+    } else {
+        setBusy(true);
+
+        QueryRequest request(this);
+        request.setCommand("remove_user", { { "user_name", userName } }, QueryRequest::User);
+        emit executeRequest(request);
+    }
 }
 
 void QMLUserProfile::processResult(const QueryResult &result)
@@ -62,7 +88,7 @@ void QMLUserProfile::processResult(const QueryResult &result)
         emit success();
     } else {
         switch (result.errorCode()) {
-        case DatabaseException::SignInFailure:
+        case int(DatabaseException::RRErrorCode::SignInFailure):
             emit error(IncorrectCredentials);
             break;
         default:

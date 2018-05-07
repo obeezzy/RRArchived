@@ -13,7 +13,9 @@ public:
     static bool beginTransaction(QSqlQuery &q);
     static bool commitTransaction(QSqlQuery &q);
     static bool rollbackTransaction(QSqlQuery &q);
-    static QVariant lastInsertId(QSqlQuery &q);
+
+    static QByteArray imageToByteArray(const QString &imageSource);
+    static QString byteArrayToImage(const QByteArray &imageData);
 
     static bool connectToDatabase(const QString &userName, const QString &password, const QString &databaseName);
 private:

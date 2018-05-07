@@ -7,6 +7,12 @@ DatabaseException::DatabaseException(int errorCode) :
 
 }
 
+DatabaseException::DatabaseException(DatabaseException::RRErrorCode errorCode, const QString &message, const QString &userMessage) :
+    m_code(int(errorCode)), m_message(message), m_userMessage(userMessage)
+{
+
+}
+
 DatabaseException::DatabaseException(int errorCode, const QString &message, const QString &userMessage) :
     m_code(errorCode), m_message(message), m_userMessage(userMessage)
 {

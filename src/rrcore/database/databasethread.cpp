@@ -55,7 +55,7 @@ void DatabaseThread::execute(const QueryRequest &request)
 
     try {
         if (request.command().trimmed().isEmpty())
-            throw DatabaseException(DatabaseException::NoCommand, "No command set.");
+            throw DatabaseException(DatabaseException::RRErrorCode::NoCommand, "No command set.");
 
         if (!m_connection.isValid() && QSqlDatabase::database().isValid())
             m_connection = QSqlDatabase::database();
@@ -75,13 +75,14 @@ void DatabaseThread::execute(const QueryRequest &request)
             break;
         case QueryRequest::Debtor:
             result = DebtorSqlManager(m_connection).execute(request);
+            break;
         default:
             qWarning() << "Unhandled request in DatabaseThread::execute() ->" << request.command() << request.type();
             break;
         }
 
         if (!result.isSuccessful())
-            throw DatabaseException(DatabaseException::UnsuccessfulQueryResult, result.errorMessage(), result.errorUserMessage());
+            throw DatabaseException(DatabaseException::RRErrorCode::UnsuccessfulQueryResult, result.errorMessage(), result.errorUserMessage());
     } catch (DatabaseException &e) {
         qDebug() << "DatabaseException in DatabaseThread:" << e.message() << e.userMessage();
     }
