@@ -65,9 +65,9 @@ void QMLStockCategoryItemModel::tryQuery()
     emit executeRequest(request);
 }
 
-void QMLStockCategoryItemModel::processResult(const QueryResult &result)
+void QMLStockCategoryItemModel::processResult(const QueryResult result)
 {
-    if (this != result.request().parent())
+    if (this != result.request().receiver())
         return;
 
     setBusy(false);

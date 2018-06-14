@@ -33,6 +33,7 @@ private Q_SLOTS:
     void testAddSameDebtor();
     void testAddDebt();
     void testAddPayment();
+    void testUndoAddNewDebtor();
 
 private:
     QMLDebtorPusher *m_debtorPusher;
@@ -222,7 +223,7 @@ void QMLDebtorPusherTest::testAddNewDebtor()
 
     /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());
-    q.prepare("SELECT id, first_name, last_name, preferred_name, phone_number, address, note_id, created, last_edited, user_id FROM client");
+    q.prepare("SELECT id, first_name, last_name, preferred_name, phone_number, address, note_id, archived, created, last_edited, user_id FROM client");
     QVERIFY(q.exec());
     QVERIFY(q.first());
     QCOMPARE(q.value("id").toInt(), 1);
@@ -231,15 +232,17 @@ void QMLDebtorPusherTest::testAddNewDebtor()
     QCOMPARE(q.value("preferred_name").toString(), "Preferred name");
     QCOMPARE(q.value("phone_number").toString(), "1234567890");
     QCOMPARE(q.value("address").toString(), "1234 Address Street");
+    QCOMPARE(q.value("archived").toBool(), false);
     QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
     QCOMPARE(q.value("user_id").toInt(), UserProfile::instance().userId());
 
-    q.prepare("SELECT id, client_id, note_id, created, last_edited, user_id FROM debtor");
+    q.prepare("SELECT id, client_id, note_id, archived, created, last_edited, user_id FROM debtor");
     QVERIFY(q.exec());
     QVERIFY(q.first());
     QCOMPARE(q.value("id").toInt(), 1);
     QCOMPARE(q.value("client_id").toInt(), 1);
     QCOMPARE(q.value("note_id").toInt(), 1);
+    QCOMPARE(q.value("archived").toBool(), false);
     QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
     QCOMPARE(q.value("user_id").toInt(), UserProfile::instance().userId());
 
@@ -387,6 +390,44 @@ void QMLDebtorPusherTest::testAddPayment()
     q.prepare("SELECT id, note, table_name, created, last_edited, user_id FROM note WHERE note = 'Payment note'");
     QVERIFY(q.exec());
     QCOMPARE(q.size(), 1);
+    /****************************************************/
+}
+
+void QMLDebtorPusherTest::testUndoAddNewDebtor()
+{
+    QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
+    QVERIFY(m_client->initialize());
+
+    m_debtorPusher->setImageSource("image/source");
+    m_debtorPusher->setFirstName("First name");
+    m_debtorPusher->setLastName("Last name");
+    m_debtorPusher->setPreferredName("Preferred name");
+    m_debtorPusher->setPhoneNumber("1234567890");
+    m_debtorPusher->setAddress("1234 Address Street");
+    m_debtorPusher->setNote("Note");
+
+    m_debtorPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+
+    m_debtorPusher->undoLastCommit();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+
+    /******************* DATABASE CHECKS ****************/
+    QSqlQuery q(m_client->connection());
+    q.prepare("SELECT id, archived FROM debtor WHERE id = 1 AND archived = 1");
+    QVERIFY(q.exec());
+    QVERIFY(q.first());
+
+    q.prepare("SELECT id, archived FROM debt_transaction WHERE client_id = 1 AND archived = 1");
+    QVERIFY(q.exec());
+    QVERIFY(q.first());
+
+    q.prepare("SELECT id, archived FROM debt_payment WHERE debt_transaction_id = 1 AND archived = 1");
+    QVERIFY(q.exec());
+    QVERIFY(q.first());
     /****************************************************/
 }
 

@@ -8,7 +8,7 @@ QMLDashboardHomeModel::QMLDashboardHomeModel(QObject *parent)
     : QAbstractListModel(parent)
 {
     connect(this, &QMLDashboardHomeModel::sendRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultsReady, this, &QMLDashboardHomeModel::processResult);
+    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLDashboardHomeModel::processResult);
 
     QTimer::singleShot(1500, Qt::CoarseTimer, this, &QMLDashboardHomeModel::startQuery);
 }
@@ -36,9 +36,9 @@ void QMLDashboardHomeModel::startQuery()
     emit sendRequest(request);
 }
 
-void QMLDashboardHomeModel::processResult(const QueryResult &result)
+void QMLDashboardHomeModel::processResult(const QueryResult result)
 {
-    if (this != result.request().parent())
+    if (this != result.request().receiver())
         return;
 
     if (result.isSuccessful()) {

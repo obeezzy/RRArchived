@@ -10,7 +10,7 @@ QMLUserProfile::QMLUserProfile(QObject *parent) :
     m_busy(false)
 {
     connect(this, &QMLUserProfile::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultsReady, this, &QMLUserProfile::processResult);
+    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
 }
 
 bool QMLUserProfile::isBusy() const
@@ -75,7 +75,7 @@ void QMLUserProfile::removeUser(const QString &userName)
 
 void QMLUserProfile::processResult(const QueryResult &result)
 {
-    if (this != result.request().parent())
+    if (this != result.request().receiver())
         return;
 
     setBusy(false);

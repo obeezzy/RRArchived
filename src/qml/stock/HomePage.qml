@@ -90,14 +90,14 @@ FluidControls.Page {
 
             FluidControls.ToolButton {
                 id: editButton
-                icon.name: "image/edit"
+                icon.source: FluidControls.Utils.iconUrl("image/edit")
                 width: FluidControls.Units.iconSizes.medium
                 height: width
             }
 
             FluidControls.ToolButton {
                 id: deleteButton
-                icon.name: "action/delete"
+                icon.source: FluidControls.Utils.iconUrl("action/delete")
                 width: FluidControls.Units.iconSizes.medium
                 height: width
                 onClicked: categoryListView.model.removeItem(modelData.item_id);

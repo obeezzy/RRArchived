@@ -34,7 +34,7 @@ public:
     QHash<int, QByteArray> roleNames() const override final;
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult &result) override final;
+    void processResult(const QueryResult result) override final;
     void filter() override final;
 public slots:
     void refresh();

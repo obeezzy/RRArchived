@@ -73,9 +73,9 @@ void QMLDebtorModel::tryQuery()
     emit executeRequest(request);
 }
 
-void QMLDebtorModel::processResult(const QueryResult &result)
+void QMLDebtorModel::processResult(const QueryResult result)
 {
-    if (result.request().parent() != this)
+    if (result.request().receiver() != this)
         return;
 
     setBusy(false);

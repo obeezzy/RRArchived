@@ -15,39 +15,30 @@
 #include "sqlmanager/stocksqlmanager.h"
 #include "sqlmanager/salesqlmanager.h"
 #include "sqlmanager/debtorsqlmanager.h"
+#include <QCoreApplication>
+#include <QElapsedTimer>
+#include <QDebug>
 
 DatabaseThread *DatabaseThread::m_instance = nullptr;
 
-DatabaseThread::DatabaseThread(QObject *parent) :
-    QThread(parent)
+Worker::Worker(QObject *parent) :
+    QObject(parent)
 {
-
 }
 
-DatabaseThread::~DatabaseThread()
+Worker::~Worker()
 {
     m_connection.close();
 }
 
-DatabaseThread &DatabaseThread::instance()
+void Worker::initialize()
 {
-    if (m_instance == nullptr) {
-        m_instance = new DatabaseThread;
-        connect(qApp, &QCoreApplication::aboutToQuit, m_instance, &DatabaseThread::quit);
-        connect(m_instance, &DatabaseThread::finished, m_instance, &DatabaseThread::deleteLater);
-    }
 
-    return *m_instance;
 }
 
-void DatabaseThread::run()
+void Worker::execute(const QueryRequest request)
 {
-    exec();
-}
-
-void DatabaseThread::execute(const QueryRequest &request)
-{
-    qDebug() << Q_FUNC_INFO << request << ", sender=" << sender();
+    qDebug() << Q_FUNC_INFO << request << ", sender=" << request.receiver();
     QueryResult result;
 
     QElapsedTimer timer;
@@ -87,6 +78,42 @@ void DatabaseThread::execute(const QueryRequest &request)
         qDebug() << "DatabaseException in DatabaseThread:" << e.message() << e.userMessage();
     }
 
-    emit resultsReady(result);
+    emit resultReady(result);
     qDebug() << Q_FUNC_INFO << result << " [elapsed = " << timer.elapsed() << " ms]";
+}
+
+DatabaseThread::DatabaseThread(QObject *parent) :
+    QThread(parent)
+{
+    if (!isRunning()) {
+        Worker *worker = new Worker;
+
+        connect(worker, &Worker::resultReady, this, &DatabaseThread::resultReady);
+        connect(this, &DatabaseThread::execute, worker, &Worker::execute);
+        connect(this, &DatabaseThread::finished, worker, &Worker::deleteLater);
+        connect(this, &DatabaseThread::started, worker, &Worker::initialize);
+
+        worker->moveToThread(this);
+        start();
+    }
+}
+
+DatabaseThread::~DatabaseThread()
+{
+}
+
+DatabaseThread &DatabaseThread::instance()
+{
+    if (m_instance == nullptr) {
+        m_instance = new DatabaseThread;
+        connect(qApp, &QCoreApplication::aboutToQuit, m_instance, &DatabaseThread::quit);
+        connect(m_instance, &DatabaseThread::finished, m_instance, &DatabaseThread::deleteLater);
+    }
+
+    return *m_instance;
+}
+
+void DatabaseThread::run()
+{
+    exec();
 }

@@ -29,6 +29,7 @@ public:
         RunSqlOnTestDatabaseFailed,
         AddDebtorFailure,
         ViewDebtorsFailure,
+        UndoAddDebtorFailure,
         ViewSaleHomeFailure,
         RemoveStockItemFailed,
         CreateTableFailed,

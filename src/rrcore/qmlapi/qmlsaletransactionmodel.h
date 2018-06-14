@@ -50,7 +50,7 @@ signals:
     void keysChanged();
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult &result) override final;
+    void processResult(const QueryResult result) override final;
 private:
     QVariantList m_records;
     int m_transactionId;

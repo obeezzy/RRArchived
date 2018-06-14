@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QAbstractListModel>
 
-class QueryRequest;
-class QueryResult;
+#include "database/queryrequest.h"
+#include "database/queryresult.h"
 
 class QMLDashboardHomeModel : public QAbstractListModel
 {
@@ -16,10 +16,10 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
 signals:
-    void sendRequest(const QueryRequest &);
+    void sendRequest(const QueryRequest request);
 private:
     void startQuery();
-    void processResult(const QueryResult &);
+    void processResult(const QueryResult result);
 };
 
 #endif // QMLDASHBOARDHOMEMODEL_H

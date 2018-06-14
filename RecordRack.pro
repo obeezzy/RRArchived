@@ -7,7 +7,7 @@ SUBDIRS += src/rrcore \
     3rdparty/fluid \
     tests
 
-PROJECT_NAME = RecordRack2
+PROJECT_NAME = RecordRackDesktop
 PROJECT_VERSION = 0.1.0
 
 DISTNAME = $${PROJECT_NAME}-$${PROJECT_VERSION}

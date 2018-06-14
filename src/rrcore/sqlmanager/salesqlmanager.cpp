@@ -453,7 +453,7 @@ LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 
             outcome.insert("customer_phone_number", items.first().toMap().value("customer_phone_number"));
             outcome.insert("total_cost", items.first().toMap().value("total_cost"));
             outcome.insert("items", items);
-            outcome.insert("recordCount", items.count());
+            outcome.insert("record_count", items.count());
 
             result.setOutcome(outcome);
         }
@@ -567,7 +567,7 @@ void SaleSqlManager::viewSaleTransactions(const QueryRequest &request, QueryResu
             transactions.append(recordToMap(q.record()));
         }
 
-        result.setOutcome(QVariantMap { { "transactions", transactions }, { "recordCount", transactions.count() } });
+        result.setOutcome(QVariantMap { { "transactions", transactions }, { "record_count", transactions.count() } });
     } catch (DatabaseException &) {
         throw;
     }
@@ -592,7 +592,7 @@ void SaleSqlManager::viewSaleItemsForTransaction(const QueryRequest &request, Qu
             items.append(recordToMap(q.record()));
         }
 
-        result.setOutcome(QVariantMap { { "items", items }, { "recordCount", items.count() } });
+        result.setOutcome(QVariantMap { { "items", items }, { "record_count", items.count() } });
     } catch (DatabaseException &) {
         throw;
     }
@@ -677,7 +677,7 @@ LIMIT 5;
         }
 
         QVariantMap outcome;
-        outcome.insert("recordCount", records.count());
+        outcome.insert("record_count", records.count());
         outcome.insert("records", records);
         result.setOutcome(outcome);
     } catch (DatabaseException &) {

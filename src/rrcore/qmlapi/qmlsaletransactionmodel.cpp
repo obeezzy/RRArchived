@@ -139,9 +139,9 @@ void QMLSaleTransactionModel::tryQuery()
     emit executeRequest(request);
 }
 
-void QMLSaleTransactionModel::processResult(const QueryResult &result)
+void QMLSaleTransactionModel::processResult(const QueryResult result)
 {
-    if (result.request().parent() != this)
+    if (result.request().receiver() != this)
         return;
 
     if (result.isSuccessful()) {

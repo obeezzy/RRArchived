@@ -17,13 +17,16 @@ public:
         Sales,
         Debtor
     }; Q_ENUM(Type)
-    explicit QueryRequest(QObject *parent = nullptr); // NOTE: The parent parameter is mandatory!
+    explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The parent parameter is mandatory!
     QueryRequest(const QueryRequest &other);
     QueryRequest &operator= (const QueryRequest &other);
 
     inline bool operator ==(const QueryRequest &other) const {
         return m_command == other.command() && m_type == other.type() && parent() == other.parent();
     }
+
+    QObject *receiver() const;
+    void setReceiver(QObject *receiver);
 
     void setCommand(const QString &command, const QVariantMap &params, const Type type);
     QString command() const;
@@ -39,6 +42,7 @@ public:
         return debug;
     }
 private:
+    QObject *m_receiver;
     QString m_command;
     QVariantMap m_params;
     Type m_type;

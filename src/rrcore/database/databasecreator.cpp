@@ -219,6 +219,23 @@ void DatabaseCreator::createTables()
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create creditor table."));
 
+        // Create credit transaction table
+        q.prepare("CREATE TABLE IF NOT EXISTS credit_transaction ("
+                  "id INT(11) NOT NULL AUTO_INCREMENT, "
+                  "creditor_id INT(11) NOT NULL, "
+                  "transaction_table VARCHAR(20) NOT NULL, "
+                  "transaction_id INT(11) NOT NULL, "
+                  "note_id INT(11) DEFAULT NULL, "
+                  "archived INT(11) NOT NULL, "
+                  "created DATETIME NOT NULL, "
+                  "last_edited DATETIME NOT NULL, "
+                  "user_id INT(11) NOT NULL, "
+                  "PRIMARY KEY (id)"
+                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateTableFailed, q.lastError().text(), QString("Failed to create credit transaction table."));
+
         // Create current quantity table
         q.prepare("CREATE TABLE IF NOT EXISTS current_quantity ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
@@ -300,7 +317,7 @@ void DatabaseCreator::createTables()
         // Create debt transaction table
         q.prepare("CREATE TABLE IF NOT EXISTS debt_transaction ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
-                  "client_id INT(11) NOT NULL, "
+                  "debtor_id INT(11) NOT NULL, "
                   "transaction_table VARCHAR(20) NOT NULL, "
                   "transaction_id INT(11) NOT NULL, "
                   "note_id INT(11) DEFAULT NULL, "

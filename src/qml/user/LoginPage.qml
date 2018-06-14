@@ -105,7 +105,7 @@ FluidControls.Page {
                 failureAlertDialogLoader.message = qsTr("The user name field cannot be empty.");
                 break;
             case RR.UserProfile.IncorrectCredentials:
-                failureAlertDialogLoader.message = qsTr("Your user name or password was incorrect.");
+                failureAlertDialogLoader.message = qsTr("Your user name or password is incorrect.");
                 break;
             default:
                 failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");

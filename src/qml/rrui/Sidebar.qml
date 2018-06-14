@@ -10,7 +10,7 @@ FluidControls.Sidebar {
     property int currentIndex: 0
     readonly property ListModel model: NavMenuModel { }
 
-    width: 150
+    width: 220
 
     Column {
         id: column
@@ -31,11 +31,12 @@ FluidControls.Sidebar {
                 contentItem: FocusScope {
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
+                        spacing: 8
 
-//                        FluidControls.Icon {
-//                            anchors.verticalCenter: parent.verticalCenter
-//                            name: iconName
-//                        }
+                        FluidControls.Icon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: iconName ? FluidControls.Utils.iconUrl(iconName) : ""
+                        }
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -46,7 +47,7 @@ FluidControls.Sidebar {
                             }
                         }
 
-                        FluidControls.CaptionLabel {
+                        FluidControls.SubheadingLabel {
                             text: title
                             anchors.verticalCenter: parent.verticalCenter
                             verticalAlignment: Qt.AlignVCenter

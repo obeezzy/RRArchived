@@ -6,6 +6,7 @@
 #include <QQmlParserStatus>
 #include <QVariant>
 #include "database/queryrequest.h"
+#include "database/queryresult.h"
 
 class QueryRequest;
 class QueryResult;
@@ -41,14 +42,14 @@ public slots:
     virtual void undoLastCommit();
 protected:
     virtual void tryQuery() = 0;
-    virtual void processResult(const QueryResult &result) = 0;
+    virtual void processResult(const QueryResult result) = 0;
     virtual void filter();
     void setBusy(bool);
 
     void setLastRequest(const QueryRequest &lastRequest);
     QueryRequest lastRequest() const;
 signals:
-    void executeRequest(const QueryRequest &request);
+    void executeRequest(const QueryRequest request);
     void autoQueryChanged();
     void busyChanged();
 

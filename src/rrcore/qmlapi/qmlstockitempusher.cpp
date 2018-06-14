@@ -211,9 +211,9 @@ void QMLStockItemPusher::push()
     emit executeRequest(request);
 }
 
-void QMLStockItemPusher::processResult(const QueryResult &result)
+void QMLStockItemPusher::processResult(const QueryResult result)
 {
-    if (this != result.request().parent())
+    if (this != result.request().receiver())
         return;
 
     setBusy(false);

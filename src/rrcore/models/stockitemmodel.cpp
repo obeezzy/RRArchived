@@ -173,7 +173,7 @@ void StockItemModel::tryQuery()
 
 }
 
-void StockItemModel::processResult(const QueryResult &result)
+void StockItemModel::processResult(const QueryResult result)
 {
     Q_UNUSED(result)
 }

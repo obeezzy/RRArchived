@@ -78,7 +78,7 @@ void SaleMostSoldItemModel::tryQuery()
 
 }
 
-void SaleMostSoldItemModel::processResult(const QueryResult &result)
+void SaleMostSoldItemModel::processResult(const QueryResult result)
 {
     Q_UNUSED(result)
 }

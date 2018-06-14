@@ -10,8 +10,10 @@
 
 int main(int argc, char *argv[])
 {
-    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    qputenv("QT_SCALE_FACTOR", "1.4");
+#if defined(Q_OS_WIN) || defined(Q_OS_ANDROID)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    //qputenv("QT_SCALE_FACTOR", "1.4");
     QApplication app(argc, argv);
 
     QApplication::setApplicationName("Record Rack");
@@ -19,14 +21,11 @@ int main(int argc, char *argv[])
     QGuiApplication::setOrganizationName("Gecko");
     QGuiApplication::setOrganizationDomain("www.gecko.rr.com");
 
-    //qDebug() << "pixelRatio=" << app.screens().first()->devicePixelRatio();
-    DatabaseThread::instance().start();
     Plugins::registerTypes();
     QQuickStyle::setStyle("Material");
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QLatin1String("../../RecordRackDesktop/src/qml/main.qml")));
-
+    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
 

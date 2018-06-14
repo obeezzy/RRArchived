@@ -28,7 +28,7 @@ private:
 
 QMLDebtorModelTest::QMLDebtorModelTest()
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
 }
 
 void QMLDebtorModelTest::init()
@@ -49,6 +49,42 @@ void QMLDebtorModelTest::testRemoveDebtor()
 {
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
 
+    QVERIFY(m_client->initialize());
+
+    m_debtorPusher->setImageSource("image/source");
+    m_debtorPusher->setFirstName("First name");
+    m_debtorPusher->setLastName("Last name");
+    m_debtorPusher->setPreferredName("Preferred name");
+    m_debtorPusher->setPhoneNumber("1234567890");
+    m_debtorPusher->setAddress("1234 Address Street");
+    m_debtorPusher->setNote("Note");
+    m_debtorPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+
+    m_debtorModel->componentComplete();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(m_debtorModel->rowCount(), 1);
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+
+    m_debtorModel->removeDebtor(1);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(m_debtorModel->rowCount(), 0);
+    successSpy.clear();
+
+    m_debtorModel->refresh();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(m_debtorModel->rowCount(), 0);
+}
+
+void QMLDebtorModelTest::testUndoRemoveDebtor()
+{
+    QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
+
+    QVERIFY(m_client->initialize());
+
     m_debtorPusher->setImageSource("image/source");
     m_debtorPusher->setFirstName("First name");
     m_debtorPusher->setLastName("Last name");
@@ -65,14 +101,13 @@ void QMLDebtorModelTest::testRemoveDebtor()
 
     m_debtorModel->removeDebtor(1);
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
-    QCOMPARE(successSpy.count(), 1);
-
     QCOMPARE(m_debtorModel->rowCount(), 0);
-}
+    successSpy.clear();
 
-void QMLDebtorModelTest::testUndoRemoveDebtor()
-{
-    QVERIFY(true);
+    m_debtorModel->undoLastCommit();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(m_debtorModel->rowCount(), 1);
 }
 
 QTEST_MAIN(QMLDebtorModelTest)

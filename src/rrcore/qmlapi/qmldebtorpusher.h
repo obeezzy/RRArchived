@@ -69,7 +69,7 @@ signals:
     void addressChanged();
     void noteChanged();
 protected:
-    void processResult(const QueryResult &result) override final;
+    void processResult(const QueryResult result) override final;
 public slots:
     void push() override final;
 

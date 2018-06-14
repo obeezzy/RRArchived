@@ -52,8 +52,8 @@ void QMLSaleTransactionItemModel::tryQuery()
     emit executeRequest(request);
 }
 
-void QMLSaleTransactionItemModel::processResult(const QueryResult &result)
+void QMLSaleTransactionItemModel::processResult(const QueryResult result)
 {
-    if (result.request().parent() != this)
+    if (result.request().receiver() != this)
         return;
 }

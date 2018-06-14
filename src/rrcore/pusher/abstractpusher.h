@@ -2,8 +2,9 @@
 #define ABSTRACTPUSHER_H
 
 #include <QObject>
+#include "database/queryrequest.h"
+#include "database/queryresult.h"
 
-class QueryRequest;
 class QueryResult;
 
 class AbstractPusher : public QObject
@@ -17,16 +18,23 @@ public:
     bool isBusy() const;
 protected:
     void setBusy(bool);
-    virtual void processResult(const QueryResult &result) = 0;
+    virtual void processResult(const QueryResult result) = 0;
+
+    void setLastRequest(const QueryRequest &lastRequest);
+    QueryRequest lastRequest() const;
 signals:
     void busyChanged();
     void success(int successCode = 0);
     void error(int errorCode = 0);
-    void executeRequest(const QueryRequest &);
+    void executeRequest(const QueryRequest request);
 public slots:
     virtual void push() = 0;
+    virtual void undoLastCommit();
 private:
     bool m_busy;
+    QueryRequest m_lastRequest;
+
+    void saveRequest(const QueryResult &result);
 };
 
 #endif // ABSTRACTPUSHER_H

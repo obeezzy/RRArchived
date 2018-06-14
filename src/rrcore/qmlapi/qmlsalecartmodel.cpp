@@ -309,9 +309,9 @@ void QMLSaleCartModel::tryQuery()
     }
 }
 
-void QMLSaleCartModel::processResult(const QueryResult &result)
+void QMLSaleCartModel::processResult(const QueryResult result)
 {
-    if (this != result.request().parent())
+    if (this != result.request().receiver())
         return;
 
     setBusy(false);

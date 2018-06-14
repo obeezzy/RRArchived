@@ -18,11 +18,15 @@ QueryResult DebtorSqlManager::execute(const QueryRequest &request)
 
     try {
         if (request.command() == "add_debtor")
-            addDebtor(request);
+            addDebtor(request, result);
+        else if (request.command() == "undo_add_debtor")
+            undoAddDebtor(request, result);
         else if (request.command() == "view_debtors")
             viewDebtors(request, result);
         else if (request.command() == "remove_debtor")
             removeDebtor(request, result);
+        else if (request.command() == "undo_remove_debtor")
+            undoRemoveDebtor(request, result);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -37,14 +41,15 @@ QueryResult DebtorSqlManager::execute(const QueryRequest &request)
     return result;
 }
 
-void DebtorSqlManager::addDebtor(const QueryRequest &request)
+void DebtorSqlManager::addDebtor(const QueryRequest &request, QueryResult &result)
 {
     const QVariantMap &params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
     const QVariantList debtTransactions = params.value("debt_transactions").toList();
     int noteId = 0;
-    QVector<int> debtTransactionNoteIds;
+    int debtorId = 0;
     int clientId = 0;
+    QVector<int> debtTransactionNoteIds;
     QSqlQuery q(connection());
 
     try {
@@ -119,12 +124,14 @@ void DebtorSqlManager::addDebtor(const QueryRequest &request)
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(), "Failed to insert into debtor table.");
 
+        debtorId = q.lastInsertId().toInt();
+
         // Add debt transactions
         for (int i = 0; i < debtTransactions.count(); ++i) {
-            q.prepare("INSERT INTO debt_transaction (client_id, transaction_table, transaction_id, note_id, archived, created, last_edited, "
-                      "user_id) VALUES (:client_id, :transaction_table, :transaction_id, :note_id, :archived, "
+            q.prepare("INSERT INTO debt_transaction (debtor_id, transaction_table, transaction_id, note_id, archived, created, last_edited, "
+                      "user_id) VALUES (:debtor_id, :transaction_table, :transaction_id, :note_id, :archived, "
                       ":created, :last_edited, :user_id)");
-            q.bindValue(":client_id", clientId);
+            q.bindValue(":debtor_id", debtorId);
             q.bindValue(":transaction_table", "debtor");
             q.bindValue(":transaction_id", 0);
             q.bindValue(":note_id", debtTransactionNoteIds.at(i) == 0 ? QVariant(QVariant::Int) : debtTransactionNoteIds.at(i));
@@ -181,7 +188,70 @@ void DebtorSqlManager::addDebtor(const QueryRequest &request)
             if (dueDateTime <= QDateTime::currentDateTime())
                 throw DatabaseException(DatabaseException::RRErrorCode::InvalidDueDate, q.lastError().text(),
                                         "Due date is earlier than the current date.");
+
+            QVariantMap outcome;
+            outcome.insert("client_id", clientId);
+            outcome.insert("debtor_id", debtorId);
+            outcome.insert("debt_transaction_id", debtTransactionId);
+            result.setOutcome(outcome);
         }
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+    } catch (DatabaseException &) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        throw;
+    }
+}
+
+void DebtorSqlManager::undoAddDebtor(const QueryRequest &request, QueryResult &result)
+{
+    Q_UNUSED(result)
+
+    const QVariantMap &params = request.params();
+    const QDateTime currentDateTime = QDateTime::currentDateTime();
+
+    qDebug() << ">>>" << params.value("outcome").toMap().value("debtor_id").toInt() << params.value("outcome").toMap().value("debt_transaction_id").toInt();
+
+    QSqlQuery q(connection());
+
+    try {
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        // Remove debtor
+        q.prepare("UPDATE debtor SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :debtor_id");
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+        q.bindValue(":debtor_id", params.value("outcome").toMap().value("debtor_id"));
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::UndoAddDebtorFailure, q.lastError().text(),
+                                    "Failed to archive debtor.");
+
+        // Remove debt transaction
+        q.prepare("UPDATE debt_transaction SET archived = 1, last_edited = :last_edited, user_id = :user_id "
+                  "WHERE id = :debt_transaction_id");
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+        q.bindValue(":debt_transaction_id", params.value("outcome").toMap().value("debt_transaction_id"));
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::UndoAddDebtorFailure, q.lastError().text(),
+                                    "Failed to archive debt transaction.");
+
+        // Remove debt payment for debt transaction ID
+        q.prepare("UPDATE debt_payment SET archived = 1, last_edited = :last_edited, user_id = :user_id "
+                  "WHERE debt_transaction_id = :debt_transaction_id");
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+        q.bindValue(":debt_transaction_id", params.value("outcome").toMap().value("debt_transaction_id"));
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::UndoAddDebtorFailure, q.lastError().text(),
+                                    "Failed to archive debt payments.");
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -202,9 +272,9 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
       SELECT debtor.client_id, client.preferred_name AS name,
       (SELECT SUM(debt_payment.balance) FROM debt_payment
       INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id
-      INNER JOIN debtor ON debt_transaction.client_id = debtor.client_id
+      INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id
       WHERE debt_payment.debt_transaction_id IN
-     (SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.client_id = debtor.client_id AND debt_transaction.archived = 0)
+     (SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0)
      AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS balance,
       note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user
       FROM debtor
@@ -218,9 +288,9 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
         q.prepare("SELECT debtor.client_id, client.preferred_name AS name, "
                   "(SELECT SUM(debt_payment.balance) FROM debt_payment "
                   "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
-                  "INNER JOIN debtor ON debt_transaction.client_id = debtor.client_id "
+                  "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
                   "WHERE debt_payment.debt_transaction_id IN "
-                  "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.client_id = debtor.client_id AND debt_transaction.archived = 0) "
+                  "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
                   "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_balance, "
                   "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
                   "FROM debtor "
@@ -238,7 +308,7 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
             debtors.append(recordToMap(q.record()));
         }
 
-        result.setOutcome(QVariantMap { { "debtors", debtors }, { "recordCount", debtors.count() } });
+        result.setOutcome(QVariantMap { { "debtors", debtors }, { "record_count", debtors.count() } });
     } catch (DatabaseException &) {
         throw;
     }
@@ -276,4 +346,10 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
 
         throw;
     }
+}
+
+void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult &result)
+{
+    Q_UNUSED(request)
+    Q_UNUSED(result)
 }

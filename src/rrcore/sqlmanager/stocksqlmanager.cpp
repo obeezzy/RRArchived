@@ -318,7 +318,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
             qDebug() << "-------------------------------------------------";
         }
         */
-        result.setOutcome(QVariantMap { { "categories", categories }, { "recordCount", itemCount } });
+        result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", itemCount } });
     } catch (DatabaseException &) {
         throw;
     }
@@ -341,7 +341,7 @@ void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResu
             categories.append(recordToMap(q.record()));
         }
 
-        result.setOutcome(QVariantMap { { "categories", categories }, { "recordCount", categories.count() } });
+        result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", categories.count() } });
     } catch (DatabaseException &) {
         throw;
     }

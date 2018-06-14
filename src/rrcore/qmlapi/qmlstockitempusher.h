@@ -64,7 +64,7 @@ public:
     double retailPrice() const;
     void setRetailPrice(double);
 protected:
-    void processResult(const QueryResult &result) override final;
+    void processResult(const QueryResult result) override final;
 signals:
     void imageSourceChanged();
     void categoryChanged();

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVariantList>
+
 #include "abstractvisuallistmodel.h"
 
 class StockItemModel : public AbstractVisualListModel
@@ -46,7 +47,7 @@ public:
     bool removeItem(int itemId);
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult &result) override final;
+    void processResult(const QueryResult result) override final;
 private:
     QString m_category;
     int m_categoryId;

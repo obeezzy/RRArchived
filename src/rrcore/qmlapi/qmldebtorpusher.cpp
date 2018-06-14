@@ -108,9 +108,9 @@ void QMLDebtorPusher::setNote(const QString &note)
     emit noteChanged();
 }
 
-void QMLDebtorPusher::processResult(const QueryResult &result)
+void QMLDebtorPusher::processResult(const QueryResult result)
 {
-    if (this != result.request().parent())
+    if (this != result.request().receiver())
         return;
 
     setBusy(false);
@@ -147,6 +147,7 @@ void QMLDebtorPusher::push()
         setBusy(true);
 
         QVariantMap params;
+        params.insert("can_undo", true);
         params.insert("image_source", m_imageSource);
         params.insert("first_name", m_firstName);
         params.insert("last_name", m_lastName);

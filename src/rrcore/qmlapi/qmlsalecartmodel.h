@@ -74,7 +74,7 @@ public:
     Q_INVOKABLE void clearAll();
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult &result) override final;
+    void processResult(const QueryResult result) override final;
 signals:
     void transactionIdChanged();
     void customerNameChanged();

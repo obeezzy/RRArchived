@@ -10,9 +10,9 @@ AbstractVisualListModel::AbstractVisualListModel(QObject *parent) :
     m_lastRequest(QueryRequest())
 {
     connect(this, &AbstractVisualListModel::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultsReady, this, &AbstractVisualListModel::processResult);
+    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractVisualListModel::processResult);
 
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultsReady, this, &AbstractVisualListModel::saveRequest);
+    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractVisualListModel::saveRequest);
 
     connect(this, &AbstractVisualListModel::filterTextChanged, this, &AbstractVisualListModel::filter);
     connect(this, &AbstractVisualListModel::filterColumnChanged, this, &AbstractVisualListModel::filter);
@@ -115,7 +115,7 @@ void AbstractVisualListModel::filter()
 
 void AbstractVisualListModel::saveRequest(const QueryResult &result)
 {
-    if (result.isSuccessful() && result.request().parent() == this) {
+    if (result.isSuccessful() && result.request().receiver() == this) {
         if (result.request().params().value("can_undo").toBool() && !result.request().command().startsWith("undo_")) {
             qDebug() << "Request pushed=" << result.request();
             QueryRequest request(result.request());
