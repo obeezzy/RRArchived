@@ -19,8 +19,6 @@
 #include <QElapsedTimer>
 #include <QDebug>
 
-DatabaseThread *DatabaseThread::m_instance = nullptr;
-
 Worker::Worker(QObject *parent) :
     QObject(parent)
 {
@@ -100,17 +98,13 @@ DatabaseThread::DatabaseThread(QObject *parent) :
 
 DatabaseThread::~DatabaseThread()
 {
+    quit();
 }
 
 DatabaseThread &DatabaseThread::instance()
 {
-    if (m_instance == nullptr) {
-        m_instance = new DatabaseThread;
-        connect(qApp, &QCoreApplication::aboutToQuit, m_instance, &DatabaseThread::quit);
-        connect(m_instance, &DatabaseThread::finished, m_instance, &DatabaseThread::deleteLater);
-    }
-
-    return *m_instance;
+    static DatabaseThread instance;
+    return instance;
 }
 
 void DatabaseThread::run()

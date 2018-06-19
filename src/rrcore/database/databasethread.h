@@ -28,13 +28,14 @@ public:
     static DatabaseThread &instance();
     ~DatabaseThread();
 
+    DatabaseThread(DatabaseThread const &) = delete;
+    void operator=(DatabaseThread const &) = delete;
+
     void run() override final;
 signals:
     void execute(const QueryRequest request);
     void resultReady(const QueryResult result);
 private:
-    static DatabaseThread *m_instance;
-
     explicit DatabaseThread(QObject *parent = nullptr);
 };
 
