@@ -8,7 +8,7 @@ import "../rrui" as RRUi
 import "../common"
 import "../singletons"
 
-FluidControls.Page {
+RRUi.Page {
     id: homePage
     title: qsTr("Stock")
     topPadding: 10
@@ -19,7 +19,7 @@ FluidControls.Page {
 
     actions: [
         FluidControls.Action {
-            icon.name: "navigation/more_vert"
+            icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
             text: qsTr("Add a new item.")
             onTriggered: bottomSheet.open();
             toolTip: qsTr("More options")
@@ -107,10 +107,10 @@ FluidControls.Page {
         onSuccess: {
             switch (successCode) {
             case RRModels.StockCategoryItemModel.ItemRemoved:
-                snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
+                snackBar.open(qsTr("Item removed successfully."), qsTr("Undo"));
                 break;
             case RRModels.StockCategoryItemModel.UndoSuccessful:
-                snackBar.show(qsTr("Undo successful."));
+                snackBar.open(qsTr("Undo successful."), "");
                 break;
             }
         }
@@ -140,7 +140,7 @@ FluidControls.Page {
     FluidControls.FloatingActionButton {
         Material.background: Material.LightGreen
         Material.foreground: "white"
-        icon.name: "content/add"
+        icon.source: FluidControls.Utils.iconUrl("content/add")
 
         onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"));
 
@@ -157,13 +157,13 @@ FluidControls.Page {
 
         actions: [
             FluidControls.Action {
-                icon.name: "content/add"
+                icon.source: FluidControls.Utils.iconUrl("content/add")
                 text: qsTr("Add a new item.")
                 onTriggered: homePage.push(Qt.resolvedUrl("NewItemPage.qml"));
             },
 
             FluidControls.Action {
-                icon.name: "image/edit"
+                icon.source: FluidControls.Utils.iconUrl("image/edit")
                 text: qsTr("View all items.")
             }
         ]

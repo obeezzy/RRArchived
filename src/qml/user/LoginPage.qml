@@ -5,86 +5,89 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
 import "../rrui" as RRUi
 
-FluidControls.Page {
+RRUi.Page {
     id: loginPage
 
     signal loggedIn
 
-    FluidControls.Card {
-        anchors.centerIn: parent
-        width: 400
-        height: 300
-        Material.elevation: 2
+    contentItem: FocusScope {
+        FluidControls.Card {
+            anchors.centerIn: parent
+            width: 400
+            height: 300
+            Material.elevation: 2
 
-        contentItem: FocusScope {
-            FluidControls.TitleLabel {
-                id: titleLabel
-                height: parent.height * .2
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                }
-                verticalAlignment: Qt.AlignVCenter
-                leftPadding: 10
-                text: qsTr("Welcome to Record Rack")
-                color: "white"
-                background: Rectangle { color: Material.color(Material.LightGreen) }
-                font.weight: Font.Light
-            }
-
-            Column {
-                id: textFieldColumn
-                anchors {
-                    top: titleLabel.bottom
-                    topMargin: 36
-                    horizontalCenter: parent.horizontalCenter
+            contentItem: FocusScope {
+                focus: true
+                FluidControls.TitleLabel {
+                    id: titleLabel
+                    height: parent.height * .2
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                    }
+                    verticalAlignment: Qt.AlignVCenter
+                    leftPadding: 10
+                    text: qsTr("Welcome to Record Rack")
+                    color: "white"
+                    background: Rectangle { color: Material.color(Material.LightGreen) }
+                    font.weight: Font.Light
                 }
 
-                Row {
-                    spacing: 12
-                    FluidControls.Icon {
-                        anchors.verticalCenter: parent.verticalCenter
-                        name: "social/person" //"communication/email"
-                        size: 20
+                Column {
+                    id: textFieldColumn
+                    anchors {
+                        top: titleLabel.bottom
+                        topMargin: 36
+                        horizontalCenter: parent.horizontalCenter
                     }
 
-                    TextField {
-                        id: userNameField
-                        focus: true
-                        width: 200
-                        placeholderText: qsTr("User name")//qsTr("Email")
+                    Row {
+                        spacing: 12
+                        FluidControls.Icon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            name: "social/person" //"communication/email"
+                            size: 20
+                        }
+
+                        TextField {
+                            id: userNameField
+                            focus: true
+                            width: 200
+                            placeholderText: qsTr("User name")//qsTr("Email")
+                        }
+                    }
+
+                    Row {
+                        spacing: 12
+
+                        FluidControls.Icon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            name: "action/lock"
+                            size: 20
+                        }
+
+                        TextField {
+                            id: passwordField
+                            width: 200
+                            echoMode: TextInput.Password
+                            placeholderText: qsTr("Password")
+                            passwordCharacter: "\u26ab"
+                        }
                     }
                 }
 
-                Row {
-                    spacing: 12
-
-                    FluidControls.Icon {
-                        anchors.verticalCenter: parent.verticalCenter
-                        name: "action/lock"
-                        size: 20
+                Button {
+                    Material.background: Material.accent
+                    Material.foreground: "white"
+                    anchors {
+                        top: textFieldColumn.bottom
+                        margins: 24
+                        right: parent.right
                     }
-
-                    TextField {
-                        id: passwordField
-                        width: 200
-                        echoMode: TextInput.Password
-                        placeholderText: qsTr("Password")
-                        passwordCharacter: "\u26ab"
-                    }
+                    text: qsTr("Login")
+                    onClicked: userProfile.signIn(userNameField.text, passwordField.text);
                 }
-            }
-
-            Button {
-                Material.background: Material.accent
-                Material.foreground: "white"
-                anchors {
-                    top: textFieldColumn.bottom
-                    margins: 24
-                    right: parent.right
-                }
-                text: qsTr("Login")
-                onClicked: userProfile.signIn(userNameField.text, passwordField.text);
             }
         }
     }

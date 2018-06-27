@@ -29,14 +29,9 @@ Worker::~Worker()
     m_connection.close();
 }
 
-void Worker::initialize()
-{
-
-}
-
 void Worker::execute(const QueryRequest request)
 {
-    qDebug() << Q_FUNC_INFO << request << ", sender=" << request.receiver();
+    qInfo() << Q_FUNC_INFO << request << ", receiver=" << request.receiver();
     QueryResult result;
 
     QElapsedTimer timer;
@@ -77,7 +72,7 @@ void Worker::execute(const QueryRequest request)
     }
 
     emit resultReady(result);
-    qDebug() << Q_FUNC_INFO << result << " [elapsed = " << timer.elapsed() << " ms]";
+    qInfo() << Q_FUNC_INFO << result << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :
@@ -89,7 +84,6 @@ DatabaseThread::DatabaseThread(QObject *parent) :
         connect(worker, &Worker::resultReady, this, &DatabaseThread::resultReady);
         connect(this, &DatabaseThread::execute, worker, &Worker::execute);
         connect(this, &DatabaseThread::finished, worker, &Worker::deleteLater);
-        connect(this, &DatabaseThread::started, worker, &Worker::initialize);
 
         worker->moveToThread(this);
         start();
@@ -98,12 +92,12 @@ DatabaseThread::DatabaseThread(QObject *parent) :
 
 DatabaseThread::~DatabaseThread()
 {
-    quit();
 }
 
 DatabaseThread &DatabaseThread::instance()
 {
     static DatabaseThread instance;
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &instance, &DatabaseThread::quit);
     return instance;
 }
 

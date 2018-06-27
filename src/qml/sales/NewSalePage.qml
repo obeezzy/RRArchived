@@ -5,10 +5,11 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
+import "../stock" as Stock
 import "../common"
 import "../singletons"
 
-FluidControls.Page {
+RRUi.Page {
     id: newSalePage
     title: qsTr("New sale entry")
     leftPadding: 10
@@ -39,7 +40,7 @@ FluidControls.Page {
 
     actions: [
         FluidControls.Action {
-            icon.name: "action/pan_tool"
+            icon.source: FluidControls.Utils.iconUrl("action/pan_tool")
             toolTip: qsTr("Suspend transaction")
             text: qsTr("Suspend transaction")
             onTriggered: {
@@ -58,20 +59,20 @@ FluidControls.Page {
         },
 
         FluidControls.Action {
-            icon.name: "content/unarchive"
+            icon.source: FluidControls.Utils.iconUrl("content/unarchive")
             toolTip: qsTr("Load suspended transaction")
             text: qsTr("Load suspended transaction")
             onTriggered: retrieveTransactionDialogLoader.active = true;
         },
 
         FluidControls.Action {
-            icon.name: "action/note_add"
+            icon.source: FluidControls.Utils.iconUrl("action/note_add")
             toolTip: qsTr("Add note")
             text: qsTr("Add note")
         },
 
         FluidControls.Action {
-            icon.name: "action/delete"
+            icon.source: FluidControls.Utils.iconUrl("action/delete")
             toolTip: qsTr("Clear all")
             text: qsTr("Clear all")
             onTriggered: confirmationDialogLoader.active = true;
@@ -80,8 +81,8 @@ FluidControls.Page {
     ]
 
     RRUi.SnackBar {
-        id: infoBar
-        onClicked: saleCartListView.undoLastTransaction();
+        id: snackBar
+        onClicked: cartListView.undoLastTransaction();
     }
 
     Loader {
@@ -109,7 +110,7 @@ FluidControls.Page {
     Loader {
         id: confirmationDialogLoader
         active: false
-        sourceComponent: FluidControls.AlertDialog {
+        sourceComponent: RRUi.AlertDialog {
             parent: QQC2.ApplicationWindow.contentItem
             text: qsTr("Clear all?")
             standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
@@ -127,22 +128,18 @@ FluidControls.Page {
         title: qsTr("Failed to complete transaction")
     }
 
-    QQC2.StackView {
+    contentItem: QQC2.StackView {
         id: animationStackView
-        anchors {
-            fill: parent
-            margins: 2
-        }
 
         initialItem: Component {
             Item {
                 id: saleContentItem
 
-                readonly property int itemCount: saleCartListView.count
+                readonly property int itemCount: cartListView.count
                 readonly property string customerName: customerNameField.text
                 readonly property string customerPhoneNumber: customerPhoneNumberField.text
-                readonly property int transactionId: saleCartListView.transactionId
-                readonly property string note: saleCartListView.note
+                readonly property int transactionId: cartListView.transactionId
+                readonly property string note: cartListView.note
 
                 FluidControls.Card {
                     id: stockItemCard
@@ -195,7 +192,7 @@ FluidControls.Page {
                             }
                         }
 
-                        CategoryListView {
+                        Stock.CategoryListView {
                             id: categoryListView
                             anchors {
                                 top: filterChipListView.bottom
@@ -212,7 +209,7 @@ FluidControls.Page {
                                     id: addToCartButton
                                     icon.name: "action/add_shopping_cart"
                                     visible: parent.parent.modelData.quantity > 0
-                                    onClicked: saleCartListView.addItem(parent.parent.modelData);
+                                    onClicked: cartListView.addItem(parent.parent.modelData);
 
                                     QQC2.ToolTip.visible: hovered
                                     QQC2.ToolTip.delay: 1500
@@ -334,8 +331,8 @@ FluidControls.Page {
                             rightPadding: 8
                             Material.elevation: 2
 
-                            SaleCartListView {
-                                id: saleCartListView
+                            CartListView {
+                                id: cartListView
                                 anchors.fill: parent
                                 customerName: customerNameField.text
                                 transactionId: privateProperties.transactionId
@@ -349,24 +346,24 @@ FluidControls.Page {
 
                                     switch (successCode) {
                                     case RRModels.SaleCartModel.TransactionRetrieved:
-                                        customerNameField.text = saleCartListView.customerName;
-                                        infoBar.show(qsTr("Transaction retrieved."));
+                                        customerNameField.text = cartListView.customerName;
+                                        snackBar.open(qsTr("Transaction retrieved."), "");
                                         break;
                                     case RRModels.SaleCartModel.TransactionSuspended:
                                         customerNameField.clear();
                                         privateProperties.transactionId = -1;
-                                        infoBar.show(qsTr("Transaction suspended."), qsTr("Undo"));
+                                        snackBar.open(qsTr("Transaction suspended."), qsTr("Undo"));
                                         break;
                                     case RRModels.SaleCartModel.TransactionSubmitted:
                                         customerNameField.clear();
                                         privateProperties.transactionId = -1;
-                                        infoBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
+                                        snackBar.open(qsTr("Transaction submitted."), qsTr("Undo"));
                                         break;
                                     }
                                 }
                                 onError: {
                                     switch (errorCode) {
-                                    case SaleCartListView.FailedToConnect:
+                                    case CartListView.FailedToConnect:
                                         break;
                                     }
 
@@ -394,7 +391,7 @@ FluidControls.Page {
                                 wrapMode: Text.WordWrap
                                 color: "#555555"
                                 horizontalAlignment: Qt.AlignHCenter
-                                visible: saleCartListView.count == 0
+                                visible: cartListView.count == 0
                                 text: qsTr("Your cart is empty.\nAdd items from the view in the left to get started.");
                             }
                         }
@@ -418,7 +415,7 @@ FluidControls.Page {
                                 FluidControls.SubheadingLabel {
                                     id: totalCostLabel
                                     anchors.right: parent.right
-                                    text: qsTr("Total cost: %1").arg(Number(saleCartListView.totalCost).toLocaleCurrencyString(Qt.locale("en_NG")))
+                                    text: qsTr("Total cost: %1").arg(Number(cartListView.totalCost).toLocaleCurrencyString(Qt.locale("en_NG")))
                                 }
 
                                 QQC2.Button {
@@ -432,16 +429,16 @@ FluidControls.Page {
                     }
                 }
 
-                RRUi.BusyOverlay { visible: saleCartListView.busy }
+                RRUi.BusyOverlay { visible: cartListView.busy }
 
                 Loader {
                     id: paymentWizardLoader
                     active: false
                     sourceComponent: PaymentWizard {
-                        totalCost: saleCartListView.totalCost
-                        balance: saleCartListView.totalCost
+                        totalCost: cartListView.totalCost
+                        balance: cartListView.totalCost
                         customerName: customerNameField.text
-                        onFinished: saleCartListView.submitTransaction(paymentInfo);
+                        onFinished: cartListView.submitTransaction(paymentInfo);
                         onClosed: paymentWizardLoader.active = false;
                     }
 
@@ -489,12 +486,12 @@ FluidControls.Page {
                 }
 
                 function validateUserInput() {
-                    if (customerNameField.text.trim() == "") {
+                    if (customerNameField.text.trim() === "") {
                         failureAlertDialogLoader.title = qsTr("Failed to complete transaction");
                         failureAlertDialogLoader.message = qsTr("Customer name cannot be empty.                     ");
                         failureAlertDialogLoader.create();
                         return false;
-                    } else if (saleCartListView.count == 0) {
+                    } else if (cartListView.count == 0) {
                         failureAlertDialogLoader.title = qsTr("Failed to complete transaction");
                         failureAlertDialogLoader.message = qsTr("There are no items in your cart.                   ");
                         failureAlertDialogLoader.create();
@@ -504,12 +501,13 @@ FluidControls.Page {
                     return true;
                 }
 
-                function suspendTransaction(params) { saleCartListView.suspendTransaction(params); }
+                function suspendTransaction(params) { cartListView.suspendTransaction(params); }
+
                 function clearAll() {
-                    saleCartListView.clearAll();
+                    cartListView.clearAll();
                     privateProperties.transactionId = -1;
                     customerNameField.clear();
-                    infoBar.show(qsTr("Entry cleared."));
+                    snackBar.open(qsTr("Entry cleared."), "");
                 }
             }
         }

@@ -9,13 +9,5 @@ FluidControls.SnackBar{
     parent: FluidControls.ApplicationWindow.contentItem
     duration: GlobalSettings.shortToastDuration
     fullWidth: false
-    onClicked: opened = false;
-
-    function show(text, buttonText) {
-        if (buttonText === undefined)
-            buttonText = "";
-
-        snackBar.buttonText = buttonText;
-        snackBar.open(text);
-    }
+    onClicked: close();
 }

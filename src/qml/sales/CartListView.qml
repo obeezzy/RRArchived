@@ -6,7 +6,7 @@ import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 
 ListView {
-    id: saleCartListView
+    id: cartListView
 
     readonly property bool busy: model.busy
     property alias customerName: saleCartModel.customerName
@@ -28,8 +28,8 @@ ListView {
 
     model: RRModels.SaleCartModel {
         id: saleCartModel
-        onSuccess: saleCartListView.success(successCode);
-        onError: saleCartListView.error(errorCode);
+        onSuccess: cartListView.success(successCode);
+        onError: cartListView.error(errorCode);
     }
 
     delegate: Item {
@@ -66,7 +66,7 @@ ListView {
                 width: FluidControls.Units.iconSizes.medium
                 height: width
                 icon.name: "image/edit"
-                onClicked: saleCartListView.editRequested({ "item_id": item_id, "quantity": quantity, "unit_price": unit_price });
+                onClicked: cartListView.editRequested({ "item_id": item_id, "quantity": quantity, "unit_price": unit_price });
             }
 
             FluidControls.ToolButton {
@@ -74,7 +74,7 @@ ListView {
                 width: FluidControls.Units.iconSizes.medium
                 height: width
                 icon.name: "action/delete"
-                onClicked: saleCartListView.model.removeItem(item_id);
+                onClicked: cartListView.model.removeItem(item_id);
             }
         }
 
@@ -97,7 +97,7 @@ ListView {
                 bottom: parent.bottom
             }
 
-            onQuantityUpdated: saleCartListView.model.setItemQuantity(model.item_id, newQuantity);
+            onQuantityUpdated: cartListView.model.setItemQuantity(model.item_id, newQuantity);
         }
 
         Rectangle {
@@ -108,13 +108,13 @@ ListView {
             }
             color: "lightgray"
             height: 1
-            visible: index < saleCartListView.count - 1
+            visible: index < cartListView.count - 1
         }
     }
 
-    function addItem(itemInfo) { saleCartListView.model.addItem(itemInfo); }
-    function submitTransaction(paymentInfo) { saleCartListView.model.submitTransaction(paymentInfo); }
-    function suspendTransaction(params) { saleCartListView.model.suspendTransaction(params); }
-    function undoLastTransaction() { saleCartListView.model.undoLastCommit(); }
-    function clearAll() { saleCartListView.model.clearAll(); }
+    function addItem(itemInfo) { cartListView.model.addItem(itemInfo); }
+    function submitTransaction(paymentInfo) { cartListView.model.submitTransaction(paymentInfo); }
+    function suspendTransaction(params) { cartListView.model.suspendTransaction(params); }
+    function undoLastTransaction() { cartListView.model.undoLastCommit(); }
+    function clearAll() { cartListView.model.clearAll(); }
 }

@@ -7,7 +7,7 @@ import com.gecko.rr.models 1.0 as RRModels
 import "../../rrui" as RRUi
 import "../../common"
 
-FluidControls.Page {
+RRUi.Page {
     id: homePage
     title: qsTr("Debtors")
     topPadding: 10
@@ -17,7 +17,7 @@ FluidControls.Page {
 
     actions: [
         FluidControls.Action {
-            icon.name: "navigation/more_vert"
+            icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
             text: qsTr("Add a new debtor.")
             onTriggered: bottomSheet.open();
             toolTip: qsTr("More options")
@@ -135,8 +135,7 @@ FluidControls.Page {
     FluidControls.FloatingActionButton {
         Material.background: Material.LightGreen
         Material.foreground: "white"
-        icon.name: "content/add"
-        mini: true
+        icon.source: FluidControls.Utils.iconUrl("content/add")
 
         onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"));
 
@@ -153,13 +152,13 @@ FluidControls.Page {
 
         actions: [
             FluidControls.Action {
-                icon.name: "content/add"
+                icon.source: FluidControls.Utils.iconUrl("content/add")
                 text: qsTr("Add a debtor.")
                 onTriggered: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"));
             },
 
             FluidControls.Action {
-                icon.name: "image/edit"
+                icon.source: FluidControls.Utils.iconUrl("image/edit")
                 text: qsTr("Manage debtors.")
             }
         ]

@@ -7,7 +7,7 @@ import "../common"
 import "homecards"
 
 ListView {
-    id: saleHomeListView
+    id: homeListView
 
     implicitWidth: 600
     implicitHeight: 600

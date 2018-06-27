@@ -6,7 +6,7 @@ import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 import "../singletons"
 
-FluidControls.Page {
+RRUi.Page {
     id: newItemPage
     title: qsTr("New stock item")
     padding: 10
@@ -24,7 +24,7 @@ FluidControls.Page {
     */
 
     actions: FluidControls.Action {
-        icon.name: "action/note_add"
+        icon.source: FluidControls.Utils.iconUrl("action/note_add")
         toolTip: qsTr("Add note")
         text: qsTr("Add note")
     }
@@ -205,7 +205,7 @@ FluidControls.Page {
                                             icon.name: detailCard.userAddedCategory ? "content/remove_circle" : "content/add_circle"
                                             onClicked: {
                                                 if (detailCard.userAddedCategory) {
-                                                    if (categoryComboBox.count == 0) {
+                                                    if (categoryComboBox.count === 0) {
                                                         categoryLabel.text = detailCard.defaultCategoryText;
                                                         detailCard.categoryText = "";
                                                     }
@@ -381,7 +381,7 @@ FluidControls.Page {
                             divisible: divisibleCheckBox.checked
 
                             onSuccess: {
-                                snackBar.open(qsTr("Your item was successfully added!"));
+                                snackBar.open(qsTr("Your item was successfully added!"), "");
                                 animationStackView.replace(null, animationStackView.initialItem);
                             }
                             onError: {
@@ -435,15 +435,15 @@ FluidControls.Page {
                         }
 
                         function validateUserInput() {
-                            if (detailCard.categoryText.trim() == "" && !categoryComboBox.visible) {
+                            if (detailCard.categoryText.trim() === "" && !categoryComboBox.visible) {
                                 failureAlertDialogLoader.message = qsTr("Category field is not set.    "); // Force dialog to stretch
                                 failureAlertDialogLoader.create();
                                 return false;
-                            } else if (itemField.text.trim() == "") {
+                            } else if (itemField.text.trim() === "") {
                                 failureAlertDialogLoader.message = qsTr("Item field is empty.          "); // Force dialog to stretch
                                 failureAlertDialogLoader.create();
                                 return false;
-                            } else if (unitTextField.text.trim() == "") {
+                            } else if (unitTextField.text.trim() === "") {
                                 failureAlertDialogLoader.message = qsTr("Unit field is empty.          "); // Force dialog to stretch
                                 failureAlertDialogLoader.create();
                                 return false;

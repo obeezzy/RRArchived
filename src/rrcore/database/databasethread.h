@@ -13,7 +13,6 @@ public:
     explicit Worker(QObject *parent = nullptr);
     ~Worker();
 
-    void initialize();
     void execute(const QueryRequest request);
 signals:
     void resultReady(const QueryResult result);
