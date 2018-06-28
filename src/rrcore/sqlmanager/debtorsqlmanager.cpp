@@ -69,7 +69,7 @@ void DebtorSqlManager::addDebtor(const QueryRequest &request, QueryResult &resul
             q.prepare("SELECT phone_number FROM client "
                       "INNER JOIN debtor ON client.id = debtor.client_id "
                       "WHERE phone_number = :phone_number");
-            q.bindValue(":phone_number", params.value("phone_number"));
+            q.bindValue(":phone_number", params.value("phone_number"), QSql::Out);
 
             if (!q.exec())
                 throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(), "Failed to check if client exists.");
@@ -317,7 +317,7 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
      */
     try {
         // Get total balance for each debtor
-        q.prepare("SELECT debtor.client_id, client.preferred_name AS name, "
+        q.prepare("SELECT debtor.client_id, debtor.id as debtor_id, client.preferred_name AS name, "
                   "(SELECT SUM(debt_payment.balance) FROM debt_payment "
                   "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
                   "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
@@ -354,6 +354,8 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
     QSqlQuery q(connection());
 
     try {
+        AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
+
         if (params.value("debtor_id").toInt() <= 0)
             throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Debtor ID is invalid.");
         if (!DatabaseUtils::beginTransaction(q))
@@ -368,7 +370,10 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove debtor.");
 
-        result.setOutcome( { { "debtor_id", q.value("debtor_id") } });
+        result.setOutcome(QVariantMap{ { "debtor_id", params.value("debtor_id") },
+                                       { "record_count", QVariant(1) },
+                                       { "debtor_row", params.value("debtor_row") }
+                          });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -382,6 +387,67 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
 
 void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult &result)
 {
-    Q_UNUSED(request)
-    Q_UNUSED(result)
+    const QVariantMap &params = request.params();
+    const QDateTime currentDateTime = QDateTime::currentDateTime();
+
+    QSqlQuery q(connection());
+
+    try {
+        AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
+
+        if (params.value("debtor_id").toInt() <= 0)
+            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Debtor ID is invalid.");
+
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        QSqlQuery q(connection());
+        q.prepare("UPDATE debtor SET archived = 0, last_edited = :last_edited, user_id = :user_id WHERE id = :debtor_id");
+        q.bindValue(":debtor_id", params.value("debtor_id"));
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove debtor.");
+
+        // Get total balance for each debtor
+        q.prepare("SELECT debtor.client_id, client.preferred_name AS name, "
+                  "(SELECT SUM(debt_payment.balance) FROM debt_payment "
+                  "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
+                  "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
+                  "WHERE debt_payment.debt_transaction_id IN "
+                  "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
+                  "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_balance, "
+                  "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
+                  "FROM debtor "
+                  "INNER JOIN client ON client.id = debtor.client_id "
+                  "LEFT JOIN user on user.id = debtor.user_id "
+                  "LEFT JOIN note ON debtor.note_id = note.id "
+                  "WHERE debtor.archived = 0 AND debtor.id = :debtor_id");
+        q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch removed debtor.");
+
+        QVariantMap debtor;
+        if (q.first()) {
+            debtor = recordToMap(q.record());
+            result.setOutcome(QVariantMap { { "debtor", QVariant(debtor) },
+                                            { "record_count", 1 },
+                                            { "debtor_id", params.value("debtor_id") },
+                                            { "debtor_row", params.value("debtor_row") }
+                              });
+        } else {
+            throw DatabaseException(DatabaseException::RRErrorCode::UndoRemoveDebtorFailure,
+                                    q.lastError().text(), "Unable to fetch remove debtor.");
+        }
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+    } catch (DatabaseException &) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        throw;
+    }
 }

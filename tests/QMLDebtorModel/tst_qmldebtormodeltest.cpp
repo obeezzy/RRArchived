@@ -48,6 +48,7 @@ void QMLDebtorModelTest::cleanup()
 void QMLDebtorModelTest::testRemoveDebtor()
 {
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
+    const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
 
     QVERIFY(m_client->initialize());
 
@@ -58,23 +59,24 @@ void QMLDebtorModelTest::testRemoveDebtor()
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
     m_debtorPusher->setNote("Note");
+    m_debtorPusher->addDebt(1234.56, dueDateTime);
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
 
     m_debtorModel->componentComplete();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(m_debtorModel->rowCount(), 1);
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
 
     m_debtorModel->removeDebtor(1);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_debtorModel->rowCount(), 0);
     successSpy.clear();
 
     m_debtorModel->refresh();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_debtorModel->rowCount(), 0);
 }
@@ -82,6 +84,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
 void QMLDebtorModelTest::testUndoRemoveDebtor()
 {
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
+    const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
 
     QVERIFY(m_client->initialize());
 
@@ -92,20 +95,21 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
     m_debtorPusher->setNote("Note");
+    m_debtorPusher->addDebt(1234.56, dueDateTime);
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
 
     m_debtorModel->componentComplete();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(m_debtorModel->rowCount(), 1);
 
     m_debtorModel->removeDebtor(1);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(m_debtorModel->rowCount(), 0);
     successSpy.clear();
 
     m_debtorModel->undoLastCommit();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_debtorModel->rowCount(), 1);
 }

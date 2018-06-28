@@ -28,6 +28,8 @@ public:
         ConnectToTestDatabaseFailed,
         RunSqlOnTestDatabaseFailed,
         AddDebtorFailure,
+        RemoveDebtorFailure,
+        UndoRemoveDebtorFailure,
         ViewDebtorsFailure,
         UndoAddDebtorFailure,
         ViewSaleHomeFailure,
