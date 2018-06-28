@@ -35,6 +35,7 @@ public:
         CreateTableFailed,
         CreateUserFailed,
         InvalidArguments,
+        MissingArguments,
         UndoFailed,
         DuplicateEntryFailure,
         AmountOverpaid,

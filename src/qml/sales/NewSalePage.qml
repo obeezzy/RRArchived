@@ -293,7 +293,7 @@ RRUi.Page {
 
                                     FluidControls.ToolButton {
                                         id: customerOptionButton
-                                        icon.name: "navigation/more_vert"
+                                        icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
 
                                         QQC2.ToolTip.visible: hovered
                                         QQC2.ToolTip.delay: 1500

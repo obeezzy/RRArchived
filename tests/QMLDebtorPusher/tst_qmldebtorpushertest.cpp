@@ -2,6 +2,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <QSqlQuery>
+#include <QSqlError>
 
 #include "qmlapi/qmldebtorpusher.h"
 #include "databaseclient.h"
@@ -206,6 +207,8 @@ void QMLDebtorPusherTest::testAddDebtorWithNoPreferredName()
 void QMLDebtorPusherTest::testAddNewDebtor()
 {
     QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
+    const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
+
     QVERIFY(m_client->initialize());
 
     m_debtorPusher->setImageSource("image/source");
@@ -215,6 +218,7 @@ void QMLDebtorPusherTest::testAddNewDebtor()
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
     m_debtorPusher->setNote("Note");
+    m_debtorPusher->addDebt(1234.56, dueDateTime, "Debt note");
 
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
@@ -261,6 +265,7 @@ void QMLDebtorPusherTest::testAddSameDebtor()
 {
     QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
     QSignalSpy errorSpy(m_debtorPusher, &QMLDebtorPusher::error);
+    const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
 
     QVERIFY(m_client->initialize());
 
@@ -271,6 +276,7 @@ void QMLDebtorPusherTest::testAddSameDebtor()
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
     m_debtorPusher->setNote("Note");
+    m_debtorPusher->addDebt(1234.56, dueDateTime);
 
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
@@ -311,7 +317,6 @@ void QMLDebtorPusherTest::testAddDebt()
     m_debtorPusher->setPreferredName("Preferred name");
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
-    m_debtorPusher->setNote("Note");
     m_debtorPusher->addDebt(1234.56, dueDateTime, "Debt note");
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
@@ -319,12 +324,12 @@ void QMLDebtorPusherTest::testAddDebt()
 
     /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());
-    q.prepare("SELECT id, client_id, transaction_table, note_id, archived, created, last_edited, user_id FROM debt_transaction");
+    q.prepare("SELECT id, debtor_id, transaction_table, note_id, archived, created, last_edited, user_id FROM debt_transaction");
     QVERIFY(q.exec());
     QVERIFY(q.first());
     QCOMPARE(q.size(), 1);
     QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("client_id").toInt(), 1);
+    QCOMPARE(q.value("debtor_id").toInt(), 1);
     QCOMPARE(q.value("transaction_table").toString(), "debtor");
     QVERIFY(q.value("note_id").toInt() > 0);
     QCOMPARE(q.value("archived").toBool(), false);
@@ -350,7 +355,6 @@ void QMLDebtorPusherTest::testAddPayment()
     m_debtorPusher->setPreferredName("Preferred name");
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
-    m_debtorPusher->setNote("Note");
     m_debtorPusher->addDebt(1234.56, QDateTime(dueDate));
     m_debtorPusher->addPayment(0, 4.56, "Payment note");
     m_debtorPusher->push();
@@ -359,12 +363,12 @@ void QMLDebtorPusherTest::testAddPayment()
 
     /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());
-    q.prepare("SELECT id, client_id, transaction_table, note_id, archived, created, last_edited, user_id FROM debt_transaction");
+    q.prepare("SELECT id, debtor_id, transaction_table, note_id, archived, created, last_edited, user_id FROM debt_transaction");
     QVERIFY(q.exec());
     QVERIFY(q.first());
     QCOMPARE(q.size(), 1);
     QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("client_id").toInt(), 1);
+    QCOMPARE(q.value("debtor_id").toInt(), 1);
     QCOMPARE(q.value("transaction_table").toString(), "debtor");
     QCOMPARE(q.value("note_id"), QVariant(QVariant::Int));
     QCOMPARE(q.value("archived").toBool(), false);
@@ -396,6 +400,8 @@ void QMLDebtorPusherTest::testAddPayment()
 void QMLDebtorPusherTest::testUndoAddNewDebtor()
 {
     QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
+    const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
+
     QVERIFY(m_client->initialize());
 
     m_debtorPusher->setImageSource("image/source");
@@ -404,7 +410,7 @@ void QMLDebtorPusherTest::testUndoAddNewDebtor()
     m_debtorPusher->setPreferredName("Preferred name");
     m_debtorPusher->setPhoneNumber("1234567890");
     m_debtorPusher->setAddress("1234 Address Street");
-    m_debtorPusher->setNote("Note");
+    m_debtorPusher->addDebt(1234.56, dueDateTime);
 
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
@@ -417,15 +423,11 @@ void QMLDebtorPusherTest::testUndoAddNewDebtor()
 
     /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());
-    q.prepare("SELECT id, archived FROM debtor WHERE id = 1 AND archived = 1");
+    q.prepare("SELECT id FROM debtor WHERE id = 1 AND archived = 1");
     QVERIFY(q.exec());
     QVERIFY(q.first());
 
-    q.prepare("SELECT id, archived FROM debt_transaction WHERE client_id = 1 AND archived = 1");
-    QVERIFY(q.exec());
-    QVERIFY(q.first());
-
-    q.prepare("SELECT id, archived FROM debt_payment WHERE debt_transaction_id = 1 AND archived = 1");
+    q.prepare("SELECT id FROM debt_transaction WHERE debtor_id = 1 AND archived = 1");
     QVERIFY(q.exec());
     QVERIFY(q.first());
     /****************************************************/

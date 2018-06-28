@@ -92,6 +92,8 @@ DatabaseThread::DatabaseThread(QObject *parent) :
 
 DatabaseThread::~DatabaseThread()
 {
+    quit();
+    wait();
 }
 
 DatabaseThread &DatabaseThread::instance()

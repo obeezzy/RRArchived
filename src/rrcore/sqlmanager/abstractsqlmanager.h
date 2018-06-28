@@ -24,6 +24,8 @@ protected:
     QSqlDatabase &connection() { return m_connection; }
     QVariantMap recordToMap(const QSqlRecord &);
     QSqlRecord mapToRecord(const QVariantMap &);
+
+    void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
 private:
     QSqlDatabase m_connection;
 };

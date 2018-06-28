@@ -141,9 +141,9 @@ void QMLDebtorPusher::push()
         emit error(NoPhoneNumberError);
     } else if (m_preferredName.trimmed().isEmpty()) {
         emit error(NoPreferredNameError);
-    } /*else if (m_debtTransactions.isEmpty()) {
+    } else if (m_debtTransactions.isEmpty()) {
         emit error(NoDebtError);
-    } */else {
+    } else {
         setBusy(true);
 
         QVariantMap params;

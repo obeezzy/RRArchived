@@ -1,4 +1,5 @@
 #include "abstractsqlmanager.h"
+#include "database/databaseexception.h"
 
 AbstractSqlManager::AbstractSqlManager(QSqlDatabase connection) :
     m_connection(connection)
@@ -31,4 +32,22 @@ QSqlRecord AbstractSqlManager::mapToRecord(const QVariantMap &map)
     }
 
     return record;
+}
+
+void AbstractSqlManager::enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params)
+{
+    if (argumentsToEnforce.isEmpty())
+        return;
+
+    QMapIterator<QString, QVariant> mapIter(params);
+    while (mapIter.hasNext()) {
+        auto pair = mapIter.next();
+        if (argumentsToEnforce.contains(pair.key()))
+            argumentsToEnforce.removeAll(pair.key());
+    }
+
+    if (!argumentsToEnforce.isEmpty())
+        throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments,
+                                QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")),
+                                QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")));
 }
