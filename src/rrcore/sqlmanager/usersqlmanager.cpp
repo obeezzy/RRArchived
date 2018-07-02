@@ -87,7 +87,8 @@ void UserSqlManager::signInUser(const QueryRequest &request, QueryResult result)
     connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection().open() || !storeProfile(result))
-        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(), QString("Failed to sign in as '%1'.").arg(userName));
+        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(),
+                                QString("Failed to sign in as '%1'.").arg(userName));
 
     settings.endGroup();
 }
@@ -116,7 +117,8 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
     connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection().open())
-        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(), QString("Failed to open connection."));
+        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(),
+                                QString("Failed to open connection."));
 
     QSqlQuery q(connection());
 
@@ -124,11 +126,17 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
+        q.prepare("FLUSH PRIVILEGES");
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                    QString("Failed to flush privileges for '%1'.").arg(userName));
+
         q.prepare("CREATE USER :username @'localhost' IDENTIFIED BY :password");
         q.bindValue(":username", userName);
         q.bindValue(":password", password);
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, connection().lastError().text(), QString("Failed to create user '%1'.").arg(userName));
+            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                    QString("Failed to create user '%1'.").arg(userName));
 
         grantPrivilege("SELECT", userName, q);
         grantPrivilege("INSERT", userName, q);
@@ -137,7 +145,8 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, connection().lastError().text(), QString("Failed to flush privileges to '%1'.").arg(userName));
+            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                    QString("Failed to flush privileges for '%1'.").arg(userName));
 
         createRRUser(userName, q);
 
@@ -145,7 +154,7 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
 
         settings.endGroup();
-    } catch (DatabaseException &) {
+    } catch (DatabaseException &e) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
@@ -186,13 +195,15 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
 
         q.prepare(QString("CREATE USER '%1'@'localhost' IDENTIFIED BY '%2'").arg(userName, password));
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, connection().lastError().text(), QString("Failed to create user '%1'.").arg(userName));
+            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                    QString("Failed to create root user '%1'.").arg(userName));
 
         grantPrivilege("ALL PRIVILEGES", userName, q);
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, connection().lastError().text(), QString("Failed to flush privileges to '%1'.").arg(userName));
+            throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                    QString("Failed to flush privileges for '%1'.").arg(userName));
 
         createRRUser(userName, q);
 
@@ -219,14 +230,17 @@ void UserSqlManager::removeUser(const QueryRequest &request)
         connection() = QSqlDatabase::database();
 
     if (!connection().isOpen())
-        throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure, connection().lastError().text(), QString("Connection is closed."));
+        throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure,
+                                connection().lastError().text(), QString("Connection is closed."));
 
     QSqlQuery q(connection());
     q.prepare("DROP USER :user_name@'localhost'");
     q.bindValue(":user_name", userName);
 
     if (!q.exec())
-        throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure, connection().lastError().text(), QString("Failed to drop user '%1'.").arg(userName));
+        throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure,
+                                q.lastError().text(),
+                                QString("Failed to drop user '%1'.").arg(userName));
 }
 
 void UserSqlManager::grantPrivilege(const QString &privilege, const QString &userName, QSqlQuery &q)
@@ -234,7 +248,9 @@ void UserSqlManager::grantPrivilege(const QString &privilege, const QString &use
     q.prepare(QString("GRANT %1 ON * . * TO :username@'localhost'").arg(privilege));
     q.bindValue(":username", userName);
     if (!q.exec())
-        throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, connection().lastError().text(), QString("Failed to grant privileges to '%1'.").arg(userName));
+        throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                QString("Failed to grant '%1' privileges to '%2'.")
+                                .arg(privilege, userName));
 }
 
 void UserSqlManager::createRRUser(const QString &userName, QSqlQuery &q)
@@ -256,7 +272,8 @@ void UserSqlManager::createRRUser(const QString &userName, QSqlQuery &q)
     q.bindValue(":last_edited", currentDateTime);
 
     if (!q.exec())
-        throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, connection().lastError().text(), QString("Failed to create RR user '%1'.").arg(userName));
+        throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
+                                QString("Failed to create RR user '%1'.").arg(userName));
 
     settings.endGroup();
 }

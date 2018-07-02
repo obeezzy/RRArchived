@@ -303,19 +303,19 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
         }
 
         /*
-        qDebug() << "--------------------Outcome-----------------------";
+        qInfo() << "--------------------Outcome-----------------------";
         QMapIterator<QString, QVariant> categoryIter(categoryRecords);
         while (categoryIter.hasNext()) {
             categoryIter.next();
-            qDebug() << categoryIter.key();
-            qDebug() << "-------------------------------------------------";
+            qInfo() << categoryIter.key();
+            qInfo() << "-------------------------------------------------";
             const QVariantList &items = categoryIter.value().toList();
 
             for (const QVariant &itemRecord : items) {
-                qDebug() << "Item name:" << itemRecord.toMap().value("item").toString();
+                qInfo() << "Item name:" << itemRecord.toMap().value("item").toString();
             }
 
-            qDebug() << "-------------------------------------------------";
+            qInfo() << "-------------------------------------------------";
         }
         */
         result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", itemCount } });

@@ -17,7 +17,7 @@ public:
     static QByteArray imageToByteArray(const QString &imageSource);
     static QString byteArrayToImage(const QByteArray &imageData);
 
-    static bool connectToDatabase(const QString &userName, const QString &password, const QString &databaseName);
+    static bool connectToDatabase(const QString &userName, const QString &password, const QString &databaseName, const QString &connectionName);
 private:
     explicit DatabaseUtils(QObject *parent = nullptr);
 };

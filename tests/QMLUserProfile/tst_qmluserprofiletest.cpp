@@ -53,6 +53,8 @@ void QMLUserProfileTest::testSignUp()
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
 
+    QVERIFY(m_client->initialize());
+
     m_userProfile->signUp(USER_NAME, PASSWORD);
     QVERIFY(QTest::qWaitFor([&]() { return !m_userProfile->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
@@ -77,6 +79,8 @@ void QMLUserProfileTest::testSignIn()
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
 
+    QVERIFY(m_client->initialize());
+
     m_userProfile->signUp(USER_NAME, PASSWORD);
     QVERIFY(QTest::qWaitFor([&]() { return !m_userProfile->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
@@ -96,6 +100,8 @@ void QMLUserProfileTest::testRemoveUser()
 {
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
+
+    QVERIFY(m_client->initialize());
 
     m_userProfile->signUp(USER_NAME, PASSWORD);
     QVERIFY(QTest::qWaitFor([&]() { return !m_userProfile->isBusy(); }, 2000));

@@ -35,10 +35,16 @@ QVariant QMLStockCategoryItemModel::data(const QModelIndex &index, int role) con
     }
         break;
     case CategoryRole:
-        return m_categoryRecords.keys().at(index.row());
+        if (m_categoryRecords.isEmpty())
+            return QVariant();
+        else
+            return m_categoryRecords.keys().at(index.row());
         break;
     case ItemModelRole:
-        return QVariant::fromValue<QObject *>(m_stockItemModels.at(index.row()));
+        if (m_stockItemModels.isEmpty())
+            return QVariant();
+        else
+            return QVariant::fromValue<QObject *>(m_stockItemModels.at(index.row()));
         break;
     }
 
@@ -58,8 +64,8 @@ QHash<int, QByteArray> QMLStockCategoryItemModel::roleNames() const
 void QMLStockCategoryItemModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
 
+    QueryRequest request(this);
     request.setCommand("view_stock_items", { { "sort_order", Qt::AscendingOrder } } , QueryRequest::Stock);
 
     emit executeRequest(request);
@@ -76,8 +82,11 @@ void QMLStockCategoryItemModel::processResult(const QueryResult result)
         if (result.request().command() == "view_stock_items") {
             beginResetModel();
 
-            qDeleteAll(m_stockItemModels);
-            m_stockItemModels.clear();
+            if (!m_stockItemModels.isEmpty()) {
+                qDeleteAll(m_stockItemModels);
+                m_stockItemModels.clear();
+            }
+
             m_categoryRecords = result.outcome().toMap().value("categories").toMap();
 
             QMapIterator<QString, QVariant> categoryIter(m_categoryRecords);
@@ -112,7 +121,7 @@ void QMLStockCategoryItemModel::processResult(const QueryResult result)
         } else if (result.request().command() == "undo_remove_stock_item") {
             const int categoryId = result.outcome().toMap().value("category_id").toInt();
             const int itemId = result.outcome().toMap().value("item_id").toInt();
-            const QVariantMap itemInfo = result.outcome().toMap().value("item_info").toMap();
+            const QVariantMap &itemInfo = result.outcome().toMap().value("item_info").toMap();
 
             undoRemoveItemFromModel(categoryId, itemId, itemInfo);
 
@@ -127,6 +136,8 @@ void QMLStockCategoryItemModel::filter()
 {
     if (filterColumn() == -1)
         return;
+
+    setBusy(true);
 
     QueryRequest request(this);
     QVariantMap params;
@@ -177,7 +188,6 @@ void QMLStockCategoryItemModel::removeItemFromModel(int categoryId, int itemId)
             if (model->rowCount() == 0) {
                 beginRemoveRows(QModelIndex(), i, i);
                 m_categoryRecords.remove(m_categoryRecords.keys().at(i));
-                model->deleteLater();
                 endRemoveRows();
             }
         }

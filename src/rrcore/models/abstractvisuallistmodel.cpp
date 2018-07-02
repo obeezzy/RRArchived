@@ -117,7 +117,7 @@ void AbstractVisualListModel::saveRequest(const QueryResult &result)
 {
     if (result.isSuccessful() && result.request().receiver() == this) {
         if (result.request().params().value("can_undo").toBool() && !result.request().command().startsWith("undo_")) {
-            qDebug() << "Request pushed=" << result.request();
+            qInfo() << "Request saved:" << result.request().command();
             QueryRequest request(result.request());
 
             QVariantMap params = request.params();

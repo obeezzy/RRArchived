@@ -15,7 +15,7 @@ public:
     QueryResult execute(const QueryRequest &request) override final;
 private:
     void addSaleTransaction(const QueryRequest &, QueryResult &, bool skipSqlTransaction = false); // throws DatabaseException
-    void updateSuspendedTransaction(QueryRequest request, QueryResult &); // throws DatabaseException
+    void updateSuspendedTransaction(const QueryRequest &request, QueryResult &); // throws DatabaseException
     void viewSaleCart(const QueryRequest &, QueryResult &result); // throws DatabaseException
     void undoAddSaleTransaction(const QueryRequest &request, QueryResult &result); // throws DatabaseException
     void viewSaleTransactions(const QueryRequest &request, QueryResult &result); // throws DatabaseException

@@ -31,7 +31,7 @@ Worker::~Worker()
 
 void Worker::execute(const QueryRequest request)
 {
-    qInfo() << Q_FUNC_INFO << request << ", receiver=" << request.receiver();
+    qInfo() << "Worker->" << request << ", receiver=" << request.receiver();
     QueryResult result;
 
     QElapsedTimer timer;
@@ -41,8 +41,8 @@ void Worker::execute(const QueryRequest request)
         if (request.command().trimmed().isEmpty())
             throw DatabaseException(DatabaseException::RRErrorCode::NoCommand, "No command set.");
 
-        if (!m_connection.isValid() && QSqlDatabase::database().isValid())
-            m_connection = QSqlDatabase::database();
+        if ((!m_connection.isValid() || !m_connection.isOpen()) && qEnvironmentVariable("TEST_GUI_ENABLED", "") == "1")
+            connectToTestDatabase();
 
         switch (request.type()) {
         case QueryRequest::User:
@@ -68,11 +68,40 @@ void Worker::execute(const QueryRequest request)
         if (!result.isSuccessful())
             throw DatabaseException(DatabaseException::RRErrorCode::UnsuccessfulQueryResult, result.errorMessage(), result.errorUserMessage());
     } catch (DatabaseException &e) {
-        qDebug() << "DatabaseException in DatabaseThread:" << e.message() << e.userMessage();
+        qCritical() << "DatabaseException in Worker->" << e.message() << e.userMessage();
     }
 
     emit resultReady(result);
-    qInfo() << Q_FUNC_INFO << result << " [elapsed = " << timer.elapsed() << " ms]";
+    qInfo() << "Worker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
+}
+
+void Worker::connectToTestDatabase()
+{
+    try {
+        if (!QSqlDatabase::contains())
+            m_connection = QSqlDatabase::addDatabase("QMYSQL");
+        else
+            m_connection = QSqlDatabase::database();
+
+        // Disconnect and connect to 'mysql'
+        if (m_connection.isOpen())
+            m_connection.close();
+
+        m_connection.setDatabaseName("rr_test");
+        m_connection.setHostName("localhost");
+        m_connection.setPort(3306);
+        m_connection.setUserName("root");
+        m_connection.setPassword("hello");
+        m_connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+
+        if (!m_connection.open())
+            throw DatabaseException(DatabaseException::RRErrorCode::ConnectToTestDatabaseFailed, m_connection.lastError().text(), "Failed to connect to test database in worker thread.");
+
+        qInfo() << "----------------TEST DATABASE MODE------------------------";
+    } catch (DatabaseException &e) {
+        qCritical() << "Exception caught:" << e.message() << e.userMessage();
+        throw;
+    }
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :
