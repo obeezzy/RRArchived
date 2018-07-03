@@ -1,5 +1,5 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.2 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
@@ -11,7 +11,10 @@ RRUi.Page {
     signal loggedIn
 
     contentItem: FocusScope {
+        focus: true
+
         FluidControls.Card {
+            focus: true
             anchors.centerIn: parent
             width: 400
             height: 300
@@ -19,6 +22,7 @@ RRUi.Page {
 
             contentItem: FocusScope {
                 focus: true
+
                 FluidControls.TitleLabel {
                     id: titleLabel
                     height: parent.height * .2
@@ -44,17 +48,18 @@ RRUi.Page {
 
                     Row {
                         spacing: 12
+
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
-                            name: "social/person" //"communication/email"
+                            name: "social/person"//"communication/email"
                             size: 20
                         }
 
-                        TextField {
+                        QQC2.TextField {
                             id: userNameField
                             focus: true
                             width: 200
-                            placeholderText: qsTr("User name")//qsTr("Email")
+                            placeholderText: qsTr("User name") //qsTr("Email")
                         }
                     }
 
@@ -67,7 +72,7 @@ RRUi.Page {
                             size: 20
                         }
 
-                        TextField {
+                        QQC2.TextField {
                             id: passwordField
                             width: 200
                             echoMode: TextInput.Password
@@ -77,7 +82,7 @@ RRUi.Page {
                     }
                 }
 
-                Button {
+                QQC2.Button {
                     Material.background: Material.accent
                     Material.foreground: "white"
                     anchors {

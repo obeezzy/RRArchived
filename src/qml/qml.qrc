@@ -49,5 +49,6 @@
         <file>sales/HomeListView.qml</file>
         <file>stock/CategoryListView.qml</file>
         <file>people/debtor/DebtorListView.qml</file>
+        <file>rrui/ApplicationWindow.qml</file>
     </qresource>
 </RCC>

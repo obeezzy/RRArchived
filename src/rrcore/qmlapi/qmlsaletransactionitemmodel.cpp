@@ -47,6 +47,7 @@ QHash<int, QByteArray> QMLSaleTransactionItemModel::roleNames() const
 
 void QMLSaleTransactionItemModel::tryQuery()
 {
+    setBusy(true);
     QueryRequest request(this);
     request.setCommand("view_sale_items_for_transaction", QVariantMap(), QueryRequest::Sales);
     emit executeRequest(request);
@@ -56,4 +57,6 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
 {
     if (result.request().receiver() != this)
         return;
+
+    setBusy(false);
 }
