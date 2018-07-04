@@ -29,7 +29,7 @@ void QMLUserProfile::setBusy(bool busy)
 
 void QMLUserProfile::signIn(const QString &userName, const QString &password)
 {
-    qDebug() << Q_FUNC_INFO << userName << password;
+    qInfo() << Q_FUNC_INFO << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else if (password.isEmpty()) {
@@ -45,7 +45,7 @@ void QMLUserProfile::signIn(const QString &userName, const QString &password)
 
 void QMLUserProfile::signUp(const QString &userName, const QString &password)
 {
-    qDebug() << Q_FUNC_INFO << userName << password;
+    qInfo() << Q_FUNC_INFO << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else if (password.isEmpty()) {
@@ -61,7 +61,7 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
 
 void QMLUserProfile::removeUser(const QString &userName)
 {
-    qDebug() << Q_FUNC_INFO << userName;
+    qInfo() << Q_FUNC_INFO << userName;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else {

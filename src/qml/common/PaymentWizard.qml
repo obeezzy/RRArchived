@@ -50,7 +50,7 @@ QQC2.Dialog {
                 anchors.verticalCenter: parent.verticalCenter
                 width: FluidControls.Units.iconSizes.large
                 height: width
-                icon.name: "navigation/arrow_back"
+                icon.source: FluidControls.Utils.iconUrl("navigation/arrow_back")
                 visible: stackView.depth > 1 && stackView.currentObjectName != "paymentFinishPage"
                 onClicked: {
                     if (stackView.currentObjectName == "paymentBalancePage" && stackView.currentItem.isCashPayment && privateProperties.cashPayments > 0) {

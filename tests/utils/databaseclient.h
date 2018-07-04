@@ -23,6 +23,8 @@ public:
     QSqlDatabase connection();
 private:
     QSqlDatabase m_connection;
+
+    void closeAllOtherConnections();
 };
 
 #endif // DATABASECLIENT_H

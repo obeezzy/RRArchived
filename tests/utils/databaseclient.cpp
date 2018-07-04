@@ -13,23 +13,26 @@ const QString PASSWORD("hello");
 const int PORT(3306);
 const QString DATABASENAME("rr_test");
 const QString HOSTNAME("localhost");
+const QString CONNECTION_NAME("database_client");
 
 const int USER_ID(1);
 const QString RR_USERNAME("test");
 
 DatabaseClient::DatabaseClient()
 {
+    qputenv("TEST_GUI_ENABLED", "1");
 }
 
 DatabaseClient::~DatabaseClient()
 {
     try {
         if (m_connection.isOpen()) {
+            closeAllOtherConnections();
             DatabaseCreator(m_connection).dropDatabase(DATABASENAME);
             disconnectFromTestDatabase();
         }
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.message() << e.userMessage();
+        qCritical() << "DatabaseException caught in DatabaseClient:" << e.message() << e.userMessage();
     }
 }
 
@@ -41,10 +44,10 @@ bool DatabaseClient::initialize()
 bool DatabaseClient::connectToTestDatabase()
 {
     try {
-        if (!QSqlDatabase::contains())
-            m_connection = QSqlDatabase::addDatabase("QMYSQL");
+        if (!QSqlDatabase::contains(CONNECTION_NAME))
+            m_connection = QSqlDatabase::addDatabase("QMYSQL", CONNECTION_NAME);
         else
-            m_connection = QSqlDatabase::database();
+            m_connection = QSqlDatabase::database(CONNECTION_NAME);
 
         // Disconnect and connect to 'mysql'
         if (m_connection.isOpen())
@@ -78,12 +81,12 @@ bool DatabaseClient::connectToTestDatabase()
         if (!m_connection.open())
             return false;
 
-        if (!DatabaseUtils::connectToDatabase(USERNAME, PASSWORD, DATABASENAME))
+        if (!DatabaseUtils::connectToDatabase(USERNAME, PASSWORD, DATABASENAME, CONNECTION_NAME))
             return false;
 
         return true;
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.message() << e.userMessage();
+        qCritical() << "Exception caught:" << e.message() << e.userMessage();
     }
 
     return false;
@@ -107,7 +110,7 @@ bool DatabaseClient::createTables()
         DatabaseCreator(m_connection).createTables();
         return true;
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.message() << e.userMessage();
+        qCritical() << "DatabaseException caught in DatabaseClient:" << e.message() << e.userMessage();
     }
 
     return false;
@@ -137,13 +140,21 @@ QSqlDatabase DatabaseClient::connection()
     return m_connection;
 }
 
+void DatabaseClient::closeAllOtherConnections()
+{
+    for (const QString &connectionName : QSqlDatabase::connectionNames()) {
+        if (m_connection.connectionName() != connectionName)
+            QSqlDatabase::database(connectionName).close();
+    }
+}
+
 bool DatabaseClient::createUser()
 {
     try {
         DatabaseCreator(m_connection).createRRUser("test");
         return true;
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.message();
+        qCritical() << "DatabaseException caught in DatabaseClient:" << e.message();
     }
 
     return false;

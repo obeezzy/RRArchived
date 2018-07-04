@@ -216,7 +216,7 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &paymentInfo)
         params.insert("customer_phone_number", !paymentInfo.value("customer_phone_number").toString().trimmed().isEmpty() ?
                           paymentInfo.value("customer_phone_number").toString().trimmed() : m_customerPhoneNumber);
         params.insert("total_cost", m_totalCost);
-        params.insert("amount_paid", paymentInfo.value("amount_paid", 0.0));
+        params.insert("amount_paid", paymentInfo.value("amount_paid", m_amountPaid));
         params.insert("suspended", paymentInfo.value("suspended", false));
         params.insert("balance", paymentInfo.value("balance", 0.0));
         params.insert("due_date", paymentInfo.value("due_date", QDateTime()));
@@ -244,6 +244,8 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &paymentInfo)
         params.insert("items", items);
         params.insert("can_undo", true);
 
+        setBusy(true);
+
         QueryRequest request(this);
         request.setCommand("add_sale_transaction", params, QueryRequest::Sales);
 
@@ -261,8 +263,10 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &paymentInfo
     params.insert("client_id", m_clientId);
     params.insert("customer_phone_number", m_customerPhoneNumber);
     params.insert("total_cost", m_totalCost);
+    params.insert("amount_paid", paymentInfo.value("amount_paid", m_amountPaid));
     params.insert("balance", paymentInfo.value("balance", 0.0));
     params.insert("note", paymentInfo.value("note", QString()));
+    params.insert("suspended", true);
 
     QVariantList items;
 
@@ -283,6 +287,8 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &paymentInfo
     }
 
     params.insert("items", items);
+
+    setBusy(true);
 
     QueryRequest request(this);
     request.setCommand("update_suspended_sale_transaction", params, QueryRequest::Sales);
@@ -325,24 +331,27 @@ void QMLSaleCartModel::processResult(const QueryResult result)
         calculateTotals();
         endResetModel();
 
-        if (result.request().command() == "add_sale_transaction" && result.request().params().value("suspended").toBool()) {
-            setTransactionId(-1);
-            setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-            setCustomerName(QString());
-            setCustomerPhoneNumber(QString());
-            emit success(TransactionSuspended);
-        } else if (result.request().command() == "add_sale_transaction") {
-            setTransactionId(-1);
-            setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-            setCustomerName(QString());
-            setCustomerPhoneNumber(QString());
-            emit success(TransactionSubmitted);
+        if (result.request().command() == "add_sale_transaction") {
+            if (result.request().params().value("suspended").toBool()) {
+                setTransactionId(-1);
+                setCustomerName(QString());
+                setCustomerPhoneNumber(QString());
+                setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+                emit success(TransactionSuspended);
+            } else {
+                setTransactionId(-1);
+                setCustomerName(QString());
+                setCustomerPhoneNumber(QString());
+                setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+                emit success(TransactionSubmitted);
+            }
         } else if (result.request().command() == "view_sale_cart") {
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
             emit success(TransactionRetrieved);
         } else if (result.request().command() == "update_suspended_sale_transaction") {
+            setTransactionId(-1);
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());

@@ -2,6 +2,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
+import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 
 ListView {
@@ -13,6 +14,9 @@ ListView {
 
     signal success(int successCode)
     signal error(int errorCode)
+
+    function refresh() { categoryListView.model.refresh(); }
+    function undoLastCommit() { categoryListView.model.undoLastCommit(); }
 
     topMargin: 20
     bottomMargin: 20
@@ -79,10 +83,9 @@ ListView {
                     text: item
                     showDivider: true
 
-                    leftItem: FluidControls.CircleImage {
+                    leftItem: RRUi.LetterCircleImage {
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 30
-                        height: 30
+                        name: model.item
                     }
 
                     rightItem: Loader {
@@ -105,9 +108,32 @@ ListView {
                     }
                 }
             }
+
+//            add: Transition {
+//                NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
+//                NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+//            }
+
+//            remove: Transition {
+//                NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
+//            }
+
+//            removeDisplaced: Transition {
+//                NumberAnimation { properties: "x,y"; duration: 300 }
+//            }
         }
     }
 
-    function refresh() { categoryListView.model.refresh(); }
-    function undoLastCommit() { categoryListView.model.undoLastCommit(); }
+    add: Transition {
+        NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
+        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+    }
+
+    remove: Transition {
+        NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
+    }
+
+    removeDisplaced: Transition {
+        NumberAnimation { properties: "x,y"; duration: 300 }
+    }
 }

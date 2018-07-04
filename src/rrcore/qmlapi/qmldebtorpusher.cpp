@@ -116,7 +116,15 @@ void QMLDebtorPusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        emit success();
+        if (result.request().command() == "add_debtor") {
+            while (m_debtTransactions.count()) {
+                DebtTransaction *debtTransaction = m_debtTransactions.takeFirst();
+                qDeleteAll(debtTransaction->debtPayments);
+                delete debtTransaction;
+            }
+
+            emit success(DebtorAdded);
+        }
     } else {
         switch (result.errorCode()) {
         case int(DatabaseException::RRErrorCode::DuplicateEntryFailure):
@@ -165,7 +173,8 @@ void QMLDebtorPusher::push()
 
 void QMLDebtorPusher::addDebt(double totalDebt, const QDateTime &dueDateTime, const QString &note)
 {
-    m_debtTransactions.append(new DebtTransaction{totalDebt, dueDateTime, note, QList<DebtPayment *>()});
+    DebtPayment *payment = new DebtPayment{ 0.0, QString() }; // Add first dummy payment
+    m_debtTransactions.append(new DebtTransaction{ totalDebt, dueDateTime, note, { payment } });
 }
 
 void QMLDebtorPusher::updateDebt(int debtIndex, double totalDebt, const QDateTime &dueDateTime, const QString &note)
@@ -178,7 +187,9 @@ void QMLDebtorPusher::updateDebt(int debtIndex, double totalDebt, const QDateTim
     DebtTransaction *debtTransaction = m_debtTransactions.takeAt(debtIndex);
     qDeleteAll(debtTransaction->debtPayments);
     delete debtTransaction;
-    m_debtTransactions.insert(debtIndex, new DebtTransaction{totalDebt, dueDateTime, note, QList<DebtPayment *>()});
+
+    DebtPayment *payment = new DebtPayment{ 0.0, QString() }; // Add first dummy payment
+    m_debtTransactions.insert(debtIndex, new DebtTransaction{ totalDebt, dueDateTime, note, { payment } });
 }
 
 void QMLDebtorPusher::removeDebt(int debtIndex)
@@ -200,7 +211,7 @@ void QMLDebtorPusher::addPayment(int debtIndex, double amount, const QString &no
         return;
     }
 
-    m_debtTransactions.at(debtIndex)->debtPayments.append(new DebtPayment{amount, note});
+    m_debtTransactions.at(debtIndex)->debtPayments.append( new DebtPayment{ amount, note });
 }
 
 void QMLDebtorPusher::updatePayment(int debtIndex, int paymentIndex, double amount, const QString &note)
@@ -212,7 +223,7 @@ void QMLDebtorPusher::updatePayment(int debtIndex, int paymentIndex, double amou
     }
 
     delete m_debtTransactions.at(debtIndex)->debtPayments.takeAt(paymentIndex);
-    m_debtTransactions.at(debtIndex)->debtPayments.insert(paymentIndex, new DebtPayment{amount, note});
+    m_debtTransactions.at(debtIndex)->debtPayments.insert(paymentIndex, new DebtPayment{ amount, note });
 }
 
 void QMLDebtorPusher::removePayment(int debtIndex, int paymentIndex)

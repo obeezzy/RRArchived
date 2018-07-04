@@ -28,14 +28,17 @@ bool DatabaseUtils::rollbackTransaction(QSqlQuery &q)
     return q.exec("ROLLBACK");
 }
 
-bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &password, const QString &databaseName)
+bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &password, const QString &databaseName, const QString &connectionName)
 {
+    if (connectionName.isEmpty())
+        return false;
+
     QSqlDatabase connection;
 
-    if (!QSqlDatabase::contains())
-        connection = QSqlDatabase::addDatabase("QMYSQL");
+    if (!QSqlDatabase::contains(connectionName))
+        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName);
     else
-        connection = QSqlDatabase::database();
+        connection = QSqlDatabase::database(connectionName);
 
     connection.setDatabaseName(databaseName);
     connection.setHostName("localhost");
