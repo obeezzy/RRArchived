@@ -188,42 +188,44 @@ void QMLStockCategoryItemModel::removeItemFromModel(int categoryId, int itemId)
             if (model->rowCount() == 0) {
                 beginRemoveRows(QModelIndex(), i, i);
                 m_categoryRecords.remove(m_categoryRecords.keys().at(i));
+                m_stockItemModels.removeAt(i);
                 endRemoveRows();
             }
+
+            break;
         }
     }
 }
 
 void QMLStockCategoryItemModel::undoRemoveItemFromModel(int categoryId, int itemId, const QVariantMap &itemInfo)
 {
-    if (categoryId <= 0 || itemId <= 0)
+    if (categoryId <= 0 || itemId <= 0 || itemInfo.isEmpty())
         return;
 
+    // Find model and append item
     if (m_categoryRecords.contains(m_categoryIdToCategoryHash.value(categoryId))) {
-        // Find model and append item
-
         for (int i = 0; i < m_stockItemModels.count(); ++i) {
             StockItemModel *model = m_stockItemModels.at(i);
-
             if (model->categoryId() == categoryId) {
-                model->addItem(itemId, itemInfo);
+                qDebug() << "Item Added? " << model->addItem(itemId, itemInfo);
                 break;
             }
         }
-    } else {
         // Append model
+    } else {
         StockItemModel *newModel = new StockItemModel(this);
-        const QString category = m_categoryIdToCategoryHash.value(categoryId);
+        const QString &category = m_categoryIdToCategoryHash.value(categoryId);
         newModel->setCategoryId(categoryId);
         newModel->setCategory(category);
-        newModel->setItems( { { itemInfo } });
+        newModel->setItems({ { itemInfo } });
 
         for (int i = 0; i < m_stockItemModels.count(); ++i) {
             StockItemModel *model = m_stockItemModels.at(i);
 
-            if (newModel->category().toLower() > model->category().toLower()) {
+            if (newModel->category().toLower() < model->category().toLower()) {
                 beginInsertRows(QModelIndex(), i, i);
                 m_categoryRecords.insert(newModel->category(), newModel->items());
+                m_stockItemModels.insert(i, newModel);
                 endInsertRows();
 
                 break;

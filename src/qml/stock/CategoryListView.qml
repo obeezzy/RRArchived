@@ -15,6 +15,9 @@ ListView {
     signal success(int successCode)
     signal error(int errorCode)
 
+    function refresh() { categoryListView.model.refresh(); }
+    function undoLastCommit() { categoryListView.model.undoLastCommit(); }
+
     topMargin: 20
     bottomMargin: 20
     clip: true
@@ -105,9 +108,32 @@ ListView {
                     }
                 }
             }
+
+//            add: Transition {
+//                NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
+//                NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+//            }
+
+//            remove: Transition {
+//                NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
+//            }
+
+//            removeDisplaced: Transition {
+//                NumberAnimation { properties: "x,y"; duration: 300 }
+//            }
         }
     }
 
-    function refresh() { categoryListView.model.refresh(); }
-    function undoLastCommit() { categoryListView.model.undoLastCommit(); }
+    add: Transition {
+        NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
+        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+    }
+
+    remove: Transition {
+        NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
+    }
+
+    removeDisplaced: Transition {
+        NumberAnimation { properties: "x,y"; duration: 300 }
+    }
 }

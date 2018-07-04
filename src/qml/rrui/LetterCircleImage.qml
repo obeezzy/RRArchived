@@ -54,7 +54,7 @@ FluidControls.CircleImage {
                 var letters = [];
 
                 for (var i = 0; i < words.length; ++i) {
-                    if (letters.length < letterCircleImage.maximumLetterCount)
+                    if (letters.length < letterCircleImage.maximumLetterCount && words[i].charCodeAt(0) >= 65 && words[i].charCodeAt(0) <= 123)
                         letters.push(words[i][0]);
                 }
 

@@ -131,19 +131,26 @@ bool StockItemModel::addItem(int itemId, const QVariantMap &itemInfo, Qt::SortOr
     if (itemId <= 0 || itemInfo.isEmpty())
         return false;
 
-    for (int i = 0; i < rowCount(); ++i) {
-        if (itemInfo.value("item").toString().toLower() > data(index(i), ItemRole).toString().toLower() && sortOrder == Qt::AscendingOrder) {
-            beginInsertRows(QModelIndex(), i, i);
-            m_itemRecords.insert(i, itemInfo);
-            endInsertRows();
+    if (sortOrder == Qt::DescendingOrder) {
+        qFatal("UNTESTED >> %s", Q_FUNC_INFO);
+        for (int i = 0; i < rowCount(); ++i) {
+            if (itemInfo.value("item").toString().toLower() < data(index(i), ItemRole).toString().toLower() && sortOrder == Qt::DescendingOrder) {
+                beginInsertRows(QModelIndex(), i, i);
+                m_itemRecords.insert(i, itemInfo);
+                endInsertRows();
 
-            return true;
-        } else if (itemInfo.value("item").toString().toLower() < data(index(i), ItemRole).toString().toLower() && sortOrder == Qt::DescendingOrder) {
-            beginInsertRows(QModelIndex(), i, i);
-            m_itemRecords.insert(i, itemInfo);
-            endInsertRows();
+                return true;
+            }
+        }
+    } else {
+        for (int i = rowCount() - 1; i >= -1; --i) {
+            if (itemInfo.value("item").toString().toLower() > data(index(i), ItemRole).toString().toLower()) {
+                beginInsertRows(QModelIndex(), i + 1, i + 1);
+                m_itemRecords.insert(i + 1, itemInfo);
+                endInsertRows();
 
-            return true;
+                return true;
+            }
         }
     }
 
