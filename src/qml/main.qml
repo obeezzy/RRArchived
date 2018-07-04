@@ -7,18 +7,11 @@ import "common"
 import "user"
 import "models"
 
-FluidControls.ApplicationWindow {
+RRUi.ApplicationWindow {
     id: mainWindow
-    width: 640
-    height: 480
-    visible: true
     title: qsTr("Record Rack")
     visibility: FluidControls.ApplicationWindow.Maximized
-    appBar.visible: false
     pageStack.anchors.leftMargin: sidebar.expanded ? sidebar.width : 0
-    color: Qt.lighter("lightgray")
-
-    Material.accent: Material.LightGreen
 
     initialPage: LoginPage {
         QQC2.StackView.onRemoved: {
