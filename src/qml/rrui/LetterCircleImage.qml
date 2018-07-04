@@ -9,6 +9,8 @@ FluidControls.CircleImage {
     property string name: ""
     property alias font: label.font
     property int maximumLetterCount: 2
+    property alias foregroundColor: label.color
+    property alias backgroundColor: background.color
     readonly property var selectableColors: [
         Material.color(Material.Red),
         Material.color(Material.Pink),
@@ -32,8 +34,10 @@ FluidControls.CircleImage {
     width: 32
     height: 32
     smooth: true
+    asynchronous: true
 
     Rectangle {
+        id: background
         color: selectableColors[Math.floor(Math.random() * selectableColors.length)]
         anchors.fill: parent
         radius: letterCircleImage.width / 2
