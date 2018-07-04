@@ -9,6 +9,12 @@ class QMLDebtorModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
+    enum SuccessCodes {
+        DebtorsFetched = 1,
+        UndoDebtorRemoved,
+        DebtorRemoved
+    }; Q_ENUM(SuccessCodes)
+
     enum ErrorCodes {
         InvalidDebtor = 1
     }; Q_ENUM(ErrorCodes)
@@ -16,6 +22,7 @@ public:
     enum Roles {
         ClientIdRole = Qt::UserRole,
         DebtorIdRole,
+        ImageSourceRole,
         PreferredNameRole,
         TotalDebtRole,
         NoteRole,
@@ -44,7 +51,7 @@ public slots:
 private:
     QVariantList m_records;
 
-    int debtorRow(int debtorId);
+    int debtorRowFromId(int debtorId);
 
     void removeItemFromModel(int debtorId);
     void undoRemoveItemFromModel(int row, int debtorId, const QVariantMap &debtorInfo);

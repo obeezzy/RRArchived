@@ -101,11 +101,15 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
-    setBusy(true);
-    QueryRequest request(m_lastRequest);
+    if (!m_lastRequest.command().isEmpty() && m_lastRequest.receiver()) {
+        setBusy(true);
+        QueryRequest request(m_lastRequest);
 
-    request.setCommand(QString("undo_") + request.command(), request.params(), request.type());
-    emit executeRequest(request);
+        request.setCommand(QString("undo_") + request.command(), request.params(), request.type());
+        emit executeRequest(request);
+    } else {
+        qWarning() << "AbstractVisualListModel-> No request to undo.";
+    }
 }
 
 void AbstractVisualListModel::filter()

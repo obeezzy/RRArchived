@@ -14,6 +14,7 @@ public:
         RemoveUserFailure,
         NoCommand,
         CommandNotFound,
+        RequestTypeNotFound,
         NoValidConnection,
         AddItemFailure,
         BeginTransactionFailed,

@@ -207,7 +207,7 @@ RRUi.Page {
                             buttonRow: Row {
                                 FluidControls.ToolButton {
                                     id: addToCartButton
-                                    icon.name: "action/add_shopping_cart"
+                                    icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
                                     visible: parent.parent.modelData.quantity > 0
                                     onClicked: cartListView.addItem(parent.parent.modelData);
 

@@ -112,6 +112,11 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_debtorModel->rowCount(), 1);
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ClientIdRole).toInt(), 1);
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(), 1);
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(), "Preferred name");
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(), "Note");
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(), 1234.56);
 }
 
 QTEST_MAIN(QMLDebtorModelTest)

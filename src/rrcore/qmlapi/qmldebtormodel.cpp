@@ -29,6 +29,9 @@ QVariant QMLDebtorModel::data(const QModelIndex &index, int role) const
     case DebtorIdRole:
         return m_records.at(index.row()).toMap().value("debtor_id").toInt();
         break;
+    case ImageSourceRole:
+        return m_records.at(index.row()).toMap().value("image_source").toString();
+        break;
     case PreferredNameRole:
         return m_records.at(index.row()).toMap().value("preferred_name").toString();
         break;
@@ -57,6 +60,7 @@ QHash<int, QByteArray> QMLDebtorModel::roleNames() const
     QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
     roles.insert(ClientIdRole, "client_id");
     roles.insert(DebtorIdRole, "debtor_id");
+    roles.insert(ImageSourceRole, "image_source");
     roles.insert(PreferredNameRole, "preferred_name");
     roles.insert(TotalDebtRole, "total_debt");
     roles.insert(NoteRole, "note");
@@ -89,14 +93,16 @@ void QMLDebtorModel::processResult(const QueryResult result)
             beginResetModel();
             m_records = result.outcome().toMap().value("debtors").toList();
             endResetModel();
+            emit success(DebtorsFetched);
         } else if (result.request().command() == "remove_debtor") {
             removeItemFromModel(result.outcome().toMap().value("debtor_id").toInt());
+            emit success(DebtorRemoved);
         } else if (result.request().command() == "undo_remove_debtor") {
             undoRemoveItemFromModel(result.outcome().toMap().value("debtor_row").toInt(),
                                     result.outcome().toMap().value("debtor_id").toInt(),
                                     result.outcome().toMap().value("debtor").toMap());
+            emit success(UndoDebtorRemoved);
         }
-        emit success();
     } else {
         emit error();
     }
@@ -106,6 +112,8 @@ void QMLDebtorModel::filter()
 {
     if (filterColumn() == -1)
         return;
+
+    setBusy(true);
 
     QueryRequest request(this);
     QVariantMap params;
@@ -141,12 +149,12 @@ void QMLDebtorModel::removeDebtor(int debtorId)
 
     QueryRequest request(this);
     request.setCommand("remove_debtor",
-                       QVariantMap { { "debtor_id", debtorId }, { "can_undo", true }, { "debtor_row", debtorRow(debtorId) } },
+                       QVariantMap { { "debtor_id", debtorId }, { "can_undo", true }, { "debtor_row", debtorRowFromId(debtorId) } },
                        QueryRequest::Debtor);
     emit executeRequest(request);
 }
 
-int QMLDebtorModel::debtorRow(int debtorId)
+int QMLDebtorModel::debtorRowFromId(int debtorId)
 {
     if (debtorId <= 0)
         return -1;

@@ -28,6 +28,11 @@ class QMLDebtorPusher : public AbstractPusher
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
 public:
+    enum SuccessCode {
+        UnknownSuccess,
+        DebtorAdded
+    }; Q_ENUM(SuccessCode)
+
     enum ErrorCode {
         Unknown,
         NoPreferredNameError,
@@ -36,7 +41,7 @@ public:
         DuplicateEntryError,
         AmountOverpaidError,
         InvalidDueDateError
-    };
+    }; Q_ENUM(ErrorCode)
 
     explicit QMLDebtorPusher(QObject *parent = nullptr);
 

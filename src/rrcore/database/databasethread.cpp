@@ -61,13 +61,17 @@ void Worker::execute(const QueryRequest request)
             result = DebtorSqlManager(m_connection).execute(request);
             break;
         default:
-            qWarning() << "Unhandled request in DatabaseThread::execute() ->" << request.command() << request.type();
+            throw DatabaseException(DatabaseException::RRErrorCode::RequestTypeNotFound, "Unhandled request type.");
             break;
         }
 
         if (!result.isSuccessful())
             throw DatabaseException(DatabaseException::RRErrorCode::UnsuccessfulQueryResult, result.errorMessage(), result.errorUserMessage());
     } catch (DatabaseException &e) {
+        result.setSuccessful(false);
+        result.setErrorCode(e.code());
+        result.setErrorMessage(e.message());
+        result.setErrorUserMessage(e.userMessage());
         qCritical() << "DatabaseException in Worker->" << e.message() << e.userMessage();
     }
 

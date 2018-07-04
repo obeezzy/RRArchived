@@ -208,7 +208,7 @@ void DebtorSqlManager::addDebtor(const QueryRequest &request, QueryResult &resul
                 newDebt -= amountPaid;
             }
 
-            if (newDebt < 0)
+            if (newDebt < 0.0)
                 throw DatabaseException(DatabaseException::RRErrorCode::AmountOverpaid, q.lastError().text(),
                                         "Total amount paid is greater than total debt.");
 
@@ -317,23 +317,48 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
      */
     try {
         // Get total balance for each debtor
-        q.prepare("SELECT debtor.client_id, debtor.id as debtor_id, client.preferred_name AS name, "
-                  "(SELECT SUM(debt_payment.balance) FROM debt_payment "
-                  "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
-                  "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
-                  "WHERE debt_payment.debt_transaction_id IN "
-                  "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
-                  "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_balance, "
-                  "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
-                  "FROM debtor "
-                  "INNER JOIN client ON client.id = debtor.client_id "
-                  "LEFT JOIN user on user.id = debtor.user_id "
-                  "LEFT JOIN note ON debtor.note_id = note.id "
-                  "WHERE debtor.archived = :archived");
-        q.bindValue(":archived", params.value("archived", false), QSql::Out);
+        if (params.value("filter_text").isNull() || params.value("filter_column").isNull()) {
+            q.prepare("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
+                      "(SELECT SUM(debt_payment.balance) FROM debt_payment "
+                      "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
+                      "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
+                      "WHERE debt_payment.debt_transaction_id IN "
+                      "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
+                      "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt, "
+                      "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
+                      "FROM debtor "
+                      "INNER JOIN client ON client.id = debtor.client_id "
+                      "LEFT JOIN user ON user.id = debtor.user_id "
+                      "LEFT JOIN note ON debtor.note_id = note.id "
+                      "WHERE debtor.archived = :archived");
+            q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch debtors.");
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch debtors.");
+        } else {
+            // Apply filters
+            if (params.value("filter_column").toString() == "preferred_name") {
+                q.prepare(QString("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
+                                  "(SELECT SUM(debt_payment.balance) FROM debt_payment "
+                                  "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
+                                  "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
+                                  "WHERE debt_payment.debt_transaction_id IN "
+                                  "(SELECT debt_transaction.id FROM debt_transaction "
+                                  "WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
+                                  "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt, "
+                                  "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
+                                  "FROM debtor "
+                                  "INNER JOIN client ON client.id = debtor.client_id "
+                                  "LEFT JOIN user ON user.id = debtor.user_id "
+                                  "LEFT JOIN note ON debtor.note_id = note.id "
+                                  "WHERE debtor.archived = :archived AND client.preferred_name LIKE '%%1%'")
+                          .arg(params.value("filter_text").toString()));
+                q.bindValue(":archived", params.value("archived", false), QSql::Out);
+
+                if (!q.exec())
+                    throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch debtors.");
+            }
+        }
 
         QVariantList debtors;
         while (q.next()) {
@@ -411,17 +436,17 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
             throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove debtor.");
 
         // Get total balance for each debtor
-        q.prepare("SELECT debtor.client_id, client.preferred_name AS name, "
+        q.prepare("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
                   "(SELECT SUM(debt_payment.balance) FROM debt_payment "
                   "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
                   "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
                   "WHERE debt_payment.debt_transaction_id IN "
                   "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
-                  "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_balance, "
+                  "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt, "
                   "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
                   "FROM debtor "
                   "INNER JOIN client ON client.id = debtor.client_id "
-                  "LEFT JOIN user on user.id = debtor.user_id "
+                  "LEFT JOIN user ON user.id = debtor.user_id "
                   "LEFT JOIN note ON debtor.note_id = note.id "
                   "WHERE debtor.archived = 0 AND debtor.id = :debtor_id");
         q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
@@ -451,3 +476,17 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
         throw;
     }
 }
+
+//SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name,
+//(SELECT SUM(debt_payment.balance) FROM debt_payment
+//INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id
+//INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id
+//WHERE debt_payment.debt_transaction_id IN
+//(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0)
+//AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt,
+//note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user
+//FROM debtor
+//INNER JOIN client ON client.id = debtor.client_id
+//LEFT JOIN user ON user.id = debtor.user_id
+//LEFT JOIN note ON debtor.note_id = note.id
+//WHERE debtor.archived = 0;

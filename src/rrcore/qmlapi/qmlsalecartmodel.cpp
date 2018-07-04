@@ -100,7 +100,6 @@ qint64 QMLSaleCartModel::transactionId() const
 
 void QMLSaleCartModel::setTransactionId(qint64 transactionId)
 {
-    qDebug() << "old transaction id=" << m_transactionId << ", new transaction id=" << transactionId;
     if (m_transactionId == transactionId)
         return;
 
@@ -356,7 +355,6 @@ void QMLSaleCartModel::processResult(const QueryResult result)
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
-            qDebug() << "Emitting success?";
             emit success(TransactionSuspended);
         }
     } else {
