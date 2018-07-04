@@ -2,6 +2,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
+import "../../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 import "../../singletons"
 
@@ -44,10 +45,9 @@ ListView {
         text: preferred_name
         showDivider: true
 
-        leftItem: FluidControls.CircleImage {
+        leftItem: RRUi.LetterCircleImage {
             anchors.verticalCenter: parent.verticalCenter
-            width: 30
-            height: 30
+            name: preferred_name
         }
 
         rightItem: Row {

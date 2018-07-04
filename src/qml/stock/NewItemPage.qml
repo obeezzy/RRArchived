@@ -93,7 +93,7 @@ RRUi.Page {
                                 width: 120
                                 spacing: 4
 
-                                FluidControls.CircleImage {
+                                RRUi.LetterCircleImage {
                                     id: itemImage
                                     anchors {
                                         left: parent.left
@@ -101,18 +101,14 @@ RRUi.Page {
                                     }
 
                                     height: width
+                                    font.pixelSize: 30
+                                    name: itemField.text
 
-                                    Rectangle {
-                                        visible: itemImage.source === ""
-                                        anchors.fill: parent
-                                        radius: width / 2
-                                        color: Material.color(Material.Grey, Material.Shade300)
-
-                                        FluidControls.Icon {
-                                            anchors.centerIn: parent
-                                            color: "white"
-                                            name: "image/photo_camera"
-                                        }
+                                    FluidControls.Icon {
+                                        anchors.centerIn: parent
+                                        visible: itemImage.name === ""
+                                        color: "white"
+                                        name: "image/photo_camera"
                                     }
                                 }
 
