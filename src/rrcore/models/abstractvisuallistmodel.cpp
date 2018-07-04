@@ -101,11 +101,15 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
-    setBusy(true);
-    QueryRequest request(m_lastRequest);
+    if (!m_lastRequest.command().isEmpty() && m_lastRequest.receiver()) {
+        setBusy(true);
+        QueryRequest request(m_lastRequest);
 
-    request.setCommand(QString("undo_") + request.command(), request.params(), request.type());
-    emit executeRequest(request);
+        request.setCommand(QString("undo_") + request.command(), request.params(), request.type());
+        emit executeRequest(request);
+    } else {
+        qWarning() << "AbstractVisualListModel-> No request to undo.";
+    }
 }
 
 void AbstractVisualListModel::filter()
@@ -117,7 +121,7 @@ void AbstractVisualListModel::saveRequest(const QueryResult &result)
 {
     if (result.isSuccessful() && result.request().receiver() == this) {
         if (result.request().params().value("can_undo").toBool() && !result.request().command().startsWith("undo_")) {
-            qDebug() << "Request pushed=" << result.request();
+            qInfo() << "Request saved:" << result.request().command();
             QueryRequest request(result.request());
 
             QVariantMap params = request.params();

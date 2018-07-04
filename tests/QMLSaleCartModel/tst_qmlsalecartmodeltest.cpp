@@ -51,7 +51,7 @@ private:
 
 QMLSaleCartModelTest::QMLSaleCartModelTest()
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
 }
 
 void QMLSaleCartModelTest::init()
@@ -109,7 +109,7 @@ void QMLSaleCartModelTest::testSetTransactionId()
     QCOMPARE(m_saleCartModel->rowCount(), 0);
 
     m_saleCartModel->setTransactionId(1);
-
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
     QCOMPARE(m_saleCartModel->transactionId(), 1);
     QCOMPARE(transactionIdChangedSpy.count(), 1);
     transactionIdChangedSpy.clear();
@@ -340,8 +340,9 @@ void QMLSaleCartModelTest::testGetTotalCost()
 
 void QMLSaleCartModelTest::testGetClientId()
 {
-    QVERIFY(m_client->initialize());
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
 
+    QVERIFY(m_client->initialize());
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
     // Push some items
@@ -375,11 +376,16 @@ void QMLSaleCartModelTest::testGetClientId()
     m_saleCartModel->addItem(itemInfo);
 
     m_saleCartModel->submitTransaction();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 5000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
     m_saleCartModel->setTransactionId(1);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+
     QCOMPARE(m_saleCartModel->clientId(), 1);
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), "123456789");
@@ -387,6 +393,8 @@ void QMLSaleCartModelTest::testGetClientId()
 
 void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 {
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+
     QVERIFY(m_client->initialize());
 
     // Push some items
@@ -420,9 +428,13 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 
     m_saleCartModel->suspendTransaction();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
 
     m_saleCartModel->setTransactionId(1);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_saleCartModel->rowCount(), 1);
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryIdRole).toInt(), 1);
@@ -440,6 +452,9 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 
 void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
 {
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy transactionIdChangedSpy(m_saleCartModel, &QMLSaleCartModel::transactionIdChanged);
+
     QVERIFY(m_client->initialize());
 
     // Push some items
@@ -449,6 +464,16 @@ void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
     m_stockItemPusher->setDivisible(true);
     m_stockItemPusher->setQuantity(10.0);
     m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item2");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit2");
     m_stockItemPusher->setCostPrice(2.0);
     m_stockItemPusher->setRetailPrice(3.0);
     m_stockItemPusher->push();
@@ -465,7 +490,8 @@ void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
         { "cost_price", 2.0 },
         { "retail_price", 3.0 },
         { "unit_price", 13.0 },
-        { "available_quantity", 10.0 }
+        { "available_quantity", 10.0 },
+        { "amount_paid", 4.0 }
     };
 
     m_saleCartModel->setCustomerName("Customer");
@@ -473,9 +499,16 @@ void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
 
     m_saleCartModel->suspendTransaction();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+    QCOMPARE(m_saleCartModel->transactionId(), -1);
 
     m_saleCartModel->setTransactionId(1);
+    QCOMPARE(transactionIdChangedSpy.count(), 1);
+    transactionIdChangedSpy.clear();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
     const QVariantMap itemInfo2 {
@@ -489,15 +522,25 @@ void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
         { "cost_price", 2.0 },
         { "retail_price", 3.0 },
         { "unit_price", 13.0 },
-        { "available_quantity", 10.0 }
+        { "available_quantity", 10.0 },
+        { "amount_paid", 5.0 }
     };
 
     m_saleCartModel->addItem(itemInfo2);
     m_saleCartModel->suspendTransaction();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+    QCOMPARE(transactionIdChangedSpy.count(), 1);
+    transactionIdChangedSpy.clear();
+    QCOMPARE(m_saleCartModel->transactionId(), -1);
 
-    m_saleCartModel->setTransactionId(1);
+    m_saleCartModel->setTransactionId(2);
+    QCOMPARE(transactionIdChangedSpy.count(), 1);
+    transactionIdChangedSpy.clear();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_saleCartModel->rowCount(), 2);
 }
 
@@ -665,6 +708,7 @@ void QMLSaleCartModelTest::testSuspendTransaction()
     m_saleCartModel->suspendTransaction();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_saleCartModel->customerName(), QString());
     QCOMPARE(m_saleCartModel->rowCount(), 0);
 

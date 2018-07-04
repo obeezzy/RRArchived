@@ -93,7 +93,7 @@ RRUi.Page {
                                 width: 120
                                 spacing: 4
 
-                                FluidControls.CircleImage {
+                                RRUi.LetterCircleImage {
                                     id: itemImage
                                     anchors {
                                         left: parent.left
@@ -101,18 +101,14 @@ RRUi.Page {
                                     }
 
                                     height: width
+                                    font.pixelSize: 30
+                                    name: itemField.text
 
-                                    Rectangle {
-                                        visible: itemImage.source === ""
-                                        anchors.fill: parent
-                                        radius: width / 2
-                                        color: Material.color(Material.Grey, Material.Shade300)
-
-                                        FluidControls.Icon {
-                                            anchors.centerIn: parent
-                                            color: "white"
-                                            name: "image/photo_camera"
-                                        }
+                                    FluidControls.Icon {
+                                        anchors.centerIn: parent
+                                        visible: itemImage.name === ""
+                                        color: "white"
+                                        name: "image/photo_camera"
                                     }
                                 }
 
@@ -121,7 +117,7 @@ RRUi.Page {
 
                                     FluidControls.ToolButton {
                                         id: takePhotoButton
-                                        icon.name: "image/photo_camera"
+                                        icon.source: FluidControls.Utils.iconUrl("image/photo_camera")
 
                                         QQC2.ToolTip.visible: hovered
                                         QQC2.ToolTip.delay: 1500
@@ -130,7 +126,7 @@ RRUi.Page {
 
                                     FluidControls.ToolButton {
                                         id: selectPhotoButton
-                                        icon.name: "image/photo"
+                                        icon.source: FluidControls.Utils.iconUrl("image/photo")
 
                                         QQC2.ToolTip.visible: hovered
                                         QQC2.ToolTip.delay: 1500
@@ -139,7 +135,7 @@ RRUi.Page {
 
                                     FluidControls.ToolButton {
                                         id: deviceSearchButton
-                                        icon.name: "hardware/phonelink"
+                                        icon.source: FluidControls.Utils.iconUrl("hardware/phonelink")
 
                                         QQC2.ToolTip.visible: hovered
                                         QQC2.ToolTip.delay: 1500
@@ -184,6 +180,8 @@ RRUi.Page {
                                             focus: enabled
                                             width: 220
                                             textRole: "category"
+                                            currentIndex: -1
+                                            displayText: currentIndex > -1 ? currentText : qsTr("<Select category>")
                                             model: RRModels.StockCategoryModel { }
                                         }
 
@@ -202,7 +200,7 @@ RRUi.Page {
                                         FluidControls.ToolButton {
                                             id: addCategoryButton
                                             anchors.verticalCenter: parent.verticalCenter
-                                            icon.name: detailCard.userAddedCategory ? "content/remove_circle" : "content/add_circle"
+                                            icon.source: FluidControls.Utils.iconUrl(detailCard.userAddedCategory ? "content/remove_circle" : "content/add_circle")
                                             onClicked: {
                                                 if (detailCard.userAddedCategory) {
                                                     if (categoryComboBox.count === 0) {
@@ -224,7 +222,7 @@ RRUi.Page {
                                         FluidControls.ToolButton {
                                             id: searchButton
                                             anchors.verticalCenter: parent.verticalCenter
-                                            icon.name: "action/search"
+                                            icon.source: FluidControls.Utils.iconUrl("action/search")
 
                                             QQC2.ToolTip.visible: hovered
                                             QQC2.ToolTip.delay: 1500

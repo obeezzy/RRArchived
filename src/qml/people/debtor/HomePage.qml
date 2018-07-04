@@ -9,6 +9,7 @@ import "../../common"
 
 RRUi.Page {
     id: homePage
+    objectName: "debtor/homePage"
     title: qsTr("Debtors")
     topPadding: 10
     bottomPadding: 10
@@ -35,82 +36,101 @@ RRUi.Page {
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
 
-    FluidControls.Card {
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-            top: parent.top
-            bottom: parent.bottom
-        }
-
-        topPadding: 4
-        bottomPadding: 0
-        leftPadding: 4
-        rightPadding: 4
-
-        width: 600
-
-        RRUi.SearchBar {
-            id: searchBar
+    contentItem: FocusScope {
+        FluidControls.Card {
             anchors {
+                horizontalCenter: parent.horizontalCenter
                 top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-        }
-
-        RRUi.ChipListView {
-            id: filterChipListView
-            height: 30
-            anchors {
-                top: searchBar.bottom
-                left: parent.left
-                right: parent.right
-            }
-
-            model: [
-                privateProperties.filterModel[privateProperties.filterIndex],
-                privateProperties.sortModel[privateProperties.sortIndex]
-            ]
-
-    //        onClicked: {
-    //            switch (index) {
-    //            case 0:
-    //                filterColumnDialogLoader.active = true;
-    //                break;
-    //            case 1:
-    //                sortOrderDialogLoader.active = true;
-    //                break;
-    //            }
-    //        }
-        }
-
-        DebtorListView {
-            id: debtorListView
-            anchors {
-                top: filterChipListView.bottom
-                left: parent.left
-                right: parent.right
                 bottom: parent.bottom
             }
 
-            filterText: searchBar.text
-            //filterColumn: RRModels.StockCategoryItemModel.ItemColumn
+            topPadding: 4
+            bottomPadding: 0
+            leftPadding: 4
+            rightPadding: 4
 
-            buttonRow: Row {
-                spacing: 0
+            width: 800
 
-                FluidControls.ToolButton {
-                    id: editButton
-                    icon.name: "image/edit"
-                    width: FluidControls.Units.iconSizes.medium
-                    height: width
+            contentItem: FocusScope {
+                focus: true
+
+                RRUi.SearchBar {
+                    id: searchBar
+                    focus: true
+                    anchors {
+                        top: parent.top
+                        left: parent.left
+                        right: parent.right
+                    }
                 }
 
-                FluidControls.ToolButton {
-                    id: deleteButton
-                    icon.name: "action/delete"
-                    width: FluidControls.Units.iconSizes.medium
-                    height: width
+                RRUi.ChipListView {
+                    id: filterChipListView
+                    height: 30
+                    anchors {
+                        top: searchBar.bottom
+                        left: parent.left
+                        right: parent.right
+                    }
+
+                    model: [
+                        privateProperties.filterModel[privateProperties.filterIndex],
+                        privateProperties.sortModel[privateProperties.sortIndex]
+                    ]
+
+                    //        onClicked: {
+                    //            switch (index) {
+                    //            case 0:
+                    //                filterColumnDialogLoader.active = true;
+                    //                break;
+                    //            case 1:
+                    //                sortOrderDialogLoader.active = true;
+                    //                break;
+                    //            }
+                    //        }
+                }
+
+                DebtorListView {
+                    id: debtorListView
+                    anchors {
+                        top: filterChipListView.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+
+                    filterText: searchBar.text
+                    filterColumn: RRModels.DebtorModel.PreferredNameColumn
+
+                    onSuccess: {
+                        switch (successCode) {
+                        case RRModels.DebtorModel.DebtorRemoved:
+                            snackBar.open(qsTr("Debtor removed"), qsTr("Undo"));
+                            break;
+                        case RRModels.DebtorModel.UndoDebtorRemoved:
+                            snackBar.open(qsTr("Undo successful"), "");
+                            break;
+                        }
+                    }
+
+                    buttonRow: Row {
+                        spacing: 0
+
+                        FluidControls.ToolButton {
+                            id: editButton
+                            icon.source: FluidControls.Utils.iconUrl("image/edit")
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
+                        }
+
+                        FluidControls.ToolButton {
+                            id: deleteButton
+                            icon.source: FluidControls.Utils.iconUrl("action/delete")
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
+                            onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
+                        }
+                    }
                 }
             }
         }
@@ -121,23 +141,13 @@ RRUi.Page {
         visible: debtorListView.model.busy
     }
 
-    Loader {
-        active: debtorListView.count == 0
-        anchors.centerIn: parent
-        sourceComponent: FluidControls.SubheadingLabel {
-            color: Material.color(Material.Grey)
-            text: /*debtorListView.model.filterText ? */qsTr("No results for this search query.")
-                                                    //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.").arg(FluidControls.Utils.iconUrl("content/add"))
-            horizontalAlignment: Qt.AlignHCenter
-        }
-    }
-
     FluidControls.FloatingActionButton {
         Material.background: Material.LightGreen
         Material.foreground: "white"
         icon.source: FluidControls.Utils.iconUrl("content/add")
 
-        onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"));
+        onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"),
+                                 { "debtorModel": debtorListView.model });
 
         anchors {
             right: parent.right
@@ -162,5 +172,42 @@ RRUi.Page {
                 text: qsTr("Manage debtors.")
             }
         ]
+    }
+
+    /********************** ON-DEMAND ITEMS *****************************/
+    FluidControls.SubheadingLabel {
+        visible: debtorListView.count == 0
+        anchors.centerIn: parent
+        color: Material.color(Material.Grey)
+        text: /*debtorListView.model.filterText ? */qsTr("No results for this search query.")
+        //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.").arg(FluidControls.Utils.iconUrl("content/add"))
+        horizontalAlignment: Qt.AlignHCenter
+    }
+
+    RRUi.AlertDialog {
+        id: deleteConfirmationDialog
+
+        property var modelData: null
+
+        width: 300
+        text: qsTr("Are you sure you want to remove this debtor?");
+        standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
+        onAccepted: {
+            debtorListView.model.removeDebtor(modelData.debtor_id);
+            deleteConfirmationDialog.modelData = null;
+        }
+
+        function show(modelData) {
+            if (Object(modelData).hasOwnProperty("debtor_id")) {
+                text = qsTr("Are you sure you want to remove '%1' from the list?").arg(modelData.preferred_name);
+                deleteConfirmationDialog.modelData = modelData;
+                open();
+            }
+        }
+    }
+
+    RRUi.SnackBar {
+        id: snackBar
+        onClicked: debtorListView.undoLastCommit();
     }
 }

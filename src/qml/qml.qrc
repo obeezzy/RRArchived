@@ -50,5 +50,6 @@
         <file>stock/CategoryListView.qml</file>
         <file>people/debtor/DebtorListView.qml</file>
         <file>rrui/ApplicationWindow.qml</file>
+        <file>rrui/LetterCircleImage.qml</file>
     </qresource>
 </RCC>

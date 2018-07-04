@@ -314,7 +314,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
         outcome.insert("transaction_id", saleTransactionId);
 
         result.setOutcome(outcome);
-    } catch (DatabaseException &) {
+    } catch (DatabaseException &e) {
         if (!skipSqlTransaction && !DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
@@ -322,23 +322,22 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     }
 }
 
-void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResult &result)
+void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, QueryResult &result)
 {
     QVariantMap params = request.params();
-    // Make sure transaction is always suspended.
-    params.insert("suspended", true);
-    request.setCommand(request.command(), params, request.type());
-
     const QDateTime currentDateTime = QDateTime::currentDateTime();
 
     QSqlQuery q(connection());
 
     try {
+        // STEP: Ensure suspended flag is set to true.
+        if (!params.value("suspended").toBool())
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Suspended flag must be set to true.");
+
         // STEP: Check if transaction is suspended. (VALIDATION)
-        q.prepare("SELECT id FROM sale_transaction WHERE id = :transaction_id AND suspended = :suspended AND archived = :archived");
+        q.prepare("SELECT id FROM sale_transaction WHERE suspended = 1 AND archived = 0 AND id = :transaction_id");
         q.bindValue(":transaction_id", params.value("transaction_id"), QSql::Out);
-        q.bindValue(":suspended", true);
-        q.bindValue(":archived", false);
+
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to fetch transaction ID.");
 
@@ -351,8 +350,7 @@ void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResul
         addSaleTransaction(request, result, true);
 
         // STEP: Archive old sale transaction.
-        q.prepare("UPDATE sale_transaction SET archived = :archived, last_edited = :last_edited, user_id = :user_id WHERE id = :transaction_id");
-        q.bindValue(":archived", true);
+        q.prepare("UPDATE sale_transaction SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :transaction_id");
         q.bindValue(":last_edited", currentDateTime);
         q.bindValue(":user_id", UserProfile::instance().userId());
         q.bindValue(":transaction_id", params.value("transaction_id"));
@@ -361,9 +359,8 @@ void SaleSqlManager::updateSuspendedTransaction(QueryRequest request, QueryResul
             throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale transaction.");
 
         // STEP: Archive old sale item.
-        q.prepare("UPDATE sale_item SET archived = :archived, last_edited = :last_edited, user_id = :user_id "
+        q.prepare("UPDATE sale_item SET archived = 1, last_edited = :last_edited, user_id = :user_id "
                   "WHERE sale_transaction_id = :transaction_id");
-        q.bindValue(":archived", true);
         q.bindValue(":last_edited", currentDateTime);
         q.bindValue(":user_id", UserProfile::instance().userId());
         q.bindValue(":transaction_id", params.value("transaction_id"));

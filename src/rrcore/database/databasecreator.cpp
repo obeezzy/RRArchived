@@ -74,7 +74,7 @@ void DatabaseCreator::runSqlOnTestDatabase(const QString &fileName)
           else {
               q.exec(s);                        //<== execute normal query
               if(q.lastError().type() != QSqlError::NoError) {
-                  qDebug() << q.lastError().text();
+                  qInfo() << q.lastError().text();
                   connection.rollback();                    //<== rollback the transaction if there is any problem
               }
           }
@@ -93,16 +93,15 @@ void DatabaseCreator::runSqlOnTestDatabase(const QString &fileName)
         QStringList qList = sqlData.split(';', QString::SkipEmptyParts);
         foreach(const QString &s, qList) {
           q.exec(s);
-          if(q.lastError().type() != QSqlError::NoError) qDebug() << q.lastError().text();
+          if(q.lastError().type() != QSqlError::NoError) qInfo() << q.lastError().text();
         }
     }
 }
 
 void DatabaseCreator::createDatabase(const QString &databaseName)
 {
-    if (databaseName.isNull()) {
+    if (databaseName.isEmpty())
         return;
-    }
 
     QSqlQuery q(m_connection);
     if (!q.exec(QString("CREATE DATABASE IF NOT EXISTS %1").arg(databaseName)))
@@ -110,11 +109,11 @@ void DatabaseCreator::createDatabase(const QString &databaseName)
                                 QString("Failed to create database %1.").arg(databaseName));
 }
 
+// NOTE: You can't drop a database if there are "other" connections to it!
 void DatabaseCreator::dropDatabase(const QString &databaseName)
 {
-    if (databaseName.isNull()) {
+    if (databaseName.isEmpty())
         return;
-    }
 
     QSqlQuery q(m_connection);
     if (!q.exec(QString("DROP DATABASE IF EXISTS %1").arg(databaseName)))

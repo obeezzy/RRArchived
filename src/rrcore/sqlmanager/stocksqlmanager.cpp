@@ -303,19 +303,19 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
         }
 
         /*
-        qDebug() << "--------------------Outcome-----------------------";
+        qInfo() << "--------------------Outcome-----------------------";
         QMapIterator<QString, QVariant> categoryIter(categoryRecords);
         while (categoryIter.hasNext()) {
             categoryIter.next();
-            qDebug() << categoryIter.key();
-            qDebug() << "-------------------------------------------------";
+            qInfo() << categoryIter.key();
+            qInfo() << "-------------------------------------------------";
             const QVariantList &items = categoryIter.value().toList();
 
             for (const QVariant &itemRecord : items) {
-                qDebug() << "Item name:" << itemRecord.toMap().value("item").toString();
+                qInfo() << "Item name:" << itemRecord.toMap().value("item").toString();
             }
 
-            qDebug() << "-------------------------------------------------";
+            qInfo() << "-------------------------------------------------";
         }
         */
         result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", itemCount } });
@@ -420,10 +420,17 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::UndoFailed, q.lastError().text(), "Failed to undo stock item removal.");
 
-        q.prepare("SELECT category.id as category_id, item.id as item_id "
+        q.prepare("SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
+                  "item.divisible, item.image, current_quantity.quantity, "
+                  "unit.id as unit_id, unit.unit, unit.cost_price, "
+                  "unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, item.user_id AS user "
                   "FROM item "
                   "INNER JOIN category ON item.category_id = category.id "
-                  "WHERE item.id = :item_id");
+                  "INNER JOIN unit ON item.id = unit.item_id "
+                  "INNER JOIN current_quantity ON item.id = current_quantity.item_id "
+                  "LEFT JOIN user ON item.user_id = user.id "
+                  "WHERE item.archived = 0 AND unit.base_unit_equivalent = 1 "
+                  "AND item.id = :item_id");
         q.bindValue(":item_id", params.value("item_id"), QSql::Out);
 
         if (!q.exec())
@@ -435,6 +442,7 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
             QVariantMap outcome;
             outcome.insert("category_id", q.value("category_id"));
             outcome.insert("item_id", q.value("item_id"));
+            outcome.insert("item_info", recordToMap(q.record()));
 
             result.setOutcome(outcome);
         }

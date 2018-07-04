@@ -35,7 +35,7 @@ private:
 
 QMLStockCategoryItemModelTest::QMLStockCategoryItemModelTest()
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
 }
 
 void QMLStockCategoryItemModelTest::init()
@@ -189,21 +189,28 @@ void QMLStockCategoryItemModelTest::testRemoveItem()
 
     m_stockCategoryItemModel->componentComplete();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
-    successSpy.clear();
     m_stockCategoryItemModel->removeItem(1);
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
     QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::ItemRemoved);
+    successSpy.clear();
 
     m_stockCategoryItemModel->refresh();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 }
 
 void QMLStockCategoryItemModelTest::testUndoRemoveItem()
 {
+    QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
+
     QVERIFY(m_client->initialize());
 
     // Push some items
@@ -220,23 +227,33 @@ void QMLStockCategoryItemModelTest::testUndoRemoveItem()
 
     m_stockCategoryItemModel->componentComplete();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->removeItem(1);
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 
     m_stockCategoryItemModel->undoLastCommit();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 
     m_stockCategoryItemModel->refresh();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 }
 
 void QMLStockCategoryItemModelTest::testFilterCategory()
 {
+    QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
+
     QVERIFY(m_client->initialize());
 
     // Push some items
@@ -253,24 +270,37 @@ void QMLStockCategoryItemModelTest::testFilterCategory()
 
     m_stockCategoryItemModel->componentComplete();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->setFilterColumn(QMLStockCategoryItemModel::CategoryColumn);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     m_stockCategoryItemModel->setFilterText("Category1");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->setFilterText("Category");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->setFilterText("Category2");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 }
 
 void QMLStockCategoryItemModelTest::testFilterItem()
 {
+    QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
+
     QVERIFY(m_client->initialize());
 
     // Push some items
@@ -287,19 +317,30 @@ void QMLStockCategoryItemModelTest::testFilterItem()
 
     m_stockCategoryItemModel->componentComplete();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->setFilterColumn(QMLStockCategoryItemModel::ItemColumn);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     m_stockCategoryItemModel->setFilterText("Item1");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->setFilterText("Item");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->setFilterText("Item2");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 }
 
