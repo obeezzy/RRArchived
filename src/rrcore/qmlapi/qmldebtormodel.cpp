@@ -93,15 +93,15 @@ void QMLDebtorModel::processResult(const QueryResult result)
             beginResetModel();
             m_records = result.outcome().toMap().value("debtors").toList();
             endResetModel();
-            emit success(DebtorsFetched);
+            emit success(ViewDebtorsSuccess);
         } else if (result.request().command() == "remove_debtor") {
             removeItemFromModel(result.outcome().toMap().value("debtor_id").toInt());
-            emit success(DebtorRemoved);
+            emit success(RemoveDebtorSuccess);
         } else if (result.request().command() == "undo_remove_debtor") {
             undoRemoveItemFromModel(result.outcome().toMap().value("debtor_row").toInt(),
                                     result.outcome().toMap().value("debtor_id").toInt(),
                                     result.outcome().toMap().value("debtor").toMap());
-            emit success(UndoDebtorRemoved);
+            emit success(UndoRemoveDebtorSuccess);
         }
     } else {
         emit error();
@@ -141,7 +141,7 @@ void QMLDebtorModel::refresh()
 void QMLDebtorModel::removeDebtor(int debtorId)
 {
     if (debtorId <= 0) {
-        emit error(InvalidDebtor);
+        emit error(InvalidDebtorError);
         return;
     }
 

@@ -30,11 +30,12 @@ class QMLDebtorPusher : public AbstractPusher
 public:
     enum SuccessCode {
         UnknownSuccess,
-        DebtorAdded
+        AddDebtorSuccess,
+        UndoAddDebtorSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
-        Unknown,
+        UnknownError,
         NoPreferredNameError,
         NoPhoneNumberError,
         NoDebtError,
@@ -97,6 +98,8 @@ private:
     QString m_note;
 
     QVariant convertToVariant(const QList<DebtTransaction *> &debtTransactions);
+
+    void clearDebtTransactions();
 };
 
 #endif // QMLDEBTORPUSHER_H

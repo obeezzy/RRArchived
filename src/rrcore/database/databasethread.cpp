@@ -66,13 +66,13 @@ void Worker::execute(const QueryRequest request)
         }
 
         if (!result.isSuccessful())
-            throw DatabaseException(DatabaseException::RRErrorCode::UnsuccessfulQueryResult, result.errorMessage(), result.errorUserMessage());
+            throw DatabaseException(result.errorCode(), result.errorMessage(), result.errorUserMessage());
     } catch (DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());
         result.setErrorMessage(e.message());
         result.setErrorUserMessage(e.userMessage());
-        qCritical() << "DatabaseException in Worker->" << e.message() << e.userMessage();
+        qCritical() << "DatabaseException in Worker->" << e.code() << e.message() << e.userMessage();
     }
 
     emit resultReady(result);

@@ -24,8 +24,14 @@ class QMLStockItemPusher : public AbstractPusher
 public:
     explicit QMLStockItemPusher(QObject *parent = nullptr);
 
+    enum SuccessCode {
+        UnknownSuccess,
+        ItemAdded,
+        ItemUpdated
+    }; Q_ENUM(SuccessCode)
+
     enum ErrorCode {
-        Unknown,
+        UnknownError,
         DuplicateEntryFailure
     }; Q_ENUM(ErrorCode)
 

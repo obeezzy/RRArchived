@@ -117,13 +117,10 @@ void QMLDebtorPusher::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == "add_debtor") {
-            while (m_debtTransactions.count()) {
-                DebtTransaction *debtTransaction = m_debtTransactions.takeFirst();
-                qDeleteAll(debtTransaction->debtPayments);
-                delete debtTransaction;
-            }
-
-            emit success(DebtorAdded);
+            clearDebtTransactions();
+            emit success(AddDebtorSuccess);
+        } else if (result.request().command() == "undo_add_debtor") {
+            emit success(UndoAddDebtorSuccess);
         }
     } else {
         switch (result.errorCode()) {
@@ -255,4 +252,13 @@ QVariant QMLDebtorPusher::convertToVariant(const QList<DebtTransaction *> &debtT
     }
 
     return debtTransactionList;
+}
+
+void QMLDebtorPusher::clearDebtTransactions()
+{
+    while (m_debtTransactions.count()) {
+        DebtTransaction *debtTransaction = m_debtTransactions.takeFirst();
+        qDeleteAll(debtTransaction->debtPayments);
+        delete debtTransaction;
+    }
 }

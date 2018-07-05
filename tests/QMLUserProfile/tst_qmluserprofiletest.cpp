@@ -33,7 +33,7 @@ private:
 
 QMLUserProfileTest::QMLUserProfileTest()
 {
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLUserProfileTest::init()

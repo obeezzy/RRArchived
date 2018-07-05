@@ -104,10 +104,10 @@ RRUi.Page {
 
                     onSuccess: {
                         switch (successCode) {
-                        case RRModels.DebtorModel.DebtorRemoved:
+                        case RRModels.DebtorModel.RemoveDebtorSuccess:
                             snackBar.open(qsTr("Debtor removed"), qsTr("Undo"));
                             break;
-                        case RRModels.DebtorModel.UndoDebtorRemoved:
+                        case RRModels.DebtorModel.UndoRemoveDebtorSuccess:
                             snackBar.open(qsTr("Undo successful"), "");
                             break;
                         }
