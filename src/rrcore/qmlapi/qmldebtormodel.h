@@ -9,15 +9,17 @@ class QMLDebtorModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
-    enum SuccessCodes {
-        DebtorsFetched = 1,
-        UndoDebtorRemoved,
-        DebtorRemoved
-    }; Q_ENUM(SuccessCodes)
+    enum SuccessCode {
+        UnknownSuccess,
+        ViewDebtorsSuccess,
+        UndoRemoveDebtorSuccess,
+        RemoveDebtorSuccess
+    }; Q_ENUM(SuccessCode)
 
-    enum ErrorCodes {
-        InvalidDebtor = 1
-    }; Q_ENUM(ErrorCodes)
+    enum ErrorCode {
+        UnknownError,
+        InvalidDebtorError
+    }; Q_ENUM(ErrorCode)
 
     enum Roles {
         ClientIdRole = Qt::UserRole,

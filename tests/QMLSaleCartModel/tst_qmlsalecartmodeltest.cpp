@@ -51,7 +51,7 @@ private:
 
 QMLSaleCartModelTest::QMLSaleCartModelTest()
 {
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLSaleCartModelTest::init()

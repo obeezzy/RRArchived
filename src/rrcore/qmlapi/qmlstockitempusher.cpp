@@ -224,7 +224,7 @@ void QMLStockItemPusher::push()
 
     QueryRequest request(this);
     if (m_itemId > 0)
-        request.setCommand("edit_stock_item", params, QueryRequest::Stock);
+        request.setCommand("update_stock_item", params, QueryRequest::Stock);
     else
         request.setCommand("add_new_stock_item", params, QueryRequest::Stock);
     emit executeRequest(request);
@@ -238,7 +238,10 @@ void QMLStockItemPusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        emit success();
+        if (result.request().command() == "add_new_stock_item")
+            emit success(AddItemSuccess);
+        else if (result.request().command() == "update_stock_item")
+            emit success(UpdateItemSuccess);
     } else {
         switch (result.errorCode()) {
         case int(DatabaseException::RRErrorCode::DuplicateEntryFailure):

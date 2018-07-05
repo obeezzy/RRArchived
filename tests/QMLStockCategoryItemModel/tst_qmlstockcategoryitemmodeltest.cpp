@@ -35,7 +35,7 @@ private:
 
 QMLStockCategoryItemModelTest::QMLStockCategoryItemModelTest()
 {
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLStockCategoryItemModelTest::init()

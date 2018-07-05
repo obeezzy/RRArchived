@@ -27,6 +27,8 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
     try {
         if (request.command() == "add_new_stock_item")
             addNewStockItem(request);
+        else if (request.command() == "update_stock_item")
+            updateStockItem(request);
         else if (request.command() == "view_stock_items")
             viewStockItems(request, result);
         else if (request.command() == "view_stock_item_details")
@@ -53,8 +55,8 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
 
 void StockSqlManager::addNewStockItem(const QueryRequest &request)
 {
-    const QVariantMap params = request.params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    const QVariantMap &params = request.params();
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int categoryNoteId = 0;
     int itemNoteId = 0;
     int categoryId = 0;
@@ -224,6 +226,136 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
                                     q.lastError().text(), "Failed to insert quantity into current_quantity.");
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+    } catch (DatabaseException &) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        throw;
+    }
+}
+
+void StockSqlManager::updateStockItem(const QueryRequest &request)
+{
+    const QVariantMap &params = request.params();
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
+    int categoryId = 0;
+
+    QSqlQuery q(connection());
+
+    try {
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        // STEP: Update category note.
+        if (!params.value("category_note").toString().trimmed().isEmpty()) {
+            q.prepare("UPDATE note SET note = :note, last_edited = :last_edited, user_id = :user_id WHERE id = :category_note_id");
+            q.bindValue(":note", params.value("category_note"));
+            q.bindValue(":last_edited", currentDateTime);
+            q.bindValue(":user_id", UserProfile::instance().userId());
+            q.bindValue(":category_note_id", params.value("category_note_id"));
+
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
+                                        QStringLiteral("Failed to update category note."));
+        }
+
+        // STEP: Insert item note.
+        if (!params.value("item_note").toString().trimmed().isEmpty()) {
+            q.prepare("UPDATE note SET note = :note, last_edited = :last_edited, user_id = :user_id WHERE id = :item_note_id");
+            q.bindValue(":note", params.value("item_note").toString());
+            q.bindValue(":created", currentDateTime);
+            q.bindValue(":last_edited", currentDateTime);
+            q.bindValue(":user_id", UserProfile::instance().userId());
+            q.bindValue(":item_note_id", params.value("item_note_id"));
+
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
+                                        QStringLiteral("Failed to update item note."));
+        }
+
+        // STEP: Insert category if it doesn't exist. Else, get the category ID.
+        q.prepare("INSERT IGNORE INTO category (category, short_form, note_id, archived, created, last_edited, user_id) "
+                  "VALUES (:category, :short_form, :note_id, :archived, :created, :last_edited, :user_id)");
+        q.bindValue(":category", params.value("category").toString());
+        q.bindValue(":short_form", params.value("short_form", QVariant(QVariant::String)));
+        q.bindValue(":note_id", params.value("category_note_id", QVariant(QVariant::Int)));
+        q.bindValue(":archived", false);
+        q.bindValue(":created", currentDateTime);
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
+                                    QStringLiteral("Failed to insert new category."));
+
+        if (q.numRowsAffected() > 0) {
+            categoryId = q.lastInsertId().toInt();
+            if (!categoryId)
+                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
+                                        QStringLiteral("Invalid category ID returned."));
+        } else {
+            q.prepare("SELECT id FROM category WHERE category = :category");
+            q.bindValue(":category", params.value("category").toString());
+
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
+                                        QStringLiteral("Failed to find category ID."));
+
+            if (!q.first())
+                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure,
+                                        q.lastError().text(),
+                                        QString("Expected category ID for category '%1'.")
+                                        .arg(params.value("category").toString()));
+
+            categoryId = q.value("id").toInt();
+        }
+
+        // STEP: Update item.
+        q.prepare("UPDATE item SET category_id = :category_id, item = :item, short_form = :short_form, description = :description, "
+                  "barcode = :barcode, divisible = :divisible, image = :image, note_id = :note_id, archived = :archived, "
+                  "last_edited = :last_edited, user_id = :user_id "
+                  "WHERE item.id = :item_id");
+        q.bindValue(":category_id", categoryId);
+        q.bindValue(":item", params.value("item"));
+        q.bindValue(":short_form", params.value("short_form", QVariant(QVariant::String)));
+        q.bindValue(":description", params.value("description", QVariant(QVariant::String)));
+        q.bindValue(":barcode", params.value("barcode", QVariant(QVariant::String)));
+        q.bindValue(":divisible", params.value("divisible"));
+        q.bindValue(":image", DatabaseUtils::imageToByteArray(params.value("image_source").toString())); // Store image as BLOB
+        q.bindValue(":note_id", params.value("item_note_id", QVariant(QVariant::Int)));
+        q.bindValue(":archived", false);
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+        q.bindValue(":item_id", params.value("item_id"));
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure,
+                                    q.lastError().text(),
+                                    QStringLiteral("Failed to update item."));
+
+        // STEP: Update unit.
+        q.prepare("UPDATE unit SET unit = :unit, short_form = :short_form, "
+                  "base_unit_equivalent = :base_unit_equivalent, cost_price = :cost_price, retail_price = :retail_price, "
+                  "preferred = :preferred, currency = :currency, note_id = :note_id, archived = :archived, "
+                  "last_edited = :last_edited, user_id = :user_id WHERE item_id = :item_id");
+        q.bindValue(":unit", params.value("unit"));
+        q.bindValue(":short_form", QVariant(QVariant::String));
+        q.bindValue(":base_unit_equivalent", 1);
+        q.bindValue(":cost_price", params.value("cost_price"));
+        q.bindValue(":retail_price", params.value("retail_price"));
+        q.bindValue(":preferred", true);
+        q.bindValue(":currency", "NGN");
+        q.bindValue(":note_id", QVariant(QVariant::Int));
+        q.bindValue(":archived", false);
+        q.bindValue(":last_edited", currentDateTime);
+        q.bindValue(":user_id", UserProfile::instance().userId());
+        q.bindValue(":item_id", params.value("item_id"));
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(), "Failed to update unit.");
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");

@@ -43,7 +43,7 @@ private:
 
 QMLDebtorPusherTest::QMLDebtorPusherTest()
 {
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLDebtorPusherTest::init()
@@ -265,10 +265,12 @@ void QMLDebtorPusherTest::testAddSameDebtor()
 {
     QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
     QSignalSpy errorSpy(m_debtorPusher, &QMLDebtorPusher::error);
+    QSignalSpy busyChangedSpy(m_debtorPusher, &QMLDebtorPusher::busyChanged);
     const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
 
     QVERIFY(m_client->initialize());
 
+    // Add a debtor.
     m_debtorPusher->setImageSource("image/source");
     m_debtorPusher->setFirstName("First name");
     m_debtorPusher->setLastName("Last name");
@@ -277,31 +279,43 @@ void QMLDebtorPusherTest::testAddSameDebtor()
     m_debtorPusher->setAddress("1234 Address Street");
     m_debtorPusher->setNote("Note");
     m_debtorPusher->addDebt(1234.56, dueDateTime);
-
     m_debtorPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
 
+    // STEP: Re-add debt since debts are always cleared after DebtorPusher::push() is called.
+    m_debtorPusher->addDebt(1234.56, dueDateTime);
+
+    // STEP: Try to add the same debtor again.
     m_debtorPusher->push();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 1);
-    const QList<QVariant> arguments = errorSpy.takeFirst();
-    QVERIFY(arguments.at(0).toInt() == QMLDebtorPusher::DuplicateEntryError);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLDebtorPusher::ErrorCode>(), QMLDebtorPusher::DuplicateEntryError);
+    errorSpy.clear();
+    QCOMPARE(successSpy.count(), 0);
 
-    /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());
+    // STEP: Verify client table was updated properly.
     q.prepare("SELECT id, first_name, last_name, preferred_name, phone_number, address, note_id, created, last_edited, user_id FROM client");
     QVERIFY(q.exec());
     QCOMPARE(q.size(), 1);
 
+    // STEP: Verify debtor table was updated properly.
     q.prepare("SELECT id, client_id, note_id, created, last_edited, user_id FROM debtor");
     QVERIFY(q.exec());
     QCOMPARE(q.size(), 1);
 
+    // STEP: Verify note table was updated properly.
     q.prepare("SELECT id, note, table_name, created, last_edited, user_id FROM note");
     QVERIFY(q.exec());
     QCOMPARE(q.size(), 1);
-    /****************************************************/
 }
 
 void QMLDebtorPusherTest::testAddDebt()
@@ -345,10 +359,13 @@ void QMLDebtorPusherTest::testAddDebt()
 void QMLDebtorPusherTest::testAddPayment()
 {
     QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
+    QSignalSpy errorSpy(m_debtorPusher, &QMLDebtorPusher::error);
     const QDate dueDate(QDate::currentDate().addDays(1));
 
+    // NOTE: Must be called before any database operations
     QVERIFY(m_client->initialize());
 
+    // STEP: Add a new debtor.
     m_debtorPusher->setImageSource("image/source");
     m_debtorPusher->setFirstName("First name");
     m_debtorPusher->setLastName("Last name");
@@ -358,10 +375,12 @@ void QMLDebtorPusherTest::testAddPayment()
     m_debtorPusher->addDebt(1234.56, QDateTime(dueDate));
     m_debtorPusher->addPayment(0, 4.56, "Payment note");
     m_debtorPusher->push();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorPusher::SuccessCode>(), QMLDebtorPusher::AddDebtorSuccess);
+    successSpy.clear();
 
-    /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());
     q.prepare("SELECT id, debtor_id, transaction_table, note_id, archived, created, last_edited, user_id FROM debt_transaction");
     QVERIFY(q.exec());
@@ -378,9 +397,9 @@ void QMLDebtorPusherTest::testAddPayment()
     q.prepare("SELECT id, debt_transaction_id, total_amount, amount_paid, balance, due_date, note_id, archived, "
               "created, last_edited, user_id FROM debt_payment");
     QVERIFY(q.exec());
-    QVERIFY(q.first());
-    QCOMPARE(q.size(), 1);
-    QCOMPARE(q.value("id").toInt(), 1);
+    QCOMPARE(q.size(), 2);
+    QVERIFY(q.last());
+    QCOMPARE(q.value("id").toInt(), 2);
     QCOMPARE(q.value("debt_transaction_id").toInt(), 1);
     QCOMPARE(q.value("total_amount").toDouble(), 1234.56);
     QCOMPARE(q.value("amount_paid").toDouble(), 4.56);
@@ -394,12 +413,13 @@ void QMLDebtorPusherTest::testAddPayment()
     q.prepare("SELECT id, note, table_name, created, last_edited, user_id FROM note WHERE note = 'Payment note'");
     QVERIFY(q.exec());
     QCOMPARE(q.size(), 1);
-    /****************************************************/
 }
 
 void QMLDebtorPusherTest::testUndoAddNewDebtor()
 {
     QSignalSpy successSpy(m_debtorPusher, &QMLDebtorPusher::success);
+    QSignalSpy errorSpy(m_debtorPusher, &QMLDebtorPusher::error);
+    QSignalSpy busyChangedSpy(m_debtorPusher, &QMLDebtorPusher::busyChanged);
     const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
 
     QVERIFY(m_client->initialize());
@@ -413,13 +433,22 @@ void QMLDebtorPusherTest::testUndoAddNewDebtor()
     m_debtorPusher->addDebt(1234.56, dueDateTime);
 
     m_debtorPusher->push();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorPusher::SuccessCode>(), QMLDebtorPusher::AddDebtorSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
 
     m_debtorPusher->undoLastCommit();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorPusher::SuccessCode>(), QMLDebtorPusher::UndoAddDebtorSuccess);
 
     /******************* DATABASE CHECKS ****************/
     QSqlQuery q(m_client->connection());

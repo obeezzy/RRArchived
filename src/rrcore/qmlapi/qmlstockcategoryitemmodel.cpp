@@ -207,7 +207,7 @@ void QMLStockCategoryItemModel::undoRemoveItemFromModel(int categoryId, int item
         for (int i = 0; i < m_stockItemModels.count(); ++i) {
             StockItemModel *model = m_stockItemModels.at(i);
             if (model->categoryId() == categoryId) {
-                qDebug() << "Item Added? " << model->addItem(itemId, itemInfo);
+                model->addItem(itemId, itemInfo);
                 break;
             }
         }
