@@ -1,5 +1,5 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import Fluid.Core 1.0 as FluidCore
@@ -116,18 +116,20 @@ RRUi.Page {
                     buttonRow: Row {
                         spacing: 0
 
-                        FluidControls.ToolButton {
+                        RRUi.ToolButton {
                             id: editButton
                             icon.source: FluidControls.Utils.iconUrl("image/edit")
                             width: FluidControls.Units.iconSizes.medium
                             height: width
+                            text: qsTr("Edit debtor")
                         }
 
-                        FluidControls.ToolButton {
+                        RRUi.ToolButton {
                             id: deleteButton
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             width: FluidControls.Units.iconSizes.medium
                             height: width
+                            text: qsTr("Delete debtor")
                             onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
                         }
                     }

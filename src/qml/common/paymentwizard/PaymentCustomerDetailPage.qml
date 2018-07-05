@@ -1,6 +1,7 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import "../../rrui" as RRUi
 
 QQC2.Page {
     id: paymentCustomerDetailPage
@@ -44,7 +45,7 @@ QQC2.Page {
                     size: 20
                 }
 
-                QQC2.TextField {
+                RRUi.TextField {
                     id: customerNameField
                     focus: true
                     width: 300
@@ -63,7 +64,7 @@ QQC2.Page {
                     size: 20
                 }
 
-                QQC2.TextField {
+                RRUi.TextField {
                     id: phoneNumberField
                     width: 300
                     placeholderText: qsTr("Customer phone number")

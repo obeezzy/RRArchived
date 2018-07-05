@@ -1,5 +1,5 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
 import QtCharts 2.2 as QCharts
 import QtQuick.Controls.Material 2.3

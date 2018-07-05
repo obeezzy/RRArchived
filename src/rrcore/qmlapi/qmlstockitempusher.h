@@ -8,6 +8,7 @@
 class QMLStockItemPusher : public AbstractPusher
 {
     Q_OBJECT
+    Q_PROPERTY(int itemId READ itemId WRITE setItemId NOTIFY itemIdChanged)
     Q_PROPERTY(QString imageSource READ imageSource WRITE setImageSource NOTIFY imageSourceChanged)
     Q_PROPERTY(QString category READ category WRITE setCategory NOTIFY categoryChanged)
     Q_PROPERTY(QString item READ item WRITE setItem NOTIFY itemChanged)
@@ -27,6 +28,9 @@ public:
         Unknown,
         DuplicateEntryFailure
     }; Q_ENUM(ErrorCode)
+
+    int itemId() const;
+    void setItemId(int itemId);
 
     QString imageSource() const;
     void setImageSource(const QString &);
@@ -66,6 +70,7 @@ public:
 protected:
     void processResult(const QueryResult result) override final;
 signals:
+    void itemIdChanged();
     void imageSourceChanged();
     void categoryChanged();
     void itemChanged();
@@ -82,6 +87,7 @@ signals:
 public slots:
     void push() override final;
 private:
+    int m_itemId;
     QString m_imageSource;
     QString m_category;
     QString m_item;

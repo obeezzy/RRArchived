@@ -39,7 +39,9 @@ SOURCES += \
     qmlapi/qmlsalehomemodel.cpp \
     models/saletotalrevenuemodel.cpp \
     models/salemostsolditemmodel.cpp \
-    qmlapi/qmldebtorpusher.cpp
+    qmlapi/qmldebtorpusher.cpp \
+    detailrecord/abstractdetailrecord.cpp \
+    qmlapi/qmlstockitemdetailrecord.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -74,4 +76,6 @@ HEADERS += \
     qmlapi/qmlsalehomemodel.h \
     models/saletotalrevenuemodel.h \
     models/salemostsolditemmodel.h \
-    qmlapi/qmldebtorpusher.h
+    qmlapi/qmldebtorpusher.h \
+    detailrecord/abstractdetailrecord.h \
+    qmlapi/qmlstockitemdetailrecord.h

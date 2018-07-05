@@ -1,5 +1,5 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
@@ -61,19 +61,21 @@ ListView {
                 top: parent.top
             }
 
-            FluidControls.ToolButton {
+            RRUi.ToolButton {
                 id: editButton
                 width: FluidControls.Units.iconSizes.medium
                 height: width
                 icon.name: "image/edit"
+                text: qsTr("Edit item")
                 onClicked: cartListView.editRequested({ "item_id": item_id, "quantity": quantity, "unit_price": unit_price });
             }
 
-            FluidControls.ToolButton {
+            RRUi.ToolButton {
                 id: deleteButton
                 width: FluidControls.Units.iconSizes.medium
                 height: width
                 icon.name: "action/delete"
+                text: qsTr("Delete item")
                 onClicked: cartListView.model.removeItem(item_id);
             }
         }

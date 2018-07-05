@@ -29,6 +29,8 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
             addNewStockItem(request);
         else if (request.command() == "view_stock_items")
             viewStockItems(request, result);
+        else if (request.command() == "view_stock_item_details")
+            viewStockItemDetails(request, result);
         else if (request.command() == "view_stock_categories")
             viewStockCategories(request, result);
         else if (request.command() == "remove_stock_item")
@@ -126,7 +128,9 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
                 throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category.");
 
             if (!q.first())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), QString("Expected category ID for category '%1'.")
+                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
+                                        q.lastError().text(),
+                                        QString("Expected category ID for category '%1'.")
                                         .arg(params.value("category").toString()));
 
             categoryId = q.value("id").toInt();
@@ -152,7 +156,8 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
 
         if (!q.exec()) {
             if (q.lastError().number() == int(DatabaseException::MySqlErrorCode::DuplicateEntryError))
-                throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, q.lastError().text(), "Failed to insert item because item already exists.");
+                throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure,
+                                        q.lastError().text(), "Failed to insert item because item already exists.");
             else
                 throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert item.");
         }
@@ -202,7 +207,8 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert quantity into initial_quantity.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
+                                    q.lastError().text(), "Failed to insert quantity into initial_quantity.");
 
 
         // Insert unit into current_quantity table
@@ -216,7 +222,8 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert quantity into current_quantity.");
+            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
+                                    q.lastError().text(), "Failed to insert quantity into current_quantity.");
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -265,7 +272,8 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
         q.prepare(itemInfoQuery.arg(filterColumn, sortOrder));
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemsFailed, q.lastError().text(), "Failed to fetch tracked stock items.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemsFailed,
+                                    q.lastError().text(), "Failed to fetch tracked stock items.");
 
         QVariantMap categories;
         int itemCount = 0;
@@ -324,6 +332,46 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
     }
 }
 
+void StockSqlManager::viewStockItemDetails(const QueryRequest request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        AbstractSqlManager::enforceArguments({ "item_id" }, params);
+
+        QSqlQuery q(connection());
+        q.prepare("SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
+                  "item.divisible, item.image, current_quantity.quantity, "
+                  "unit.id as unit_id, unit.unit, unit.cost_price, "
+                  "unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, item.user_id AS user "
+                  "FROM item "
+                  "INNER JOIN category ON item.category_id = category.id "
+                  "INNER JOIN unit ON item.id = unit.item_id "
+                  "INNER JOIN current_quantity ON item.id = current_quantity.item_id "
+                  "LEFT JOIN user ON item.user_id = user.id "
+                  "WHERE item.archived = 0 AND unit.base_unit_equivalent = 1 "
+                  "AND item.id = :item_id");
+        q.bindValue(":item_id", params.value("item_id"), QSql::Out);
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemDetailsFailed,
+                                    q.lastError().text(),
+                                    "Failed to fetch item details.");
+
+        QVariantMap itemInfo;
+        if (q.first())
+            itemInfo = recordToMap(q.record());
+        else
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemDetailsFailed,
+                                    q.lastError().text(),
+                                    QString("Item details do not exists for item %1.").arg(params.value("item_id").toString()));
+
+        result.setOutcome(QVariantMap { { "item", itemInfo }, { "record_count", 1 } });
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
+
 void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResult &result)
 {
     Q_UNUSED(request)
@@ -333,7 +381,9 @@ void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResu
         q.prepare("SELECT id as category_id, category FROM category WHERE archived = 0 ORDER BY LOWER(category) ASC");
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockCategoriesFailed, q.lastError().text(), "Failed to fetch categories.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockCategoriesFailed,
+                                    q.lastError().text(),
+                                    "Failed to fetch categories.");
 
         QVariantList categories;
 

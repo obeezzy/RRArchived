@@ -12,6 +12,7 @@
 #include "rrcore/qmlapi/qmlstockcategorymodel.h"
 #include "rrcore/qmlapi/qmldebtormodel.h"
 #include "rrcore/qmlapi/qmlsalehomemodel.h"
+#include "rrcore/qmlapi/qmlstockitemdetailrecord.h"
 
 Plugins::Plugins()
 {
@@ -33,6 +34,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLStockCategoryModel>("com.gecko.rr.models", 1, 0, "StockCategoryModel");
     qmlRegisterType<QMLDebtorModel>("com.gecko.rr.models", 1, 0, "DebtorModel");
     qmlRegisterType<QMLSaleHomeModel>("com.gecko.rr.models", 1, 0, "SaleHomeModel");
+    qmlRegisterType<QMLStockItemDetailRecord>("com.gecko.rr.models", 1, 0, "StockItemDetailRecord");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");
