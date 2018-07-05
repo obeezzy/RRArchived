@@ -1,5 +1,5 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
@@ -205,15 +205,12 @@ RRUi.Page {
                             filterColumn: RRModels.StockCategoryItemModel.ItemColumn
 
                             buttonRow: Row {
-                                FluidControls.ToolButton {
+                                RRUi.ToolButton {
                                     id: addToCartButton
                                     icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
+                                    text: qsTr("Add to cart")
                                     visible: parent.parent.modelData.quantity > 0
                                     onClicked: cartListView.addItem(parent.parent.modelData);
-
-                                    QQC2.ToolTip.visible: hovered
-                                    QQC2.ToolTip.delay: 1500
-                                    QQC2.ToolTip.text: qsTr("Add to cart")
                                 }
                             }
                         }
@@ -284,20 +281,17 @@ RRUi.Page {
 
                                     Item { QQLayouts.Layout.preferredWidth: 8; QQLayouts.Layout.fillHeight: true }
 
-                                    QQC2.TextField {
+                                    RRUi.TextField {
                                         id: customerNameField
                                         focus: true
                                         QQLayouts.Layout.fillWidth: true
                                         placeholderText: qsTr("Customer name")
                                     }
 
-                                    FluidControls.ToolButton {
+                                    RRUi.ToolButton {
                                         id: customerOptionButton
                                         icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
-
-                                        QQC2.ToolTip.visible: hovered
-                                        QQC2.ToolTip.delay: 1500
-                                        QQC2.ToolTip.text: qsTr("More")
+                                        text: qsTr("More")
                                     }
                                 }
 
@@ -311,7 +305,7 @@ RRUi.Page {
                                         size: 20
                                     }
 
-                                    QQC2.TextField {
+                                    RRUi.TextField {
                                         id: customerPhoneNumberField
                                         width: 300
                                         placeholderText: qsTr("Customer phone number")

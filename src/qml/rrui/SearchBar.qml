@@ -1,8 +1,9 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
+import "../rrui" as RRUi
 
 QQLayouts.RowLayout {
     id: searchBar
@@ -15,23 +16,24 @@ QQLayouts.RowLayout {
         size: FluidControls.Units.iconSizes.medium
     }
 
-    QQC2.TextField {
+    RRUi.TextField {
         id: searchField
         QQLayouts.Layout.fillWidth: true
         placeholderText: qsTr("Search")
         rightPadding: FluidControls.Units.iconSizes.smallMedium
 
-        FluidControls.ToolButton {
+        RRUi.ToolButton {
             id: clearButton
             anchors {
                 right: parent.right
                 verticalCenter: parent.verticalCenter
             }
-            opacity: searchField.text != "" ? 1 : 0
+            opacity: searchField.text !== "" ? 1 : 0
             visible: opacity > 0
             width: FluidControls.Units.iconSizes.medium
             height: width
             icon.name: "content/clear"
+            text: qsTr("Clear")
             onClicked: searchField.clear();
 
             Behavior on opacity { NumberAnimation { property: "opacity" } }

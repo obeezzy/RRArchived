@@ -1,5 +1,5 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import Fluid.Core 1.0 as FluidCore
@@ -20,7 +20,7 @@ RRUi.Page {
     actions: [
         FluidControls.Action {
             icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
-            text: qsTr("Add a new item.")
+            text: qsTr("More options")
             onTriggered: bottomSheet.open();
             toolTip: qsTr("More options")
         }
@@ -88,18 +88,29 @@ RRUi.Page {
         buttonRow: Row {
             spacing: 0
 
-            FluidControls.ToolButton {
+            RRUi.ToolButton {
+                id: viewButton
+                icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
+                width: FluidControls.Units.iconSizes.medium
+                height: width
+                text: qsTr("View details")
+            }
+
+            RRUi.ToolButton {
                 id: editButton
                 icon.source: FluidControls.Utils.iconUrl("image/edit")
                 width: FluidControls.Units.iconSizes.medium
                 height: width
+                text: qsTr("Edit item")
+                onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"), { "itemId": modelData.item_id });
             }
 
-            FluidControls.ToolButton {
+            RRUi.ToolButton {
                 id: deleteButton
                 icon.source: FluidControls.Utils.iconUrl("action/delete")
                 width: FluidControls.Units.iconSizes.medium
                 height: width
+                text: qsTr("Delete item")
                 onClicked: categoryListView.model.removeItem(modelData.item_id);
             }
         }
@@ -137,18 +148,16 @@ RRUi.Page {
         }
     }
 
-    FluidControls.FloatingActionButton {
-        Material.background: Material.LightGreen
-        Material.foreground: "white"
-        icon.source: FluidControls.Utils.iconUrl("content/add")
-
-        onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"));
-
+    RRUi.FloatingActionButton {
         anchors {
             right: parent.right
             bottom: parent.bottom
             margins: 24
         }
+
+        text: qsTr("New stock item")
+        icon.source: FluidControls.Utils.iconUrl("content/add")
+        onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"));
     }
 
     FluidControls.BottomSheetList {

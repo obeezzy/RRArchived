@@ -1,7 +1,8 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.components 1.0 as RRComponents
+import "../../rrui" as RRUi
 import "../../singletons"
 
 QQC2.Page {
@@ -43,7 +44,7 @@ QQC2.Page {
                     size: FluidControls.Units.iconSizes.smallMedium
                 }
 
-                QQC2.TextField {
+                RRUi.TextField {
                     id: amountPaidField
                     focus: true
                     width: 300

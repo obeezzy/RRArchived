@@ -1,7 +1,8 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.3 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
+import "../rrui" as RRUi
 import "paymentwizard"
 
 QQC2.Dialog {
@@ -46,11 +47,13 @@ QQC2.Dialog {
 
         Row {
             QQLayouts.Layout.preferredHeight: 25
-            FluidControls.ToolButton {
+
+            RRUi.ToolButton {
                 anchors.verticalCenter: parent.verticalCenter
                 width: FluidControls.Units.iconSizes.large
                 height: width
                 icon.source: FluidControls.Utils.iconUrl("navigation/arrow_back")
+                text: qsTr("Back")
                 visible: stackView.depth > 1 && stackView.currentObjectName != "paymentFinishPage"
                 onClicked: {
                     if (stackView.currentObjectName == "paymentBalancePage" && stackView.currentItem.isCashPayment && privateProperties.cashPayments > 0) {

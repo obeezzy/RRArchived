@@ -12,6 +12,7 @@ public:
 private:
     void addNewStockItem(const QueryRequest &request); // NOTE: throws DatabaseException!
     void viewStockItems(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
+    void viewStockItemDetails(const QueryRequest request, QueryResult &result); // NOTE: throws DatabaseException
     void viewStockCategories(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
     void removeStockItem(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
     void undoRemoveStockItem(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!

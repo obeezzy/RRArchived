@@ -4,6 +4,7 @@
 
 QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
     AbstractPusher(parent),
+    m_itemId(-1),
     m_imageSource(QString()),
     m_category(QString()),
     m_item(QString()),
@@ -18,6 +19,20 @@ QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
     m_retailPrice(0.0)
 {
 
+}
+
+int QMLStockItemPusher::itemId() const
+{
+    return m_itemId;
+}
+
+void QMLStockItemPusher::setItemId(int itemId)
+{
+    if (m_itemId == itemId)
+        return;
+
+    m_itemId = itemId;
+    emit itemIdChanged();
 }
 
 QString QMLStockItemPusher::imageSource() const
@@ -193,6 +208,7 @@ void QMLStockItemPusher::push()
     setBusy(true);
 
     QVariantMap params;
+    params.insert("item_id", m_itemId);
     params.insert("image_source", m_imageSource);
     params.insert("category", m_category);
     params.insert("item", m_item);
@@ -207,7 +223,10 @@ void QMLStockItemPusher::push()
     params.insert("retail_price", m_retailPrice);
 
     QueryRequest request(this);
-    request.setCommand("add_new_stock_item", params, QueryRequest::Stock);
+    if (m_itemId > 0)
+        request.setCommand("edit_stock_item", params, QueryRequest::Stock);
+    else
+        request.setCommand("add_new_stock_item", params, QueryRequest::Stock);
     emit executeRequest(request);
 }
 

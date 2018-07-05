@@ -1,0 +1,14 @@
+import QtQuick 2.10
+import QtQuick.Controls 2.3 as QQC2
+import QtQuick.Controls.Material 2.3
+import Fluid.Controls 1.0 as FluidControls
+
+FluidControls.FloatingActionButton {
+    Material.background: Material.LightGreen
+    Material.foreground: "white"
+    display: QQC2.AbstractButton.IconOnly
+
+    QQC2.ToolTip.visible: hovered
+    QQC2.ToolTip.delay: 300
+    QQC2.ToolTip.text: text
+}

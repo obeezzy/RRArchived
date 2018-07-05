@@ -1,5 +1,5 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
@@ -32,18 +32,16 @@ RRUi.Page {
             }
         }
 
-        FluidControls.FloatingActionButton {
-            Material.background: Material.LightGreen
-            Material.foreground: "white"
-            icon.source: FluidControls.Utils.iconUrl("content/add")
-
-            onClicked: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
-
+        RRUi.FloatingActionButton {
             anchors {
                 right: parent.right
                 bottom: parent.bottom
                 margins: 24
             }
+
+            icon.source: FluidControls.Utils.iconUrl("content/add")
+            text: qsTr("New sale transaction")
+            onClicked: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
         }
 
         FluidControls.BottomSheetList {

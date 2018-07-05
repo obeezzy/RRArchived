@@ -22,6 +22,7 @@ public:
         UnsuccessfulQueryResult,
         ViewStockItemsFailed,
         ViewStockCategoriesFailed,
+        ViewStockItemDetailsFailed,
         AddTransactionFailure,
         UpdateTransactionFailure,
         UndoAddTransactionFailure,

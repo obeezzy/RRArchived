@@ -1,0 +1,44 @@
+#ifndef ABSTRACTDETAILRECORD_H
+#define ABSTRACTDETAILRECORD_H
+
+#include <QObject>
+#include <QQmlParserStatus>
+#include "database/queryrequest.h"
+#include "database/queryresult.h"
+
+class AbstractDetailRecord : public QObject, public QQmlParserStatus
+{
+    Q_OBJECT
+    Q_INTERFACES(QQmlParserStatus)
+    Q_PROPERTY(bool autoQuery READ autoQuery WRITE setAutoQuery NOTIFY autoQueryChanged)
+    Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
+public:
+    explicit AbstractDetailRecord(QObject *parent = nullptr);
+    virtual ~AbstractDetailRecord();
+
+    bool autoQuery() const;
+    void setAutoQuery(bool autoQuery);
+
+    bool isBusy() const;
+
+    void classBegin() override final;
+    void componentComplete() override final;
+protected:
+    virtual void tryQuery() = 0;
+    virtual void processResult(const QueryResult result) = 0;
+    void setBusy(bool busy);
+
+    virtual void reset() = 0;
+signals:
+    void executeRequest(const QueryRequest request);
+    void autoQueryChanged();
+    void busyChanged();
+
+    void success(int successCode = -1);
+    void error(int errorCode = -1);
+private:
+    bool m_autoQuery;
+    bool m_busy;
+};
+
+#endif // ABSTRACTDETAILRECORD_H

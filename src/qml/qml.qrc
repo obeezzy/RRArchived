@@ -51,5 +51,9 @@
         <file>people/debtor/DebtorListView.qml</file>
         <file>rrui/ApplicationWindow.qml</file>
         <file>rrui/LetterCircleImage.qml</file>
+        <file>rrui/TransitionView.qml</file>
+        <file>rrui/TextField.qml</file>
+        <file>rrui/ToolButton.qml</file>
+        <file>rrui/FloatingActionButton.qml</file>
     </qresource>
 </RCC>
