@@ -1,11 +1,35 @@
 #include "qmlstockitemdetailrecord.h"
 #include <QDateTime>
 
+void itemIdChanged();
+void categoryIdChanged();
+void categoryChanged();
+void itemChanged();
+void descriptionChanged();
+void divisibleChanged();
+void imageSourceChanged();
+void quantityChanged();
+void unitIdChanged();
+void unitChanged();
+void costPriceChanged();
+void retailPriceChanged();
+void currencyChanged();
+void createdChanged();
+void lastEditedChanged();
+void userIdChanged();
+void userChanged();
 QMLStockItemDetailRecord::QMLStockItemDetailRecord(QObject *parent) :
     AbstractDetailRecord(parent),
-    m_itemId(-1)
+    m_itemId(-1),
+    m_categoryId(-1),
+    m_divisible(false),
+    m_quantity(0.0),
+    m_unitId(-1),
+    m_costPrice(0.0),
+    m_retailPrice(0.0),
+    m_userId(-1)
 {
-
+    connect(this, &QMLStockItemDetailRecord::itemIdChanged, this, &QMLStockItemDetailRecord::tryQuery);
 }
 
 int QMLStockItemDetailRecord::itemId() const
@@ -24,82 +48,82 @@ void QMLStockItemDetailRecord::setItemId(int itemId)
 
 int QMLStockItemDetailRecord::categoryId() const
 {
-    return m_record.value("category_id", -1).toInt();
+    return m_categoryId;
 }
 
 QString QMLStockItemDetailRecord::category() const
 {
-    return m_record.value("category").toString();
+    return m_category;
 }
 
 QString QMLStockItemDetailRecord::item() const
 {
-    return m_record.value("item").toString();
+    return m_item;
 }
 
 QString QMLStockItemDetailRecord::description() const
 {
-    return m_record.value("description").toString();
+    return m_description;
 }
 
 bool QMLStockItemDetailRecord::isDivisible() const
 {
-    return m_record.value("divisible").toBool();
+    return m_divisible;
 }
 
 QString QMLStockItemDetailRecord::imageSource() const
 {
-    return m_record.value("image_source").toString();
+    return m_imageSource;
 }
 
 double QMLStockItemDetailRecord::quantity() const
 {
-    return m_record.value("quantity").toDouble();
+    return m_quantity;
 }
 
 int QMLStockItemDetailRecord::unitId() const
 {
-    return m_record.value("unit_id").toInt();
+    return m_unitId;
 }
 
 QString QMLStockItemDetailRecord::unit() const
 {
-    return m_record.value("unit").toString();
+    return m_unit;
 }
 
 qreal QMLStockItemDetailRecord::costPrice() const
 {
-    return m_record.value("cost_price").toDouble();
+    return m_costPrice;
 }
 
 qreal QMLStockItemDetailRecord::retailPrice() const
 {
-    return m_record.value("retail_price").toDouble();
+    return m_retailPrice;
 }
 
 QString QMLStockItemDetailRecord::currency() const
 {
-    return m_record.value("currency").toString();
+    return m_currency;
 }
 
 QDateTime QMLStockItemDetailRecord::created() const
 {
-    return m_record.value("created").toDateTime();
+    return m_created;
 }
 
 QDateTime QMLStockItemDetailRecord::lastEdited() const
 {
-    return m_record.value("last_edited").toDateTime();
+    return m_lastEdited;
 }
 
 int QMLStockItemDetailRecord::userId() const
 {
-    return m_record.value("user_id", -1).toInt();
+    return m_userId;
 }
 
 QString QMLStockItemDetailRecord::user() const
 {
-    return m_record.value("user").toString();
+    return m_user;
 }
 
 void QMLStockItemDetailRecord::tryQuery()
@@ -121,32 +145,169 @@ void QMLStockItemDetailRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        m_record = result.outcome().toMap().value("item").toMap();
+        const QVariantMap &record = result.outcome().toMap().value("item").toMap();
+        setCategoryId(record.value("category_id").toInt());
+        setCategory(record.value("category").toString());
+        setItem(record.value("item").toString());
+        setDescription(record.value("description").toString());
+        setDivisible(record.value("divisible").toBool());
+        setImageSource(record.value("image_source").toString());
+        setQuantity(record.value("quantity").toDouble());
+        setUnitId(record.value("unit_id").toInt());
+        setUnit(record.value("unit").toString());
+        setCostPrice(record.value("cost_price").toDouble());
+        setRetailPrice(record.value("retail_price").toDouble());
+        setCurrency(record.value("currency").toString());
+        setCreated(record.value("created").toDateTime());
+        setLastEdited(record.value("last_edited").toDateTime());
+        setUserId(record.value("user_id").toInt());
+        setUser(record.value("user").toString());
         emit success();
     } else {
         emit error();
     }
-
-    reset();
 }
 
-void QMLStockItemDetailRecord::reset()
+void QMLStockItemDetailRecord::setCategoryId(int categoryId)
 {
-    emit itemIdChanged();
+    if (m_categoryId == categoryId)
+        return;
+
+    m_categoryId = categoryId;
     emit categoryIdChanged();
+}
+
+void QMLStockItemDetailRecord::setCategory(const QString &category)
+{
+    if (m_category == category)
+        return;
+
+    m_category = category;
     emit categoryChanged();
+}
+
+void QMLStockItemDetailRecord::setItem(const QString &item)
+{
+    if (m_item == item)
+        return;
+
+    m_item = item;
     emit itemChanged();
+}
+
+void QMLStockItemDetailRecord::setDescription(const QString &description)
+{
+    if (m_description == description)
+        return;
+
+    m_description = description;
     emit descriptionChanged();
+}
+
+void QMLStockItemDetailRecord::setDivisible(bool divisible)
+{
+    if (m_divisible == divisible)
+        return;
+
+    m_divisible = divisible;
     emit divisibleChanged();
+}
+
+void QMLStockItemDetailRecord::setImageSource(const QString &imageSource)
+{
+    if (m_imageSource == imageSource)
+        return;
+
+    m_imageSource = imageSource;
     emit imageSourceChanged();
+}
+
+void QMLStockItemDetailRecord::setQuantity(double quantity)
+{
+    if (m_quantity == quantity)
+        return;
+
+    m_quantity = quantity;
     emit quantityChanged();
+}
+
+void QMLStockItemDetailRecord::setUnitId(int unitId)
+{
+    if (m_unitId == unitId)
+        return;
+
+    m_unitId = unitId;
     emit unitIdChanged();
+}
+
+void QMLStockItemDetailRecord::setUnit(const QString &unit)
+{
+    if (m_unit == unit)
+        return;
+
+    m_unit = unit;
     emit unitChanged();
+}
+
+void QMLStockItemDetailRecord::setCostPrice(qreal costPrice)
+{
+    if (m_costPrice == costPrice)
+        return;
+
+    m_costPrice = costPrice;
     emit costPriceChanged();
+}
+
+void QMLStockItemDetailRecord::setRetailPrice(qreal retailPrice)
+{
+    if (m_retailPrice == retailPrice)
+        return;
+
+    m_retailPrice = retailPrice;
     emit retailPriceChanged();
+}
+
+void QMLStockItemDetailRecord::setCurrency(const QString &currency)
+{
+    if (m_currency == currency)
+        return;
+
+    m_currency = currency;
     emit currencyChanged();
+}
+
+void QMLStockItemDetailRecord::setCreated(const QDateTime &created)
+{
+    if (m_created == created)
+        return;
+
+    m_created = created;
     emit createdChanged();
+}
+
+void QMLStockItemDetailRecord::setLastEdited(const QDateTime &lastEdited)
+{
+    if (m_lastEdited == lastEdited)
+        return;
+
+    m_lastEdited = lastEdited;
     emit lastEditedChanged();
+}
+
+void QMLStockItemDetailRecord::setUserId(int userId)
+{
+    if (m_userId == userId)
+        return;
+
+    m_userId = userId;
     emit userIdChanged();
+}
+
+void QMLStockItemDetailRecord::setUser(const QString &user)
+{
+    if (m_user == user)
+        return;
+
+    m_user = user;
     emit userChanged();
 }

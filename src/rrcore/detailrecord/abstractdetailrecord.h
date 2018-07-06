@@ -27,8 +27,6 @@ protected:
     virtual void tryQuery() = 0;
     virtual void processResult(const QueryResult result) = 0;
     void setBusy(bool busy);
-
-    virtual void reset() = 0;
 signals:
     void executeRequest(const QueryRequest request);
     void autoQueryChanged();

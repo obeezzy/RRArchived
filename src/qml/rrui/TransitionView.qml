@@ -8,5 +8,5 @@ QQC2.StackView {
 
     initialItem: transitionComponent
 
-    function refresh() { transitionView.replace(null, transitionView.transitionComponent); }
+    function trigger() { transitionView.replace(null, transitionView.transitionComponent); }
 }

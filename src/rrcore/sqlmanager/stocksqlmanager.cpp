@@ -525,7 +525,7 @@ void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResu
 
     try {
         QSqlQuery q(connection());
-        q.prepare("SELECT id as category_id, category FROM category WHERE archived = 0 ORDER BY LOWER(category) ASC");
+        q.prepare("SELECT id as category_id, category FROM category ORDER BY LOWER(category) ASC");
 
         if (!q.exec())
             throw DatabaseException(DatabaseException::RRErrorCode::ViewStockCategoriesFailed,

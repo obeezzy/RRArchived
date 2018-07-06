@@ -55,5 +55,8 @@
         <file>rrui/TextField.qml</file>
         <file>rrui/ToolButton.qml</file>
         <file>rrui/FloatingActionButton.qml</file>
+        <file>rrui/Popup.qml</file>
+        <file>stock/ItemDetailPopup.qml</file>
+        <file>stock/ItemDetailModel.qml</file>
     </qresource>
 </RCC>

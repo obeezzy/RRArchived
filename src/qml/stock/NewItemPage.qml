@@ -368,7 +368,7 @@ RRUi.Page {
                             switch (successCode) {
                             case RRModels.StockItemPusher.AddItemSuccess:
                                 newItemPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully added!"));
-                                transitionView.refresh();
+                                transitionView.trigger();
                                 break;
                             case RRModels.StockItemPusher.UpdateItemSuccess:
                                 newItemPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully updated!"));

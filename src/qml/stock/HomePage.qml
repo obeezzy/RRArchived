@@ -1,4 +1,4 @@
-import QtQuick 2.9
+import QtQuick 2.10
 import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
@@ -103,6 +103,7 @@ RRUi.Page {
                 width: FluidControls.Units.iconSizes.medium
                 height: width
                 text: qsTr("View details")
+                onClicked: itemDetailPopup.show(modelData.item_id);
             }
 
             RRUi.ToolButton {
@@ -154,6 +155,14 @@ RRUi.Page {
             text: /*categoryListView.model.filterText ? */qsTr("No results for this search query.")
                                                     //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.").arg(FluidControls.Utils.iconUrl("content/add"))
             horizontalAlignment: Qt.AlignHCenter
+        }
+    }
+
+    ItemDetailPopup {
+        id: itemDetailPopup
+        onEditRequested: {
+            close();
+            homePage.push(Qt.resolvedUrl("NewItemPage.qml"), { "itemId": itemId });
         }
     }
 

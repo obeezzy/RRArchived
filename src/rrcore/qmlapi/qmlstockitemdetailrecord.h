@@ -77,10 +77,42 @@ signals:
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
-    void reset() override;
 private:
     int m_itemId;
-    QVariantMap m_record;
+
+    int m_categoryId;
+    QString m_category;
+    QString m_item;
+    QString m_description;
+    bool m_divisible;
+    QString m_imageSource;
+    double m_quantity;
+    int m_unitId;
+    QString m_unit;
+    qreal m_costPrice;
+    qreal m_retailPrice;
+    QString m_currency;
+    QDateTime m_created;
+    QDateTime m_lastEdited;
+    int m_userId;
+    QString m_user;
+
+    void setCategoryId(int categoryId);
+    void setCategory(const QString &category);
+    void setItem(const QString &item);
+    void setDescription(const QString &description);
+    void setDivisible(bool divisible);
+    void setImageSource(const QString &imageSource);
+    void setQuantity(double quantity);
+    void setUnitId(int unitId);
+    void setUnit(const QString &unit);
+    void setCostPrice(qreal costPrice);
+    void setRetailPrice(qreal retailPrice);
+    void setCurrency(const QString &currency);
+    void setCreated(const QDateTime &created);
+    void setLastEdited(const QDateTime &lastEdited);
+    void setUserId(int userId);
+    void setUser(const QString & user);
 };
 
 #endif // QMLSTOCKITEMDETAILRECORD_H
