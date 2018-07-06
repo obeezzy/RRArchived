@@ -208,12 +208,16 @@ void QMLStockItemPusher::push()
     setBusy(true);
 
     QVariantMap params;
-    params.insert("item_id", m_itemId);
+    // Don't pass quantity if you are updating the stock item.
+    if (m_itemId > 0)
+        params.insert("item_id", m_itemId);
+    else
+        params.insert("quantity", m_quantity);
+
     params.insert("image_source", m_imageSource);
     params.insert("category", m_category);
     params.insert("item", m_item);
     params.insert("description", m_description);
-    params.insert("quantity", m_quantity);
     params.insert("unit", m_unit);
     params.insert("category_note", m_categoryNote);
     params.insert("item_note", m_itemNote);
@@ -245,7 +249,7 @@ void QMLStockItemPusher::processResult(const QueryResult result)
     } else {
         switch (result.errorCode()) {
         case int(DatabaseException::RRErrorCode::DuplicateEntryFailure):
-            emit error(DuplicateEntryFailure);
+            emit error(DuplicateEntryError);
             break;
         default:
             emit error();

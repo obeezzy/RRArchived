@@ -257,43 +257,47 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &paymentInfo)
 
 void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &paymentInfo)
 {
-    QVariantMap params;
-    params.insert("transaction_id", m_transactionId);
-    params.insert("customer_name", m_customerName);
-    params.insert("client_id", m_clientId);
-    params.insert("customer_phone_number", m_customerPhoneNumber);
-    params.insert("total_cost", m_totalCost);
-    params.insert("amount_paid", paymentInfo.value("amount_paid", m_amountPaid));
-    params.insert("balance", paymentInfo.value("balance", 0.0));
-    params.insert("note", paymentInfo.value("note", QString()));
-    params.insert("suspended", true);
+    if (!m_records.isEmpty()) {
+        QVariantMap params;
+        params.insert("transaction_id", m_transactionId);
+        params.insert("customer_name", m_customerName);
+        params.insert("client_id", m_clientId);
+        params.insert("customer_phone_number", m_customerPhoneNumber);
+        params.insert("total_cost", m_totalCost);
+        params.insert("amount_paid", paymentInfo.value("amount_paid", m_amountPaid));
+        params.insert("balance", paymentInfo.value("balance", 0.0));
+        params.insert("note", paymentInfo.value("note", QString()));
+        params.insert("suspended", true);
 
-    QVariantList items;
+        QVariantList items;
 
-    for (const QVariant &record : m_records) {
-        QVariantMap itemInfo;
+        for (const QVariant &record : m_records) {
+            QVariantMap itemInfo;
 
-        itemInfo.insert("category_id", record.toMap().value("category_id"));
-        itemInfo.insert("item_id", record.toMap().value("item_id"));
-        itemInfo.insert("quantity", record.toMap().value("quantity"));
-        itemInfo.insert("unit_id", record.toMap().value("unit_id"));
-        itemInfo.insert("retail_price", record.toMap().value("retail_price"));
-        itemInfo.insert("unit_price", record.toMap().value("unit_price"));
-        itemInfo.insert("cost", record.toMap().value("cost"));
-        itemInfo.insert("amount_paid", record.toMap().value("amount_paid"));
-        itemInfo.insert("note", record.toMap().value("note"));
+            itemInfo.insert("category_id", record.toMap().value("category_id"));
+            itemInfo.insert("item_id", record.toMap().value("item_id"));
+            itemInfo.insert("quantity", record.toMap().value("quantity"));
+            itemInfo.insert("unit_id", record.toMap().value("unit_id"));
+            itemInfo.insert("retail_price", record.toMap().value("retail_price"));
+            itemInfo.insert("unit_price", record.toMap().value("unit_price"));
+            itemInfo.insert("cost", record.toMap().value("cost"));
+            itemInfo.insert("amount_paid", record.toMap().value("amount_paid"));
+            itemInfo.insert("note", record.toMap().value("note"));
 
-        items.append(itemInfo);
+            items.append(itemInfo);
+        }
+
+        params.insert("items", items);
+
+        setBusy(true);
+
+        QueryRequest request(this);
+        request.setCommand("update_suspended_sale_transaction", params, QueryRequest::Sales);
+
+        emit executeRequest(request);
+    } else {
+        emit error(EmptyCartError);
     }
-
-    params.insert("items", items);
-
-    setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("update_suspended_sale_transaction", params, QueryRequest::Sales);
-
-    emit executeRequest(request);
 }
 
 void QMLSaleCartModel::tryQuery()
@@ -337,28 +341,28 @@ void QMLSaleCartModel::processResult(const QueryResult result)
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-                emit success(TransactionSuspended);
+                emit success(SuspendTransactionSuccess);
             } else {
                 setTransactionId(-1);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-                emit success(TransactionSubmitted);
+                emit success(SubmitTransactionSuccess);
             }
         } else if (result.request().command() == "view_sale_cart") {
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
-            emit success(TransactionRetrieved);
+            emit success(RetrieveTransactionSuccess);
         } else if (result.request().command() == "update_suspended_sale_transaction") {
             setTransactionId(-1);
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
-            emit success(TransactionSuspended);
+            emit success(SuspendTransactionSuccess);
         }
     } else {
-        emit error(FailedToSuspend);
+        emit error(SuspendTransactionError);
     }
 
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);

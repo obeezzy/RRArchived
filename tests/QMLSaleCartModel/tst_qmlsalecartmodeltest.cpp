@@ -68,70 +68,23 @@ void QMLSaleCartModelTest::cleanup()
     delete m_client;
 }
 
-void QMLSaleCartModelTest::testSetTransactionId()
-{
-    QSignalSpy transactionIdChangedSpy(m_saleCartModel, &QMLSaleCartModel::transactionIdChanged);
-    QVERIFY(m_client->initialize());
-
-    QCOMPARE(m_saleCartModel->transactionId(), -1);
-
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
-
-    QVariantMap itemInfo {
-        { "category_id", 1 },
-        { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
-        { "quantity", 1.0 },
-        { "unit_id", 1 },
-        { "unit", "Unit" },
-        { "unit_price", 13.0 },
-        { "available_quantity", 10.0 }
-    };
-
-    m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->setCustomerPhoneNumber("123456789");
-    m_saleCartModel->addItem(itemInfo);
-
-    m_saleCartModel->submitTransaction();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
-    QCOMPARE(m_saleCartModel->rowCount(), 0);
-
-    m_saleCartModel->setTransactionId(1);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
-    QCOMPARE(m_saleCartModel->transactionId(), 1);
-    QCOMPARE(transactionIdChangedSpy.count(), 1);
-    transactionIdChangedSpy.clear();
-    QCOMPARE(m_saleCartModel->rowCount(), 1);
-
-    m_saleCartModel->setTransactionId(1);
-    QCOMPARE(transactionIdChangedSpy.count(), 0);
-}
-
 void QMLSaleCartModelTest::testSetCustomerName()
 {
     QSignalSpy customerNameChangedSpy(m_saleCartModel, &QMLSaleCartModel::customerNameChanged);
 
+    // STEP: Ensure customer name is not set.
     QCOMPARE(m_saleCartModel->customerName(), QString());
 
-    m_saleCartModel->setCustomerName("Customer");
+    // STEP: Set customer name.
+    m_saleCartModel->setCustomerName(QStringLiteral("Customer"));
 
-    QCOMPARE(m_saleCartModel->customerName(), "Customer");
+    // STEP: Ensure customer name is set and user is notified.
+    QCOMPARE(m_saleCartModel->customerName(), QStringLiteral("Customer"));
     QCOMPARE(customerNameChangedSpy.count(), 1);
     customerNameChangedSpy.clear();
 
-    m_saleCartModel->setCustomerName("Customer");
+    // STEP: Ensure user is not notified if customer name is set to the same value.
+    m_saleCartModel->setCustomerName(QStringLiteral("Customer"));
     QCOMPARE(customerNameChangedSpy.count(), 0);
 }
 
@@ -139,14 +92,18 @@ void QMLSaleCartModelTest::testSetCustomerPhoneNumber()
 {
     QSignalSpy customerPhoneNumberSpy(m_saleCartModel, &QMLSaleCartModel::customerPhoneNumberChanged);
 
+    // STEP: Ensure customer phone number is not set.
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), QString());
 
+    // STEP: Set customer phone number.
     m_saleCartModel->setCustomerPhoneNumber("12345");
 
+    // STEP: Ensure customer phone number is set and user is notified.
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), "12345");
     QCOMPARE(customerPhoneNumberSpy.count(), 1);
     customerPhoneNumberSpy.clear();
 
+    // STEP: Ensure user is not notified if customer phone number is set to the same value.
     m_saleCartModel->setCustomerPhoneNumber("12345");
     QCOMPARE(customerPhoneNumberSpy.count(), 0);
 }
@@ -155,14 +112,18 @@ void QMLSaleCartModelTest::testSetNote()
 {
     QSignalSpy noteChangedSpy(m_saleCartModel, &QMLSaleCartModel::noteChanged);
 
+    // STEP: Ensure note is not set.
     QCOMPARE(m_saleCartModel->note(), QString());
 
+    // STEP: Set note.
     m_saleCartModel->setNote("Note");
 
+    // STEP: Ensure note is set and user is notified.
     QCOMPARE(m_saleCartModel->note(), "Note");
     QCOMPARE(noteChangedSpy.count(), 1);
     noteChangedSpy.clear();
 
+    // STEP: Ensure user is not notified if note is set to the same value.
     m_saleCartModel->setNote("Note");
     QCOMPARE(noteChangedSpy.count(), 0);
 }
@@ -171,21 +132,25 @@ void QMLSaleCartModelTest::testSetAmountPaid()
 {
     QSignalSpy amountPaidSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
 
+    // STEP: Ensure amount paid is not set.
     QCOMPARE(m_saleCartModel->amountPaid(), 0.0);
 
+    // STEP: Set amount paid.
     m_saleCartModel->setAmountPaid(123.45);
 
+    // STEP: Ensure amount paid is set and user is notified.
     QCOMPARE(m_saleCartModel->amountPaid(), 123.45);
     QCOMPARE(amountPaidSpy.count(), 1);
     amountPaidSpy.clear();
 
+    // STEP: Ensure user is not notified if amount paid is set to the same value.
     m_saleCartModel->setAmountPaid(123.45);
     QCOMPARE(amountPaidSpy.count(), 0);
 }
 
 void QMLSaleCartModelTest::testClearAll()
 {
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -199,11 +164,15 @@ void QMLSaleCartModelTest::testClearAll()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add an item to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("123456789");
     m_saleCartModel->addItem(itemInfo);
+
+    // STEP: Clear all items in the model.
     m_saleCartModel->clearAll();
 
+    // STEP: Ensure all items are cleared from the model.
     QCOMPARE(m_saleCartModel->customerName(), QString());
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), QString());
     QCOMPARE(m_saleCartModel->rowCount(), 0);
@@ -213,7 +182,7 @@ void QMLSaleCartModelTest::testAddItem()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
 
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -227,7 +196,10 @@ void QMLSaleCartModelTest::testAddItem()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add item to model.
     m_saleCartModel->addItem(itemInfo);
+
+    // STEP: Ensure item was added and user was notified.
     QCOMPARE(rowsInsertedSpy.count(), 1);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 }
@@ -236,8 +208,7 @@ void QMLSaleCartModelTest::testAddSameItem()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
     QSignalSpy dataChangedSpy(m_saleCartModel, &QMLSaleCartModel::dataChanged);
-
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -251,8 +222,13 @@ void QMLSaleCartModelTest::testAddSameItem()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add an item to the model.
     m_saleCartModel->addItem(itemInfo);
+
+    // STEP: Add the same item to the model.
     m_saleCartModel->addItem(itemInfo);
+
+    // STEP: Ensure one row was added to the model, and the item has its quantity set to 2.
     QCOMPARE(rowsInsertedSpy.count(), 1);
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
@@ -262,8 +238,7 @@ void QMLSaleCartModelTest::testAddSameItem()
 void QMLSaleCartModelTest::testAddDifferentItems()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
-
-    QVariantMap itemInfo1 {
+    const QVariantMap itemInfo1 {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -276,8 +251,7 @@ void QMLSaleCartModelTest::testAddDifferentItems()
         { "unit_price", 13.0 },
         { "available_quantity", 10.0 }
     };
-
-    QVariantMap itemInfo2 {
+    const QVariantMap itemInfo2 {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 2 },
@@ -291,9 +265,14 @@ void QMLSaleCartModelTest::testAddDifferentItems()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add the same item twice to the model.
     m_saleCartModel->addItem(itemInfo1);
     m_saleCartModel->addItem(itemInfo1);
+
+    // STEP: Add a different item to the model.
     m_saleCartModel->addItem(itemInfo2);
+
+    // STEP: Ensure that there are two rows: one row with a quantity of 2, and the other with a quantity of 1.
     QCOMPARE(rowsInsertedSpy.count(), 2);
     QCOMPARE(m_saleCartModel->rowCount(), 2);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 2.0);
@@ -303,8 +282,7 @@ void QMLSaleCartModelTest::testAddDifferentItems()
 void QMLSaleCartModelTest::testGetTotalCost()
 {
     QSignalSpy totalCostChangedSpy(m_saleCartModel, &QMLSaleCartModel::totalCostChanged);
-
-    QVariantMap itemInfo1 {
+    const QVariantMap itemInfo1 {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -317,8 +295,7 @@ void QMLSaleCartModelTest::testGetTotalCost()
         { "unit_price", 22.0 },
         { "available_quantity", 10.0 }
     };
-
-    QVariantMap itemInfo2 {
+    const QVariantMap itemInfo2 {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 2 },
@@ -332,8 +309,11 @@ void QMLSaleCartModelTest::testGetTotalCost()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add 2 distinct items to the model.
     m_saleCartModel->addItem(itemInfo1);
     m_saleCartModel->addItem(itemInfo2);
+
+    // STEP: Ensure that the total cost is updated properly.
     QCOMPARE(totalCostChangedSpy.count(), 2);
     QCOMPARE(m_saleCartModel->totalCost(), 33.0);
 }
@@ -341,11 +321,15 @@ void QMLSaleCartModelTest::testGetTotalCost()
 void QMLSaleCartModelTest::testGetClientId()
 {
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
     QVERIFY(m_client->initialize());
+
+    // STEP: Ensure transaction ID is not set.
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
-    // Push some items
+    // STEP: Add an item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -357,7 +341,7 @@ void QMLSaleCartModelTest::testGetClientId()
     m_stockItemPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -371,21 +355,34 @@ void QMLSaleCartModelTest::testGetClientId()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Set the mandatory fields (customer name and phone number).
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("123456789");
-    m_saleCartModel->addItem(itemInfo);
 
+    // STEP: Sell one item to the client.
+    m_saleCartModel->addItem(itemInfo);
     m_saleCartModel->submitTransaction();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 5000));
+    QCOMPARE(errorSpy.count(), 0);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SubmitTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
+    // STEP: Retrieve transaction.
     m_saleCartModel->setTransactionId(1);
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
 
+    // STEP: Ensure that the correct values are returned to the model.
     QCOMPARE(m_saleCartModel->clientId(), 1);
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), "123456789");
@@ -393,11 +390,13 @@ void QMLSaleCartModelTest::testGetClientId()
 
 void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 {
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add an item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -409,7 +408,7 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     m_stockItemPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -423,18 +422,34 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add item to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->addItem(itemInfo);
 
+    // STEP: Suspend transaction.
     m_saleCartModel->suspendTransaction();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SuspendTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
 
+    // STEP: Retrieve suspended transaction.
     m_saleCartModel->setTransactionId(1);
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::RetrieveTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
+
+    // STEP: Ensure that model is re-populated correctly.
     QCOMPARE(m_saleCartModel->rowCount(), 1);
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryIdRole).toInt(), 1);
@@ -453,11 +468,13 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
 {
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
     QSignalSpy transactionIdChangedSpy(m_saleCartModel, &QMLSaleCartModel::transactionIdChanged);
 
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add 2 items to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -494,21 +511,34 @@ void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
         { "amount_paid", 4.0 }
     };
 
+    // STEP: Add an item to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->addItem(itemInfo);
 
+    // STEP: Suspend current transaction.
     m_saleCartModel->suspendTransaction();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SuspendTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
+    // STEP: Retrieve last suspended transaction.
     m_saleCartModel->setTransactionId(1);
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(transactionIdChangedSpy.count(), 1);
     transactionIdChangedSpy.clear();
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::RetrieveTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
     const QVariantMap itemInfo2 {
@@ -526,29 +556,68 @@ void QMLSaleCartModelTest::testUpdateSuspendedTransaction()
         { "amount_paid", 5.0 }
     };
 
+    // STEP: Add new item to retrieved transaction.
     m_saleCartModel->addItem(itemInfo2);
+
+    // STEP: Suspend transaction again.
     m_saleCartModel->suspendTransaction();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SuspendTransactionSuccess);
     successSpy.clear();
     QCOMPARE(transactionIdChangedSpy.count(), 1);
     transactionIdChangedSpy.clear();
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
+    // STEP: Retrieve transaction.
     m_saleCartModel->setTransactionId(2);
     QCOMPARE(transactionIdChangedSpy.count(), 1);
     transactionIdChangedSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::RetrieveTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
+
+    // STEP: Ensure retrieved transaction is correct.
     QCOMPARE(m_saleCartModel->rowCount(), 2);
+    QCOMPARE(m_saleCartModel->customerName(), "Customer");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryRole).toString(), "Category1");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ItemIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ItemRole).toString(), "Item1");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitRole).toString(), "Unit1");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostPriceRole).toDouble(), 2.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::RetailPriceRole).toDouble(), 3.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitPriceRole).toDouble(), 13.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::AvailableQuantityRole).toDouble(), 10.0);
+
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::CategoryIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::CategoryRole).toString(), "Category1");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::ItemIdRole).toInt(), 2);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::ItemRole).toString(), "Item2");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::UnitIdRole).toInt(), 2);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::UnitRole).toString(), "Unit2");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::CostPriceRole).toDouble(), 2.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::RetailPriceRole).toDouble(), 3.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::UnitPriceRole).toDouble(), 13.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::AvailableQuantityRole).toDouble(), 10.0);
 }
 
 void QMLSaleCartModelTest::testRemoveItem()
 {
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add an item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -574,9 +643,11 @@ void QMLSaleCartModelTest::testRemoveItem()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add item to the model.
     m_saleCartModel->addItem(itemInfo);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
+    // STEP: Remove item from the model.
     m_saleCartModel->removeItem(1);
     QCOMPARE(m_saleCartModel->rowCount(), 0);
 }
@@ -585,7 +656,7 @@ void QMLSaleCartModelTest::testSetItemQuantity()
 {
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add an item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -611,29 +682,38 @@ void QMLSaleCartModelTest::testSetItemQuantity()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add item to the model.
     m_saleCartModel->addItem(itemInfo);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
+    // STEP: Ensure a quantity of 1 is set.
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+
+    // STEP: Set the quantity to an invalid value.
+    m_saleCartModel->setItemQuantity(1, 0.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+    m_saleCartModel->setItemQuantity(1, -1.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+
+    // STEP: Set the quantity to a value greater than the available quantity. Ensure the value caps at
+    // the available quantity.
+    m_saleCartModel->setItemQuantity(1, 11.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 10.0);
+
+    // STEP: Set the quantity to an valid value.
     m_saleCartModel->setItemQuantity(1, 5.5);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
-
-    m_saleCartModel->setItemQuantity(1, 0.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
-
-    m_saleCartModel->setItemQuantity(1, -1.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
-
-    m_saleCartModel->setItemQuantity(1, 8.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 8.0);
 }
 
 void QMLSaleCartModelTest::testSubmitTransaction()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add an item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -643,10 +723,9 @@ void QMLSaleCartModelTest::testSubmitTransaction()
     m_stockItemPusher->setCostPrice(2.0);
     m_stockItemPusher->setRetailPrice(3.0);
     m_stockItemPusher->push();
-
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -660,22 +739,30 @@ void QMLSaleCartModelTest::testSubmitTransaction()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add item to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->addItem(itemInfo);
     QCOMPARE(rowsInsertedSpy.count(), 1);
     rowsInsertedSpy.clear();
 
+    // STEP: Submit transaction.
     m_saleCartModel->submitTransaction();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SubmitTransactionSuccess);
+    QCOMPARE(errorSpy.count(), 0);
 }
 
 void QMLSaleCartModelTest::testSuspendTransaction()
 {
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add an item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -685,10 +772,9 @@ void QMLSaleCartModelTest::testSuspendTransaction()
     m_stockItemPusher->setCostPrice(2.0);
     m_stockItemPusher->setRetailPrice(3.0);
     m_stockItemPusher->push();
-
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
-    QVariantMap itemInfo {
+    const QVariantMap itemInfo {
         { "category_id", 1 },
         { "category", "Category1" },
         { "item_id", 1 },
@@ -702,17 +788,23 @@ void QMLSaleCartModelTest::testSuspendTransaction()
         { "available_quantity", 10.0 }
     };
 
+    // STEP: Add an item to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->addItem(itemInfo);
 
+    // STEP: Suspend transaction.
     m_saleCartModel->suspendTransaction();
+    QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SuspendTransactionSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_saleCartModel->customerName(), QString());
     QCOMPARE(m_saleCartModel->rowCount(), 0);
 
     QSqlQuery q(m_client->connection());
+    // STEP: Ensure the sale transaction table was populated properly.
     q.prepare("SELECT suspended FROM sale_transaction WHERE id = 1");
     QVERIFY(q.exec());
     QVERIFY(q.size());
@@ -720,13 +812,88 @@ void QMLSaleCartModelTest::testSuspendTransaction()
     QCOMPARE(q.value(0).toBool(), true);
 }
 
-void QMLSaleCartModelTest::testSubmitEmptyTransaction()
+void QMLSaleCartModelTest::testSetTransactionId()
 {
-    QSignalSpy emptyCartErrorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
+    QSignalSpy transactionIdChangedSpy(m_saleCartModel, &QMLSaleCartModel::transactionIdChanged);
 
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Ensure transaction ID is not set.
+    QCOMPARE(m_saleCartModel->transactionId(), -1);
+
+    // STEP: Add an item to the database.
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(1.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    const QVariantMap itemInfo {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "item_id", 1 },
+        { "item", "Item1" },
+        { "quantity", 1.0 },
+        { "unit_id", 1 },
+        { "unit", "Unit" },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    // STEP: Add item to the model.
+    m_saleCartModel->setCustomerName("Customer");
+    m_saleCartModel->setCustomerPhoneNumber("123456789");
+    m_saleCartModel->addItem(itemInfo);
+
+    // STEP: Submit transaction.
+    m_saleCartModel->submitTransaction();
+    QCOMPARE(errorSpy.count(), 0);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::SubmitTransactionSuccess);
+    successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
+    QCOMPARE(m_saleCartModel->rowCount(), 0);
+
+    // STEP: Retrieve transaction
+    m_saleCartModel->setTransactionId(1);
+    QCOMPARE(errorSpy.count(), 0);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
+    QCOMPARE(busyChangedSpy.count(), 2);
+    busyChangedSpy.clear();
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::RetrieveTransactionSuccess);
+    successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
+    QCOMPARE(m_saleCartModel->transactionId(), 1);
+    QCOMPARE(transactionIdChangedSpy.count(), 1);
+    transactionIdChangedSpy.clear();
+    QCOMPARE(m_saleCartModel->rowCount(), 1);
+
+    // STEP: Ensure user is not notified when transaction ID was set again.
+    m_saleCartModel->setTransactionId(1);
+    QCOMPARE(transactionIdChangedSpy.count(), 0);
+}
+
+
+void QMLSaleCartModelTest::testSubmitEmptyTransaction()
+{
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+
+    QVERIFY(m_client->initialize());
+
+    // STEP: Add item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -738,23 +905,26 @@ void QMLSaleCartModelTest::testSubmitEmptyTransaction()
     m_stockItemPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
+    // STEP: Set mandatory fields.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("1234567890");
 
+    // STEP: Submit empty transaction and expect an error.
     m_saleCartModel->submitTransaction();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
-    QCOMPARE(emptyCartErrorSpy.count(), 1);
-    const QList<QVariant> arguments = emptyCartErrorSpy.takeFirst();
-    QVERIFY(arguments.at(0).toInt() == QMLSaleCartModel::EmptyCartError);
+    QCOMPARE(successSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::EmptyCartError);
 }
 
 void QMLSaleCartModelTest::testSuspendEmptyTransaction()
 {
-    QSignalSpy emptyCartErrorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
     QVERIFY(m_client->initialize());
 
-    // Push some items
+    // STEP: Add item to the database.
     m_stockItemPusher->setCategory("Category1");
     m_stockItemPusher->setItem("Item1");
     m_stockItemPusher->setDescription("Description1");
@@ -766,14 +936,15 @@ void QMLSaleCartModelTest::testSuspendEmptyTransaction()
     m_stockItemPusher->push();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
+    // STEP: Set mandatory fields.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("1234567890");
 
+    // STEP: Suspend transaction.
     m_saleCartModel->suspendTransaction();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
-    QCOMPARE(emptyCartErrorSpy.count(), 1);
-    const QList<QVariant> arguments = emptyCartErrorSpy.takeFirst();
-    QVERIFY(arguments.at(0).toInt() == QMLSaleCartModel::EmptyCartError);
+    QCOMPARE(errorSpy.count(), 1);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLSaleCartModel::SuccessCode>(), QMLSaleCartModel::EmptyCartError);
+    QCOMPARE(successSpy.count(), 0);
 }
 
 QTEST_MAIN(QMLSaleCartModelTest)

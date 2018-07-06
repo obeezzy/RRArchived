@@ -116,10 +116,10 @@ void QMLDebtorPusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "add_debtor") {
+        if (result.request().command() == "add_new_debtor") {
             clearDebtTransactions();
             emit success(AddDebtorSuccess);
-        } else if (result.request().command() == "undo_add_debtor") {
+        } else if (result.request().command() == "undo_add_new_debtor") {
             emit success(UndoAddDebtorSuccess);
         }
     } else {
@@ -163,7 +163,7 @@ void QMLDebtorPusher::push()
         params.insert("debt_transactions", convertToVariant(m_debtTransactions));
 
         QueryRequest request(this);
-        request.setCommand("add_debtor", params, QueryRequest::Debtor);
+        request.setCommand("add_new_debtor", params, QueryRequest::Debtor);
         emit executeRequest(request);
     }
 }

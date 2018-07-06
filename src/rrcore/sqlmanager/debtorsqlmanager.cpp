@@ -17,10 +17,10 @@ QueryResult DebtorSqlManager::execute(const QueryRequest &request)
     QueryResult result(request);
 
     try {
-        if (request.command() == "add_debtor")
-            addDebtor(request, result);
-        else if (request.command() == "undo_add_debtor")
-            undoAddDebtor(request, result);
+        if (request.command() == "add_new_debtor")
+            addNewDebtor(request, result);
+        else if (request.command() == "undo_add_new_debtor")
+            undoAddNewDebtor(request, result);
         else if (request.command() == "view_debtors")
             viewDebtors(request, result);
         else if (request.command() == "remove_debtor")
@@ -41,7 +41,7 @@ QueryResult DebtorSqlManager::execute(const QueryRequest &request)
     return result;
 }
 
-void DebtorSqlManager::addDebtor(const QueryRequest &request, QueryResult &result)
+void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &result)
 {
     const QVariantMap &params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
@@ -233,7 +233,7 @@ void DebtorSqlManager::addDebtor(const QueryRequest &request, QueryResult &resul
     }
 }
 
-void DebtorSqlManager::undoAddDebtor(const QueryRequest &request, QueryResult &result)
+void DebtorSqlManager::undoAddNewDebtor(const QueryRequest &request, QueryResult &result)
 {
     Q_UNUSED(result)
 

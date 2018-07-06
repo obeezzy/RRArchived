@@ -34,17 +34,17 @@ public:
         CostRole
     };
 
-    enum SuccessCodes {
-        TransactionRetrieved,
-        TransactionSuspended,
-        TransactionSubmitted
-    }; Q_ENUM(SuccessCodes)
+    enum SuccessCode {
+        RetrieveTransactionSuccess,
+        SuspendTransactionSuccess,
+        SubmitTransactionSuccess
+    }; Q_ENUM(SuccessCode)
 
-    enum ErrorCodes {
-        FailedToConnect,
-        FailedToSuspend,
+    enum ErrorCode {
+        ConnectionError,
+        SuspendTransactionError,
         EmptyCartError
-    }; Q_ENUM(ErrorCodes)
+    }; Q_ENUM(ErrorCode)
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;

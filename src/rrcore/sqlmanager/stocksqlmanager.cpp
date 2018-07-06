@@ -245,6 +245,9 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
 
     QSqlQuery q(connection());
 
+    if (params.contains("quantity"))
+        qWarning() << Q_FUNC_INFO << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
+
     try {
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");

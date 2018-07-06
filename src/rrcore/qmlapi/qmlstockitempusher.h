@@ -26,13 +26,13 @@ public:
 
     enum SuccessCode {
         UnknownSuccess,
-        ItemAdded,
-        ItemUpdated
+        AddItemSuccess,
+        UpdateItemSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
         UnknownError,
-        DuplicateEntryFailure
+        DuplicateEntryError
     }; Q_ENUM(ErrorCode)
 
     int itemId() const;

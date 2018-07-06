@@ -339,16 +339,16 @@ RRUi.Page {
                                     categoryListView.refresh();
 
                                     switch (successCode) {
-                                    case RRModels.SaleCartModel.TransactionRetrieved:
+                                    case RRModels.SaleCartModel.RetrieveTransactionSuccess:
                                         customerNameField.text = cartListView.customerName;
                                         snackBar.open(qsTr("Transaction retrieved."), "");
                                         break;
-                                    case RRModels.SaleCartModel.TransactionSuspended:
+                                    case RRModels.SaleCartModel.SuspendTransactionSuccess:
                                         customerNameField.clear();
                                         privateProperties.transactionId = -1;
                                         snackBar.open(qsTr("Transaction suspended."), qsTr("Undo"));
                                         break;
-                                    case RRModels.SaleCartModel.TransactionSubmitted:
+                                    case RRModels.SaleCartModel.SubmitTransactionSuccess:
                                         customerNameField.clear();
                                         privateProperties.transactionId = -1;
                                         snackBar.open(qsTr("Transaction submitted."), qsTr("Undo"));
@@ -357,7 +357,7 @@ RRUi.Page {
                                 }
                                 onError: {
                                     switch (errorCode) {
-                                    case CartListView.FailedToConnect:
+                                    case CartListView.ConnectionError:
                                         break;
                                     }
 
