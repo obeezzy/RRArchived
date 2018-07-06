@@ -14,22 +14,14 @@ ListModel {
             append({ "title": qsTr("Item"), "value": stockItemDetailRecord.item });
             if (stockItemDetailRecord.description !== "")
                 append({ "title": qsTr("Description"), "value": stockItemDetailRecord.description });
-
             append({ "title": qsTr("Quantity"), "value": stockItemDetailRecord.quantity.toString() });
             append({ "title": qsTr("Unit"), "value": stockItemDetailRecord.unit });
-//            append({ "title": qsTr("Cost price"),
-//                       "value": Number(stockItemDetailRecord.costPrice.toString())
-//                       .toLocaleCurrencyString(GlobalSettings.currencyLocale) });
-//            append({ "title": qsTr("Retail price"),
-//                       "value": Number(stockItemDetailRecord.retailPrice)
-//                       .toLocaleCurrencyString(GlobalSettings.currencyLocale) });
             append({ "title": qsTr("Cost price"), "value": stockItemDetailRecord.costPrice.toFixed(2) });
             append({ "title": qsTr("Retail price"), "value": stockItemDetailRecord.retailPrice.toFixed(2) });
             append({ "title": qsTr("Currency"), "value": stockItemDetailRecord.currency });
-            append({ "title": qsTr("Created"), "value": Qt.formatDateTime(stockItemDetailRecord.created, "MMM dd yyyy, h:mm AP") });
-            append({ "title": qsTr("Last edited"), "value": Qt.formatDateTime(stockItemDetailRecord.lastEdited, "MMM dd yyyy, h:mm AP") });
+            append({ "title": qsTr("Created"), "value": Qt.formatDateTime(stockItemDetailRecord.created, "MMM d yyyy, h:mm AP") });
+            append({ "title": qsTr("Last edited"), "value": Qt.formatDateTime(stockItemDetailRecord.lastEdited, "MMM d yyyy, h:mm AP") });
             append({ "title": qsTr("User"), "value": stockItemDetailRecord.user });
-
         }
     }
 }

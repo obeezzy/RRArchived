@@ -128,6 +128,11 @@ RRUi.Page {
         title: qsTr("Failed to complete transaction")
     }
 
+    Stock.ItemDetailPopup {
+        id: itemDetailPopup
+        editable: false
+    }
+
     contentItem: QQC2.StackView {
         id: animationStackView
 
@@ -205,12 +210,21 @@ RRUi.Page {
                             filterColumn: RRModels.StockCategoryItemModel.ItemColumn
 
                             buttonRow: Row {
+                                spacing: 0
+
                                 RRUi.ToolButton {
                                     id: addToCartButton
                                     icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
                                     text: qsTr("Add to cart")
                                     visible: parent.parent.modelData.quantity > 0
                                     onClicked: cartListView.addItem(parent.parent.modelData);
+                                }
+
+                                RRUi.ToolButton {
+                                    id: viewButton
+                                    icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
+                                    text: qsTr("View details")
+                                    onClicked: itemDetailPopup.show(parent.parent.modelData.item_id);
                                 }
                             }
                         }

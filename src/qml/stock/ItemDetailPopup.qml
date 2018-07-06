@@ -10,6 +10,7 @@ RRUi.Popup {
     id: itemDetailPopup
 
     property int itemId: -1
+    property bool editable: true
     signal editRequested
 
     implicitWidth: 640
@@ -34,16 +35,28 @@ RRUi.Popup {
             headerPositioning: ListView.PullBackHeader
             delegate: FluidControls.ListItem {
                 QQLayouts.RowLayout {
-                    anchors.centerIn: parent
-                    spacing: 24
+                    anchors {
+                        leftMargin: 64
+                        rightMargin: 64
+                        fill: parent
+                    }
+                    spacing: 0
 
                     FluidControls.SubheadingLabel {
+                        QQLayouts.Layout.preferredWidth: parent.width / 2
+                        QQLayouts.Layout.fillHeight: true
                         text: title
                         color: Qt.darker("darkgray")
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignVCenter
                     }
 
                     FluidControls.SubheadingLabel {
+                        QQLayouts.Layout.preferredWidth: parent.width / 2
+                        QQLayouts.Layout.fillHeight: true
                         text: value
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignVCenter
                     }
                 }
 
@@ -66,6 +79,7 @@ RRUi.Popup {
                     top: parent.top
                 }
                 RRUi.ToolButton {
+                    visible: itemDetailPopup.editable
                     icon.source: FluidControls.Utils.iconUrl("image/edit")
                     icon.color: "white"
                     text: qsTr("Edit item")
