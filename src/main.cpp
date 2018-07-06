@@ -4,6 +4,7 @@
 #include <QQuickStyle>
 #include <QDebug>
 #include <QScreen>
+#include <QLoggingCategory>
 #include "plugins.h"
 #include "rrcore/database/databaseserver.h"
 #include "rrcore/database/databasethread.h"
@@ -15,6 +16,8 @@ int main(int argc, char *argv[])
 #endif
     //qputenv("QT_SCALE_FACTOR", "1.4");
     QApplication app(argc, argv);
+
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 
     QApplication::setApplicationName("Record Rack");
     QGuiApplication::setApplicationVersion("0.0.1");

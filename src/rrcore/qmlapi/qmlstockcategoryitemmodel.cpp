@@ -6,9 +6,15 @@
 #include "database/databasethread.h"
 #include "models/stockitemmodel.h"
 
-QMLStockCategoryItemModel::QMLStockCategoryItemModel(QObject *parent)
-    : AbstractVisualListModel(parent)
+QMLStockCategoryItemModel::QMLStockCategoryItemModel(QObject *parent) :
+    AbstractVisualListModel(parent),
+    m_totalItems(0)
 {
+}
+
+int QMLStockCategoryItemModel::totalItems() const
+{
+    return m_totalItems;
 }
 
 int QMLStockCategoryItemModel::rowCount(const QModelIndex &parent) const
@@ -16,7 +22,7 @@ int QMLStockCategoryItemModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_categoryRecords.count();
+    return m_itemGroups.count();
 }
 
 QVariant QMLStockCategoryItemModel::data(const QModelIndex &index, int role) const
@@ -35,10 +41,10 @@ QVariant QMLStockCategoryItemModel::data(const QModelIndex &index, int role) con
     }
         break;
     case CategoryRole:
-        if (m_categoryRecords.isEmpty())
+        if (m_categories.isEmpty())
             return QVariant();
         else
-            return m_categoryRecords.keys().at(index.row());
+            return m_categories.at(index.row());
         break;
     case ItemModelRole:
         if (m_stockItemModels.isEmpty())
@@ -87,37 +93,34 @@ void QMLStockCategoryItemModel::processResult(const QueryResult result)
                 m_stockItemModels.clear();
             }
 
-            m_categoryRecords = result.outcome().toMap().value("categories").toMap();
+            m_categories = result.outcome().toMap().value("categories").toStringList();
+            m_itemGroups = result.outcome().toMap().value("item_groups").toList();
 
-            QMapIterator<QString, QVariant> categoryIter(m_categoryRecords);
-            int row = 0;
-            while (categoryIter.hasNext()) {
-                auto pair = categoryIter.next();
-                const QVariantList items = pair.value().toList();
+            for (const QVariant &itemGroup : m_itemGroups) {
+                const QVariantList &items = itemGroup.toList();
 
                 StockItemModel *model = new StockItemModel(this);
-                model->setCategory(pair.key());
-                if (!items.isEmpty())
+                if (!items.isEmpty()) {
+                    model->setCategory(items.first().toMap().value("category").toString());
                     model->setCategoryId(items.first().toMap().value("category_id").toInt());
-
-                m_categoryIdToCategoryHash.insert(model->categoryId(), model->category());
-
-                model->setItems(items);
-                m_stockItemModels.append(model);
-
-                ++row;
+                    m_categoryIdToCategoryHash.insert(model->categoryId(), model->category());
+                    model->setItems(items);
+                    m_stockItemModels.append(model);
+                }
             }
 
             endResetModel();
 
-            emit success(ItemsFetched);
+            setTotalItems(result.outcome().toMap().value("total_items").toInt());
+
+            emit success(ViewItemsSuccess);
         } else if (result.request().command() == "remove_stock_item" && !result.request().params().value("undo").toBool()) {
             const int categoryId = result.outcome().toMap().value("category_id").toInt();
             const int itemId = result.outcome().toMap().value("item_id").toInt();
 
             removeItemFromModel(categoryId, itemId);
 
-            emit success(ItemRemoved);
+            emit success(RemoveItemSuccess);
         } else if (result.request().command() == "undo_remove_stock_item") {
             const int categoryId = result.outcome().toMap().value("category_id").toInt();
             const int itemId = result.outcome().toMap().value("item_id").toInt();
@@ -125,7 +128,7 @@ void QMLStockCategoryItemModel::processResult(const QueryResult result)
 
             undoRemoveItemFromModel(categoryId, itemId, itemInfo);
 
-            emit success(UndoSuccessful);
+            emit success(UndoRemoveItemSuccess);
         }
     } else {
         emit error();
@@ -174,6 +177,15 @@ void QMLStockCategoryItemModel::removeItem(int itemId)
     emit executeRequest(request);
 }
 
+void QMLStockCategoryItemModel::setTotalItems(int totalItems)
+{
+    if (m_totalItems == totalItems)
+        return;
+
+    m_totalItems = totalItems;
+    emit totalItemsChanged();
+}
+
 void QMLStockCategoryItemModel::removeItemFromModel(int categoryId, int itemId)
 {
     if (categoryId <= 0 || itemId <= 0)
@@ -187,11 +199,13 @@ void QMLStockCategoryItemModel::removeItemFromModel(int categoryId, int itemId)
 
             if (model->rowCount() == 0) {
                 beginRemoveRows(QModelIndex(), i, i);
-                m_categoryRecords.remove(m_categoryRecords.keys().at(i));
+                m_categories.removeAt(i);
+                m_itemGroups.removeAt(i);
                 m_stockItemModels.removeAt(i);
                 endRemoveRows();
             }
 
+            setTotalItems(m_totalItems - 1);
             break;
         }
     }
@@ -203,14 +217,11 @@ void QMLStockCategoryItemModel::undoRemoveItemFromModel(int categoryId, int item
         return;
 
     // Find model and append item
-    if (m_categoryRecords.contains(m_categoryIdToCategoryHash.value(categoryId))) {
-        for (int i = 0; i < m_stockItemModels.count(); ++i) {
-            StockItemModel *model = m_stockItemModels.at(i);
-            if (model->categoryId() == categoryId) {
-                model->addItem(itemId, itemInfo);
-                break;
-            }
-        }
+    const int index = indexOfCategoryIdInItemGroup(categoryId);
+    if (index > -1) {
+        StockItemModel *model = m_stockItemModels.at(index);
+        model->addItem(itemId, itemInfo);
+        setTotalItems(m_totalItems + 1);
         // Append model
     } else {
         StockItemModel *newModel = new StockItemModel(this);
@@ -224,12 +235,32 @@ void QMLStockCategoryItemModel::undoRemoveItemFromModel(int categoryId, int item
 
             if (newModel->category().toLower() < model->category().toLower()) {
                 beginInsertRows(QModelIndex(), i, i);
-                m_categoryRecords.insert(newModel->category(), newModel->items());
+                m_categories.insert(i, newModel->category());
+                m_itemGroups.insert(i, newModel->items());
                 m_stockItemModels.insert(i, newModel);
+                setTotalItems(m_totalItems + 1);
                 endInsertRows();
 
                 break;
             }
         }
     }
+}
+
+int QMLStockCategoryItemModel::indexOfCategoryIdInItemGroup(int categoryId)
+{
+    if (categoryId <= 0)
+        return -1;
+
+    int index = 0;
+    for (const QVariant &itemGroup : m_itemGroups) {
+        const QVariantList &items = itemGroup.toList();
+
+        if (!items.isEmpty() && items.first().toMap().value("category_id").toInt() == categoryId)
+            return index;
+
+        ++index;
+    }
+
+    return -1;
 }

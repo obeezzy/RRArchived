@@ -386,7 +386,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
                                 "INNER JOIN current_quantity ON item.id = current_quantity.item_id "
                                 "LEFT JOIN user ON item.user_id = user.id "
                                 "WHERE item.archived = 0 AND unit.base_unit_equivalent = 1 "
-                                "%1 ORDER BY LOWER(item.item) ASC, LOWER(category.category) %2";
+                                "%1 ORDER BY LOWER(category.category) %2, LOWER(item.item) ASC";
         QString sortOrder;
         QString filterColumn;
 
@@ -397,11 +397,10 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
         }
 
         if (!params.value("filter_text").isNull() && !params.value("filter_column").isNull()) {
-            if (params.value("filter_column") == "item") {
+            if (params.value("filter_column").toString() == QStringLiteral("item"))
                 filterColumn = QString(" AND item.item LIKE '%%1%'").arg(params.value("filter_text").toString());
-            } else if (params.value("filter_column") == "category") {
+            else if (params.value("filter_column").toString() == QStringLiteral("category"))
                 filterColumn = QString(" AND category.category LIKE '%%1%'").arg(params.value("filter_text").toString());
-            }
         }
 
         q.prepare(itemInfoQuery.arg(filterColumn, sortOrder));
@@ -410,12 +409,13 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
             throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemsFailed,
                                     q.lastError().text(), "Failed to fetch tracked stock items.");
 
-        QVariantMap categories;
+        QStringList categories;
+        QVariantList itemGroups;
         int itemCount = 0;
 
         while (q.next()) {
-            int categoryId = q.value("category_id").toInt();
-            QString category = q.value("category").toString();
+            const int categoryId = q.value("category_id").toInt();
+            const QString &category = q.value("category").toString();
 
             QVariantList items;
 
@@ -423,6 +423,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
                 QVariantMap itemRecord;
                 itemRecord.insert("item_id", q.value("item_id"));
                 itemRecord.insert("category_id", categoryId);
+                itemRecord.insert("category", category);
                 itemRecord.insert("item", q.value("item"));
                 itemRecord.insert("description", q.value("description"));
                 itemRecord.insert("divisible", q.value("divisible"));
@@ -441,7 +442,8 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
                 itemCount++;
             } while (q.next() && categoryId == q.value("category_id").toInt());
 
-            categories.insert(category, items);
+            categories.append(category);
+            itemGroups.append(QVariant(items));
             q.previous();
         }
 
@@ -461,7 +463,17 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
             qInfo() << "-------------------------------------------------";
         }
         */
-        result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", itemCount } });
+
+        if (categories.count() != itemGroups.count())
+            throw DatabaseException(DatabaseException::RRErrorCode::ResultMismatch,
+                                    QString("Category count (%1) and item group count (%2) are unequal.")
+                                    .arg(categories.count()).arg(itemGroups.count()));
+
+        result.setOutcome(QVariantMap { { "categories", categories },
+                                        { "item_groups", itemGroups },
+                                        { "record_count", itemCount },
+                                        { "total_items", itemCount }
+                          });
     } catch (DatabaseException &) {
         throw;
     }

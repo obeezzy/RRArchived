@@ -80,8 +80,8 @@ RRUi.Page {
 
     ]
 
-    RRUi.SnackBar {
-        id: snackBar
+    Connections {
+        target: newSalePage.RRUi.ApplicationWindow.window.snackBar
         onClicked: cartListView.undoLastTransaction();
     }
 
@@ -501,7 +501,7 @@ RRUi.Page {
                     cartListView.clearAll();
                     privateProperties.transactionId = -1;
                     customerNameField.clear();
-                    snackBar.open(qsTr("Entry cleared."), "");
+                    newSalePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Entry cleared."));
                 }
             }
         }

@@ -100,7 +100,7 @@ void QMLStockCategoryItemModelTest::testViewStockItems()
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::ItemsFetched);
+    QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::ViewItemsSuccess);
     successSpy.clear();
 
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 2);
@@ -197,7 +197,7 @@ void QMLStockCategoryItemModelTest::testRemoveItem()
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
-    QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::ItemRemoved);
+    QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::RemoveItemSuccess);
     successSpy.clear();
 
     m_stockCategoryItemModel->refresh();

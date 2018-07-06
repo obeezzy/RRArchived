@@ -10,4 +10,14 @@ FluidControls.SnackBar{
     duration: GlobalSettings.shortToastDuration
     fullWidth: false
     onClicked: close();
+
+    function show(text, buttonText, duration) {
+        if (buttonText === undefined)
+            buttonText = "";
+        if (duration === undefined)
+            duration = GlobalSettings.shortToastDuration;
+
+        snackBar.duration = duration;
+        snackBar.open(text, buttonText);
+    }
 }

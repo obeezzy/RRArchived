@@ -72,6 +72,15 @@ RRUi.Page {
         }
     }
 
+    FluidControls.SubheadingLabel {
+        anchors {
+            top: searchBar.bottom
+            right: parent.right
+        }
+        text: qsTr("%1 result%2 found.").arg(categoryListView.model.totalItems).arg(categoryListView.model.totalItems === 1 ? "" : "s")
+        font.bold: true
+    }
+
     CategoryListView {
         id: categoryListView
         anchors {
@@ -117,18 +126,18 @@ RRUi.Page {
 
         onSuccess: {
             switch (successCode) {
-            case RRModels.StockCategoryItemModel.ItemRemoved:
-                snackBar.open(qsTr("Item removed successfully."), qsTr("Undo"));
+            case RRModels.StockCategoryItemModel.RemoveItemSuccess:
+                homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
                 break;
-            case RRModels.StockCategoryItemModel.UndoSuccessful:
-                snackBar.open(qsTr("Undo successful."), "");
+            case RRModels.StockCategoryItemModel.UndoRemoveItemSuccess:
+                homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful."));
                 break;
             }
         }
     }
 
-    RRUi.SnackBar {
-        id: snackBar
+    Connections {
+        target: homePage.RRUi.ApplicationWindow.window.snackBar
         onClicked: categoryListView.undoLastCommit();
     }
 
@@ -178,5 +187,8 @@ RRUi.Page {
         ]
     }
 
-    QQC2.StackView.onActivated: categoryListView.refresh();
+    QQC2.StackView.onActivating: {
+        searchBar.clear();
+        categoryListView.refresh();
+    }
 }

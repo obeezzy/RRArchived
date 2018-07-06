@@ -105,10 +105,10 @@ RRUi.Page {
                     onSuccess: {
                         switch (successCode) {
                         case RRModels.DebtorModel.RemoveDebtorSuccess:
-                            snackBar.open(qsTr("Debtor removed"), qsTr("Undo"));
+                            homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor removed"), qsTr("Undo"));
                             break;
                         case RRModels.DebtorModel.UndoRemoveDebtorSuccess:
-                            snackBar.open(qsTr("Undo successful"), "");
+                            homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));
                             break;
                         }
                     }
@@ -208,8 +208,8 @@ RRUi.Page {
         }
     }
 
-    RRUi.SnackBar {
-        id: snackBar
+    Connections {
+        target: homePage.RRUi.ApplicationWindow.window.snackBar
         onClicked: debtorListView.undoLastCommit();
     }
 }

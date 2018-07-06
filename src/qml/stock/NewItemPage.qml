@@ -32,11 +32,6 @@ RRUi.Page {
         text: qsTr("Add note")
     }
 
-    RRUi.SnackBar {
-        id: snackBar
-        duration: GlobalSettings.shortToastDuration
-    }
-
     RRUi.TransitionView {
         id: transitionView
         anchors {
@@ -370,8 +365,16 @@ RRUi.Page {
                         divisible: divisibleCheckBox.checked
 
                         onSuccess: {
-                            snackBar.open(qsTr("Your item was successfully added!"), "");
-                            transitionView.refresh();
+                            switch (successCode) {
+                            case RRModels.StockItemPusher.AddItemSuccess:
+                                newItemPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully added!"));
+                                transitionView.refresh();
+                                break;
+                            case RRModels.StockItemPusher.UpdateItemSuccess:
+                                newItemPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully updated!"));
+                                newItemPage.pop();
+                                break;
+                            }
                         }
                         onError: {
                             switch (errorCode) {
