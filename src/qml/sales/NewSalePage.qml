@@ -75,7 +75,7 @@ RRUi.Page {
             icon.source: FluidControls.Utils.iconUrl("action/delete")
             toolTip: qsTr("Clear all")
             text: qsTr("Clear all")
-            onTriggered: confirmationDialogLoader.active = true;
+            onTriggered: if (cartListView.count > 0) cosnfirmationDialogLoader.active = true;
         }
 
     ]

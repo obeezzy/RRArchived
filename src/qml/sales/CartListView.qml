@@ -45,11 +45,11 @@ ListView {
 
             spacing: 2
 
-            FluidControls.SubheadingLabel {
+            FluidControls.HeadlineLabel {
                 text: item
             }
 
-            FluidControls.CaptionLabel {
+            FluidControls.SubheadingLabel {
                 text: "From <i>" + category + "</i><br/>" + available_quantity + " " + unit + " left<br/>Costs " + Number(unit_price).toLocaleCurrencyString(Qt.locale("en_NG")) + " each"
             }
         }
