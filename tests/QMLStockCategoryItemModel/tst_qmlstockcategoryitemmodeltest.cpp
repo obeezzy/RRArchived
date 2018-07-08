@@ -172,6 +172,7 @@ void QMLStockCategoryItemModelTest::testRefresh()
 void QMLStockCategoryItemModelTest::testRemoveItem()
 {
     QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
+    QSignalSpy errorSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::error);
 
     QVERIFY(m_client->initialize());
 
@@ -191,19 +192,22 @@ void QMLStockCategoryItemModelTest::testRemoveItem()
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
     m_stockCategoryItemModel->removeItem(1);
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
-    QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::RemoveItemSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLStockCategoryItemModel::SuccessCode>(), QMLStockCategoryItemModel::RemoveItemSuccess);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
 
     m_stockCategoryItemModel->refresh();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 }
 

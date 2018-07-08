@@ -10,7 +10,7 @@ RRUi.Popup {
     id: itemDetailPopup
 
     property int itemId: -1
-    property bool editable: true
+    property bool editButtonVisible: true
     signal editRequested
 
     implicitWidth: 640
@@ -79,7 +79,7 @@ RRUi.Popup {
                     top: parent.top
                 }
                 RRUi.ToolButton {
-                    visible: itemDetailPopup.editable
+                    visible: itemDetailPopup.editButtonVisible
                     icon.source: FluidControls.Utils.iconUrl("image/edit")
                     icon.color: "white"
                     text: qsTr("Edit item")

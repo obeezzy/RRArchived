@@ -405,7 +405,7 @@ void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
         endInsertRows();
     } else {
         const int row = indexOfItem(itemId);
-        QVariantMap record = m_records.at(row).toMap();
+        QVariantMap record(m_records.at(row).toMap());
         const double oldQuantity = record.value("quantity").toDouble();
         const double newQuantity = oldQuantity + 1;
 
@@ -419,13 +419,43 @@ void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
     calculateTotals();
 }
 
+void QMLSaleCartModel::updateItem(int itemId, const QVariantMap &itemInfo)
+{
+    if (itemId <= 0 || itemInfo.isEmpty())
+        return;
+
+    const int row = indexOfItem(itemId);
+    QVariantMap record(m_records[row].toMap());
+    const double oldQuantity = record.value("quantity").toDouble();
+    const double availableQuantity = record.value("available_quantity").toDouble();
+    const double quantity = itemInfo.value("quantity").toDouble();
+    const double oldUnitPrice = record.value("unit_price").toDouble();
+    const double oldCost = record.value("cost").toDouble();
+    const double newQuantity = qMin(quantity, availableQuantity);
+    const double newUnitPrice = itemInfo.value("unit_price").toDouble();
+    const double newCost = itemInfo.value("cost").toDouble();
+
+    if (itemInfo.contains("quantity"))
+        record.insert("quantity", newQuantity);
+    if (itemInfo.contains("cost"))
+        record.insert("cost", newCost);
+    if (itemInfo.contains("unit_price"))
+        record.insert("unit_price", newUnitPrice);
+    m_records.replace(row, record);
+
+    if (oldQuantity != newQuantity || oldUnitPrice != newUnitPrice || oldCost != newCost) {
+        emit dataChanged(index(row), index(row));
+        calculateTotals();
+    }
+}
+
 void QMLSaleCartModel::setItemQuantity(int itemId, double quantity)
 {
     if (itemId <= 0 || quantity <= 0.0)
         return;
 
     const int row = indexOfItem(itemId);
-    QVariantMap record = m_records[row].toMap();
+    QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double availableQuantity = record.value("available_quantity").toDouble();
     const double newQuantity = qMin(quantity, availableQuantity);
@@ -435,7 +465,7 @@ void QMLSaleCartModel::setItemQuantity(int itemId, double quantity)
     record.insert("cost", newQuantity * unitPrice);
     m_records.replace(row, record);
 
-    if (oldQuantity != quantity) {
+    if (oldQuantity != newQuantity) {
         emit dataChanged(index(row), index(row));
         calculateTotals();
     }
@@ -447,7 +477,7 @@ void QMLSaleCartModel::incrementItemQuantity(int itemId, double quantity)
         return;
 
     const int row = indexOfItem(itemId);
-    QVariantMap record = m_records[row].toMap();
+    QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double availableQuantity = record.value("available_quantity").toDouble();
     const double newQuantity = qMin(oldQuantity + quantity, availableQuantity);
@@ -468,7 +498,7 @@ void QMLSaleCartModel::decrementItemQuantity(int itemId, double quantity)
         return;
 
     const int row = indexOfItem(itemId);
-    QVariantMap record = m_records[row].toMap();
+    QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double newQuantity = qMax(oldQuantity - quantity, 0.0);
     const double unitPrice = record.value("unit_price").toDouble();
@@ -503,6 +533,9 @@ bool QMLSaleCartModel::containsItem(int itemId)
 
 int QMLSaleCartModel::indexOfItem(int itemId)
 {
+    if (itemId <= 0)
+        return -1;
+
     for (int i = 0; i < m_records.count(); ++i)
         if (m_records.at(i).toMap().value("item_id").toInt() == itemId)
             return i;

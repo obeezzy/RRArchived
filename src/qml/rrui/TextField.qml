@@ -5,7 +5,7 @@ import QtQuick.Controls.Material 2.3
 TextField {
     id: itemTextField
 
-    ToolTip.visible: hovered
+    ToolTip.visible: hovered && placeholderText !== ""
     ToolTip.delay: text === "" ? 1500 : 300
     ToolTip.text: placeholderText
 }

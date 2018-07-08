@@ -85,9 +85,8 @@ signals:
     void amountPaidChanged();
 public slots:
     void addItem(const QVariantMap &itemInfo);
+    void updateItem(int itemId, const QVariantMap &itemInfo);
     void setItemQuantity(int itemId, double quantity);
-    void incrementItemQuantity(int itemId, double quantity = 1.0);
-    void decrementItemQuantity(int itemId, double quantity = 1.0);
     void removeItem(int itemId);
 private:
     qint64 m_transactionId;
@@ -108,6 +107,9 @@ private:
     void calculateTotals();
 
     void setClientId(int clientId);
+
+    void incrementItemQuantity(int itemId, double quantity = 1.0);
+    void decrementItemQuantity(int itemId, double quantity = 1.0);
 };
 
 #endif // QMLSALECARTMODEL_H

@@ -58,5 +58,7 @@
         <file>rrui/Popup.qml</file>
         <file>stock/ItemDetailPopup.qml</file>
         <file>stock/ItemDetailModel.qml</file>
+        <file>sales/CartItemEditorDialog.qml</file>
+        <file>rrui/Dialog.qml</file>
     </qresource>
 </RCC>
