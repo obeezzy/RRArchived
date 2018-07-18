@@ -54,7 +54,7 @@ ListView {
             spacing: 8
 
             FluidControls.SubheadingLabel {
-                text: Number(model.total_debt).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocale))
+                text: Number(model.total_debt).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
                 verticalAlignment: Qt.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
             }

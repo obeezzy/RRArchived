@@ -6,6 +6,8 @@
 
 #include "models/abstractvisuallistmodel.h"
 
+class SalePayment;
+
 class QMLSaleCartModel : public AbstractVisualListModel
 {
     Q_OBJECT
@@ -15,7 +17,8 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(int clientId READ clientId NOTIFY clientIdChanged)
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
     Q_PROPERTY(double totalCost READ totalCost NOTIFY totalCostChanged)
-    Q_PROPERTY(double amountPaid READ amountPaid WRITE setAmountPaid NOTIFY amountPaidChanged)
+    Q_PROPERTY(double amountPaid READ amountPaid NOTIFY amountPaidChanged)
+    Q_PROPERTY(double balance READ balance NOTIFY balanceChanged)
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
 
@@ -34,16 +37,27 @@ public:
         CostRole
     };
 
+    enum PaymentMethod {
+        Cash,
+        DebitCard,
+        CreditCard
+    }; Q_ENUM(PaymentMethod)
+
     enum SuccessCode {
+        UnknownSuccess,
         RetrieveTransactionSuccess,
         SuspendTransactionSuccess,
         SubmitTransactionSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
+        UnknownError,
         ConnectionError,
         SuspendTransactionError,
-        EmptyCartError
+        RetrieveTransactionError,
+        SubmitTransactionError,
+        EmptyCartError,
+        NoDueDateSetError
     }; Q_ENUM(ErrorCode)
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
@@ -65,12 +79,16 @@ public:
     void setNote(const QString &note);
 
     double totalCost() const;
-
     double amountPaid() const;
-    void setAmountPaid(double amountPaid);
+    double balance() const;
 
-    Q_INVOKABLE void submitTransaction(const QVariantMap &paymentInfo = QVariantMap());
-    Q_INVOKABLE void suspendTransaction(const QVariantMap &params = QVariantMap());
+    QList<SalePayment *> payments() const;
+
+    Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
+    Q_INVOKABLE void removePayment(int index);
+    Q_INVOKABLE void clearPayments();
+    Q_INVOKABLE void submitTransaction(const QVariantMap &transactionInfo = QVariantMap());
+    Q_INVOKABLE void suspendTransaction(const QVariantMap &transactionInfo = QVariantMap());
     Q_INVOKABLE void clearAll();
 protected:
     void tryQuery() override final;
@@ -83,6 +101,7 @@ signals:
     void noteChanged();
     void totalCostChanged();
     void amountPaidChanged();
+    void balanceChanged();
 public slots:
     void addItem(const QVariantMap &itemInfo);
     void updateItem(int itemId, const QVariantMap &itemInfo);
@@ -96,20 +115,31 @@ private:
     QString m_note;
     double m_totalCost;
     double m_amountPaid;
+    double m_balance;
     QVariantList m_records;
+    QList<SalePayment *> m_payments;
 
     bool containsItem(int itemId);
     int indexOfItem(int itemId);
-    void addTransaction(const QVariantMap &paymentInfo);
-    void updateSuspendedTransaction(const QVariantMap &paymentInfo);
+    void addTransaction(const QVariantMap &transactionInfo);
+    void updateSuspendedTransaction(const QVariantMap &transactionInfo);
 
     void setTotalCost(double totalCost);
-    void calculateTotals();
+    void setAmountPaid(double amountPaid);
+    void setBalance(double balance);
+    void calculateTotal();
+    void calculateAmountPaid();
 
     void setClientId(int clientId);
 
     void incrementItemQuantity(int itemId, double quantity = 1.0);
     void decrementItemQuantity(int itemId, double quantity = 1.0);
+};
+
+struct SalePayment {
+    double amount;
+    QMLSaleCartModel::PaymentMethod method;
+    QString note;
 };
 
 #endif // QMLSALECARTMODEL_H

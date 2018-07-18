@@ -51,13 +51,14 @@ RRUi.Page {
             actions: [
                 FluidControls.Action {
                     icon.source: FluidControls.Utils.iconUrl("content/add")
-                    text: qsTr("Add a entry.")
+                    text: qsTr("Add an entry.")
                     onTriggered: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
                 },
 
                 FluidControls.Action {
-                    icon.name: FluidControls.Utils.iconUrl("image/edit")
-                    text: qsTr("View all sales entries.")
+                    icon.source: FluidControls.Utils.iconUrl("image/edit")
+                    text: qsTr("Manage sale transactions.")
+                    onTriggered: homePage.push(Qt.resolvedUrl("SaleTransactionPage.qml"));
                 }
             ]
         }

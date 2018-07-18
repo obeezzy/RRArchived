@@ -36,8 +36,8 @@ public:
 
     Q_INVOKABLE QVariant get(int row) const;
 
-    void classBegin() override final;
-    void componentComplete() override final;
+    void classBegin() override;
+    void componentComplete() override;
 public slots:
     virtual void undoLastCommit();
 protected:

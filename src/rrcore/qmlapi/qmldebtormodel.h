@@ -33,9 +33,9 @@ public:
         UserRole
     };
 
-    enum Column {
+    enum FilterColumn {
         PreferredNameColumn, TotalDebtColumn
-    }; Q_ENUM(Column)
+    }; Q_ENUM(FilterColumn)
 
     explicit QMLDebtorModel(QObject *parent = nullptr);
 

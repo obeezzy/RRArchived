@@ -374,8 +374,8 @@ RRUi.Page {
                             onEditRequested: cartItemEditorDialog.show(itemInfo);
 
                             onSuccess: {
-                                if (paymentWizardLoader.active)
-                                    paymentWizardLoader.item.accept();
+                                if (paymentWizard.opened)
+                                    paymentWizard.accept();
 
                                 searchBar.clear();
                                 categoryListView.refresh();
@@ -398,13 +398,30 @@ RRUi.Page {
                                 }
                             }
                             onError: {
+                                var errorString = "";
                                 switch (errorCode) {
                                 case CartListView.ConnectionError:
+                                    errorString = qsTr("Failed to connect to the database.");
+                                    break;
+                                case CartListView.SuspendTransactionError:
+                                    errorString = qsTr("Failed to suspend transaction.");
+                                    break;
+                                case CartListView.SubmitTransactionError:
+                                    errorString = qsTr("Failed to submit transaction.");
+                                    break;
+                                case CartListView.RetrieveTransactionError:
+                                    errorString = qsTr("Failed to retrieve transaction.");
+                                    break;
+                                case CartListView.SuspendTransactionError:
+                                    errorString = qsTr("Failed to suspend transaction.");
+                                    break;
+                                case CartListView.UnknownError:
+                                    errorString = qsTr("An unknown error occurred.");
                                     break;
                                 }
 
-                                if (paymentWizardLoader.active) {
-                                    paymentWizardLoader.item.displayError();
+                                if (paymentWizard.opened) {
+                                    paymentWizard.displayError(errorString);
                                 } else {
                                     switch (errorCode) {
                                     default:
@@ -415,20 +432,6 @@ RRUi.Page {
                                     failureAlertDialogLoader.create();
                                 }
                             }
-                        }
-
-                        FluidControls.BodyLabel {
-                            anchors {
-                                verticalCenter: parent.verticalCenter
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            wrapMode: Text.WordWrap
-                            color: "#555555"
-                            horizontalAlignment: Qt.AlignHCenter
-                            visible: cartListView.count == 0
-                            text: qsTr("Your cart is empty.\nAdd items from the view in the left to get started.");
                         }
                     }
 
@@ -458,7 +461,7 @@ RRUi.Page {
                                 id: checkoutButton
                                 anchors.right: parent.right
                                 text: qsTr("Proceed to Checkout")
-                                onClicked: if (saleContentItem.validateUserInput()) paymentWizardLoader.active = true;
+                                onClicked: if (saleContentItem.validateUserInput()) paymentWizard.open();
                             }
                         }
                     }
@@ -466,18 +469,22 @@ RRUi.Page {
 
                 RRUi.BusyOverlay { visible: cartListView.busy }
 
-                Loader {
-                    id: paymentWizardLoader
-                    active: false
-                    sourceComponent: PaymentWizard {
-                        totalCost: cartListView.totalCost
-                        balance: cartListView.totalCost
-                        customerName: customerNameField.text
-                        onFinished: cartListView.submitTransaction(paymentInfo);
-                        onClosed: paymentWizardLoader.active = false;
-                    }
+                PaymentWizard {
+                    id: paymentWizard
+                    totalCost: cartListView.totalCost
+                    balance: cartListView.totalCost
+                    customerName: customerNameField.text
+                    onFinished: {
+                        cartListView.clearPayments();
+                        cartListView.customerName = paymentWizard.customerName;
+                        cartListView.customerPhoneNumber = paymentWizard.customerPhoneNumber;
+                        for (var i = 0; i < paymentWizard.paymentModel.count; ++i) {
+                            var payment = paymentWizard.paymentModel.get(i);
+                            cartListView.addPayment(payment.amount, payment.method);
+                        }
 
-                    onLoaded: item.open();
+                        cartListView.submitTransaction(transactionInfo);
+                    }
                 }
 
                 Loader {

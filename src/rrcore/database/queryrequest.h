@@ -11,6 +11,7 @@ class QueryRequest : public QObject
 public:
     enum Type {
         Unknown,
+        Client,
         User,
         Dashboard,
         Stock,

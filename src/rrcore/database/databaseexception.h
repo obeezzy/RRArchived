@@ -33,6 +33,7 @@ public:
         RemoveDebtorFailure,
         UndoRemoveDebtorFailure,
         ViewDebtorsFailure,
+        ViewDebtTransactionsFailure,
         UndoAddDebtorFailure,
         ViewSaleHomeFailure,
         RemoveStockItemFailed,

@@ -15,6 +15,7 @@
 #include "sqlmanager/stocksqlmanager.h"
 #include "sqlmanager/salesqlmanager.h"
 #include "sqlmanager/debtorsqlmanager.h"
+#include "sqlmanager/clientsqlmanager.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QDebug>
@@ -47,6 +48,9 @@ void Worker::execute(const QueryRequest request)
         switch (request.type()) {
         case QueryRequest::User:
             result = UserSqlManager(m_connection).execute(request);
+            break;
+        case QueryRequest::Client:
+            result = ClientSqlManager(m_connection).execute(request);
             break;
         case QueryRequest::Dashboard:
             result = DashboardSqlManager(m_connection).execute(request);

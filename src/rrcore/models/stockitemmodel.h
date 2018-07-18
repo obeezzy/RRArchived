@@ -51,7 +51,7 @@ protected:
 private:
     QString m_category;
     int m_categoryId;
-    QVariantList m_itemRecords;
+    QVariantList m_records;
 };
 
 #endif // STOCKITEMMODEL_H

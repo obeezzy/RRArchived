@@ -10,7 +10,7 @@ QQC2.Page {
     objectName: "paymentByCashPage"
 
     property real totalCost: 0
-    property real amountPaid: parseFloat(amountPaidField.text == "" ? 0 : amountPaidField.text)
+    property real amountPaid: parseFloat(amountPaidField.text === "" ? 0 : amountPaidField.text)
     readonly property real balance: totalCost - amountPaid
     readonly property bool hasDebt: balance > 0
     readonly property bool hasCredit: balance < 0
@@ -32,7 +32,8 @@ QQC2.Page {
                     right: parent.right
                 }
                 wrapMode: Text.Wrap
-                text: qsTr("The total cost is <b>%1</b>. Please enter the amount paid by the customer below.").arg(Number(paymentByCashPage.totalCost).toLocaleCurrencyString(Qt.locale("en_NG")))
+                text: qsTr("The total cost is <b>%1</b>. Please enter the amount paid by the customer below.")
+                        .arg(Number(paymentByCashPage.totalCost).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)))
             }
 
             Row {
@@ -65,9 +66,13 @@ QQC2.Page {
                 color: paymentByCashPage.balance < 0 ? Stylesheet.creditorYellow : paymentByCashPage.balance > 0 ? Stylesheet.debtorRed : "black"
                 text: {
                     if (paymentByCashPage.balance < 0)
-                        return qsTr("You owe the customer ") + "<b>%1</b>.".arg(Number(Math.abs(paymentByCashPage.balance)).toLocaleCurrencyString(Qt.locale("en_NG")));
+                        return qsTr("You owe the customer ")
+                                + "<b>%1</b>.".arg(Number(Math.abs(paymentByCashPage.balance))
+                                                   .toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)));
                     else if (paymentByCashPage.balance > 0)
-                        return qsTr("The customer owes you ") + "<b>%1</b>.".arg(Number(Math.abs(paymentByCashPage.balance)).toLocaleCurrencyString(Qt.locale("en_NG")));
+                        return qsTr("The customer owes you ")
+                                + "<b>%1</b>.".arg(Number(Math.abs(paymentByCashPage.balance))
+                                                   .toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)));
 
                     return qsTr("The amounts are balanced.");
                 }

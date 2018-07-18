@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += core qml quick quickcontrols2 sql svg
+QT += core qml quick quickcontrols2 sql svg printsupport
 
 CONFIG += c++14
 
@@ -41,7 +41,15 @@ SOURCES += \
     models/salemostsolditemmodel.cpp \
     qmlapi/qmldebtorpusher.cpp \
     detailrecord/abstractdetailrecord.cpp \
-    qmlapi/qmlstockitemdetailrecord.cpp
+    qmlapi/qmlstockitemdetailrecord.cpp \
+    models/abstracttransactionmodel.cpp \
+    models/abstracttransactionitemmodel.cpp \
+    widgets/dialogs.cpp \
+    qmlapi/qmlclientmodel.cpp \
+    sqlmanager/clientsqlmanager.cpp \
+    qmlapi/qmldebttransactionmodel.cpp \
+    models/debtpaymentmodel.cpp \
+    qmlapi/qmldebtordetailrecord.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -78,4 +86,12 @@ HEADERS += \
     models/salemostsolditemmodel.h \
     qmlapi/qmldebtorpusher.h \
     detailrecord/abstractdetailrecord.h \
-    qmlapi/qmlstockitemdetailrecord.h
+    qmlapi/qmlstockitemdetailrecord.h \
+    models/abstracttransactionmodel.h \
+    models/abstracttransactionitemmodel.h \
+    widgets/dialogs.h \
+    qmlapi/qmlclientmodel.h \
+    sqlmanager/clientsqlmanager.h \
+    qmlapi/qmldebttransactionmodel.h \
+    models/debtpaymentmodel.h \
+    qmlapi/qmldebtordetailrecord.h

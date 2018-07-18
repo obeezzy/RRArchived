@@ -5,7 +5,7 @@ StockItemModel::StockItemModel(QObject *parent) :
     AbstractVisualListModel(parent),
     m_category(QString()),
     m_categoryId(-1),
-    m_itemRecords(QVariantList())
+    m_records(QVariantList())
 {
 
 }
@@ -15,7 +15,7 @@ int StockItemModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_itemRecords.count();
+    return m_records.count();
 }
 
 QVariant StockItemModel::data(const QModelIndex &index, int role) const
@@ -25,49 +25,49 @@ QVariant StockItemModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case CategoryIdRole:
-        return m_itemRecords.at(index.row()).toMap().value("category_id").toInt();
+        return m_records.at(index.row()).toMap().value("category_id").toInt();
         break;
     case ItemIdRole:
-        return m_itemRecords.at(index.row()).toMap().value("item_id").toString();
+        return m_records.at(index.row()).toMap().value("item_id").toString();
         break;
     case ItemRole:
-        return m_itemRecords.at(index.row()).toMap().value("item").toString();
+        return m_records.at(index.row()).toMap().value("item").toString();
         break;
     case DescriptionRole:
-        return m_itemRecords.at(index.row()).toMap().value("description").toString();
+        return m_records.at(index.row()).toMap().value("description").toString();
         break;
     case DivisibleRole:
-        return m_itemRecords.at(index.row()).toMap().value("divisible").toBool();
+        return m_records.at(index.row()).toMap().value("divisible").toBool();
         break;
     case ImageRole:
-        return m_itemRecords.at(index.row()).toMap().value("image").toString();
+        return m_records.at(index.row()).toMap().value("image").toString();
         break;
     case QuantityRole:
-        return m_itemRecords.at(index.row()).toMap().value("quantity").toDouble();
+        return m_records.at(index.row()).toMap().value("quantity").toDouble();
         break;
     case UnitRole:
-        return m_itemRecords.at(index.row()).toMap().value("unit").toString();
+        return m_records.at(index.row()).toMap().value("unit").toString();
         break;
     case UnitIdRole:
-        return m_itemRecords.at(index.row()).toMap().value("unit_id").toInt();
+        return m_records.at(index.row()).toMap().value("unit_id").toInt();
         break;
     case CostPriceRole:
-        return m_itemRecords.at(index.row()).toMap().value("cost_price").toDouble();
+        return m_records.at(index.row()).toMap().value("cost_price").toDouble();
         break;
     case RetailPriceRole:
-        return m_itemRecords.at(index.row()).toMap().value("retail_price").toDouble();
+        return m_records.at(index.row()).toMap().value("retail_price").toDouble();
         break;
     case CurrencyRole:
-        return m_itemRecords.at(index.row()).toMap().value("currency").toString();
+        return m_records.at(index.row()).toMap().value("currency").toString();
         break;
     case CreatedRole:
-        return m_itemRecords.at(index.row()).toMap().value("created").toDateTime();
+        return m_records.at(index.row()).toMap().value("created").toDateTime();
         break;
     case LastEditedRole:
-        return m_itemRecords.at(index.row()).toMap().value("last_edited").toDateTime();
+        return m_records.at(index.row()).toMap().value("last_edited").toDateTime();
         break;
     case UserRole:
-        return m_itemRecords.at(index.row()).toMap().value("user").toString();
+        return m_records.at(index.row()).toMap().value("user").toString();
         break;
     }
 
@@ -118,12 +118,12 @@ void StockItemModel::setCategoryId(int categoryId)
 
 QVariantList StockItemModel::items() const
 {
-    return m_itemRecords;
+    return m_records;
 }
 
 void StockItemModel::setItems(const QVariantList &items)
 {
-    m_itemRecords = items;
+    m_records = items;
 }
 
 bool StockItemModel::addItem(int itemId, const QVariantMap &itemInfo, Qt::SortOrder sortOrder)
@@ -136,7 +136,7 @@ bool StockItemModel::addItem(int itemId, const QVariantMap &itemInfo, Qt::SortOr
         for (int i = 0; i < rowCount(); ++i) {
             if (itemInfo.value("item").toString().toLower() < data(index(i), ItemRole).toString().toLower() && sortOrder == Qt::DescendingOrder) {
                 beginInsertRows(QModelIndex(), i, i);
-                m_itemRecords.insert(i, itemInfo);
+                m_records.insert(i, itemInfo);
                 endInsertRows();
 
                 return true;
@@ -146,7 +146,7 @@ bool StockItemModel::addItem(int itemId, const QVariantMap &itemInfo, Qt::SortOr
         for (int i = rowCount() - 1; i >= -1; --i) {
             if (itemInfo.value("item").toString().toLower() > data(index(i), ItemRole).toString().toLower()) {
                 beginInsertRows(QModelIndex(), i + 1, i + 1);
-                m_itemRecords.insert(i + 1, itemInfo);
+                m_records.insert(i + 1, itemInfo);
                 endInsertRows();
 
                 return true;
@@ -165,7 +165,7 @@ bool StockItemModel::removeItem(int itemId)
     for (int i = 0; i < rowCount(); ++i) {
         if (itemId == data(index(i), ItemIdRole).toInt()) {
             beginRemoveRows(QModelIndex(), i, i);
-            m_itemRecords.removeAt(i);
+            m_records.removeAt(i);
             endRemoveRows();
 
             return true;

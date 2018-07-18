@@ -18,6 +18,8 @@ private:
     void viewDebtors(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
     void removeDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
     void undoRemoveDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
+    void viewDebtTransactions(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
+    void viewDebtorDetails(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
 };
 
 #endif // DEBTORSQLMANAGER_H

@@ -22,7 +22,6 @@ private Q_SLOTS:
     void testSetCustomerName();
     void testSetCustomerPhoneNumber();
     void testSetNote();
-    void testSetAmountPaid();
     void testClearAll();
 
     void testAddItem();
@@ -31,7 +30,13 @@ private Q_SLOTS:
     void testUpdateItem();
 
     void testGetTotalCost();
+    void testGetAmountPaid();
     void testGetClientId();
+
+    void testAddPayment();
+    void testRemovePayment();
+    void testClearPayments();
+    void testNoDueDateSet();
 
     // Long-running tests
     void testSubmitTransaction();
@@ -43,7 +48,6 @@ private Q_SLOTS:
     void testUpdateSuspendedTransaction();
     void testRemoveItem();
     void testSetItemQuantity();
-
 private:
     QMLStockItemPusher *m_stockItemPusher;
     QMLSaleCartModel *m_saleCartModel;
@@ -127,26 +131,6 @@ void QMLSaleCartModelTest::testSetNote()
     // STEP: Ensure user is not notified if note is set to the same value.
     m_saleCartModel->setNote("Note");
     QCOMPARE(noteChangedSpy.count(), 0);
-}
-
-void QMLSaleCartModelTest::testSetAmountPaid()
-{
-    QSignalSpy amountPaidSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
-
-    // STEP: Ensure amount paid is not set.
-    QCOMPARE(m_saleCartModel->amountPaid(), 0.0);
-
-    // STEP: Set amount paid.
-    m_saleCartModel->setAmountPaid(123.45);
-
-    // STEP: Ensure amount paid is set and user is notified.
-    QCOMPARE(m_saleCartModel->amountPaid(), 123.45);
-    QCOMPARE(amountPaidSpy.count(), 1);
-    amountPaidSpy.clear();
-
-    // STEP: Ensure user is not notified if amount paid is set to the same value.
-    m_saleCartModel->setAmountPaid(123.45);
-    QCOMPARE(amountPaidSpy.count(), 0);
 }
 
 void QMLSaleCartModelTest::testClearAll()
@@ -375,6 +359,19 @@ void QMLSaleCartModelTest::testGetTotalCost()
     QCOMPARE(m_saleCartModel->totalCost(), 33.0);
 }
 
+void QMLSaleCartModelTest::testGetAmountPaid()
+{
+    QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
+
+    // STEP: Add payments.
+    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::Cash);
+    m_saleCartModel->addPayment(1.5, QMLSaleCartModel::Cash);
+
+    // STEP: Ensure that the amount paid is updated properly.
+    QCOMPARE(amountPaidChangedSpy.count(), 2);
+    QCOMPARE(m_saleCartModel->amountPaid(), 4.5);
+}
+
 void QMLSaleCartModelTest::testGetClientId()
 {
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
@@ -418,6 +415,7 @@ void QMLSaleCartModelTest::testGetClientId()
 
     // STEP: Sell one item to the client.
     m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
     m_saleCartModel->submitTransaction();
     QCOMPARE(errorSpy.count(), 0);
     QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
@@ -443,6 +441,110 @@ void QMLSaleCartModelTest::testGetClientId()
     QCOMPARE(m_saleCartModel->clientId(), 1);
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), "123456789");
+}
+
+void QMLSaleCartModelTest::testAddPayment()
+{
+    QVERIFY(m_client->initialize());
+
+    // STEP: Add an item to the database.
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    // STEP: Add payments.
+    m_saleCartModel->addPayment(9.0, QMLSaleCartModel::Cash);
+    m_saleCartModel->addPayment(1.0, QMLSaleCartModel::DebitCard);
+    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::CreditCard);
+
+    // STEP: Ensure payments were added properly.
+    QCOMPARE(m_saleCartModel->payments().count(), 3);
+    QCOMPARE(m_saleCartModel->payments().at(0)->amount, 9.0);
+    QCOMPARE(m_saleCartModel->payments().at(0)->method, QMLSaleCartModel::Cash);
+    QCOMPARE(m_saleCartModel->payments().at(1)->amount, 1.0);
+    QCOMPARE(m_saleCartModel->payments().at(1)->method, QMLSaleCartModel::DebitCard);
+    QCOMPARE(m_saleCartModel->payments().at(2)->amount, 3.0);
+    QCOMPARE(m_saleCartModel->payments().at(2)->method, QMLSaleCartModel::CreditCard);
+
+    // STEP: Ensure amount paid was updated properly.
+    QCOMPARE(m_saleCartModel->amountPaid(), 13.0);
+}
+
+void QMLSaleCartModelTest::testRemovePayment()
+{
+    QVERIFY(m_client->initialize());
+
+    // STEP: Add an item to the database.
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    // STEP: Add payments.
+    m_saleCartModel->addPayment(9.0, QMLSaleCartModel::Cash);
+    m_saleCartModel->addPayment(1.0, QMLSaleCartModel::DebitCard);
+    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::CreditCard);
+
+    // STEP: Remove first payment.
+    m_saleCartModel->removePayment(0);
+
+    // STEP: Ensure payment was removed properly.
+    QCOMPARE(m_saleCartModel->payments().count(), 2);
+    QCOMPARE(m_saleCartModel->payments().at(0)->amount, 1.0);
+    QCOMPARE(m_saleCartModel->payments().at(0)->method, QMLSaleCartModel::DebitCard);
+    QCOMPARE(m_saleCartModel->payments().at(1)->amount, 3.0);
+    QCOMPARE(m_saleCartModel->payments().at(1)->method, QMLSaleCartModel::CreditCard);
+
+    // STEP: Ensure amount paid was updated properly.
+    QCOMPARE(m_saleCartModel->amountPaid(), 4.0);
+}
+
+void QMLSaleCartModelTest::testClearPayments()
+{
+    QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
+
+    QVERIFY(m_client->initialize());
+
+    // STEP: Add an item to the database.
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(10.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    // STEP: Add payments.
+    m_saleCartModel->addPayment(9.0, QMLSaleCartModel::Cash);
+    m_saleCartModel->addPayment(1.0, QMLSaleCartModel::DebitCard);
+    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::CreditCard);
+    amountPaidChangedSpy.clear();
+
+    // STEP: Clear payments.
+    m_saleCartModel->clearPayments();
+
+    // STEP: Ensure payments were cleared.
+    QCOMPARE(m_saleCartModel->payments().count(), 0);
+
+    // STEP: Ensure amount paid was updated properly.
+    QCOMPARE(m_saleCartModel->amountPaid(), 0);
+    QCOMPARE(amountPaidChangedSpy.count(), 1);
 }
 
 void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
@@ -762,6 +864,52 @@ void QMLSaleCartModelTest::testSetItemQuantity()
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
 }
 
+void QMLSaleCartModelTest::testNoDueDateSet()
+{
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
+    QVERIFY(m_client->initialize());
+
+    // STEP: Add an item to the database.
+    m_stockItemPusher->setCategory("Category1");
+    m_stockItemPusher->setItem("Item1");
+    m_stockItemPusher->setDescription("Description1");
+    m_stockItemPusher->setDivisible(true);
+    m_stockItemPusher->setQuantity(1.0);
+    m_stockItemPusher->setUnit("Unit1");
+    m_stockItemPusher->setCostPrice(2.0);
+    m_stockItemPusher->setRetailPrice(3.0);
+    m_stockItemPusher->push();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+
+    const QVariantMap itemInfo {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "item_id", 1 },
+        { "item", "Item1" },
+        { "quantity", 1.0 },
+        { "unit_id", 1 },
+        { "unit", "Unit" },
+        { "cost_price", 11.0 },
+        { "retail_price", 10.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    // STEP: Add item to the model.
+    m_saleCartModel->setCustomerName("Customer");
+    m_saleCartModel->addItem(itemInfo);
+
+    // STEP: Do not make any payment.
+
+    // STEP: Submit transaction.
+    m_saleCartModel->submitTransaction();
+    QCOMPARE(errorSpy.count(), 1);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLSaleCartModel::ErrorCode>(), QMLSaleCartModel::NoDueDateSetError);
+    QCOMPARE(successSpy.count(), 0);
+}
+
 void QMLSaleCartModelTest::testSubmitTransaction()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
@@ -799,6 +947,7 @@ void QMLSaleCartModelTest::testSubmitTransaction()
     // STEP: Add item to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
     QCOMPARE(rowsInsertedSpy.count(), 1);
     rowsInsertedSpy.clear();
 
@@ -909,6 +1058,7 @@ void QMLSaleCartModelTest::testSetTransactionId()
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("123456789");
     m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
 
     // STEP: Submit transaction.
     m_saleCartModel->submitTransaction();

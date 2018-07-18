@@ -1,6 +1,7 @@
 import QtQuick 2.10
 import QtQuick.Controls 2.3 as QQC2
 import QtQuick.Controls.Material 2.3
+import "../singletons"
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
@@ -27,6 +28,8 @@ ListView {
     function undoLastTransaction() { cartListView.model.undoLastCommit(); }
     function clearAll() { cartListView.model.clearAll(); }
     function updateItem(itemId, itemInfo) { cartListView.model.updateItem(itemId, itemInfo); }
+    function addPayment(amount, method) { cartListView.model.addPayment(amount, method); }
+    function clearPayments() { cartListView.model.clearPayments(); }
 
     spacing: 10
     clip: true
@@ -61,7 +64,7 @@ ListView {
                 text: "From <i>" + category + "</i><br/>"
                       + available_quantity + " "
                       + unit + " left<br/>Costs "
-                      + Number(unit_price).toLocaleCurrencyString(Qt.locale("en_NG")) + " each"
+                      + Number(unit_price).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)) + " each"
             }
         }
 
@@ -133,5 +136,15 @@ ListView {
             height: 1
             visible: index < cartListView.count - 1
         }
+    }
+
+    RRUi.PlaceholderLabel {
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            right: parent.right
+        }
+        visible: cartListView.count == 0
+        text: qsTr("Your cart is empty.\nAdd items from the view in the left to get started.");
     }
 }

@@ -31,26 +31,17 @@ QVariant QMLStockCategoryItemModel::data(const QModelIndex &index, int role) con
         return QVariant();
 
     switch (role) {
-    case CategoryIdRole: {
-        if (m_stockItemModels.isEmpty()) {
-            return QVariant();
-        } else {
-            StockItemModel *model = m_stockItemModels.at(index.row());
-            return model->data(model->index(0), StockItemModel::CategoryIdRole).toInt();
-        }
+    case CategoryIdRole:
+    {
+        StockItemModel *model = m_stockItemModels.at(index.row());
+        return model->data(model->index(0), StockItemModel::CategoryIdRole).toInt();
     }
         break;
     case CategoryRole:
-        if (m_categories.isEmpty())
-            return QVariant();
-        else
-            return m_categories.at(index.row());
+        return m_categories.at(index.row());
         break;
     case ItemModelRole:
-        if (m_stockItemModels.isEmpty())
-            return QVariant();
-        else
-            return QVariant::fromValue<QObject *>(m_stockItemModels.at(index.row()));
+        return QVariant::fromValue<QObject *>(m_stockItemModels.at(index.row()));
         break;
     }
 

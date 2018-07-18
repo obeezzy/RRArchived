@@ -1,28 +1,42 @@
 #ifndef QMLSALETRANSACTIONITEMMODEL_H
 #define QMLSALETRANSACTIONITEMMODEL_H
 
-#include "models/abstractvisuallistmodel.h"
-#include <QSqlRecord>
+#include "models/abstracttransactionitemmodel.h"
+#include <QVariantList>
 
-class QMLSaleTransactionItemModel : public AbstractVisualListModel
+class QMLSaleTransactionItemModel : public AbstractTransactionItemModel
 {
     Q_OBJECT
 public:
+    enum SuccessCode {
+        UnknownSuccess
+    }; Q_ENUM(SuccessCode)
+
+    enum ErrorCode {
+        UnknownError
+    }; Q_ENUM(ErrorCode)
+
     enum Roles {
-        CategoryIdRole = Qt::UserRole,
+        TransactionItemIdRole = Qt::UserRole,
+        CategoryIdRole,
         CategoryRole,
         ItemIdRole,
+        UnitPriceRole,
         ItemRole,
         QuantityRole,
         UnitIdRole,
         UnitRole,
-        RetailPriceRole,
-        TotalCostRole,
-        AmountPaidRole,
-        BalanceRole,
+        CostRole,
+        DiscountRole,
+        CurrencyRole,
+        NoteIdRole,
+        NoteRole,
+        SuspendedRole,
+        ArchivedRole,
         CreatedRole,
         LastEditedRole,
-        UserIdRole
+        UserIdRole,
+        UserRole
     };
 
     explicit QMLSaleTransactionItemModel(QObject *parent = nullptr);
@@ -33,8 +47,10 @@ public:
 protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
+public slots:
+    void removeTransactionItem(int row);
 private:
-    QList<QSqlRecord> m_records;
+    QVariantList m_records;
 };
 
 #endif // QMLSALETRANSACTIONITEMMODEL_H

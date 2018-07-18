@@ -11,6 +11,7 @@ Item {
     id: sectionFragment
 
     property string title: ""
+    property bool dividerVisible: true
     default property alias content: dataColumn.data
 
     implicitWidth: 200
@@ -50,6 +51,7 @@ Item {
             }
             height: 1
             color: "lightgray"
+            visible: sectionFragment.dividerVisible
         }
     }
 }

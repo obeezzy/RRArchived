@@ -119,20 +119,32 @@ RRUi.Page {
                         RRUi.ToolButton {
                             id: editButton
                             icon.source: FluidControls.Utils.iconUrl("image/edit")
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
                             text: qsTr("Edit debtor")
+                            onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"),
+                                                     { "debtorId": parent.parent.modelData.debtor_id });
                         }
 
                         RRUi.ToolButton {
                             id: deleteButton
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
                             text: qsTr("Delete debtor")
                             onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
                         }
                     }
+                }
+            }
+
+            FluidControls.FloatingActionButton {
+                Material.background: Material.LightGreen
+                Material.foreground: "white"
+                icon.source: FluidControls.Utils.iconUrl("content/add")
+
+                onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"));
+
+                anchors {
+                    right: parent.right
+                    bottom: parent.bottom
+                    margins: 24
                 }
             }
         }
@@ -141,21 +153,6 @@ RRUi.Page {
     QQC2.BusyIndicator {
         anchors.centerIn: parent
         visible: debtorListView.model.busy
-    }
-
-    FluidControls.FloatingActionButton {
-        Material.background: Material.LightGreen
-        Material.foreground: "white"
-        icon.source: FluidControls.Utils.iconUrl("content/add")
-
-        onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"),
-                                 { "debtorModel": debtorListView.model });
-
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            margins: 24
-        }
     }
 
     FluidControls.BottomSheetList {
@@ -182,7 +179,8 @@ RRUi.Page {
         anchors.centerIn: parent
         color: Material.color(Material.Grey)
         text: /*debtorListView.model.filterText ? */qsTr("No results for this search query.")
-        //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.").arg(FluidControls.Utils.iconUrl("content/add"))
+        //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.")
+        //.arg(FluidControls.Utils.iconUrl("content/add"))
         horizontalAlignment: Qt.AlignHCenter
     }
 

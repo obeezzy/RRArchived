@@ -142,7 +142,7 @@ RRUi.Page {
                             }
                             spacing: 16
 
-                            SectionFragment {
+                            RRUi.SectionFragment {
                                 id: categoryFragment
                                 title: qsTr("Category")
                                 anchors {
@@ -216,7 +216,7 @@ RRUi.Page {
                                 }
                             }
 
-                            SectionFragment {
+                            RRUi.SectionFragment {
                                 id: itemFragment
                                 title: qsTr("Product")
                                 anchors {
@@ -255,7 +255,7 @@ RRUi.Page {
                                 }
                             }
 
-                            SectionFragment {
+                            RRUi.SectionFragment {
                                 id: quantityUnitFragment
                                 title: qsTr("Quantity and unit")
                                 anchors {
@@ -303,7 +303,7 @@ RRUi.Page {
                                 }
                             }
 
-                            SectionFragment {
+                            RRUi.SectionFragment {
                                 id: priceFragment
                                 title: qsTr("Price")
                                 anchors {

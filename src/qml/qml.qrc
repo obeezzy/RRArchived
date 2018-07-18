@@ -33,7 +33,6 @@
         <file>singletons/GlobalSettings.qml</file>
         <file>singletons/qmldir</file>
         <file>common/paymentwizard/PaymentChangePage.qml</file>
-        <file>stock/SectionFragment.qml</file>
         <file>common/SuspendTransactionDialog.qml</file>
         <file>common/RetrieveTransactionDialog.qml</file>
         <file>people/debtor/HomePage.qml</file>
@@ -60,5 +59,16 @@
         <file>stock/ItemDetailModel.qml</file>
         <file>sales/CartItemEditorDialog.qml</file>
         <file>rrui/Dialog.qml</file>
+        <file>sales/SaleTransactionPage.qml</file>
+        <file>sales/SaleTransactionListView.qml</file>
+        <file>sales/SaleTransactionItemDialog.qml</file>
+        <file>common/paymentwizard/PaymentOptionModel.qml</file>
+        <file>rrui/DropdownField.qml</file>
+        <file>rrui/IconTextField.qml</file>
+        <file>rrui/SectionFragment.qml</file>
+        <file>people/debtor/DebtTransactionListView.qml</file>
+        <file>rrui/PlaceholderLabel.qml</file>
+        <file>people/debtor/DebtTransactionSubView.qml</file>
+        <file>people/debtor/ClientDetailSubView.qml</file>
     </qresource>
 </RCC>

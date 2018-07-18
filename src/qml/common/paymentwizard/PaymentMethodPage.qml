@@ -6,7 +6,7 @@ QQC2.Page {
     id: paymentMethodPage
     objectName: "paymentMethodPage"
 
-    property string selectedOption: "cash"
+    property string selectedOption: selectedOption = paymentMethodPage.acceptCash ? "cash" : "card"
     property bool acceptCash: true
     property bool acceptCard: true
 
@@ -18,24 +18,12 @@ QQC2.Page {
         Column {
             Repeater {
                 anchors.fill: parent
-                model: ListModel {
-                    ListElement { iconName: "editor/attach_money"; option: "cash"; text: qsTr("Cash"); visible: true; checked: false }
-                    ListElement { iconName: "action/credit_card"; option: "card"; text: qsTr("Debit/credit card"); visible: true; checked: false }
-                    ListElement { iconName: "device/access_time"; option: "none"; text: qsTr("Pay later"); visible: true; checked: false }
-
-                    Component.onCompleted: {
-                        setProperty(0, "visible", paymentMethodPage.acceptCash);
-                        setProperty(1, "visible", paymentMethodPage.acceptCard);
-                        setProperty(paymentMethodPage.acceptCash ? 0 : 1, "checked", true);
-                        paymentMethodPage.selectedOption = paymentMethodPage.acceptCash ? "cash" : "card";
-                    }
-                }
+                model: PaymentOptionModel { }
 
                 delegate: QQC2.RadioButton {
                     id: radioButton
+                    checked: index === 0
                     text: model.text
-                    checked: model.checked
-                    visible: model.visible
                     QQC2.ButtonGroup.group: buttonGroup
 
                     onClicked: paymentMethodPage.selectedOption = model.option;

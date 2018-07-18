@@ -104,7 +104,7 @@ void QMLDebtorModel::processResult(const QueryResult result)
             emit success(UndoRemoveDebtorSuccess);
         }
     } else {
-        emit error();
+        emit error(UnknownError);
     }
 }
 

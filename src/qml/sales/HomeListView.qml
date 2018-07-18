@@ -19,6 +19,7 @@ ListView {
     delegate: Loader {
         readonly property var modelData: data_model
         width: ListView.view.width
+        active: false
 
         sourceComponent: {
             switch (data_type) {

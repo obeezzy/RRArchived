@@ -6,12 +6,8 @@
 #include "database/queryresult.h"
 
 QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_records(QVariantList()),
-    m_transactionId(-1),
-    m_keys(None)
+    AbstractTransactionModel(parent)
 {
-
 }
 
 QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
@@ -80,7 +76,7 @@ int QMLSaleTransactionModel::rowCount(const QModelIndex &parent) const
 
 QHash<int, QByteArray> QMLSaleTransactionModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
+    QHash<int, QByteArray> roles(AbstractTransactionModel::roleNames());
     roles.insert(TransactionIdRole, "transaction_id");
     roles.insert(ClientIdRole, "client_id");
     roles.insert(CustomerNameRole, "customer_name");
@@ -99,41 +95,30 @@ QHash<int, QByteArray> QMLSaleTransactionModel::roleNames() const
     return roles;
 }
 
-int QMLSaleTransactionModel::transactionId() const
-{
-    return m_transactionId;
-}
-
-void QMLSaleTransactionModel::setTransactionId(int transactionId)
-{
-    if (m_transactionId == transactionId)
-        return;
-
-    m_transactionId = transactionId;
-    emit transactionIdChanged();
-}
-
-int QMLSaleTransactionModel::keys() const
-{
-    return m_keys;
-}
-
-void QMLSaleTransactionModel::setKeys(int keys)
-{
-    if (m_keys == keys)
-        return;
-
-    m_keys = keys;
-    emit keysChanged();
-}
-
 void QMLSaleTransactionModel::tryQuery()
 {
+    setBusy(true);
     QueryRequest request(this);
-    QVariantMap params = {
-        { "suspended", (m_keys == Suspended) || (m_keys == All) },
-        { "archived", (m_keys == Archived) || (m_keys == All) }
-    };
+    QVariantMap params;
+
+    if (keys() == Completed) {
+        params.insert("suspended", false);
+        params.insert("archived", false);
+    } else if (keys() == Suspended) {
+        params.insert("suspended", true);
+        params.insert("archived", false);
+    } else if (keys() == Archived) {
+        params.insert("suspended", false);
+        params.insert("archived", true);
+    } else if (keys() == All) {
+        params.insert("suspended", true);
+        params.insert("archived", true);
+    }
+
+    if (!from().isNull() && from().isValid())
+        params.insert("from", from());
+    if (!to().isNull() && to().isValid())
+        params.insert("to", to());
 
     request.setCommand("view_sale_transactions", params, QueryRequest::Sales);
     emit executeRequest(request);
@@ -144,12 +129,30 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
     if (result.request().receiver() != this)
         return;
 
+    setBusy(false);
     if (result.isSuccessful()) {
-        beginResetModel();
-        m_records = result.outcome().toMap().value("transactions").toList();
-        endResetModel();
-        emit success();
+        if (result.request().command() == "view_sale_transactions") {
+            beginResetModel();
+            m_records = result.outcome().toMap().value("transactions").toList();
+            endResetModel();
+
+            emit success(ViewTransactionSuccess);
+        } else {
+            emit success(UnknownSuccess);
+        }
     } else {
-        emit error(1);
+        emit error(UnknownError);
     }
+}
+
+void QMLSaleTransactionModel::removeTransaction(int row)
+{
+    setBusy(true);
+    QueryRequest request(this);
+    QVariantMap params;
+    params.insert("can_undo", true);
+    params.insert("transaction_id", data(index(row), TransactionIdRole).toInt());
+
+    request.setCommand("remove_transaction", params, QueryRequest::Sales);
+    emit executeRequest(request);
 }

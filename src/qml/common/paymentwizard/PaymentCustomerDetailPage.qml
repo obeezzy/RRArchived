@@ -2,6 +2,8 @@ import QtQuick 2.10
 import QtQuick.Controls 2.3 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 import "../../rrui" as RRUi
+import com.gecko.rr.models 1.0 as RRModels
+import com.gecko.rr.components 1.0 as RRComponents
 
 QQC2.Page {
     id: paymentCustomerDetailPage
@@ -9,6 +11,7 @@ QQC2.Page {
 
     property string customerName: ""
     property string customerPhoneNumber: ""
+    property ListModel paymentModel: null
     readonly property bool detailValid: customerName.trim() != "" && customerPhoneNumber.trim() != ""
 
     padding: FluidControls.Units.smallSpacing
@@ -45,13 +48,23 @@ QQC2.Page {
                     size: 20
                 }
 
-                RRUi.TextField {
+                RRUi.DropdownField {
                     id: customerNameField
                     focus: true
                     width: 300
                     placeholderText: qsTr("Customer name")
                     text: paymentCustomerDetailPage.customerName
+                    model: RRModels.ClientModel {
+                        filterText: paymentCustomerDetailPage.customerName
+                        filterColumn: RRModels.ClientModel.PreferredNameColumn
+                    }
+                    textRole: "preferred_name"
+                    subTextRole: "phone_number"
                     onTextEdited: paymentCustomerDetailPage.customerName = text;
+                    onItemSelected: {
+                        paymentCustomerDetailPage.customerName = modelData.preferred_name;
+                        paymentCustomerDetailPage.customerPhoneNumber = modelData.phone_number;
+                    }
                 }
             }
 
@@ -64,12 +77,23 @@ QQC2.Page {
                     size: 20
                 }
 
-                RRUi.TextField {
+                RRUi.DropdownField {
                     id: phoneNumberField
                     width: 300
-                    placeholderText: qsTr("Customer phone number")
+                    placeholderText: qsTr("Phone number")
                     text: paymentCustomerDetailPage.customerPhoneNumber
+                    model: RRModels.ClientModel {
+                        filterText: paymentCustomerDetailPage.customerPhoneNumber
+                        filterColumn: RRModels.ClientModel.PhoneNumberColumn
+                    }
+                    validator: RRComponents.DoubleValidator { bottom: 0 }
+                    textRole: "preferred_name"
+                    subTextRole: "phone_number"
                     onTextEdited: paymentCustomerDetailPage.customerPhoneNumber = text;
+                    onItemSelected: {
+                        paymentCustomerDetailPage.customerName = modelData.preferred_name;
+                        paymentCustomerDetailPage.customerPhoneNumber = modelData.phone_number;
+                    }
                 }
             }
         }

@@ -13,6 +13,7 @@ QMLSaleCartModel::QMLSaleCartModel(QObject *parent) :
     m_note(QString()),
     m_totalCost(0.0),
     m_amountPaid(0.0),
+    m_balance(0.0),
     m_records(QVariantList())
 {
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
@@ -173,6 +174,11 @@ double QMLSaleCartModel::amountPaid() const
     return m_amountPaid;
 }
 
+double QMLSaleCartModel::balance() const
+{
+    return m_balance;
+}
+
 void QMLSaleCartModel::setAmountPaid(double amountPaid)
 {
     if (m_amountPaid == amountPaid)
@@ -182,9 +188,44 @@ void QMLSaleCartModel::setAmountPaid(double amountPaid)
     emit amountPaidChanged();
 }
 
-void QMLSaleCartModel::submitTransaction(const QVariantMap &paymentInfo)
+void QMLSaleCartModel::setBalance(double balance)
 {
-    addTransaction(paymentInfo);
+    if (m_balance == balance)
+        return;
+
+    m_balance = balance;
+    emit balanceChanged();
+}
+
+QList<SalePayment *> QMLSaleCartModel::payments() const
+{
+    return m_payments;
+}
+
+void QMLSaleCartModel::addPayment(double amount, QMLSaleCartModel::PaymentMethod method, const QString &note)
+{
+    if (amount <= 0.0)
+        return;
+
+    m_payments.append(new SalePayment{ amount, method, note });
+    calculateAmountPaid();
+}
+
+void QMLSaleCartModel::removePayment(int index)
+{
+    if (index <= -1 && index >= m_payments.count())
+        return;
+
+    delete m_payments.takeAt(index);
+    calculateAmountPaid();
+}
+
+void QMLSaleCartModel::submitTransaction(const QVariantMap &transactionInfo)
+{
+    if (m_balance != 0.0 && transactionInfo.value("due_date").isNull())
+        emit error(NoDueDateSetError);
+    else
+        addTransaction(transactionInfo);
 }
 
 void QMLSaleCartModel::suspendTransaction(const QVariantMap &params)
@@ -193,6 +234,15 @@ void QMLSaleCartModel::suspendTransaction(const QVariantMap &params)
         addTransaction( {{ "suspended", true }, { "note", params.value("note") } });
     else
         updateSuspendedTransaction({ { "note", params.value("note") } });
+}
+
+void QMLSaleCartModel::clearPayments()
+{
+    if (!m_payments.isEmpty()) {
+        qDeleteAll(m_payments);
+        m_payments.clear();
+        calculateAmountPaid();
+    }
 }
 
 void QMLSaleCartModel::clearAll()
@@ -205,26 +255,43 @@ void QMLSaleCartModel::clearAll()
     endResetModel();
 }
 
-void QMLSaleCartModel::addTransaction(const QVariantMap &paymentInfo)
+void QMLSaleCartModel::addTransaction(const QVariantMap &transactionInfo)
 {
     if (!m_records.isEmpty()) {
         QVariantMap params;
         params.insert("transaction_id", m_transactionId);
-        params.insert("customer_name", !paymentInfo.value("customer_name").toString().trimmed().isEmpty() ?
-                          paymentInfo.value("customer_name").toString().trimmed() : m_customerName);
-        params.insert("client_id", paymentInfo.value("client_id").toInt() > 0 ? paymentInfo.value("client_id").toInt() : m_clientId);
-        params.insert("customer_phone_number", !paymentInfo.value("customer_phone_number").toString().trimmed().isEmpty() ?
-                          paymentInfo.value("customer_phone_number").toString().trimmed() : m_customerPhoneNumber);
+        params.insert("customer_name", m_customerName);
+        params.insert("client_id", transactionInfo.value("client_id"));
+        params.insert("customer_phone_number", m_customerPhoneNumber);
         params.insert("total_cost", m_totalCost);
-        params.insert("amount_paid", paymentInfo.value("amount_paid", m_amountPaid));
-        params.insert("suspended", paymentInfo.value("suspended", false));
-        params.insert("balance", paymentInfo.value("balance", 0.0));
-        params.insert("due_date", paymentInfo.value("due_date", QDateTime()));
-        params.insert("overlook_balance", paymentInfo.value("overlook_balance", false));
-        params.insert("note", paymentInfo.value("note", QString()));
+        params.insert("amount_paid", m_amountPaid);
+        params.insert("balance", m_balance);
+        params.insert("suspended", transactionInfo.value("suspended", false));
+        params.insert("due_date", transactionInfo.value("due_date", QDateTime()));
+        params.insert("overlook_balance", transactionInfo.value("overlook_balance", false));
+        params.insert("note", transactionInfo.value("note"));
+
+        QVariantList payments;
+        for (SalePayment *salePayment : m_payments) {
+            QVariantMap payment;
+            payment.insert("amount", salePayment->amount);
+            payment.insert("note", salePayment->note);
+            payment.insert("currency", "NGN");
+
+            switch (salePayment->method) {
+            case QMLSaleCartModel::Cash:
+                payment.insert("method", "cash");
+                break;
+            case QMLSaleCartModel::DebitCard:
+                payment.insert("method", "debit_card");
+                break;
+            case QMLSaleCartModel::CreditCard:
+                payment.insert("method", "credit_card");
+                break;
+            }
+        }
 
         QVariantList items;
-
         for (const QVariant &record : m_records) {
             QVariantMap itemInfo;
 
@@ -241,6 +308,7 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &paymentInfo)
             items.append(itemInfo);
         }
 
+        params.insert("payments", payments);
         params.insert("items", items);
         params.insert("can_undo", true);
 
@@ -255,7 +323,7 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &paymentInfo)
     }
 }
 
-void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &paymentInfo)
+void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transactionInfo)
 {
     if (!m_records.isEmpty()) {
         QVariantMap params;
@@ -264,9 +332,9 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &paymentInfo
         params.insert("client_id", m_clientId);
         params.insert("customer_phone_number", m_customerPhoneNumber);
         params.insert("total_cost", m_totalCost);
-        params.insert("amount_paid", paymentInfo.value("amount_paid", m_amountPaid));
-        params.insert("balance", paymentInfo.value("balance", 0.0));
-        params.insert("note", paymentInfo.value("note", QString()));
+        params.insert("amount_paid", m_amountPaid);
+        params.insert("balance", m_balance);
+        params.insert("note", transactionInfo.value("note", QVariant(QVariant::String)));
         params.insert("suspended", true);
 
         QVariantList items;
@@ -314,7 +382,7 @@ void QMLSaleCartModel::tryQuery()
         setCustomerName(QString());
         setCustomerPhoneNumber(QString());
         m_records.clear();
-        calculateTotals();
+        calculateTotal();
         endResetModel();
     }
 }
@@ -331,8 +399,11 @@ void QMLSaleCartModel::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         beginResetModel();
+
+        clearPayments();
         m_records = result.outcome().toMap().value("items").toList();
-        calculateTotals();
+        calculateTotal();
+
         endResetModel();
 
         if (result.request().command() == "add_sale_transaction") {
@@ -360,9 +431,22 @@ void QMLSaleCartModel::processResult(const QueryResult result)
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
             emit success(SuspendTransactionSuccess);
+        } else {
+            emit success(UnknownSuccess);
         }
     } else {
-        emit error(SuspendTransactionError);
+        if (result.request().command() == "add_sale_transaction") {
+            if (result.request().params().value("suspended").toBool())
+                emit error(SuspendTransactionError);
+            else
+                emit error(SubmitTransactionError);
+        } else if (result.request().command() == "view_sale_cart") {
+            emit error(RetrieveTransactionError);
+        } else if (result.request().command() == "update_suspended_sale_transaction") {
+            emit error(SuspendTransactionError);
+        } else {
+            emit error(UnknownError);
+        }
     }
 
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
@@ -371,12 +455,12 @@ void QMLSaleCartModel::processResult(const QueryResult result)
 void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
 {
     const int categoryId = itemInfo.value("category_id").toInt();
-    const QString category = itemInfo.value("category").toString();
+    const QString &category = itemInfo.value("category").toString();
     const int itemId = itemInfo.value("item_id").toInt();
-    const QString item = itemInfo.value("item").toString();
+    const QString &item = itemInfo.value("item").toString();
     const double availableQuantity = itemInfo.value("available_quantity", itemInfo.value("quantity").toDouble()).toDouble(); // TODO: Simplify
     const int unitId = itemInfo.value("unit_id").toInt();
-    const QString unit = itemInfo.value("unit").toString();
+    const QString &unit = itemInfo.value("unit").toString();
     const double costPrice = itemInfo.value("cost_price").toDouble();
     const double retailPrice = itemInfo.value("retail_price").toDouble();
     const double unitPrice = itemInfo.value("unit_price", retailPrice).toDouble();
@@ -416,7 +500,7 @@ void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
         emit dataChanged(index(row), index(row));
     }
 
-    calculateTotals();
+    calculateTotal();
 }
 
 void QMLSaleCartModel::updateItem(int itemId, const QVariantMap &itemInfo)
@@ -445,7 +529,7 @@ void QMLSaleCartModel::updateItem(int itemId, const QVariantMap &itemInfo)
 
     if (oldQuantity != newQuantity || oldUnitPrice != newUnitPrice || oldCost != newCost) {
         emit dataChanged(index(row), index(row));
-        calculateTotals();
+        calculateTotal();
     }
 }
 
@@ -467,7 +551,7 @@ void QMLSaleCartModel::setItemQuantity(int itemId, double quantity)
 
     if (oldQuantity != newQuantity) {
         emit dataChanged(index(row), index(row));
-        calculateTotals();
+        calculateTotal();
     }
 }
 
@@ -489,7 +573,7 @@ void QMLSaleCartModel::incrementItemQuantity(int itemId, double quantity)
 
     emit dataChanged(index(row), index(row));
 
-    calculateTotals();
+    calculateTotal();
 }
 
 void QMLSaleCartModel::decrementItemQuantity(int itemId, double quantity)
@@ -509,7 +593,7 @@ void QMLSaleCartModel::decrementItemQuantity(int itemId, double quantity)
 
     emit dataChanged(index(row), index(row));
 
-    calculateTotals();
+    calculateTotal();
 }
 
 void QMLSaleCartModel::removeItem(int itemId)
@@ -519,7 +603,7 @@ void QMLSaleCartModel::removeItem(int itemId)
     m_records.removeAt(row);
     endRemoveRows();
 
-    calculateTotals();
+    calculateTotal();
 }
 
 bool QMLSaleCartModel::containsItem(int itemId)
@@ -543,13 +627,24 @@ int QMLSaleCartModel::indexOfItem(int itemId)
     return -1;
 }
 
-void QMLSaleCartModel::calculateTotals()
+void QMLSaleCartModel::calculateTotal()
 {
-    double total = 0.0;
+    double totalCost = 0.0;
     for (const QVariant &record : m_records)
-        total += record.toMap().value("cost").toDouble();
+        totalCost += record.toMap().value("cost").toDouble();
 
-    setTotalCost(total);
+    setTotalCost(totalCost);
+    setBalance(m_totalCost - m_amountPaid);
+}
+
+void QMLSaleCartModel::calculateAmountPaid()
+{
+    double amountPaid = 0.0;
+    for (SalePayment *salePayment : m_payments)
+        amountPaid += salePayment->amount;
+
+    setAmountPaid(amountPaid);
+    setBalance(m_totalCost - m_amountPaid);
 }
 
 void QMLSaleCartModel::setClientId(int clientId)

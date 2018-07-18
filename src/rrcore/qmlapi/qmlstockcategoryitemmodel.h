@@ -16,9 +16,9 @@ class QMLStockCategoryItemModel : public AbstractVisualListModel
 public:
     explicit QMLStockCategoryItemModel(QObject *parent = nullptr);
 
-    enum Column {
+    enum FilterColumn {
         CategoryColumn, ItemColumn
-    }; Q_ENUM(Column)
+    }; Q_ENUM(FilterColumn)
 
     enum SuccessCode {
         UnknownSuccess,

@@ -42,12 +42,6 @@ RRUi.Dialog {
         open();
     }
 
-    QtObject {
-        id: privateProperties
-
-        property bool hasCostBeenEdited: false
-    }
-
     contentItem: FocusScope {
         focus: cartItemEditorDialog.visible
         onActiveFocusChanged: if (activeFocus) quantityTextField.focus = true;
@@ -83,12 +77,7 @@ RRUi.Dialog {
                         decimals: 4
                     }
                     onActiveFocusChanged: if (activeFocus) selectAll();
-                    onTextChanged: {
-                        // Let cost follow quantity if it has not been edited before.
-                        if (!privateProperties.hasCostBeenEdited)
-                            cartItemEditorDialog.cost = cartItemEditorDialog.unitPrice * cartItemEditorDialog.quantity;
-                    }
-
+                    onTextChanged: cartItemEditorDialog.cost = cartItemEditorDialog.unitPrice * cartItemEditorDialog.quantity;
                     onTextEdited: cartItemEditorDialog.quantity = Number(text);
 
                     QQC2.ToolTip.visible: activeFocus
@@ -149,7 +138,6 @@ RRUi.Dialog {
                 text: cartItemEditorDialog.cost
                 horizontalAlignment: Qt.AlignRight
                 onTextEdited: {
-                    privateProperties.hasCostBeenEdited = true;
                     cartItemEditorDialog.cost = Number(text);
                     cartItemEditorDialog.unitPrice = Number(cartItemEditorDialog.cost / cartItemEditorDialog.quantity).toFixed(2);
                 }
