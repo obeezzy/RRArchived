@@ -66,8 +66,7 @@ ListView {
                 text: category
             }
 
-            Repeater {
-                id: itemView
+            ListView {
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -75,10 +74,12 @@ ListView {
                     bottomMargin: 20
                 }
 
+                height: contentHeight
                 model: item_model
 
                 delegate: FluidControls.ListItem {
-                    width: itemView.width
+                    id: itemListItem
+                    width: ListView.view.width
                     height: 40
                     text: item
                     showDivider: true
@@ -93,7 +94,7 @@ ListView {
 
                         readonly property var modelData: {
                             "category_id": category_id,
-                            "category": category,
+                                    "category": category,
                                     "item_id": model.item_id,
                                     "item": model.item,
                                     "unit_id": model.unit_id,
@@ -107,20 +108,37 @@ ListView {
                         sourceComponent: categoryListView.buttonRow
                     }
                 }
+
+                add: Transition {
+                    PropertyAction { property: "height"; value: 0 }
+                    PropertyAction { property: "opacity"; value: 0 }
+
+                    SequentialAnimation {
+                        NumberAnimation { property: "height"; to: 40; duration: 300; easing.type: Easing.InOutQuad }
+                        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+                    }
+                }
+
+                displaced: Transition {
+                    SequentialAnimation {
+                        PauseAnimation { duration: 125 }
+                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
+                    }
+                }
+                remove: Transition {
+                    SequentialAnimation {
+                        PauseAnimation { duration: 125 }
+                        NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Behavior on height {
+                    SequentialAnimation {
+                        PauseAnimation { duration: 125 }
+                        NumberAnimation { }
+                    }
+                }
             }
-
-//            add: Transition {
-//                NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
-//                NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
-//            }
-
-//            remove: Transition {
-//                NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
-//            }
-
-//            removeDisplaced: Transition {
-//                NumberAnimation { properties: "x,y"; duration: 300 }
-//            }
         }
     }
 
@@ -129,11 +147,16 @@ ListView {
         NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
     }
 
-    remove: Transition {
-        NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
+    displaced: Transition {
+        SequentialAnimation {
+            PauseAnimation { duration: 125 }
+            NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
+        }
     }
-
-    removeDisplaced: Transition {
-        NumberAnimation { properties: "x,y"; duration: 300 }
+    remove: Transition {
+        SequentialAnimation {
+            PauseAnimation { duration: 125 }
+            NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
+        }
     }
 }
