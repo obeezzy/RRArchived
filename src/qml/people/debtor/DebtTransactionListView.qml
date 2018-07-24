@@ -16,12 +16,36 @@ ListView {
 
     signal success(int successCode)
     signal error(int errorCode)
+    signal addPaymentRequested(int debtIndex)
+    signal editTransactionRequested(int debtIndex)
+    signal removeTransactionRequested(int debtIndex)
+    signal editPaymentRequested(int debtIndex, int paymentIndex)
+    signal removePaymentRequested(int debtIndex, int paymentIndex)
+
+    function addAlternatePhoneNumber(alternatePhoneNumber) { debtTransactionListView.model.addAlternatePhoneNumber(alternatePhoneNumber); }
+    function removeAlternatePhoneNumber(row) { debtTransactionListView.model.removeAlternatePhoneNumber(row); }
+
+    function addAddress(address) { debtTransactionListView.model.addAddress(address); }
+    function removeAddress(row) { debtTransactionListView.model.removeAddress(row); }
+
+    function addEmailAddress(emailAddress) { debtTransactionListView.model.addEmailAddress(email); }
+    function removeEmailAddress(row) { debtTransactionListView.model.removeEmailAddress(row); }
+
+    function addDebt(totalDebt, dueDateTime, note) { debtTransactionListView.model.addDebt(totalDebt, dueDateTime, note); }
+    function updateDebt(debtIndex, dueDateTime, note) { debtTransactionListView.model.updateDebt(debtIndex, dueDateTime, note); }
+    function removeDebt(debtIndex) { debtTransactionListView.model.removeDebt(debtIndex); }
+    function addPayment(debtIndex, amount, note) { debtTransactionListView.model.addPayment(debtIndex, amount, note); }
+    function updatePayment(debtIndex, paymentIndex, amount, note) { debtTransactionListView.model.updatePayment(debtIndex, paymentIndex, amount, note); }
+    function removePayment(debtIndex, paymentIndex) { debtTransactionListView.model.removePayment(debtIndex, paymentIndex); }
+
+    function refresh() { debtTransactionListView.model.refresh(); }
+    function undoLastCommit() { debtTransactionListView.model.undoLastCommit(); }
 
     topMargin: 8
     bottomMargin: 8
     clip: true
     height: Math.max(contentHeight, 200)
-    interactive: false
+    interactive: contentHeight > height
 
     model: RRModels.DebtTransactionModel {
         debtorId: debtTransactionListView.debtorId
@@ -43,12 +67,19 @@ ListView {
     }
 
     delegate: Item {
+        property bool isLastItem: index === ListView.view.count - 1
+
         width: ListView.view.width
-        height: transactionColumn.height
+        height: transactionColumn.height + transactionColumn.anchors.topMargin
 
         Column {
             id: transactionColumn
+
+            readonly property int debtIndex: index
+
             anchors {
+                top: parent.top
+                topMargin: 16
                 left: parent.left
                 right: parent.right
             }
@@ -75,6 +106,7 @@ ListView {
             Item { width: 1; height: 16 }
 
             ListView {
+                id: paymentListView
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -82,14 +114,17 @@ ListView {
 
                 leftMargin: 24
                 rightMargin: 24
+                spacing: 16
                 orientation: ListView.Horizontal
-                height: 220
+                height: 200
                 model: payment_model
                 visible: debtTransactionListView.count > 0
                 delegate: FluidControls.Card {
                     id: paymentDelegate
 
+                    readonly property bool isFirstItem: index === 0
                     readonly property bool isLastItem: index === ListView.view.count - 1
+                    readonly property int paymentIndex: index
 
                     padding: 4
                     width: 220
@@ -153,14 +188,16 @@ ListView {
                             height: width
                             visible: paymentDelegate.isLastItem
                             text: qsTr("Edit payment")
+                            onClicked: debtTransactionListView.editPaymentRequested(transactionColumn.debtIndex, paymentDelegate.paymentIndex);
                         }
 
                         RRUi.ToolButton {
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             width: FluidControls.Units.iconSizes.medium
                             height: width
-                            visible: paymentDelegate.isLastItem
-                            text: qsTr("Delete payment")
+                            visible: !paymentDelegate.isFirstItem && paymentDelegate.isLastItem
+                            text: qsTr("Remove payment")
+                            onClicked: debtTransactionListView.removePaymentRequested(transactionColumn.debtIndex, paymentDelegate.paymentIndex);
                         }
                     }
                 }
@@ -188,6 +225,30 @@ ListView {
                     NumberAnimation { properties: "x,y"; duration: 300 }
                 }
             }
+
+            FluidControls.ThinDivider { visible: !isLastItem }
+        }
+
+        RRUi.ArrowButton {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                verticalCenterOffset: 32
+                right: parent.left
+            }
+
+            opacity: paymentListView.contentX > 0 ? 1 : 0
+            direction: "left"
+        }
+
+        RRUi.ArrowButton {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                verticalCenterOffset: 32
+                right: parent.right
+            }
+
+            opacity: paymentListView.contentWidth > paymentListView.width ? 1 : 0
+            direction: "right"
         }
 
         Row {
@@ -198,6 +259,12 @@ ListView {
             }
 
             RRUi.ToolButton {
+                icon.source: FluidControls.Utils.iconUrl("content/add")
+                text: qsTr("Add payment")
+                onClicked: debtTransactionListView.addPaymentRequested(transactionColumn.debtIndex);
+            }
+
+            RRUi.ToolButton {
                 icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                 text: qsTr("View transaction details")
             }
@@ -205,11 +272,13 @@ ListView {
             RRUi.ToolButton {
                 icon.source: FluidControls.Utils.iconUrl("image/edit")
                 text: qsTr("Edit transaction")
+                onClicked: debtTransactionListView.editTransactionRequested(transactionColumn.debtIndex);
             }
 
             RRUi.ToolButton {
                 icon.source: FluidControls.Utils.iconUrl("action/delete")
-                text: qsTr("Delete transaction")
+                text: qsTr("Remove transaction")
+                onClicked: debtTransactionListView.removeTransactionRequested(transactionColumn.debtIndex);
             }
         }
     }
@@ -238,7 +307,4 @@ ListView {
     }
 
     QQC2.BusyIndicator { visible: debtTransactionListView.model.busy }
-
-    function refresh() { debtTransactionListView.model.refresh(); }
-    function undoLastCommit() { debtTransactionListView.model.undoLastCommit(); }
 }

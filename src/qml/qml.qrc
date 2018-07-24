@@ -70,5 +70,13 @@
         <file>rrui/PlaceholderLabel.qml</file>
         <file>people/debtor/DebtTransactionSubView.qml</file>
         <file>people/debtor/ClientDetailSubView.qml</file>
+        <file>rrui/ArrowButton.qml</file>
+        <file>rrui/Wizard.qml</file>
+        <file>rrui/WizardPage.qml</file>
+        <file>people/debtor/AmountPaidDialog.qml</file>
+        <file>people/debtor/RemoveConfirmationDialog.qml</file>
+        <file>people/debtor/newdebttransactionwizard/DebtPage.qml</file>
+        <file>people/debtor/newdebttransactionwizard/DueDatePage.qml</file>
+        <file>people/debtor/newdebttransactionwizard/NewDebtTransactionWizard.qml</file>
     </qresource>
 </RCC>

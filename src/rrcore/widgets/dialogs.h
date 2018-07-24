@@ -16,11 +16,8 @@ public slots:
     void showPrintDialog();
 };
 
-static QObject *dialogs_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+static QObject *dialogs_provider(QQmlEngine *, QJSEngine *)
 {
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-
     Dialogs *dialogs = new Dialogs();
     return dialogs;
 }

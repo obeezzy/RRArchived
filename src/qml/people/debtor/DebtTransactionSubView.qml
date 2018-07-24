@@ -13,9 +13,11 @@ QQC2.Control {
     id: debtTransactionSubView
 
     property int debtorId: -1
+    property alias listView: debtTransactionListView
 
     contentItem: FocusScope {
         DebtTransactionListView {
+            id: debtTransactionListView
             anchors.fill: parent
             debtorId: debtTransactionSubView.debtorId
         }

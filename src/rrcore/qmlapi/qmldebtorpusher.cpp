@@ -71,7 +71,7 @@ QString QMLDebtorPusher::phoneNumber() const
     return m_phoneNumber;
 }
 
-void QMLDebtorPusher::setPhoneNumber(const QString phoneNumber)
+void QMLDebtorPusher::setPhoneNumber(const QString &phoneNumber)
 {
     if (m_phoneNumber == phoneNumber)
         return;

@@ -19,6 +19,12 @@ QMLSaleCartModel::QMLSaleCartModel(QObject *parent) :
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
 }
 
+QMLSaleCartModel::~QMLSaleCartModel()
+{
+    qDeleteAll(m_payments);
+    m_payments.clear();
+}
+
 int QMLSaleCartModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())

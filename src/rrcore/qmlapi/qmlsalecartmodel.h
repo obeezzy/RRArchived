@@ -21,6 +21,7 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(double balance READ balance NOTIFY balanceChanged)
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
+    ~QMLSaleCartModel();
 
     enum Roles {
         CategoryIdRole = Qt::UserRole,

@@ -94,4 +94,5 @@ HEADERS += \
     sqlmanager/clientsqlmanager.h \
     qmlapi/qmldebttransactionmodel.h \
     models/debtpaymentmodel.h \
-    qmlapi/qmldebtordetailrecord.h
+    qmlapi/qmldebtordetailrecord.h \
+    utility/debtorutils.h

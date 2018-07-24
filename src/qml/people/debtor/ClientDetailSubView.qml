@@ -13,15 +13,23 @@ QQC2.Control {
     id: clientDetailSubView
 
     property int debtorId: -1
+    property string imageSource: ""
+    property string preferredName: ""
+    property string firstName: ""
+    property string lastName: ""
+    property string middleName: ""
+    property string title: ""
+    property string primaryPhoneNumber: ""
+    property ListModel phoneNumberModel: ListModel { }
+    property ListModel addressModel: ListModel { }
+    property ListModel emailModel: ListModel { }
 
     implicitWidth: 800
     implicitHeight: 800
 
-    Item {
-        RRModels.DebtorDetailRecord {
-            id: debtorDetailRecord
-            debtorId: clientDetailSubView.debtorId
-        }
+    RRModels.DebtorDetailRecord {
+        id: debtorDetailRecord
+        debtorId: clientDetailSubView.debtorId
     }
 
     contentItem: FocusScope {
