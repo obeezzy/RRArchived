@@ -25,8 +25,6 @@ RRUi.Page {
         }
     ]
 
-    //background: Rectangle { }
-
     QtObject {
         id: privateProperties
 
@@ -35,6 +33,8 @@ RRUi.Page {
         property var filterModel: ["Search by item name", "Search by category name"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
+
+    QQC2.StackView.onActivating: debtorListView.refresh();
 
     contentItem: FocusScope {
         FluidControls.Card {
@@ -77,17 +77,6 @@ RRUi.Page {
                         privateProperties.filterModel[privateProperties.filterIndex],
                         privateProperties.sortModel[privateProperties.sortIndex]
                     ]
-
-                    //        onClicked: {
-                    //            switch (index) {
-                    //            case 0:
-                    //                filterColumnDialogLoader.active = true;
-                    //                break;
-                    //            case 1:
-                    //                sortOrderDialogLoader.active = true;
-                    //                break;
-                    //            }
-                    //        }
                 }
 
                 DebtorListView {
@@ -99,6 +88,7 @@ RRUi.Page {
                         bottom: parent.bottom
                     }
 
+                    autoQuery: false
                     filterText: searchBar.text
                     filterColumn: RRModels.DebtorModel.PreferredNameColumn
 
@@ -174,36 +164,16 @@ RRUi.Page {
     }
 
     /********************** ON-DEMAND ITEMS *****************************/
-    FluidControls.SubheadingLabel {
+    FluidControls.Placeholder {
         visible: debtorListView.count == 0
         anchors.centerIn: parent
-        color: Material.color(Material.Grey)
-        text: /*debtorListView.model.filterText ? */qsTr("No results for this search query.")
-        //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.")
-        //.arg(FluidControls.Utils.iconUrl("content/add"))
-        horizontalAlignment: Qt.AlignHCenter
+        icon.source: FluidControls.Utils.iconUrl("action/search")
+        text: qsTr("No results for this search query.")
     }
 
-    RRUi.AlertDialog {
-        id: deleteConfirmationDialog
-
-        property var modelData: null
-
-        width: 300
-        text: qsTr("Are you sure you want to remove this debtor?");
-        standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
-        onAccepted: {
-            debtorListView.model.removeDebtor(modelData.debtor_id);
-            deleteConfirmationDialog.modelData = null;
-        }
-
-        function show(modelData) {
-            if (Object(modelData).hasOwnProperty("debtor_id")) {
-                text = qsTr("Are you sure you want to remove '%1' from the list?").arg(modelData.preferred_name);
-                deleteConfirmationDialog.modelData = modelData;
-                open();
-            }
-        }
+    RemoveDebtorConfirmationDialog {
+        id: removeDebtorConfirmationDialog
+        onAccepted: debtorListView.model.removeDebtor(modelData.debtor_id);
     }
 
     Connections {

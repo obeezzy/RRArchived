@@ -14,6 +14,9 @@ ListView {
     property int filterColumn: -1
     property int debtorId: -1
 
+    property string preferredName: ""
+    property string primaryPhoneNumber: ""
+
     signal success(int successCode)
     signal error(int errorCode)
     signal addPaymentRequested(int debtIndex)
@@ -38,6 +41,7 @@ ListView {
     function updatePayment(debtIndex, paymentIndex, amount, note) { debtTransactionListView.model.updatePayment(debtIndex, paymentIndex, amount, note); }
     function removePayment(debtIndex, paymentIndex) { debtTransactionListView.model.removePayment(debtIndex, paymentIndex); }
 
+    function submit() { return debtTransactionListView.model.submit(); }
     function refresh() { debtTransactionListView.model.refresh(); }
     function undoLastCommit() { debtTransactionListView.model.undoLastCommit(); }
 
@@ -48,6 +52,8 @@ ListView {
     interactive: contentHeight > height
 
     model: RRModels.DebtTransactionModel {
+        preferredName: debtTransactionListView.preferredName
+        primaryPhoneNumber: debtTransactionListView.primaryPhoneNumber
         debtorId: debtTransactionListView.debtorId
         filterText: debtTransactionListView.filterText
         filterColumn: debtTransactionListView.filterColumn

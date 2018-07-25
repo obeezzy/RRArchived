@@ -39,6 +39,8 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
     case TransactionIdRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("transaction_id").toInt();
+        else
+            return -1;
         break;
     case RelatedTransactionRole: {
         if (isExistingRecord(index.row())) {
@@ -53,12 +55,14 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
     case RelatedTransactionIdRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("related_transaction_id").toInt();
+        else
+            return -1;
         break;
     case NoteRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("note_id").toString();
         else
-            m_debtTransactions.at(index.row() - m_records.count())->note;
+            return m_debtTransactions.at(index.row() - m_records.count())->note;
         break;
     case DueDateRole:
         if (isExistingRecord(index.row()))
@@ -69,6 +73,8 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
     case CreatedRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("created").toDateTime();
+        else
+            return QDateTime::currentDateTime();
         break;
     case PaymentModelRole:
         return QVariant::fromValue<QObject *>(m_debtPaymentModels.at(index.row()));
@@ -419,13 +425,18 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
             }
 
             endResetModel();
+
+            emit success(ViewDebtorTransactionsSuccess);
         } else if (result.request().command() == "add_new_debtor") {
+            resetAll();
             clearDebtTransactions();
             emit success(AddDebtorSuccess);
         } else if (result.request().command() == "undo_add_new_debtor") {
+            resetAll();
             clearDebtTransactions();
             emit success(UndoAddDebtorSuccess);
         } else {
+            resetAll();
             clearDebtTransactions();
             emit success(UnknownSuccess);
         }
@@ -467,6 +478,18 @@ QVariant QMLDebtTransactionModel::convertToVariant(const QList<DebtTransaction *
     return debtTransactionList;
 }
 
+void QMLDebtTransactionModel::resetAll()
+{
+    setDebtorId(-1);
+    setPreferredName(QString());
+    setFirstName(QString());
+    setLastName(QString());
+    setPrimaryPhoneNumber(QString());
+    m_alternatePhoneNumberModel = QStringList();
+    m_addressModel = QStringList();
+    m_emailAddressModel = QStringList();
+}
+
 bool QMLDebtTransactionModel::submit()
 {
     if (m_primaryPhoneNumber.trimmed().isEmpty()) {
@@ -478,7 +501,10 @@ bool QMLDebtTransactionModel::submit()
     } else if (m_debtTransactions.isEmpty()) {
         emit error(NoDebtError);
         return false;
-    } else {
+    } else if (m_debtTransactions.first()->debtPayments.isEmpty()) {
+        emit error(NoPaymentError);
+        return false;
+    }else {
         setBusy(true);
 
         QVariantMap params;

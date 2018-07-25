@@ -1,9 +1,11 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
+#include <QSqlQuery>
 
 #include "qmlapi/qmldebttransactionmodel.h"
 #include "qmlapi/qmldebtorpusher.h"
+#include "models/debtpaymentmodel.h"
 #include "databaseclient.h"
 
 class QMLDebtTransactionModelTest : public QObject
@@ -43,7 +45,7 @@ private Q_SLOTS:
 
     // Long-running tests
     void testSetDebtorId();
-    void testSubmit();
+    void testSubmitOneDebt();
 private:
     QMLDebtTransactionModel *m_debtTransactionModel;
     DatabaseClient *m_client;
@@ -395,37 +397,152 @@ void QMLDebtTransactionModelTest::testRemoveEmailAddressModel()
 
 void QMLDebtTransactionModelTest::testAddDebt()
 {
+    QSignalSpy rowsInsertedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::rowsInserted);
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, currentDateTime, QStringLiteral("Note"));
+
+    // STEP: Ensure model is updated properly.
+    QCOMPARE(rowsInsertedSpy.count(), 1);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::TransactionIdRole).toInt(), -1);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::RelatedTransactionIdRole).toInt(), -1);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::RelatedTransactionRole).toString(), QString());
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::DueDateRole).toDateTime(), currentDateTime);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CurrentBalanceRole).toDouble(), 1234.56);
+
+    // STEP: Ensure debt payment model is updated properly.
+    DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
+    QVERIFY(debtPaymentModel != nullptr);
+    QCOMPARE(debtPaymentModel->rowCount(), 1);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 0.0);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QString());
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toDouble(), 0.0);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
 }
 
 void QMLDebtTransactionModelTest::testUpdateDebt()
 {
+    QSignalSpy dataChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::dataChanged);
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, currentDateTime, QStringLiteral("Note"));
+    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
+
+    // STEP: Add update debt.
+    m_debtTransactionModel->updateDebt(0, currentDateTime.addDays(1), QStringLiteral("Note2"));
+
+    // STEP: Ensure model is updated properly.
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::DueDateRole).toDateTime(), currentDateTime.addDays(1));
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::NoteRole).toString(), QStringLiteral("Note2"));
+
+    // STEP: Ensure debt payment model is updated properly.
+    DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
+    QVERIFY(debtPaymentModel != nullptr);
+    QCOMPARE(debtPaymentModel->rowCount(), 1);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 0.0);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QString());
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toBool(), false);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
 }
 
 void QMLDebtTransactionModelTest::testRemoveDebt()
 {
+    QSignalSpy rowsRemovedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::rowsRemoved);
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, currentDateTime);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
+
+    // STEP: Remove debt.
+    m_debtTransactionModel->removeDebt(0);
+
+    // STEP: Ensure model is updated properly.
+    QCOMPARE(rowsRemovedSpy.count(), 1);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 
 void QMLDebtTransactionModelTest::testAddPayment()
 {
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, currentDateTime, QStringLiteral("Note"));
+
+    // STEP: Ensure debt payment model is updated properly.
+    DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
+    QVERIFY(debtPaymentModel != nullptr);
+    QCOMPARE(debtPaymentModel->rowCount(), 1);
+
+    QSignalSpy rowsInsertedSpy(debtPaymentModel, &DebtPaymentModel::rowsInserted);
+
+    // STEP: Add payment.
+    m_debtTransactionModel->addPayment(0, 12.34, QStringLiteral("Payment note"));
+    QCOMPARE(rowsInsertedSpy.count(), 1);
+    QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::AmountPaidRole).toDouble(), 12.34);
+    QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::NoteRole).toString(), QStringLiteral("Payment note"));
+    QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::ArchivedRole).toBool(), false);
+    QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
 }
 
 void QMLDebtTransactionModelTest::testUpdatePayment()
 {
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, currentDateTime, QStringLiteral("Note"));
+
+    // STEP: Ensure debt payment model is updated properly.
+    DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
+    QVERIFY(debtPaymentModel != nullptr);
+    QCOMPARE(debtPaymentModel->rowCount(), 1);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 0.0);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QString());
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toBool(), false);
+//    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
+
+    QSignalSpy dataChangedSpy(m_debtTransactionModel, &DebtPaymentModel::dataChanged);
+
+    // STEP: Update payment.
+    m_debtTransactionModel->updatePayment(0, 0, 12.34, QStringLiteral("Payment note"));
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 12.34);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QStringLiteral("Payment note"));
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toBool(), false);
+//    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
 }
 
 void QMLDebtTransactionModelTest::testRemovePayment()
 {
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, currentDateTime);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
+
+    DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0)
+            .data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
+    QSignalSpy rowsRemovedSpy(debtPaymentModel, &DebtPaymentModel::rowsRemoved);
+
+    // STEP: Remove debt.
+    m_debtTransactionModel->removePayment(0, 0);
+
+    // STEP: Ensure model is updated properly.
+    QCOMPARE(rowsRemovedSpy.count(), 1);
+    QCOMPARE(debtPaymentModel->rowCount(), 0);
 }
 
 void QMLDebtTransactionModelTest::testSetDebtorId()
 {
     QSignalSpy debtorIdChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::debtorIdChanged);
+    QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
 
     QVERIFY(m_client->initialize());
 
@@ -444,11 +561,65 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
     // STEP: Ensure user is not notified if debtor ID is set to the same value.
     m_debtTransactionModel->setDebtorId(1);
     QCOMPARE(debtorIdChangedSpy.count(), 0);
+
+    // STEP: Ensure that the transaction succeeded.
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 
-void QMLDebtTransactionModelTest::testSubmit()
+void QMLDebtTransactionModelTest::testSubmitOneDebt()
 {
+    const QDateTime &dueDate = QDateTime::currentDateTime().addDays(2);
+    QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
+    QVERIFY(m_client->initialize());
 
+    // STEP: Provide mandatory fields.
+    m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));
+    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
+
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, dueDate, QStringLiteral("Note"));
+
+    // STEP: Ensure debt payment model is updated properly.
+    DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
+    QVERIFY(debtPaymentModel != nullptr);
+    QCOMPARE(debtPaymentModel->rowCount(), 1);
+
+    // STEP: Submit debt info.
+    QVERIFY(m_debtTransactionModel->submit());
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::AddDebtorSuccess);
+
+    // STEP: Ensure results are correct.
+    QSqlQuery q(m_client->connection());
+    QVERIFY(q.exec("SELECT preferred_name, phone_number FROM client WHERE id = 1"));
+    QCOMPARE(q.size(), 1);
+    QVERIFY(q.next());
+    QCOMPARE(q.value("preferred_name").toString(), QStringLiteral("Mr. Okoro"));
+    QCOMPARE(q.value("phone_number").toString(), QStringLiteral("123456789"));
+
+    QVERIFY(q.exec("SELECT id FROM debtor WHERE id = 1"));
+    QCOMPARE(q.size(), 1);
+    QVERIFY(q.next());
+
+    QVERIFY(q.exec("SELECT debtor_id, transaction_table FROM debt_transaction WHERE id = 1"));
+    QCOMPARE(q.size(), 1);
+    QVERIFY(q.next());
+    QCOMPARE(q.value("debtor_id").toInt(), 1);
+    QCOMPARE(q.value("transaction_table").toString(), QStringLiteral("debtor"));
+
+    QVERIFY(q.exec("SELECT debt_transaction_id, total_amount, amount_paid, balance, "
+                   "due_date, archived FROM debt_payment WHERE id = 1"));
+    QCOMPARE(q.size(), 1);
+    QVERIFY(q.next());
+    QCOMPARE(q.value("debt_transaction_id").toInt(), 1);
+    QCOMPARE(q.value("total_amount").toDouble(), 1234.56);
+    QCOMPARE(q.value("amount_paid").toDouble(), 0.0);
+    QCOMPARE(q.value("balance").toDouble(), 1234.56);
+    QCOMPARE(q.value("due_date").toDateTime().secsTo(dueDate), 0);
+    QCOMPARE(q.value("archived").toBool(), false);
 }
 
 QTEST_MAIN(QMLDebtTransactionModelTest)

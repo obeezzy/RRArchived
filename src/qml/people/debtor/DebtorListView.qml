@@ -12,6 +12,7 @@ ListView {
     property Component buttonRow: null
     property string filterText: ""
     property int filterColumn: -1
+    property bool autoQuery: true
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -24,6 +25,7 @@ ListView {
     model: RRModels.DebtorModel {
         filterText: debtorListView.filterText
         filterColumn: debtorListView.filterColumn
+        autoQuery: debtorListView.autoQuery
         onSuccess: debtorListView.success(successCode);
         onError: debtorListView.error(errorCode);
     }

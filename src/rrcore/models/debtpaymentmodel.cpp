@@ -51,6 +51,8 @@ QVariant DebtPaymentModel::data(const QModelIndex &index, int role) const
     case NoteRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("note").toString();
+        else
+            return m_debtPayments.at(index.row() - m_records.count())->note;
         break;
     case UncommittedRole:
         return false;

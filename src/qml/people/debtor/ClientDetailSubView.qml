@@ -111,6 +111,11 @@ QQC2.Control {
                         icon.name: "social/person"
                         textField.placeholderText: qsTr("Name")
                         textField.text: debtorDetailRecord.preferredName
+
+                        Connections {
+                            target: nameTextField.textField
+                            onTextEdited: clientDetailSubView.preferredName = nameTextField.textField.text;
+                        }
                     }
 
                     RRUi.IconTextField {
@@ -121,9 +126,14 @@ QQC2.Control {
                         }
 
                         icon.name: "communication/phone"
-                        textField.placeholderText: qsTr("Phone number")
+                        textField.placeholderText: qsTr("Primary phone number")
                         textField.validator: RRComponents.DoubleValidator { bottom: 0 }
                         textField.text: debtorDetailRecord.phoneNumber
+
+                        Connections {
+                            target: phoneNumberTextField.textField
+                            onTextEdited: clientDetailSubView.primaryPhoneNumber = phoneNumberTextField.textField.text;
+                        }
                     }
 
                     ListView {

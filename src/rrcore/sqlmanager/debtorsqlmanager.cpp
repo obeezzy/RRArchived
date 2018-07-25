@@ -58,22 +58,22 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
     QSqlQuery q(connection());
 
     try {
-        AbstractSqlManager::enforceArguments({ "preferred_name", "phone_number" }, params);
+        AbstractSqlManager::enforceArguments({ "preferred_name", "primary_phone_number" }, params);
 
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        // Check if debt transaction was added
+        // STEP: Check if debt transactions exist
         if (debtTransactions.count() == 0)
             throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments, q.lastError().text(),
                                     QString("No debt transactions for debtor %1.").arg(params.value("preferred_name").toString()));
 
-        // Ensure that debtor doesn't already exist
-        if (!params.value("phone_number").toString().isEmpty()) {
+        // STEP: Ensure that debtor doesn't already exist
+        if (!params.value("primary_phone_number").toString().isEmpty()) {
             q.prepare("SELECT phone_number FROM client "
                       "INNER JOIN debtor ON client.id = debtor.client_id "
                       "WHERE phone_number = :phone_number");
-            q.bindValue(":phone_number", params.value("phone_number"), QSql::Out);
+            q.bindValue(":phone_number", params.value("primary_phone_number"), QSql::Out);
 
             if (!q.exec())
                 throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(), "Failed to check if client exists.");
@@ -87,7 +87,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
             if (note.trimmed().isEmpty())
                 return 0;
 
-            // Add note
+            // STEP: Add note
             q.prepare("INSERT INTO note (note, table_name, created, last_edited, user_id) VALUES ("
                       ":note, :table_name, :created, :last_edited, :user_id)");
             q.bindValue(":note", note.isNull() ? QVariant(QVariant::String) : note);
@@ -104,7 +104,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
 
         noteId = addNote(params.value("note").toString());
 
-        // Add notes for each debt transaction
+        // STEP: Add notes for each debt transaction
         for (int i = 0; i < debtTransactions.count(); ++i) {
             const QString note = debtTransactions.at(i).toMap().value("note").toString();
             debtTransactionNoteIds.append(addNote(note));
@@ -114,14 +114,14 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
             throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, "",
                                     "Failed to match note ID count with transaction count.");
 
-        // Add client
+        // STEP: Add client
         q.prepare("INSERT INTO client (first_name, last_name, preferred_name, phone_number, address, note_id, archived, created, last_edited, "
                   "user_id) VALUES (:first_name, :last_name, :preferred_name, :phone_number, :address, :note_id, :archived, :created, "
                   ":last_edited, :user_id)");
         q.bindValue(":first_name", params.value("first_name"));
         q.bindValue(":last_name", params.value("last_name"));
         q.bindValue(":preferred_name", params.value("preferred_name"));
-        q.bindValue(":phone_number", params.value("phone_number"));
+        q.bindValue(":phone_number", params.value("primary_phone_number"));
         q.bindValue(":address", params.value("address"));
         q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
         q.bindValue(":archived", false);
@@ -140,7 +140,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
 
         clientId = q.lastInsertId().toInt();
 
-        // Add debtor
+        // STEP: Add debtor
         q.prepare("INSERT INTO debtor (client_id, note_id, archived, created, last_edited, user_id) VALUES ("
                   ":client_id, :note_id, :archived, :created, :last_edited, :user_id)");
         q.bindValue(":client_id", clientId);
@@ -155,7 +155,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
 
         debtorId = q.lastInsertId().toInt();
 
-        // Add debt transactions
+        // STEP: Add debt transactions
         for (int i = 0; i < debtTransactions.count(); ++i) {
             q.prepare("INSERT INTO debt_transaction (debtor_id, transaction_table, transaction_id, note_id, archived, created, last_edited, "
                       "user_id) VALUES (:debtor_id, :transaction_table, :transaction_id, :note_id, :archived, "
@@ -208,7 +208,6 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
                     throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(),
                                             "Failed to insert into debt payment table.");
 
-                debtPaymentList.at(i).toDouble();
                 newDebt -= amountPaid;
             }
 
@@ -552,7 +551,8 @@ void DebtorSqlManager::viewDebtorDetails(const QueryRequest &request, QueryResul
                   "debtor.user_id, debtor.user_id AS user "
                   "FROM debtor "
                   "INNER JOIN client ON client.id = debtor.client_id "
-                  "WHERE debtor.archived = :archived");
+                  "WHERE debtor.id = :debtor_id AND debtor.archived = :archived");
+        q.bindValue(":debtor_id", params.value("debtor_id", false), QSql::Out);
         q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
         if (!q.exec())

@@ -24,7 +24,8 @@ public:
         UnknownSuccess,
         AddDebtorSuccess,
         UpdateDebtorSuccess,
-        UndoAddDebtorSuccess
+        UndoAddDebtorSuccess,
+        ViewDebtorTransactionsSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
@@ -32,6 +33,7 @@ public:
         NoPreferredNameError,
         NoPrimaryPhoneNumberError,
         NoDebtError,
+        NoPaymentError,
         DuplicateEntryError,
         AmountOverpaidError,
         InvalidDueDateError
@@ -96,8 +98,6 @@ public:
     Q_INVOKABLE void addPayment(int debtIndex, double amount, const QString &note = QString());
     Q_INVOKABLE void updatePayment(int debtIndex, int paymentIndex, double amount, const QString &note = QString());
     Q_INVOKABLE void removePayment(int debtIndex, int paymentIndex);
-
-    void clearPayments();
 public slots:
     bool submit() override;
 signals:
@@ -130,7 +130,10 @@ private:
     QList<DebtTransaction *> m_debtTransactions;
 
     QVariant convertToVariant(const QList<DebtTransaction *> &debtTransactions);
+
+    void resetAll();
     void clearDebtTransactions();
+    void clearPayments();
 
     bool isExistingRecord(int row) const;
 };

@@ -63,7 +63,7 @@ RRUi.Page {
                         bottom: pageFooter.top
                     }
 
-                    ClientDetailSubView { debtorId: newDebtorPage.debtorId }
+                    ClientDetailSubView { id: clientDetailSubView; debtorId: newDebtorPage.debtorId }
                     DebtTransactionSubView { id: debtTransactionSubView; debtorId: newDebtorPage.debtorId }
                 }
 
@@ -103,13 +103,9 @@ RRUi.Page {
                             QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                             text: newDebtorPage.isExistingDebtor ? qsTr("Update debtor") : qsTr("Add debtor")
                             onClicked: {
-                                if (newDebtorPage.isExistingDebtor) {
-                                    newDebtorPage.pop();
-                                    newDebtorPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor added successfully."));
-                                } else {
-                                    transitionView.trigger();
-                                    newDebtorPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor updated successfully."));
-                                }
+                                debtTransactionSubView.listView.preferredName = clientDetailSubView.preferredName;
+                                debtTransactionSubView.listView.primaryPhoneNumber = clientDetailSubView.primaryPhoneNumber;
+                                debtTransactionSubView.listView.submit();
                             }
                         }
                     }
@@ -135,13 +131,29 @@ RRUi.Page {
                     }
                 }
 
-                RemoveConfirmationDialog {
-                    id: removeConfirmationDialog
+                RemoveDebtConfirmationDialog {
+                    id: removeDebtConfirmationDialog
                     onAccepted: {
                         if (isPayment)
                             debtTransactionSubView.listView.removePayment(debtIndex, paymentIndex);
                         else
                             debtTransactionSubView.listView.removeDebt(debtIndex);
+                    }
+                }
+
+                RRUi.ErrorDialog {
+                    id: errorDialog;
+                    onAboutToHide: {
+                        switch (errorCode) {
+                        case RRModels.DebtTransactionModel.NoPreferredNameError:
+                        case RRModels.DebtTransactionModel.NoPrimaryPhoneNumberError:
+                            tabBar.currentIndex = 0;
+                            break;
+                        case RRModels.DebtTransactionModel.NoDebtError:
+                        case RRModels.DebtTransactionModel.NoPaymentError:
+                            tabBar.currentIndex = 1;
+                            break;
+                        }
                     }
                 }
 
@@ -151,29 +163,57 @@ RRUi.Page {
                     onSuccess: {
                         switch (successCode) {
                         case RRModels.DebtTransactionModel.AddDebtorSuccess:
-                            newDebtorPage.pop();
+                            transitionView.trigger();
                             newDebtorPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor added successfully."));
                             break;
                         case RRModels.DebtTransactionModel.UpdateDebtorSuccess:
-                            transitionView.trigger();
+                            newDebtorPage.pop();
                             newDebtorPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor updated successfully."));
                             break;
+                        }
+                    }
+
+                    onError: {
+                        switch (errorCode) {
+                        case RRModels.DebtTransactionModel.NoPreferredNameError:
+                            errorDialog.show(qsTr("The debtor's name must be provided."), qsTr("Error"), errorCode);
+                            break;
+                        case RRModels.DebtTransactionModel.NoPrimaryPhoneNumberError:
+                            errorDialog.show(qsTr("The debtor's primary phone number must be provided."), qsTr("Error"), errorCode);
+                            break;
+                        case RRModels.DebtTransactionModel.NoDebtError:
+                            errorDialog.show(qsTr("No debt is associated with this debtor."), qsTr("Error"), errorCode);
+                            break;
+                        case RRModels.DebtTransactionModel.NoPaymentError:
+                            errorDialog.show(qsTr("Each debt transaction must have at least one payment."), qsTr("Error"), errorCode);
+                            break;
+                        case RRModels.DebtTransactionModel.DuplicateEntryError:
+                            errorDialog.show(qsTr("This debtor already exists."));
+                            break;
+                        case RRModels.DebtTransactionModel.AmountOverpaidError:
+                            errorDialog.show(qsTr("The amount paid by the debtor has exceeded the amount owed."));
+                            break;
+                        case RRModels.DebtTransactionModel.InvalidDueDateError:
+                            errorDialog.show( qsTr("The due date provided is earlier than today's date."));
+                            break;
+                        default:
+                            errorDialog.show();
                         }
                     }
 
                     onEditTransactionRequested: newDebtTransactionWizard.show(debtIndex,
                                                                               debtTransactionSubView.listView.model.get(debtIndex).due_date);
 
-                    onRemoveTransactionRequested: removeConfirmationDialog.show("Transaction #" + (debtIndex + 1), debtIndex);
+                    onRemoveTransactionRequested: removeDebtConfirmationDialog.show("Transaction #" + (debtIndex + 1), debtIndex);
 
                     onAddPaymentRequested: amountPaidDialog.show(debtIndex);
 
                     onEditPaymentRequested: amountPaidDialog.show(debtIndex, paymentIndex,
                                                                   debtTransactionSubView.listView.model.get(debtIndex).current_balance
                                                                   + debtTransactionSubView.listView.model.get(debtIndex)
-                                                                    .payment_model.get(paymentIndex).amount_paid);
+                                                                  .payment_model.get(paymentIndex).amount_paid);
 
-                    onRemovePaymentRequested: removeConfirmationDialog.show("Payment #" + (paymentIndex + 1), debtIndex, paymentIndex);
+                    onRemovePaymentRequested: removeDebtConfirmationDialog.show("Payment #" + (paymentIndex + 1), debtIndex, paymentIndex);
                 }
             }
         }
