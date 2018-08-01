@@ -57,8 +57,12 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    bool isDirty() const;
+
     int debtorId() const;
     void setDebtorId(int debtorId);
+
+    int clientId() const;
 
     QString imageSource() const;
     void setImageSource(const QString &imageSource);
@@ -111,11 +115,16 @@ signals:
     void addressModelChanged();
     void emailAddressModelChanged();
     void noteChanged();
+
+    void dirtyChanged();
+    void clientIdChanged();
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
     int m_debtorId;
+    int m_clientId;
+    bool m_dirty;
     QString m_imageSource;
     QString m_firstName;
     QString m_lastName;
@@ -127,15 +136,22 @@ private:
     QString m_note;
     QVariantList m_records;
     QList<DebtPaymentModel *> m_debtPaymentModels;
-    QList<DebtTransaction *> m_debtTransactions;
+    QList<DebtTransaction *> m_existingDebtTransactions;
+    QList<DebtTransaction *> m_newDebtTransactions;
+
+    QVector<int> m_archivedDebtTransactionIds;
+    QVector<int> m_archivedDebtPaymentIds;
 
     QVariant convertToVariant(const QList<DebtTransaction *> &debtTransactions);
+    QVariant convertToVariant(const QVector<int> &archivedDebtTransactionIds);
 
-    void resetAll();
+    void clearAll();
     void clearDebtTransactions();
     void clearPayments();
 
     bool isExistingRecord(int row) const;
+    void setDirty(bool dirty);
+    void setClientId(int clientId);
 };
 
 #endif // QMLDEBTTRANSACTIONMODEL_H

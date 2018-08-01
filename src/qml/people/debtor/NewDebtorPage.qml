@@ -206,7 +206,8 @@ RRUi.Page {
 
                     onRemoveTransactionRequested: removeDebtConfirmationDialog.show("Transaction #" + (debtIndex + 1), debtIndex);
 
-                    onAddPaymentRequested: amountPaidDialog.show(debtIndex);
+                    onAddPaymentRequested: amountPaidDialog.show(debtIndex, -1,
+                                                                 debtTransactionSubView.listView.model.get(debtIndex).current_balance);
 
                     onEditPaymentRequested: amountPaidDialog.show(debtIndex, paymentIndex,
                                                                   debtTransactionSubView.listView.model.get(debtIndex).current_balance

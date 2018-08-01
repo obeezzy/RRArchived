@@ -192,6 +192,7 @@ void DatabaseCreator::createTables()
                                     QStringLiteral("Failed to create client table."));
 
         // Create credit payment table
+        // TODO: Remove due_date
         q.prepare("CREATE TABLE IF NOT EXISTS credit_payment ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
                   "credit_transaction_id INT(11) NOT NULL, "
@@ -214,6 +215,7 @@ void DatabaseCreator::createTables()
                                     QStringLiteral("Failed to create credit payment table."));
 
         // Create creditor table
+        // TODO: Add due_date
         q.prepare("CREATE TABLE IF NOT EXISTS creditor ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
                   "client_id INT(11) NOT NULL, "
@@ -316,6 +318,7 @@ void DatabaseCreator::createTables()
                                     QStringLiteral("Failed to create db info table."));
 
         // Create debt payment table
+        // TODO: Remove due_date
         q.prepare("CREATE TABLE IF NOT EXISTS debt_payment ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
                   "debt_transaction_id INT(11) NOT NULL, "
@@ -338,6 +341,7 @@ void DatabaseCreator::createTables()
                                     QStringLiteral("Failed to create debt payment table."));
 
         // Create debt transaction table
+        // TODO: Add due_date
         q.prepare("CREATE TABLE IF NOT EXISTS debt_transaction ("
                   "id INT(11) NOT NULL AUTO_INCREMENT, "
                   "debtor_id INT(11) NOT NULL, "

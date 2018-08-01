@@ -6,6 +6,5 @@ SUBDIRS += \
     QMLDebtorModel \
     QMLSaleCartModel \
     QMLUserProfile \
-    QMLDebtorPusher \
     QMLStockItemDetailRecord \
     QMLDebtTransactionModel

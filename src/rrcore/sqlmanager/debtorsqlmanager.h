@@ -15,6 +15,7 @@ public:
 private:
     void addNewDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
     void undoAddNewDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
+    void updateDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
     void viewDebtors(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
     void removeDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!
     void undoRemoveDebtor(const QueryRequest &request, QueryResult &result); // throws DatabaseException!

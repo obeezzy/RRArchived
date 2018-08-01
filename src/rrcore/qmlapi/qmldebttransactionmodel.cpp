@@ -6,20 +6,16 @@
 
 QMLDebtTransactionModel::QMLDebtTransactionModel(QObject *parent) :
     AbstractVisualListModel(parent),
-    m_debtorId(-1)
+    m_debtorId(-1),
+    m_clientId(-1),
+    m_dirty(false)
 {
     connect(this, &QMLDebtTransactionModel::debtorIdChanged, this, &QMLDebtTransactionModel::tryQuery);
 }
 
 QMLDebtTransactionModel::~QMLDebtTransactionModel()
 {
-    for (DebtTransaction *debtTransaction : m_debtTransactions) {
-        qDeleteAll(debtTransaction->debtPayments);
-        debtTransaction->debtPayments.clear();
-    }
-
-    qDeleteAll(m_debtTransactions);
-    m_debtTransactions.clear();
+    clearAll();
 }
 
 int QMLDebtTransactionModel::rowCount(const QModelIndex &parent) const
@@ -27,7 +23,7 @@ int QMLDebtTransactionModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count() + m_debtTransactions.count();
+    return m_existingDebtTransactions.count() + m_newDebtTransactions.count();
 }
 
 QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
@@ -62,30 +58,28 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("note_id").toString();
         else
-            return m_debtTransactions.at(index.row() - m_records.count())->note;
+            return m_newDebtTransactions.at(index.row() - m_records.count())->note;
         break;
     case DueDateRole:
         if (isExistingRecord(index.row()))
-            return m_records.at(index.row()).toMap().value("due_date").toString();
+            return m_existingDebtTransactions.at(index.row())->dueDateTime;
         else
-            return m_debtTransactions.at(index.row() - m_records.count())->dueDateTime;
+            return m_newDebtTransactions.at(index.row() - m_records.count())->dueDateTime;
         break;
     case CreatedRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("created").toDateTime();
         else
-            return QDateTime::currentDateTime();
+            return QDateTime();
         break;
     case PaymentModelRole:
         return QVariant::fromValue<QObject *>(m_debtPaymentModels.at(index.row()));
         break;
     case CurrentBalanceRole: {
-        if (isExistingRecord(index.row())) {
-            DebtPaymentModel *model = m_debtPaymentModels.at(index.row());
-            return model->data(model->index(model->rowCount() - 1), DebtPaymentModel::BalanceRole).toDouble();
-        } else {
-            return m_debtTransactions.at(index.row() - m_records.count())->totalDebt;
-        }
+        if (isExistingRecord(index.row()))
+            return m_existingDebtTransactions.at(index.row())->totalDebt;
+        else
+            return m_newDebtTransactions.at(index.row() - m_records.count())->totalDebt;
     }
         break;
     }
@@ -120,6 +114,20 @@ void QMLDebtTransactionModel::setDebtorId(int debtorId)
 
     m_debtorId = debtorId;
     emit debtorIdChanged();
+}
+
+int QMLDebtTransactionModel::clientId() const
+{
+    return m_clientId;
+}
+
+void QMLDebtTransactionModel::setClientId(int clientId)
+{
+    if (m_clientId == clientId)
+        return;
+
+    m_clientId = clientId;
+    emit clientIdChanged();
 }
 
 QString QMLDebtTransactionModel::imageSource() const
@@ -281,8 +289,9 @@ int QMLDebtTransactionModel::addDebt(double totalDebt, const QDateTime &dueDateT
         return -1;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    DebtPayment *debtPayment = new DebtPayment{ 0.0, QString() }; // Add first dummy payment
-    m_debtTransactions.append(new DebtTransaction{ totalDebt, dueDateTime, note, { debtPayment } });
+    DebtPayment *debtPayment = new DebtPayment{ -1, 0.0, QString(), DebtPayment::State::New }; // Add first dummy payment
+    m_newDebtTransactions.append(new DebtTransaction{ -1, totalDebt, dueDateTime,
+                                                      note, { debtPayment }, DebtTransaction::State::New });
     endInsertRows();
 
     DebtPaymentModel *debtPaymentModel = new DebtPaymentModel(this);
@@ -294,86 +303,142 @@ int QMLDebtTransactionModel::addDebt(double totalDebt, const QDateTime &dueDateT
 
 void QMLDebtTransactionModel::updateDebt(int debtIndex, const QDateTime &dueDateTime, const QString &note)
 {
-    if (debtIndex < 0 || debtIndex >= m_debtTransactions.count()) {
-        qWarning() << "Out of range value in:" << Q_FUNC_INFO;
+    if (!index(debtIndex).isValid()) {
+        qWarning() << "Debt index out of range value in:" << Q_FUNC_INFO;
         return;
     }
 
-    DebtTransaction *debtTransaction = m_debtTransactions.at(debtIndex);
+    DebtTransaction *debtTransaction = nullptr;
+    if (isExistingRecord(debtIndex))
+        debtTransaction = m_existingDebtTransactions.at(debtIndex);
+    else
+        debtTransaction = m_newDebtTransactions.at(debtIndex - m_records.count());
+
     debtTransaction->dueDateTime = dueDateTime;
     debtTransaction->note = note;
+    debtTransaction->state = DebtTransaction::State::Dirty;
+    setDirty(true);
 
     emit dataChanged(index(debtIndex), index(debtIndex));
 }
 
 void QMLDebtTransactionModel::removeDebt(int debtIndex)
 {
-    if (debtIndex < 0 || debtIndex >= m_debtTransactions.count()) {
-        qWarning() << "Out of range value in:" << Q_FUNC_INFO;
+    if (!index(debtIndex).isValid()) {
+        qWarning() << "Debt index out of range value in:" << Q_FUNC_INFO;
         return;
     }
 
-    DebtTransaction *debtTransaction = m_debtTransactions.takeAt(debtIndex);
+    DebtTransaction *debtTransaction = nullptr;
     DebtPaymentModel *debtPaymentModel = m_debtPaymentModels.takeAt(debtIndex);
+
+    if (isExistingRecord(debtIndex))
+        debtTransaction = m_existingDebtTransactions.takeAt(debtIndex);
+    else
+        debtTransaction = m_newDebtTransactions.takeAt(debtIndex);
+
 
     beginRemoveRows(QModelIndex(), debtIndex, debtIndex);
     qDeleteAll(debtTransaction->debtPayments);
     debtPaymentModel->deleteLater();
+
+    if (debtTransaction->state != DebtTransaction::State::New)
+        m_archivedDebtTransactionIds.append(debtTransaction->id);
+
+    setDirty(true);
+
     delete debtTransaction;
     endRemoveRows();
 }
 
 void QMLDebtTransactionModel::addPayment(int debtIndex, double amount, const QString &note)
 {
-    if (debtIndex < 0 || debtIndex >= m_debtTransactions.count()) {
-        qWarning() << "Out of range value in:" << Q_FUNC_INFO;
+    if (!index(debtIndex).isValid()) {
+        qWarning() << "Debt index out of range value in:" << Q_FUNC_INFO;
         return;
     }
 
-    DebtTransaction *debtTransaction = m_debtTransactions.at(debtIndex);
-    DebtPayment *debtPayment = new DebtPayment{ amount, note };
-    debtTransaction->debtPayments.append(debtPayment);
-    debtTransaction->totalDebt -= debtPayment->amount;
-    m_debtPaymentModels.at(debtIndex)->addPayment(debtPayment);
+    if (isExistingRecord(debtIndex)) {
+        DebtTransaction *debtTransaction = m_existingDebtTransactions.at(debtIndex);
+        DebtPayment *debtPayment = new DebtPayment{ -1, amount, note, DebtPayment::State::New };
+        debtTransaction->debtPayments.append(debtPayment);
+        debtTransaction->totalDebt -= debtPayment->amount;
+        debtTransaction->state = DebtTransaction::State::Dirty;
+        m_debtPaymentModels.at(debtIndex)->addPayment(debtPayment);
+    } else {
+        debtIndex += m_existingDebtTransactions.count();
+        DebtTransaction *debtTransaction = m_newDebtTransactions.at(debtIndex);
+        DebtPayment *debtPayment = new DebtPayment{ -1, amount, note, DebtPayment::State::New };
+        debtTransaction->debtPayments.append(debtPayment);
+        debtTransaction->totalDebt -= debtPayment->amount;
+        debtTransaction->state = DebtTransaction::State::Dirty;
+        m_debtPaymentModels.at(debtIndex)->addPayment(debtPayment);
+    }
+
+    setDirty(true);
     emit dataChanged(index(debtIndex), index(debtIndex));
 }
 
 void QMLDebtTransactionModel::updatePayment(int debtIndex, int paymentIndex, double amount, const QString &note)
 {
-    if ((debtIndex < 0 || debtIndex >= m_debtTransactions.count())
-            && (paymentIndex < 0 || paymentIndex >= m_debtTransactions.at(debtIndex)->debtPayments.count())) {
-        qWarning() << "Out of range value in:" << Q_FUNC_INFO;
+    if (!index(debtIndex).isValid()) {
+        qWarning() << "Debt index out of range value in:" << Q_FUNC_INFO;
+        return;
+    }
+    if (!m_debtPaymentModels.at(debtIndex)->index(paymentIndex).isValid()) {
+        qWarning() << "Payment index out of range value in:" << Q_FUNC_INFO;
         return;
     }
     if (amount < 0.0)
         return;
 
-    DebtTransaction *debtTransaction = m_debtTransactions.at(debtIndex);
-    DebtPayment *debtPayment = m_debtTransactions.at(debtIndex)->debtPayments.at(paymentIndex);
+    DebtTransaction *debtTransaction = m_newDebtTransactions.at(debtIndex);
+    debtTransaction->state = DebtTransaction::State::Dirty;
+
+    DebtPayment *debtPayment = m_newDebtTransactions.at(debtIndex)->debtPayments.at(paymentIndex);
     const double oldAmount = debtPayment->amount;
     const QString &oldNote = debtPayment->note;
 
     if (oldAmount != amount || oldNote != note) {
         debtPayment->amount = amount;
         debtPayment->note = note;
+        debtPayment->state = DebtPayment::State::Dirty;
 
         m_debtPaymentModels.at(debtIndex)->updatePayment(debtPayment);
         debtTransaction->totalDebt += (oldAmount - debtPayment->amount);
+        setDirty(true);
         emit dataChanged(index(debtIndex), index(debtIndex));
     }
 }
 
 void QMLDebtTransactionModel::removePayment(int debtIndex, int paymentIndex)
 {
-    if ((debtIndex < 0 || debtIndex >= m_debtTransactions.count())
-            && (paymentIndex < 0 || paymentIndex >= m_debtTransactions.at(debtIndex)->debtPayments.count())) {
-        qWarning() << "Out of range value in:" << Q_FUNC_INFO;
+    if (!index(debtIndex).isValid()) {
+        qWarning() << "Debt index out of range value in:" << Q_FUNC_INFO;
+        return;
+    }
+    if (!m_debtPaymentModels.at(debtIndex)->index(paymentIndex).isValid()) {
+        qWarning() << "Payment index out of range value in:" << Q_FUNC_INFO;
         return;
     }
 
-    DebtPayment *debtPayment = m_debtTransactions.at(debtIndex)->debtPayments.takeAt(paymentIndex);
+    DebtTransaction *debtTransaction = nullptr;
+    DebtPayment *debtPayment = nullptr;
+    if (isExistingRecord(debtIndex))
+        debtTransaction = m_existingDebtTransactions.at(debtIndex);
+    else
+        debtTransaction = m_newDebtTransactions.at(debtIndex);
+    debtPayment = debtTransaction->debtPayments.takeAt(paymentIndex);
+
     m_debtPaymentModels.at(debtIndex)->removePayment(debtPayment);
-    m_debtTransactions.at(debtIndex)->totalDebt += debtPayment->amount;
+    debtTransaction->totalDebt += debtPayment->amount;
+    debtTransaction->state = DebtTransaction::State::Dirty;
+
+    if (debtPayment->state != DebtPayment::State::New)
+        m_archivedDebtPaymentIds.append(debtPayment->id);
+
+    setDirty(true);
+
     delete debtPayment;
     emit dataChanged(index(debtIndex), index(debtIndex));
 }
@@ -402,19 +467,28 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
     if (result.request().receiver() != this)
         return;
 
+    disconnect(this, &QMLDebtTransactionModel::debtorIdChanged, this, &QMLDebtTransactionModel::tryQuery);
+
     setBusy(false);
 
     if (result.isSuccessful()) {
         if (result.request().command() == "view_debt_transactions") {
             beginResetModel();
 
-            clearPayments();
+            clearAll();
 
             m_records = result.outcome().toMap().value("transactions").toList();
             const QVariantList paymentGroups = result.outcome().toMap().value("payment_groups").toList();
 
-            for (const QVariant &paymentGroup : paymentGroups) {
-                const QVariantList &paymentRecords = paymentGroup.toList();
+            setDebtorId(result.outcome().toMap().value("debtor_id").toInt());
+            setClientId(result.outcome().toMap().value("client_id").toInt());
+            setPreferredName(result.outcome().toMap().value("preferred_name").toString());
+            setPrimaryPhoneNumber(result.outcome().toMap().value("primary_phone_number").toString());
+            setNote(result.outcome().toMap().value("note").toString());
+
+            for (int i = 0; i < m_records.count(); ++i) {
+                const QVariantMap &transaction = m_records.at(i).toMap();
+                const QVariantList &paymentRecords = paymentGroups.at(i).toList();
 
                 DebtPaymentModel *model = new DebtPaymentModel(this);
 
@@ -422,22 +496,43 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
                 model->setTotalAmount(0.0);
                 model->setPaymentRecords(paymentRecords);
                 m_debtPaymentModels.append(model);
+
+                QList<DebtPayment *> debtPayments;
+                for (int j = 0; j < paymentRecords.count(); ++j) {
+                    const QVariantMap &paymentRecord = paymentRecords.at(i).toMap();
+                    DebtPayment *debtPayment = new DebtPayment{
+                            paymentRecord.value("debt_payment_id").toInt(),
+                            paymentRecord.value("amount").toDouble(),
+                            paymentRecord.value("note").toString(),
+                            DebtPayment::State::Clean };
+                    debtPayments.append(debtPayment);
+                }
+
+                DebtTransaction *debtTransaction = new DebtTransaction {
+                        transaction.value("debt_transaction_id").toInt(),
+                        transaction.value("total_debt").toDouble(),
+                        transaction.value("due_date").toDateTime(),
+                        transaction.value("note").toString(),
+                        debtPayments,
+                        DebtTransaction::State::Clean };
+
+                m_existingDebtTransactions.append(debtTransaction);
             }
 
             endResetModel();
 
             emit success(ViewDebtorTransactionsSuccess);
         } else if (result.request().command() == "add_new_debtor") {
-            resetAll();
-            clearDebtTransactions();
+            clearAll();
             emit success(AddDebtorSuccess);
         } else if (result.request().command() == "undo_add_new_debtor") {
-            resetAll();
-            clearDebtTransactions();
+            clearAll();
             emit success(UndoAddDebtorSuccess);
+        } else if (result.request().command() == "update_debtor") {
+            clearAll();
+            emit success(UpdateDebtorSuccess);
         } else {
-            resetAll();
-            clearDebtTransactions();
+            clearAll();
             emit success(UnknownSuccess);
         }
     } else {
@@ -456,6 +551,8 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
             break;
         }
     }
+
+    connect(this, &QMLDebtTransactionModel::debtorIdChanged, this, &QMLDebtTransactionModel::tryQuery);
 }
 
 QVariant QMLDebtTransactionModel::convertToVariant(const QList<DebtTransaction *> &debtTransactions)
@@ -463,24 +560,37 @@ QVariant QMLDebtTransactionModel::convertToVariant(const QList<DebtTransaction *
     QVariantList debtTransactionList;
     for (const DebtTransaction *transaction : debtTransactions) {
         QVariantMap debtTransactionMap;
-        debtTransactionMap.insert("total_debt", transaction->totalDebt);
-        debtTransactionMap.insert("due_date_time", transaction->dueDateTime);
-        debtTransactionMap.insert("note", transaction->note);
 
-        QVariantList paymentAmountList;
-        for (const DebtPayment *debtPayment : transaction->debtPayments)
-            paymentAmountList.append(QVariantMap{ { "amount", debtPayment->amount }, { "note", debtPayment->note } });
+        if (transaction->state != DebtTransaction::State::Clean) {
+            debtTransactionMap.insert("debt_transaction_id", transaction->id);
+            debtTransactionMap.insert("total_debt", transaction->totalDebt);
+            debtTransactionMap.insert("due_date", transaction->dueDateTime);
+            debtTransactionMap.insert("note", transaction->note);
+        }
 
-        debtTransactionMap.insert("debt_payments", paymentAmountList);
+        QVariantList updatedDebtPaymentList, newDebtPaymentList;
+        for (const DebtPayment *debtPayment : transaction->debtPayments) {
+            if (debtPayment->state == DebtPayment::State::Dirty)
+                updatedDebtPaymentList.append(QVariantMap{ { "debt_payment_id", debtPayment->id },
+                                                           { "amount_paid", debtPayment->amount },
+                                                           { "note", debtPayment->note } });
+            if (debtPayment->state == DebtPayment::State::New)
+                newDebtPaymentList.append(QVariantMap{ { "amount_paid", debtPayment->amount }, { "note", debtPayment->note } });
+        }
+
+        if (!updatedDebtPaymentList.isEmpty())
+            debtTransactionMap.insert("updated_debt_payments", updatedDebtPaymentList);
+        if (!newDebtPaymentList.isEmpty())
+            debtTransactionMap.insert("new_debt_payments", newDebtPaymentList);
+
         debtTransactionList.append(debtTransactionMap);
     }
 
     return debtTransactionList;
 }
 
-void QMLDebtTransactionModel::resetAll()
+void QMLDebtTransactionModel::clearAll()
 {
-    setDebtorId(-1);
     setPreferredName(QString());
     setFirstName(QString());
     setLastName(QString());
@@ -488,6 +598,10 @@ void QMLDebtTransactionModel::resetAll()
     m_alternatePhoneNumberModel = QStringList();
     m_addressModel = QStringList();
     m_emailAddressModel = QStringList();
+
+    clearDebtTransactions();
+    clearPayments();
+    setDirty(false);
 }
 
 bool QMLDebtTransactionModel::submit()
@@ -498,13 +612,14 @@ bool QMLDebtTransactionModel::submit()
     } else if (m_preferredName.trimmed().isEmpty()) {
         emit error(NoPreferredNameError);
         return false;
-    } else if (m_debtTransactions.isEmpty()) {
+    } else if (m_existingDebtTransactions.isEmpty() && m_newDebtTransactions.isEmpty()) {
         emit error(NoDebtError);
         return false;
-    } else if (m_debtTransactions.first()->debtPayments.isEmpty()) {
+    } else if ((!m_existingDebtTransactions.isEmpty() && m_existingDebtTransactions.first()->debtPayments.isEmpty())
+               && (!m_newDebtTransactions.first()->debtPayments.isEmpty() && m_newDebtTransactions.isEmpty())) {
         emit error(NoPaymentError);
         return false;
-    }else {
+    } else {
         setBusy(true);
 
         QVariantMap params;
@@ -518,11 +633,23 @@ bool QMLDebtTransactionModel::submit()
         params.insert("addresses", QVariant(m_addressModel));
         params.insert("email_addresses", QVariant(m_emailAddressModel));
         params.insert("note", m_note);
-        params.insert("debt_transactions", convertToVariant(m_debtTransactions));
 
-        QueryRequest request(this);
-        request.setCommand("add_new_debtor", params, QueryRequest::Debtor);
-        emit executeRequest(request);
+        if (!m_newDebtTransactions.isEmpty() && !isDirty()) {
+            params.insert("new_debt_transactions", convertToVariant(m_newDebtTransactions));
+
+            QueryRequest request(this);
+            request.setCommand("add_new_debtor", params, QueryRequest::Debtor);
+            emit executeRequest(request);
+        } else {
+            params.insert("debtor_id", m_debtorId);
+            params.insert("client_id", m_clientId);
+            params.insert("updated_debt_transactions", convertToVariant(m_existingDebtTransactions));
+            params.insert("new_debt_transactions", convertToVariant(m_newDebtTransactions));
+
+            QueryRequest request(this);
+            request.setCommand("update_debtor", params, QueryRequest::Debtor);
+            emit executeRequest(request);
+        }
     }
 
     return true;
@@ -530,8 +657,14 @@ bool QMLDebtTransactionModel::submit()
 
 void QMLDebtTransactionModel::clearDebtTransactions()
 {
-    while (m_debtTransactions.count()) {
-        DebtTransaction *debtTransaction = m_debtTransactions.takeFirst();
+    while (m_existingDebtTransactions.count()) {
+        DebtTransaction *debtTransaction = m_existingDebtTransactions.takeFirst();
+        qDeleteAll(debtTransaction->debtPayments);
+        delete debtTransaction;
+    }
+
+    while (m_newDebtTransactions.count()) {
+        DebtTransaction *debtTransaction = m_newDebtTransactions.takeFirst();
         qDeleteAll(debtTransaction->debtPayments);
         delete debtTransaction;
     }
@@ -539,6 +672,20 @@ void QMLDebtTransactionModel::clearDebtTransactions()
 
 bool QMLDebtTransactionModel::isExistingRecord(int row) const
 {
-    return row >= 0 && row < m_records.count();
+    return row >= 0 && row < m_existingDebtTransactions.count();
+}
+
+bool QMLDebtTransactionModel::isDirty() const
+{
+    return m_dirty;
+}
+
+void QMLDebtTransactionModel::setDirty(bool dirty)
+{
+    if (m_dirty == dirty)
+        return;
+
+    m_dirty = dirty;
+    emit dirtyChanged();
 }
 

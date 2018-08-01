@@ -30,6 +30,7 @@ public:
         ConnectToTestDatabaseFailed,
         RunSqlOnTestDatabaseFailed,
         AddDebtorFailure,
+        UpdateDebtorFailure,
         RemoveDebtorFailure,
         UndoRemoveDebtorFailure,
         ViewDebtorsFailure,

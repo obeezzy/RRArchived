@@ -48,6 +48,6 @@ void AbstractSqlManager::enforceArguments(QStringList argumentsToEnforce, const 
 
     if (!argumentsToEnforce.isEmpty())
         throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments,
-                                QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")),
+                                QString(),
                                 QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")));
 }

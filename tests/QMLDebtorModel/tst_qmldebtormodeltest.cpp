@@ -3,7 +3,7 @@
 #include <QCoreApplication>
 
 #include "qmlapi/qmldebtormodel.h"
-#include "qmlapi/qmldebtorpusher.h"
+#include "qmlapi/qmldebttransactionmodel.h"
 #include "databaseclient.h"
 
 class QMLDebtorModelTest : public QObject
@@ -22,7 +22,7 @@ private Q_SLOTS:
     void testUndoRemoveDebtor();
 
 private:
-    QMLDebtorPusher *m_debtorPusher;
+    QMLDebtTransactionModel *m_debtTransactionModel;
     QMLDebtorModel *m_debtorModel;
     DatabaseClient *m_client;
 };
@@ -34,14 +34,14 @@ QMLDebtorModelTest::QMLDebtorModelTest()
 
 void QMLDebtorModelTest::init()
 {
-    m_debtorPusher = new QMLDebtorPusher(this);
+    m_debtTransactionModel = new QMLDebtTransactionModel(this);
     m_debtorModel = new QMLDebtorModel(this);
     m_client = new DatabaseClient;
 }
 
 void QMLDebtorModelTest::cleanup()
 {
-    m_debtorPusher->deleteLater();
+    m_debtTransactionModel->deleteLater();
     m_debtorModel->deleteLater();
     delete m_client;
 }
@@ -56,16 +56,14 @@ void QMLDebtorModelTest::testViewDebtors()
     QVERIFY(m_client->initialize());
 
     // STEP: Add a debtor to the database.
-    m_debtorPusher->setImageSource("image/source");
-    m_debtorPusher->setFirstName("First name");
-    m_debtorPusher->setLastName("Last name");
-    m_debtorPusher->setPreferredName("Preferred name");
-    m_debtorPusher->setPhoneNumber("1234567890");
-    m_debtorPusher->setAddress("1234 Address Street");
-    m_debtorPusher->setNote("Note");
-    m_debtorPusher->addDebt(1234.56, dueDateTime);
-    m_debtorPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    m_debtTransactionModel->setImageSource("image/source");
+    m_debtTransactionModel->setFirstName("First name");
+    m_debtTransactionModel->setLastName("Last name");
+    m_debtTransactionModel->setPreferredName("Preferred name");
+    m_debtTransactionModel->setPrimaryPhoneNumber("1234567890");
+    m_debtTransactionModel->addDebt(1234.56, dueDateTime);
+    QVERIFY(m_debtTransactionModel->submit());
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
 
     // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
     m_debtorModel->componentComplete();
@@ -90,16 +88,14 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QVERIFY(m_client->initialize());
 
     // STEP: Add a debtor to the database.
-    m_debtorPusher->setImageSource("image/source");
-    m_debtorPusher->setFirstName("First name");
-    m_debtorPusher->setLastName("Last name");
-    m_debtorPusher->setPreferredName("Preferred name");
-    m_debtorPusher->setPhoneNumber("1234567890");
-    m_debtorPusher->setAddress("1234 Address Street");
-    m_debtorPusher->setNote("Note");
-    m_debtorPusher->addDebt(1234.56, dueDateTime);
-    m_debtorPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    m_debtTransactionModel->setImageSource("image/source");
+    m_debtTransactionModel->setFirstName("First name");
+    m_debtTransactionModel->setLastName("Last name");
+    m_debtTransactionModel->setPreferredName("Preferred name");
+    m_debtTransactionModel->setPrimaryPhoneNumber("1234567890");
+    m_debtTransactionModel->addDebt(1234.56, dueDateTime);
+    QVERIFY(m_debtTransactionModel->submit());
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
 
     // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
     m_debtorModel->componentComplete();
@@ -146,16 +142,14 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QVERIFY(m_client->initialize());
 
     // STEP: Add a new debtor.
-    m_debtorPusher->setImageSource("image/source");
-    m_debtorPusher->setFirstName("First name");
-    m_debtorPusher->setLastName("Last name");
-    m_debtorPusher->setPreferredName("Preferred name");
-    m_debtorPusher->setPhoneNumber("1234567890");
-    m_debtorPusher->setAddress("1234 Address Street");
-    m_debtorPusher->setNote("Note");
-    m_debtorPusher->addDebt(1234.56, dueDateTime);
-    m_debtorPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorPusher->isBusy(); }, 2000));
+    m_debtTransactionModel->setImageSource("image/source");
+    m_debtTransactionModel->setFirstName("First name");
+    m_debtTransactionModel->setLastName("Last name");
+    m_debtTransactionModel->setPreferredName("Preferred name");
+    m_debtTransactionModel->setPrimaryPhoneNumber("1234567890");
+    m_debtTransactionModel->addDebt(1234.56, dueDateTime);
+    QVERIFY(m_debtTransactionModel->submit());
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
 
     // STEP: Instantiate model in QML and check if debtors are fetched.
     m_debtorModel->componentComplete();
