@@ -201,7 +201,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
                 q.bindValue(":debt_transaction_id", debtTransactionId);
                 q.bindValue(":total_amount", newDebt);
                 q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", newDebt - amountPaid);
+                q.bindValue(":balance", qAbs(newDebt - amountPaid));
                 q.bindValue(":currency", "NGN");
                 q.bindValue(":due_date", dueDateTime);
                 q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
@@ -438,7 +438,7 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                 q.bindValue(":debt_payment_id", debtPaymentId);
                 q.bindValue(":total_amount", newDebt);
                 q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", newDebt - amountPaid);
+                q.bindValue(":balance", qAbs(newDebt - amountPaid));
                 q.bindValue(":currency", "NGN");
                 q.bindValue(":due_date", dueDateTime);
                 q.bindValue(":user_id", UserProfile::instance().userId());
@@ -467,7 +467,7 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                 q.bindValue(":debt_transaction_id", debtTransactionId);
                 q.bindValue(":total_amount", updatedDebt);
                 q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", updatedDebt - amountPaid);
+                q.bindValue(":balance", qAbs(updatedDebt - amountPaid));
                 q.bindValue(":currency", "NGN");
                 q.bindValue(":due_date", dueDateTime);
                 q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
@@ -523,7 +523,7 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                 q.bindValue(":debt_transaction_id", debtTransactionId);
                 q.bindValue(":total_amount", newDebt);
                 q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", newDebt - amountPaid);
+                q.bindValue(":balance", qAbs(newDebt - amountPaid));
                 q.bindValue(":currency", "NGN");
                 q.bindValue(":due_date", dueDateTime);
                 q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
@@ -590,16 +590,19 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
     QSqlQuery q(connection());
 
     try {
-        // STEP: Get total balance for each debtor
+        // STEP: Get total balance for each debtor.
         if (params.value("filter_text").isNull() || params.value("filter_column").isNull()) {
             q.prepare("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
-                      "debt_payment.balance AS total_debt, debtor.archived FROM debt_payment "
+                      "debt_payment.balance AS total_debt, debtor.archived, "
+                      "MAX(debt_payment.last_edited) FROM debt_payment "
                       "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
                       "INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id "
                       "INNER JOIN client ON client.id = debtor.client_id "
                       "WHERE debt_transaction.archived = :archived "
-                      "GROUP BY debt_payment.debt_transaction_id, debt_payment.balance "
-                      "HAVING MAX(debt_payment.last_edited)");
+                      "GROUP BY debtor.id, debt_payment.balance, "
+                      "debt_payment.last_edited, debt_transaction.archived "
+                      "HAVING MAX(debt_payment.last_edited) = debt_payment.last_edited "
+                      "AND debt_transaction.archived = :archived");
             q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
             if (!q.exec())
@@ -615,18 +618,26 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
                                   "INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id "
                                   "INNER JOIN client ON client.id = debtor.client_id "
                                   "WHERE debt_transaction.archived = :archived AND client.preferred_name LIKE '%%1%'"
-                                  "GROUP BY debt_payment.debt_transaction_id, debt_payment.balance "
-                                  "HAVING MAX(debt_payment.last_edited)")
+                                  "GROUP BY debtor.id, debt_payment.debt_transaction_id, debt_payment.balance, "
+                                  "debt_payment.last_edited "
+                                  "HAVING MAX(debt_payment.last_edited) = debt_payment.last_edited "
+                                  "AND archived = :archived")
                           .arg(params.value("filter_text").toString()));
                 q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
                 if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch debtors.");
+                    throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure,
+                                            q.lastError().text(),
+                                            QStringLiteral("Failed to fetch debtors."));
             }
         }
 
         QVariantList debtors;
         while (q.next()) {
+            qDebug() << "Debtor?" << q.value("debtor_id").toInt()
+                     << q.value("preferred_name").toString()
+                     << q.value("total_debt").toDouble()
+                     << q.value("archived").toBool();
             debtors.append(recordToMap(q.record()));
         }
 
@@ -638,8 +649,7 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
 
 void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &result)
 {
-    const QVariantMap params = request.params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    const QVariantMap &params = request.params();
 
     QSqlQuery q(connection());
 
@@ -647,20 +657,47 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
 
         if (params.value("debtor_id").toInt() <= 0)
-            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Debtor ID is invalid.");
+            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(),
+                                    QStringLiteral("Debtor ID is invalid."));
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
+                                    QStringLiteral("Failed to start transation."));
 
         QSqlQuery q(connection());
-        q.prepare("UPDATE debtor SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :debtor_id");
+        q.prepare("UPDATE debtor SET archived = 1, last_edited = CURRENT_TIMESTAMP(), "
+                  "user_id = :user_id WHERE id = :debtor_id");
         q.bindValue(":debtor_id", params.value("debtor_id"));
-        q.bindValue(":last_edited", currentDateTime);
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove debtor.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
+                                    QStringLiteral("Failed to remove debtor."));
+
+        // Archive debt transactions.
+        q.prepare("UPDATE debt_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), "
+                  "user_id = :user_id WHERE id = :debtor_id");
+        q.bindValue(":debtor_id", params.value("debtor_id"));
+        q.bindValue(":user_id", UserProfile::instance().userId());
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
+                                    QStringLiteral("Failed to remove debt transactions for debtor."));
+
+        // Retrieve archived debt transaction IDs.
+        q.prepare("SELECT id FROM debt_transaction WHERE debtor_id = :debtor_id");
+        q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
+
+        if (!q.exec())
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
+                                    QStringLiteral("Failed to fetch debt transactions for debtor."));
+
+        QVariantList debtTransactionIds;
+        while (q.next()) {
+            debtTransactionIds.append(q.value("id").toInt());
+        }
 
         result.setOutcome(QVariantMap{ { "debtor_id", params.value("debtor_id") },
+                                       { "debt_transaction_ids", debtTransactionIds },
                                        { "record_count", QVariant(1) },
                                        { "debtor_row", params.value("debtor_row") }
                           });
@@ -678,7 +715,7 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
 void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult &result)
 {
     const QVariantMap &params = request.params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    const QVariantList &debtTransactionIds = params.value("outcome").toMap().value("debt_transaction_ids").toList();
 
     QSqlQuery q(connection());
 
@@ -692,21 +729,35 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
         QSqlQuery q(connection());
-        q.prepare("UPDATE debtor SET archived = 0, last_edited = :last_edited, user_id = :user_id WHERE id = :debtor_id");
+        q.prepare("UPDATE debtor SET archived = 0, last_edited = CURRENT_TIMESTAMP(), "
+                  "user_id = :user_id WHERE id = :debtor_id");
         q.bindValue(":debtor_id", params.value("debtor_id"));
-        q.bindValue(":last_edited", currentDateTime);
         q.bindValue(":user_id", UserProfile::instance().userId());
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove debtor.");
+            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
+                                    QStringLiteral("Failed to undo 'remove debtor'."));
 
-        // Get total balance for each debtor
+        // STEP: Restore archived transactions.
+        for (int i = 0; i < debtTransactionIds.count(); ++i) {
+            q.prepare("UPDATE debt_transaction SET archived = 0, last_edited = CURRENT_TIMESTAMP(), "
+                      "user_id = :user_id WHERE id = :debt_transaction_id");
+            q.bindValue(":debt_transaction_id", debtTransactionIds.at(i).toInt());
+            q.bindValue(":user_id", UserProfile::instance().userId());
+
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
+                                        QStringLiteral("Failed to update debt transactions during undo."));
+        }
+
+        // STEP: Get total balance for each debtor.
         q.prepare("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
                   "(SELECT SUM(debt_payment.balance) FROM debt_payment "
                   "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
                   "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
                   "WHERE debt_payment.debt_transaction_id IN "
-                  "(SELECT debt_transaction.id FROM debt_transaction WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
+                  "(SELECT debt_transaction.id FROM debt_transaction "
+                  "WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
                   "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt, "
                   "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
                   "FROM debtor "
@@ -717,7 +768,8 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
         q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
 
         if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch removed debtor.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(),
+                                    QStringLiteral("Failed to fetch removed debtor."));
 
         QVariantMap debtor;
         if (q.first()) {
@@ -729,11 +781,13 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
                               });
         } else {
             throw DatabaseException(DatabaseException::RRErrorCode::UndoRemoveDebtorFailure,
-                                    q.lastError().text(), "Unable to fetch remove debtor.");
+                                    q.lastError().text(),
+                                    QStringLiteral("Unable to fetch remove debtor."));
         }
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
+                                    QStringLiteral("Failed to commit."));
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
@@ -777,7 +831,7 @@ void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryRe
         q.prepare("SELECT debt_transaction.id AS debt_transaction_id, debt_transaction.transaction_table AS related_transaction_table, "
                   "debt_transaction.transaction_id AS related_transaction_id, debt_transaction.created AS debt_transaction_created, "
                   "debt_payment.id AS debt_payment_id, debt_payment.total_amount, debt_payment.amount_paid, "
-                  "debt_payment.balance AS total_debt, debt_payment.currency, "
+                  "debt_payment.balance AS balance, debt_payment.currency, "
                   "debt_payment.due_date, debt_transaction.note_id AS debt_transaction_note_id, "
                   "debt_payment.note_id AS debt_payment_note_id, debt_transaction.archived, "
                   "debt_payment.created AS debt_payment_created "
@@ -803,7 +857,7 @@ void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryRe
             const int debtTransactionId = q.value("debt_transaction_id").toInt();
             const QString &relatedTransactionTable = q.value("related_transaction_table").toString();
             const int relatedTransactionId = q.value("related_transaction_id").toInt();
-            const double totalDebt = q.value("total_debt").toDouble();
+            const double totalDebt = q.value("balance").toDouble();
             const QDateTime &dueDate = q.value("due_date").toDateTime();
             const QDateTime created = q.value("debt_transaction_created").toDateTime();
 

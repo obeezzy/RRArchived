@@ -21,6 +21,8 @@ private Q_SLOTS:
     void testRemoveDebtor();
     void testUndoRemoveDebtor();
 
+    // Long-running tests
+    void testAddDebtThenAddPaymentThenViewDebtors();
 private:
     QMLDebtTransactionModel *m_debtTransactionModel;
     QMLDebtorModel *m_debtorModel;
@@ -147,6 +149,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     m_debtTransactionModel->setLastName("Last name");
     m_debtTransactionModel->setPreferredName("Preferred name");
     m_debtTransactionModel->setPrimaryPhoneNumber("1234567890");
+    m_debtTransactionModel->setNote("Note");
     m_debtTransactionModel->addDebt(1234.56, dueDateTime);
     QVERIFY(m_debtTransactionModel->submit());
     QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
@@ -189,6 +192,58 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(), "Preferred name");
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(), "Note");
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(), 1234.56);
+}
+
+/*
+  Feature: Guess the word
+
+  # The first example has two steps
+  Scenario: Maker starts a game
+    When the Maker starts a game
+    Then the Maker waits for a Breaker to join
+
+  # The second example has three steps
+  Scenario: Breaker joins a game
+    Given the Maker has started a game with the word "silky"
+    When the Breaker joins the Maker's game
+    Then the Breaker must guess a word with 5 characters
+*/
+void QMLDebtorModelTest::testAddDebtThenAddPaymentThenViewDebtors()
+{
+    QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
+    QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
+    const QDateTime dueDateTime(QDateTime::currentDateTime().addDays(1));
+
+    QVERIFY(m_client->initialize());
+
+    // STEP: Add a new debtor and new debt.
+    m_debtTransactionModel->setImageSource("image/source");
+    m_debtTransactionModel->setFirstName("First name");
+    m_debtTransactionModel->setLastName("Last name");
+    m_debtTransactionModel->setPreferredName("Preferred name");
+    m_debtTransactionModel->setPrimaryPhoneNumber("1234567890");
+    m_debtTransactionModel->addDebt(1234.56, dueDateTime);
+    QVERIFY(m_debtTransactionModel->submit());
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
+    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
+
+    // STEP: Add payment
+    m_debtTransactionModel->setDebtorId(1);
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
+    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
+    m_debtTransactionModel->addPayment(0, 1000.0);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CurrentBalanceRole).toDouble(), 234.56);
+    QVERIFY(m_debtTransactionModel->submit());
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
+    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
+
+    // STEP: View debtor.
+    m_debtorModel->componentComplete();
+    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
+    QCOMPARE(successSpy.count(), 1);
+    successSpy.clear();
+    QCOMPARE(errorSpy.count(), 0);
+    QCOMPARE(m_debtorModel->rowCount(), 1);
 }
 
 QTEST_MAIN(QMLDebtorModelTest)
