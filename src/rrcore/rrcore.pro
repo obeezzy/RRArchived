@@ -48,7 +48,8 @@ SOURCES += \
     sqlmanager/clientsqlmanager.cpp \
     qmlapi/qmldebttransactionmodel.cpp \
     models/debtpaymentmodel.cpp \
-    qmlapi/qmldebtordetailrecord.cpp
+    qmlapi/qmldebtordetailrecord.cpp \
+    models/salepaymentmodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -93,4 +94,6 @@ HEADERS += \
     qmlapi/qmldebttransactionmodel.h \
     models/debtpaymentmodel.h \
     qmlapi/qmldebtordetailrecord.h \
-    utility/debtorutils.h
+    utility/debtorutils.h \
+    utility/saleutils.h \
+    models/salepaymentmodel.h

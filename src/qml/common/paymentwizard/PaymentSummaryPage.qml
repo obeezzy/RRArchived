@@ -9,11 +9,11 @@ RRUi.Page {
     id: paymentSummaryPage
     objectName: "paymentSummaryPage"
 
-    property string customerName: "Test Johnson"
-    property string customerPhoneNumber: "234-555-2384"
-    property ListModel paymentModel: null
-    property real totalCost: 200
-    property real amountPaid: 68
+    property string customerName: ""
+    property string customerPhoneNumber: ""
+    property var paymentModel: null
+    property real totalCost: 0
+    property real amountPaid: 0
     readonly property real balance: totalCost - amountPaid
 
     padding: FluidControls.Units.smallSpacing

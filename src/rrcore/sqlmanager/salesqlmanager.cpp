@@ -44,10 +44,10 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
 
 void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult &result, bool skipSqlTransaction)
 {
-    const QVariantMap params = request.params();
-    QVariantList payments = params.value("payments").toList();
-    QVariantList items = params.value("items").toList();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    const QVariantMap &params = request.params();
+    const QVariantList &payments = params.value("payments").toList();
+    const QVariantList &items = params.value("items").toList();
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int noteId = 0;
     int salePaymentNoteId = 0;
     int clientId = 0;
@@ -61,6 +61,8 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     QSqlQuery q(connection());
 
     try {
+        AbstractSqlManager::enforceArguments( { "action" }, params);
+
         if (!skipSqlTransaction && !DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
                                     QStringLiteral("Failed to start transation."));
@@ -129,8 +131,13 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
         q.bindValue(":client_id", clientId > 0 ? clientId : QVariant(QVariant::Int));
         q.bindValue(":total_cost", params.value("total_cost"));
         q.bindValue(":amount_paid", params.value("amount_paid"));
-        q.bindValue(":balance", params.value("give_change").toBool() ? 0.0 : qAbs(params.value("balance").toDouble()));
+
+        if (params.value("action").toString() == "give_change")
+            q.bindValue(":balance", 0.0);
+        else
+            q.bindValue(":balance", qAbs(params.value("balance").toDouble()));
         //q.bindValue(":change_due", params.value("give_change").toBool() ? qAbs(params.value("balance").toDouble()) : 0.0);
+
         q.bindValue(":discount", params.value("discount", 0.0));
         q.bindValue(":suspended", params.value("suspended", false));
         q.bindValue(":archived", false);
@@ -148,7 +155,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                     QStringLiteral("Invalid sale transaction ID returned."));
 
         // STEP: Insert sale payments
-        for (QVariant &payment : payments) {
+        for (const QVariant &payment : payments) {
             QVariantMap paymentInfo = payment.toMap();
             q.prepare("INSERT INTO sale_payment (sale_transaction_id, amount, method, currency, note_id, "
                       "created, last_edited, user_id) VALUES (:sale_transaction_id, :amount, :method, "
@@ -168,7 +175,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
 
         }
 
-        for (QVariant &item : items) {
+        for (const QVariant &item : items) {
             QVariantMap itemInfo = item.toMap();
             // STEP: Deduct quantity if:
             // 1. This is a non-suspended transaction.

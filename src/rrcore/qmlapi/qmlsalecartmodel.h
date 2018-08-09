@@ -7,6 +7,7 @@
 #include "models/abstractvisuallistmodel.h"
 
 class SalePayment;
+class SalePaymentModel;
 
 class QMLSaleCartModel : public AbstractVisualListModel
 {
@@ -19,9 +20,12 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(double totalCost READ totalCost NOTIFY totalCostChanged)
     Q_PROPERTY(double amountPaid READ amountPaid NOTIFY amountPaidChanged)
     Q_PROPERTY(double balance READ balance NOTIFY balanceChanged)
+    Q_PROPERTY(bool canAcceptCash READ canAcceptCash NOTIFY canAcceptCashChanged)
+    Q_PROPERTY(bool canAcceptCard READ canAcceptCard NOTIFY canAcceptCardChanged)
+    Q_PROPERTY(SalePaymentModel *paymentModel READ paymentModel NOTIFY paymentModelChanged)
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
-    ~QMLSaleCartModel();
+    ~QMLSaleCartModel() override;
 
     enum Roles {
         CategoryIdRole = Qt::UserRole,
@@ -83,6 +87,11 @@ public:
     double amountPaid() const;
     double balance() const;
 
+    bool canAcceptCash() const;
+    bool canAcceptCard() const;
+
+    SalePaymentModel *paymentModel() const;
+
     QList<SalePayment *> payments() const;
 
     Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
@@ -103,6 +112,10 @@ signals:
     void totalCostChanged();
     void amountPaidChanged();
     void balanceChanged();
+    void canAcceptCashChanged();
+    void canAcceptCardChanged();
+
+    void paymentModelChanged();
 public slots:
     void addItem(const QVariantMap &itemInfo);
     void updateItem(int itemId, const QVariantMap &itemInfo);
@@ -117,8 +130,11 @@ private:
     double m_totalCost;
     double m_amountPaid;
     double m_balance;
+    bool m_canAcceptCash;
+    bool m_canAcceptCard;
     QVariantList m_records;
-    QList<SalePayment *> m_payments;
+    QList<SalePayment *> m_salePayments;
+    SalePaymentModel *m_paymentModel;
 
     bool containsItem(int itemId);
     int indexOfItem(int itemId);
@@ -135,12 +151,9 @@ private:
 
     void incrementItemQuantity(int itemId, double quantity = 1.0);
     void decrementItemQuantity(int itemId, double quantity = 1.0);
-};
 
-struct SalePayment {
-    double amount;
-    QMLSaleCartModel::PaymentMethod method;
-    QString note;
+    void updateCanAcceptCash();
+    void updateCanAcceptCard();
 };
 
 #endif // QMLSALECARTMODEL_H

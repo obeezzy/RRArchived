@@ -3,6 +3,11 @@
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "models/salepaymentmodel.h"
+#include "utility/saleutils.h"
+
+const int CASH_PAYMENT_LIMIT = 1;
+const int CARD_PAYMENT_LIMIT = 2;
 
 QMLSaleCartModel::QMLSaleCartModel(QObject *parent) :
     AbstractVisualListModel(parent),
@@ -14,15 +19,22 @@ QMLSaleCartModel::QMLSaleCartModel(QObject *parent) :
     m_totalCost(0.0),
     m_amountPaid(0.0),
     m_balance(0.0),
+    m_canAcceptCash(true),
+    m_canAcceptCard(false), // Toggle to disable, genius
     m_records(QVariantList())
 {
+    m_paymentModel = new SalePaymentModel(this);
+
+    connect (m_paymentModel, &SalePaymentModel::cashPaymentCountChanged, this, &QMLSaleCartModel::updateCanAcceptCash);
+    connect (m_paymentModel, &SalePaymentModel::cardPaymentCountChanged, this, &QMLSaleCartModel::updateCanAcceptCard);
+
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
 }
 
 QMLSaleCartModel::~QMLSaleCartModel()
 {
-    qDeleteAll(m_payments);
-    m_payments.clear();
+    qDeleteAll(m_salePayments);
+    m_salePayments.clear();
 }
 
 int QMLSaleCartModel::rowCount(const QModelIndex &parent) const
@@ -185,6 +197,21 @@ double QMLSaleCartModel::balance() const
     return m_balance;
 }
 
+bool QMLSaleCartModel::canAcceptCash() const
+{
+    return m_canAcceptCash;
+}
+
+bool QMLSaleCartModel::canAcceptCard() const
+{
+    return m_canAcceptCard;
+}
+
+SalePaymentModel *QMLSaleCartModel::paymentModel() const
+{
+    return m_paymentModel;
+}
+
 void QMLSaleCartModel::setAmountPaid(double amountPaid)
 {
     if (m_amountPaid == amountPaid)
@@ -205,7 +232,7 @@ void QMLSaleCartModel::setBalance(double balance)
 
 QList<SalePayment *> QMLSaleCartModel::payments() const
 {
-    return m_payments;
+    return m_salePayments;
 }
 
 void QMLSaleCartModel::addPayment(double amount, QMLSaleCartModel::PaymentMethod method, const QString &note)
@@ -213,16 +240,21 @@ void QMLSaleCartModel::addPayment(double amount, QMLSaleCartModel::PaymentMethod
     if (amount <= 0.0)
         return;
 
-    m_payments.append(new SalePayment{ amount, method, note });
+    SalePayment *payment = new SalePayment{ amount, static_cast<SalePayment::PaymentMethod>(method), note };
+    m_paymentModel->addPayment(payment);
+    m_salePayments.append(payment);
+
     calculateAmountPaid();
 }
 
 void QMLSaleCartModel::removePayment(int index)
 {
-    if (index <= -1 && index >= m_payments.count())
+    if (index <= -1 || index >= m_salePayments.count())
         return;
 
-    delete m_payments.takeAt(index);
+    m_paymentModel->removePayment(index);
+    delete m_salePayments.takeAt(index);
+
     calculateAmountPaid();
 }
 
@@ -244,9 +276,10 @@ void QMLSaleCartModel::suspendTransaction(const QVariantMap &params)
 
 void QMLSaleCartModel::clearPayments()
 {
-    if (!m_payments.isEmpty()) {
-        qDeleteAll(m_payments);
-        m_payments.clear();
+    if (!m_salePayments.isEmpty()) {
+        m_paymentModel->clearPayments();
+        qDeleteAll(m_salePayments);
+        m_salePayments.clear();
         calculateAmountPaid();
     }
 }
@@ -274,24 +307,24 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transactionInfo)
         params.insert("balance", m_balance);
         params.insert("suspended", transactionInfo.value("suspended", false));
         params.insert("due_date", transactionInfo.value("due_date", QDateTime()));
-        params.insert("overlook_balance", transactionInfo.value("overlook_balance", false));
+        params.insert("action", transactionInfo.value("action"));
         params.insert("note", transactionInfo.value("note"));
 
         QVariantList payments;
-        for (SalePayment *salePayment : m_payments) {
+        for (SalePayment *salePayment : m_salePayments) {
             QVariantMap payment;
             payment.insert("amount", salePayment->amount);
             payment.insert("note", salePayment->note);
             payment.insert("currency", "NGN");
 
             switch (salePayment->method) {
-            case QMLSaleCartModel::Cash:
+            case SalePayment::PaymentMethod::Cash:
                 payment.insert("method", "cash");
                 break;
-            case QMLSaleCartModel::DebitCard:
+            case SalePayment::PaymentMethod::DebitCard:
                 payment.insert("method", "debit_card");
                 break;
-            case QMLSaleCartModel::CreditCard:
+            case SalePayment::PaymentMethod::CreditCard:
                 payment.insert("method", "credit_card");
                 break;
             }
@@ -602,6 +635,24 @@ void QMLSaleCartModel::decrementItemQuantity(int itemId, double quantity)
     calculateTotal();
 }
 
+void QMLSaleCartModel::updateCanAcceptCash()
+{
+    const bool canAcceptCash = m_paymentModel->cashPaymentCount() < CASH_PAYMENT_LIMIT;
+    if (m_canAcceptCash != canAcceptCash) {
+        m_canAcceptCash = canAcceptCash;
+        emit canAcceptCashChanged();
+    }
+}
+
+void QMLSaleCartModel::updateCanAcceptCard()
+{
+    const bool canAcceptCard = m_paymentModel->cardPaymentCount() < CARD_PAYMENT_LIMIT;
+    if (m_canAcceptCard != canAcceptCard) {
+        m_canAcceptCard = canAcceptCard;
+        emit canAcceptCardChanged();
+    }
+}
+
 void QMLSaleCartModel::removeItem(int itemId)
 {
     const int row = indexOfItem(itemId);
@@ -646,7 +697,7 @@ void QMLSaleCartModel::calculateTotal()
 void QMLSaleCartModel::calculateAmountPaid()
 {
     double amountPaid = 0.0;
-    for (SalePayment *salePayment : m_payments)
+    for (SalePayment *salePayment : m_salePayments)
         amountPaid += salePayment->amount;
 
     setAmountPaid(amountPaid);

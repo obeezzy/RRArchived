@@ -4,22 +4,15 @@ import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 import "../rrui" as RRUi
 import com.gecko.rr.widgets 1.0 as RRWidgets
+import com.gecko.rr.models 1.0 as RRModels
 import "paymentwizard"
 
 RRUi.Dialog {
     id: paymentWizard
 
-    property real totalCost: 0
-    property real amountPaid: 0
-    property real balance: 0
-    property string customerName: ""
-    property string customerPhoneNumber: ""
+    property var cartModel: null
+    property string action: ""
     property date dueDate: new Date()
-    property bool overlookBalance: false
-    property bool giveChange: false
-    property ListModel paymentModel: ListModel { }
-
-    signal finished(var transactionInfo)
 
     title: ""
     standardButtons: RRUi.Dialog.NoButton
@@ -27,18 +20,32 @@ RRUi.Dialog {
     height: 540
     closePolicy: QQC2.Popup.CloseOnEscape
 
-    onAccepted: paymentModel.clear();
-
     QtObject {
         id: privateProperties
 
-        readonly property bool acceptCash: cashPayments < maxCashPayments
-        readonly property bool acceptCard: cardPayments < maxCardPayments
-        readonly property int maxCashPayments: 1
-        readonly property int maxCardPayments: 2
+        property string previouslySetCustomerName: ""
+        property string previouslySetCustomerPhoneNumber: ""
 
-        property int cashPayments: 0
-        property int cardPayments: 0
+        function resetCustomerDetails() {
+            cartModel.customerName = privateProperties.previouslySetCustomerName;
+            cartModel.customerPhoneNumber = privateProperties.previouslySetCustomerPhoneNumber;
+        }
+    }
+
+    onClosed: {
+        privateProperties.resetCustomerDetails();
+
+        paymentWizard.cartModel.clearPayments();
+        stackView.clear();
+    }
+
+    onAboutToShow: {
+        privateProperties.previouslySetCustomerName = cartModel.customerName;
+        privateProperties.previouslySetCustomerPhoneNumber = cartModel.customerPhoneNumber;
+
+        stackView.push(Qt.resolvedUrl("paymentwizard/PaymentMethodPage.qml"),
+                                  { "canAcceptCash": paymentWizard.cartModel.canAcceptCash,
+                                  "canAcceptCard": paymentWizard.cartModel.canAcceptCard });
     }
 
     QQLayouts.ColumnLayout {
@@ -53,24 +60,17 @@ RRUi.Dialog {
                 height: width
                 icon.source: FluidControls.Utils.iconUrl("navigation/arrow_back")
                 text: qsTr("Back")
-                visible: stackView.depth > 1 && stackView.currentObjectName != "paymentFinishPage"
+                visible: stackView.depth > 1 && stackView.currentObjectName !== "paymentFinishPage"
                 onClicked: {
-                    if (stackView.currentObjectName == "paymentBalancePage"
-                            && stackView.currentItem.isCashPayment
-                            && privateProperties.cashPayments > 0) {
-                        paymentWizard.overlookBalance = false;
-                        paymentWizard.balance = stackView.currentItem.balance;
-                        privateProperties.cashPayments--;
-                    }
-                    else if (stackView.currentObjectName == "paymentBalancePage"
-                             && !stackView.currentItem.isCashPayment
-                             && privateProperties.cardPayments > 0) {
-                        paymentWizard.overlookBalance = false;
-                        paymentWizard.balance = stackView.currentItem.balance;
-                        privateProperties.cardPayments--;
-                    }
+                    if (stackView.currentObjectName === "paymentCustomerDetailPage")
+                        privateProperties.resetCustomerDetails();
 
                     stackView.pop();
+
+                    if (stackView.currentObjectName === "paymentByCashPage")
+                        paymentWizard.cartModel.removePayment(paymentWizard.cartModel.count - 1);
+                    else if (stackView.currentObjectName === "paymentByCardPage")
+                        paymentWizard.cartModel.removePayment(paymentWizard.cartModel.count - 1);
                 }
             }
 
@@ -91,7 +91,6 @@ RRUi.Dialog {
             QQLayouts.Layout.fillWidth: true
             QQLayouts.Layout.fillHeight: true
             clip: true
-            initialItem: PaymentMethodPage { }
         }
 
         Row {
@@ -139,214 +138,158 @@ RRUi.Dialog {
                 }
 
                 onClicked: {
-                    console.log("Customer name=", customerName);
                     if (stackView.currentObjectName == "paymentMethodPage") {
                         switch (stackView.currentItem.selectedOption) {
                         case "cash":
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentByCashPage.qml"),
-                                           { "totalCost": paymentWizard.totalCost });
+                                           { "totalCost": paymentWizard.cartModel.balance });
                             break;
                         case "card":
+                            console.warn("TODO: Handle card payment!");
                             break;
                         default:
-                            paymentWizard.amountPaid = 0;
-                            paymentWizard.balance = paymentWizard.totalCost;
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
-                                               "customerName": paymentWizard.customerName,
-                                               "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                               "paymentModel": paymentWizard.paymentModel
+                                               "customerName": paymentWizard.cartModel.customerName,
+                                               "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                               "paymentModel": paymentWizard.cartModel.paymentModel
                                            });
                             break;
                         }
                     } else if (stackView.currentObjectName == "paymentByCashPage") {
-                        privateProperties.cashPayments++;
+                        paymentWizard.cartModel.addPayment(stackView.currentItem.amountPaid, RRModels.SaleCartModel.Cash);
 
                         if (stackView.currentItem.hasDebt || stackView.currentItem.hasCredit) {
-                            paymentWizard.amountPaid = stackView.currentItem.amountPaid;
-                            paymentWizard.balance = stackView.currentItem.balance;
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentBalancePage.qml"), {
                                                "hasDebt": stackView.currentItem.hasDebt,
                                                "hasCredit": stackView.currentItem.hasCredit,
-                                               "balance": stackView.currentItem.balance,
-                                               "acceptAlternatePaymentMethod": stackView.currentItem.amountPaid > 0,
+                                               "balance": paymentWizard.cartModel.balance,
+                                               "canAcceptAlternatePaymentMethod": paymentWizard.cartModel.canAcceptCash
+                                                                                  || paymentWizard.canAcceptCard,
                                                "isCashPayment": true,
-                                               "totalCost": paymentWizard.totalCost
+                                               "totalCost": paymentWizard.cartModel.totalCost
                                            });
-                        } else if ((paymentWizard.customerName.trim() === "" || paymentWizard.customerPhoneNumber.trim() === "")
+                        } else if ((paymentWizard.cartModel.customerName.trim() === ""
+                                    || paymentWizard.cartModel.customerPhoneNumber.trim() === "")
                                    && (stackView.currentItem.hasDebt || stackView.currentItem.hasCredit)) {
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
-                                               "customerName": paymentWizard.customerName,
-                                               "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                               "paymentModel": paymentWizard.paymentModel
+                                               "customerName": paymentWizard.cartModel.customerName,
+                                               "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber
                                            });
                         } else {
-                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage"), {
-                                               "customerName": paymentWizard.customerName,
-                                               "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                               "totalCost": paymentWizard.totalCost,
-                                               "amountPaid": paymentWizard.amountPaid,
-                                               "paymentModel": paymentWizard.paymentModel
+                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage.qml"), {
+                                               "customerName": paymentWizard.cartModel.customerName,
+                                               "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                               "totalCost": paymentWizard.cartModel.totalCost,
+                                               "amountPaid": paymentWizard.cartModel.amountPaid,
+                                               "paymentModel": paymentWizard.cartModel.paymentModel
                                            });
                         }
                     } else if (stackView.currentObjectName == "paymentByCardPage") {
-                        privateProperties.cardPayments++;
+                        paymentWizard.cartModel.addPayment(stackView.currentItem.amountPaid,
+                                                           stackView.currentItem.paymentMethod === "debit_card"
+                                                           ? RRModels.SaleCartModel.DebitCard : RRModels.SaleCartModel.CreditCard);
 
                         if (stackView.currentItem.hasDebt || stackView.currentItem.hasCredit) {
-                            paymentWizard.balance = stackView.currentItem.balance;
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentBalancePage.qml"), {
                                                "hasDebt": stackView.currentItem.hasDebt,
                                                "hasCredit": stackView.currentItem.hasCredit,
-                                               "balance": stackView.currentItem.balance,
-                                               "acceptAlternatePaymentMethod": stackView.currentItem.amountPaid > 0,
+                                               "balance": paymentWizard.cartModel.balance,
+                                               "canAcceptAlternatePaymentMethod": paymentWizard.cartModel.canAcceptCash
+                                                                                  || paymentWizard.canAcceptCard,
                                                "isCashPayment": false,
-                                               "totalCost": paymentWizard.totalCost
+                                               "totalCost": paymentWizard.cartModel.totalCost
                                            });
-                        } else if (paymentWizard.customerName.trim() === "" || paymentWizard.customerPhoneNumber.trim() === "") {
+                        } else if (paymentWizard.cartModel.customerName.trim() === ""
+                                   || paymentWizard.cartModel.customerPhoneNumber.trim() === "") {
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
-                                               "customerName": paymentWizard.customerName,
-                                               "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                               "paymentModel": paymentWizard.paymentModel
+                                               "customerName": paymentWizard.cartModel.customerName,
+                                               "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                               "paymentModel": paymentWizard.cartModel.paymentModel
                                            });
                         } else {
-                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage"), {
-                                               "customerName": paymentWizard.customerName,
-                                               "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                               "totalCost": paymentWizard.totalCost,
-                                               "amountPaid": paymentWizard.amountPaid,
-                                               "paymentModel": paymentWizard.paymentModel
+                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage.qml"), {
+                                               "customerName": paymentWizard.cartModel.customerName,
+                                               "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                               "totalCost": paymentWizard.cartModel.totalCost,
+                                               "amountPaid": paymentWizard.cartModel.amountPaid,
+                                               "paymentModel":paymentWizard.cartModel.paymentModel
                                            });
                         }
                     } else if (stackView.currentObjectName == "paymentBalancePage") {
                         switch (stackView.currentItem.selectedOption) {
                         case "pay_another_way":
-                            if (privateProperties.acceptCard || privateProperties.acceptCash) {
-                                stackView.push(Qt.resolvedUrl("paymentwizard/PaymentMethod.qml"), {
-                                                   "acceptCash": privateProperties.acceptCash,
-                                                   "acceptCard": privateProperties.acceptCard
+                            if (paymentWizard.cartModel.canAcceptCard || paymentWizard.cartModel.canAcceptCash) {
+                                stackView.push(Qt.resolvedUrl("paymentwizard/PaymentMethodPage.qml"), {
+                                                   "canAcceptCash": paymentWizard.cartModel.canAcceptCash,
+                                                   "canAcceptCard": paymentWizard.cartModel.canAcceptCard
                                                });
                             }
                             break;
                         case "overlook_balance":
-                            paymentWizard.overlookBalance = true;
-                            stackView.push(paymentFinishPage);
+                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentFinishPage.qml"));
                             break;
                         case "give_change":
-                            paymentWizard.giveChange = true;
-                            stackView.push(paymentChangePage, { "changeDue": stackView.currentItem.balance });
+                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentChangePage.qml"),
+                                           { "changeDue": stackView.currentItem.balance });
                             break;
                         case "create_debtor":
-                            if (paymentWizard.customerName.trim() === "" || paymentWizard.customerPhoneNumber.trim() === "")
+                            if (paymentWizard.cartModel.customerName.trim() === ""
+                                    || paymentWizard.cartModel.customerPhoneNumber.trim() === "")
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
-                                                   "customerName": paymentWizard.customerName,
-                                                   "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                                   "paymentModel": paymentWizard.paymentModel
+                                                   "customerName": paymentWizard.cartModel.customerName,
+                                                   "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                                   "paymentModel": paymentWizard.cartModel.paymentModel
                                                });
                             else
-                                stackView.push(paymentDueDatePage);
+                                stackView.push(Qt.resolvedUrl("paymentwizard/PaymentDueDatePage.qml"));
                             break;
                         case "create_creditor":
-                            if (paymentWizard.customerName.trim() === "" || paymentWizard.customerPhoneNumber.trim() === "")
+                            if (paymentWizard.cartModel.customerName.trim() === ""
+                                    || paymentWizard.cartModel.customerPhoneNumber.trim() === "")
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
-                                                   "customerName": paymentWizard.customerName,
-                                                   "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                                   "paymentModel": paymentWizard.paymentModel
+                                                   "customerName": paymentWizard.cartModel.customerName,
+                                                   "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                                   "paymentModel": paymentWizard.cartModel.paymentModel
                                                });
                             else
-                                stackView.push(paymentDueDatePage);
+                                stackView.push(Qt.resolvedUrl("paymentwizard/PaymentDueDatePage.qml"));
                             break;
                         }
-                    } else if (stackView.currentObjectName == "paymentCustomerDetailPage") {
-                        paymentWizard.customerName = stackView.currentItem.customerName;
-                        paymentWizard.customerPhoneNumber = stackView.currentItem.customerPhoneNumber;
 
-                        if (paymentWizard.balance != 0)
-                            stackView.push(paymentDueDatePage);
+                        paymentWizard.action = stackView.currentItem.selectedOption;
+                    } else if (stackView.currentObjectName == "paymentCustomerDetailPage") {
+                        paymentWizard.cartModel.customerName = stackView.currentItem.customerName;
+                        paymentWizard.cartModel.customerPhoneNumber = stackView.currentItem.customerPhoneNumber;
+
+                        if (paymentWizard.balance !== 0)
+                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentDueDatePage.qml"));
                         else
-                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage"), {
-                                               "customerName": paymentWizard.customerName,
-                                               "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                               "totalCost": paymentWizard.totalCost,
-                                               "amountPaid": paymentWizard.amountPaid,
-                                               "paymentModel": paymentWizard.paymentModel
+                            stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage.qml"), {
+                                               "customerName": paymentWizard.cartModel.customerName,
+                                               "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                               "totalCost": paymentWizard.cartModel.totalCost,
+                                               "amountPaid": paymentWizard.cartModel.amountPaid,
+                                               "paymentModel": paymentWizard.cartModel.paymentModel
                                            });
                     } else if (stackView.currentObjectName == "paymentDueDatePage") {
                         paymentWizard.dueDate = stackView.currentItem.dueDate;
-                        stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage.qml"), {"customerName": paymentWizard.customerName,
-                                           "customerPhoneNumber": paymentWizard.customerPhoneNumber,
-                                           "totalCost": paymentWizard.totalCost,
-                                           "amountPaid": paymentWizard.amountPaid,
-                                           "paymentModel": paymentWizard.paymentModel
+                        stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage.qml"), {
+                                           "customerName": paymentWizard.cartModel.customerName,
+                                           "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
+                                           "totalCost": paymentWizard.cartModel.totalCost,
+                                           "amountPaid": paymentWizard.cartModel.amountPaid,
+                                           "paymentModel": paymentWizard.cartModel.paymentModel
                                        });
                     } else if (stackView.currentObjectName == "paymentSummaryPage" || stackView.currentObjectName == "paymentChangePage") {
                         if (printCheckBox.checked)
                             RRWidgets.Dialogs.showPrintDialog();
                         stackView.push(Qt.resolvedUrl("paymentwizard/PaymentFinishPage.qml"));
-                        paymentWizard.finished({ "total_cost": paymentWizard.totalCost,
-                                                   "amount_paid": paymentWizard.amountPaid,
-                                                   "balance": paymentWizard.balance,
-                                                   "due_date": paymentWizard.dueDate,
-                                                   "overlook_balance": paymentWizard.overlookBalance,
-                                                   "give_change": paymentWizard.giveChange
-                                               });
+                        paymentWizard.accept();
                     } else if (stackView.currentObjectName == "paymentFinishPage") {
                     }
                 }
             }
         }
-    }
-
-    Component {
-        id: paymentMethodPage
-
-        PaymentMethodPage { }
-    }
-
-    Component {
-        id: paymentByCashPage
-
-        PaymentByCashPage { totalCost: paymentWizard.totalCost }
-    }
-
-    Component {
-        id: paymentByCardPage
-
-        PaymentByCardPage { }
-    }
-
-    Component {
-        id: paymentBalancePage
-
-        PaymentBalancePage { totalCost: paymentWizard.totalCost }
-    }
-
-    Component {
-        id: paymentDebtorPage
-
-        PaymentDebtorPage { }
-    }
-
-    Component {
-        id: paymentCreditorPage
-
-        PaymentCreditorPage { }
-    }
-
-    Component {
-        id: paymentDueDatePage
-
-        PaymentDueDatePage { }
-    }
-
-    Component {
-        id: paymentChangePage
-
-        PaymentChangePage { }
-    }
-
-    Component {
-        id: paymentFinishPage
-
-        PaymentFinishPage { }
     }
 
     function displayError(message) {

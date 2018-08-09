@@ -80,5 +80,7 @@
         <file>rrui/ErrorDialog.qml</file>
         <file>people/debtor/RemoveDebtorConfirmationDialog.qml</file>
         <file>people/debtor/RemoveDebtConfirmationDialog.qml</file>
+        <file>common/paymentwizard/DebtorOptionModel.qml</file>
+        <file>common/paymentwizard/CreditorOptionModel.qml</file>
     </qresource>
 </RCC>

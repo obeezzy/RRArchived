@@ -17,10 +17,8 @@ RRUi.TextField {
 
     function togglePopupDisplay() {
         if (activeFocus && dropdownField.model != null && !dropdownField.model.busy && popup.contentItem.count > 0) {
-            console.log("Hello there");
             popup.open();
         } else {
-            console.log("Hello there2", activeFocus);
             popup.close();
         }
     }

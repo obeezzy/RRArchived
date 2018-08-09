@@ -12,7 +12,7 @@ QQC2.Page {
     property real balance: 0
     property bool hasDebt: false
     property bool hasCredit: false
-    property bool acceptAlternatePaymentMethod: false
+    property bool canAcceptAlternatePaymentMethod: false
     property bool isCashPayment: false
 
     title: qsTr("Handle %1").arg(hasCredit ? "credit" : "debt")
@@ -37,9 +37,13 @@ QQC2.Page {
 
                 text: {
                     if (paymentBalancePage.hasCredit)
-                        return qsTr("You owe the customer <b>%1</b>. How would you like to handle this?").arg(Number(Math.abs(paymentBalancePage.balance)).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)));
+                        return qsTr("You owe the customer <b>%1</b>. How would you like to handle this?")
+                    .arg(Number(Math.abs(paymentBalancePage.balance))
+                         .toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)));
 
-                    return qsTr("The customer owes you <b>%1</b>. How would you like to handle this?").arg(Number(Math.abs(paymentBalancePage.balance)).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)));
+                    return qsTr("The customer owes you <b>%1</b>. How would you like to handle this?")
+                    .arg(Number(Math.abs(paymentBalancePage.balance))
+                         .toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)));
                 }
 
                 wrapMode: Text.Wrap
@@ -55,14 +59,13 @@ QQC2.Page {
                     id: repeater
                     property int currentIndex: 0
 
-                    model: hasCredit ? creditorModel : debtorModel
+                    model: hasCredit ? creditorOptionModel : debtorOptionModel
 
                     delegate: QQC2.RadioButton {
                         id: radioButton
                         width: modelColumn.width
                         text: model.text
                         checked: index === 0
-                        visible: model.visible
                         QQC2.ButtonGroup.group: buttonGroup
 
                         contentItem: Text {
@@ -80,20 +83,14 @@ QQC2.Page {
             }
         }
 
-        ListModel {
-            id: debtorModel
-            ListElement { option: "create_debtor"; text: qsTr("Add the customer to the list of people who owe me."); visible: true }
-            ListElement { option: "pay_another_way"; text: qsTr("Pay the balance using a different method."); visible: false }
-            ListElement { option: "overlook_balance"; text: qsTr("Overlook this balance. (Not recommended)"); visible: true}
-
-            Component.onCompleted: setProperty(1, "visible", paymentBalancePage.acceptAlternatePaymentMethod);
+        DebtorOptionModel {
+            id: debtorOptionModel
+            canAcceptAlternatePaymentMethod: paymentBalancePage.canAcceptAlternatePaymentMethod
         }
 
-        ListModel {
-            id: creditorModel
-            ListElement { option: "give_change"; text: qsTr("Give the customer as change."); visible: true }
-            ListElement { option: "create_creditor"; text: qsTr("Add the customer to the list of people I owe."); visible: true }
-            ListElement { option: "overlook_balance"; text: qsTr("Overlook this balance. (Not recommended)"); visible: true }
+        CreditorOptionModel {
+            id: creditorOptionModel
+            canAcceptAlternatePaymentMethod: paymentBalancePage.canAcceptAlternatePaymentMethod
         }
     }
 }

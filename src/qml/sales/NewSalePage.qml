@@ -325,6 +325,10 @@ RRUi.Page {
                                     focus: true
                                     QQLayouts.Layout.fillWidth: true
                                     placeholderText: qsTr("Customer name")
+
+                                    Connections {
+                                        onTextEdited: cartListView.customerName = customerNameField.text;
+                                    }
                                 }
 
                                 RRUi.ToolButton {
@@ -471,20 +475,9 @@ RRUi.Page {
 
                 PaymentWizard {
                     id: paymentWizard
-                    totalCost: cartListView.totalCost
-                    balance: cartListView.totalCost
-                    customerName: customerNameField.text
-                    onFinished: {
-                        cartListView.clearPayments();
-                        cartListView.customerName = paymentWizard.customerName;
-                        cartListView.customerPhoneNumber = paymentWizard.customerPhoneNumber;
-                        for (var i = 0; i < paymentWizard.paymentModel.count; ++i) {
-                            var payment = paymentWizard.paymentModel.get(i);
-                            cartListView.addPayment(payment.amount, payment.method);
-                        }
-
-                        cartListView.submitTransaction(transactionInfo);
-                    }
+                    cartModel: cartListView.model
+                    onAccepted: cartListView.submitTransaction({ "due_date": paymentWizard.dueDate,
+                                                                   "action": paymentWizard.action });
                 }
 
                 Loader {

@@ -11,7 +11,6 @@ QQC2.Page {
 
     property string customerName: ""
     property string customerPhoneNumber: ""
-    property ListModel paymentModel: null
     readonly property bool detailValid: customerName.trim() != "" && customerPhoneNumber.trim() != ""
 
     padding: FluidControls.Units.smallSpacing

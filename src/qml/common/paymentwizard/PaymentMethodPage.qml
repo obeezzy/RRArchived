@@ -6,9 +6,11 @@ QQC2.Page {
     id: paymentMethodPage
     objectName: "paymentMethodPage"
 
-    property string selectedOption: selectedOption = paymentMethodPage.acceptCash ? "cash" : "card"
-    property bool acceptCash: true
-    property bool acceptCard: true
+    leftPadding: 4
+
+    property string selectedOption: paymentMethodPage.canAcceptCash ? "cash" : "card"
+    property bool canAcceptCash: true
+    property bool canAcceptCard: true
 
     title: qsTr("Choose payment method")
 
@@ -18,7 +20,10 @@ QQC2.Page {
         Column {
             Repeater {
                 anchors.fill: parent
-                model: PaymentOptionModel { }
+                model: PaymentOptionModel {
+                    canAcceptCash: paymentMethodPage.canAcceptCash
+                    canAcceptCard: paymentMethodPage.canAcceptCard
+                }
 
                 delegate: QQC2.RadioButton {
                     id: radioButton
