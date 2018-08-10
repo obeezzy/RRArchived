@@ -73,8 +73,8 @@ RRUi.Page {
 
         FluidControls.Action {
             icon.source: FluidControls.Utils.iconUrl("action/delete")
-            toolTip: qsTr("Clear all")
-            text: qsTr("Clear all")
+            toolTip: qsTr("Clear entry")
+            text: qsTr("Clear entry")
             onTriggered: if (!transitionView.currentItem.isCartEmpty) confirmationDialogLoader.active = true;
         }
 
@@ -112,7 +112,7 @@ RRUi.Page {
         active: false
         sourceComponent: RRUi.AlertDialog {
             parent: QQC2.ApplicationWindow.contentItem
-            text: qsTr("Clear all?")
+            text: qsTr("Clear entry?")
             standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
             onAccepted: transitionView.currentItem.clearCart();
             onClosed: confirmationDialogLoader.active = false;

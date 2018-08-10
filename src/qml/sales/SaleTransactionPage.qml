@@ -105,6 +105,7 @@ RRUi.Page {
                         left: parent.left
                         right: parent.right
                         bottom: pageFooter.top
+                        topMargin: 20
                     }
 
                     filterText: searchBar.text

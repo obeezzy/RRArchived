@@ -5,6 +5,7 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../common"
+import "../singletons"
 
 RRUi.Dialog {
     id: saleTransactionItemDialog
@@ -68,6 +69,7 @@ RRUi.Dialog {
         }
 
         RRUi.TableView {
+            id: tableView
             anchors {
                 top: dialogHeader.bottom
                 left: parent.left
@@ -76,13 +78,63 @@ RRUi.Dialog {
                 topMargin: 24
             }
 
+            headerPositioning: ListView.OverlayHeader
+
             model: RRModels.SaleTransactionItemModel {
                 transactionId: saleTransactionItemDialog.transactionId
             }
-            interactive: false
-            headerData: [
-                { "title": qsTr("Date"), "width": 130, "role": "created", "type": "date", "format": "ddd, MMM d" },
-                { "title": qsTr("Revenue"), "width": 100, "horizontalAlignment": Qt.AlignHCenter, "role": "amount_paid", "type": "money" }
+
+            headerDelegate: FluidControls.SubheadingLabel {
+                text: styleData.title
+                height: 40
+                verticalAlignment: Qt.AlignVCenter
+            }
+
+            itemDelegate: FluidControls.SubheadingLabel {
+                text: {
+                    switch (styleData.column) {
+                    case tableView.columns.length - 1:
+                        GlobalSettings.toCurrencyString(styleData.modelData);
+                        break;
+                    default:
+                        styleData.modelData;
+                    }
+                }
+                height: 40
+                elide: Text.ElideRight
+                verticalAlignment: Qt.AlignVCenter
+            }
+
+            columns: [
+                RRUi.TableViewColumn {
+                    title: qsTr("Category")
+                    width: tableView.width / tableView.columns.length
+                    role: "category"
+                },
+
+                RRUi.TableViewColumn {
+                    title: qsTr("Item")
+                    width: tableView.width / tableView.columns.length
+                    role: "item"
+                },
+
+                RRUi.TableViewColumn {
+                    title: qsTr("Quantity")
+                    width: tableView.width / tableView.columns.length
+                    role: "quantity"
+                },
+
+                RRUi.TableViewColumn {
+                    title: qsTr("Unit")
+                    width: tableView.width / tableView.columns.length
+                    role: "unit"
+                },
+
+                RRUi.TableViewColumn {
+                    title: qsTr("Revenue")
+                    width: tableView.width / tableView.columns.length
+                    role: "cost"
+                }
             ]
         }
     }

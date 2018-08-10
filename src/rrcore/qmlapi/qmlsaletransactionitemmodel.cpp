@@ -34,10 +34,10 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
         return m_records.at(index.row()).toMap().value("category").toString();
         break;
     case ItemIdRole:
-        return m_records.at(index.row()).toMap().value("item_id").toDouble();
+        return m_records.at(index.row()).toMap().value("item_id").toInt();
         break;
     case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toDouble();
+        return m_records.at(index.row()).toMap().value("item").toString();
         break;
     case UnitPriceRole:
         return m_records.at(index.row()).toMap().value("unit_price").toDouble();
@@ -46,10 +46,10 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
         return m_records.at(index.row()).toMap().value("quantity").toDouble();
         break;
     case UnitIdRole:
-        return m_records.at(index.row()).toMap().value("unit_id").toDouble();
+        return m_records.at(index.row()).toMap().value("unit_id").toInt();
         break;
     case UnitRole:
-        return m_records.at(index.row()).toMap().value("unit").toDouble();
+        return m_records.at(index.row()).toMap().value("unit").toString();
         break;
     case CostRole:
         return m_records.at(index.row()).toMap().value("cost").toDouble();

@@ -65,7 +65,7 @@ RRUi.HomeCard {
             }
         }
 
-        RRUi.TableView {
+        RRUi.ChartTableView {
             QQLayouts.Layout.fillWidth: true
             anchors.verticalCenter: chartView.verticalCenter
             height: contentHeight

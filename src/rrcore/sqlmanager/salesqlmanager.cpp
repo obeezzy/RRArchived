@@ -61,7 +61,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     QSqlQuery q(connection());
 
     try {
-        AbstractSqlManager::enforceArguments( { "action" }, params);
+//        AbstractSqlManager::enforceArguments( { "action" }, params);
 
         if (!skipSqlTransaction && !DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
@@ -199,7 +199,9 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                 if (availableQuantity < itemInfo.value("quantity").toDouble())
                     throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
                                             QString("Insuffient quantity for item %1 -> available=%2, sold=%3")
-                                            .arg(itemInfo.value("item_id").toDouble(), availableQuantity, itemInfo.value("quantity").toDouble()));
+                                            .arg(itemInfo.value("item_id").toString(),
+                                                 QString::number(availableQuantity),
+                                                 itemInfo.value("quantity").toString()));
 
                 // Insert into initial_quantity
                 q.prepare("INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id) "
@@ -391,8 +393,8 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
 
 void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, QueryResult &result)
 {
-    QVariantMap params = request.params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    const QVariantMap &params = request.params();
+    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
     QSqlQuery q(connection());
 

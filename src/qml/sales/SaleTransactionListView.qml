@@ -19,7 +19,6 @@ ListView {
     signal success(int successCode)
     signal error(int errorCode)
 
-    topMargin: 20
     bottomMargin: 20
     clip: true
     visible: !model.busy
@@ -41,6 +40,7 @@ ListView {
 
     header: FluidControls.ListItem {
         width: ListView.view.width
+        height: 40
         visible: ListView.view.count > 0
         showDivider: true
 
@@ -125,6 +125,7 @@ ListView {
 
         rightItem: Row {
             spacing: 8
+            anchors.verticalCenter: parent.verticalCenter
 
             FluidControls.SubheadingLabel {
                 text: Number(model.total_cost).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))

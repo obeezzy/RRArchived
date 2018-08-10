@@ -1,154 +1,82 @@
 import QtQuick 2.10
-import QtQuick.Controls 2.3 as QQC2
-import QtCharts 2.2 as QCharts
-import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 
-ListView {
+Item {
     id: tableView
 
-    property var headerData: null
-    property var colorModel: null
-    signal rowEntered(int row)
-    signal rowExited(int row)
+    implicitWidth: 500
+    implicitHeight: 500
 
-    implicitWidth: headerItem.width
-    implicitHeight: 400
+    property list<TableViewColumn> columns
+    property Component headerDelegate: null
+    property Component itemDelegate: null
+    property Component rowDelegate: FluidControls.ListItem { showDivider: true }
+    property alias interactive: itemListView.interactive
+    property alias headerPositioning: itemListView.headerPositioning
 
-    contentWidth: headerItem.width
+    property alias model: itemListView.model
 
-    header: Column {
-        function itemAt(index) { return repeater.itemAt(index) }
+    ListView {
+        id: rowListView
+        anchors.fill: parent
 
-        spacing: 0
-        width: tableView.width
+        model: tableView.model
+        contentY: itemListView.contentY
+        interactive: false
 
-        Row {
-            spacing: 1
+        header: Item {
+            width: ListView.view.width
+            height: itemListView.headeritem.height
+
+            Loader {
+                anchors.fill: parent
+                sourceComponent: tableView.rowDelegate
+            }
+        }
+
+        delegate: Loader {
+            width: ListView.view.width
+            height: itemListView.contentItem.children.length > 0 ? itemListView.contentItem.children[0].height : 0
+            sourceComponent: tableView.rowDelegate
+        }
+    }
+
+    ListView {
+        id: itemListView
+        anchors.fill: parent
+
+        header: Row {
             Repeater {
-                id: repeater
-                model: tableView.headerData
+                model: tableView.columns
+                delegate: Loader {
+                    readonly property var styleData: {
+                        "title": tableView.columns[index].title
+                    }
 
-                FluidControls.SubheadingLabel {
-                    text: modelData.title !== undefined ? modelData.title : ""
-                    width: modelData.width === undefined ? contentWidth : modelData.width
-                    horizontalAlignment: modelData.horizontalAlignment
+                    width: tableView.columns[index].width
+                    sourceComponent: tableView.headerDelegate
                 }
             }
         }
 
-        FluidControls.ThinDivider {
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
-        }
-    }
+        delegate: Row {
+            id: itemListViewDelegate
 
-    model: null
-    delegate: FluidControls.ListItem {
-        id: delegate
-        readonly property int row: model.index
-
-        width: ListView.view.width
-        height: 30
-        showDivider: true
-
-        Row {
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-            }
-            spacing: 1
+            readonly property int row: index
 
             Repeater {
-                model: tableView.headerData
-
-                Loader {
+                model: columns.length
+                delegate: Loader {
                     readonly property int column: index
-
-                    anchors {
-                        top: parent.top
-                        bottom: parent.bottom
+                    readonly property var styleData: {
+                        "modelData": itemListView.model.get(itemListView.row)[tableView.columns[index].role],
+                                "row": itemListViewDelegate.row,
+                                "column": column
                     }
-
-                    sourceComponent: {
-                        if (modelData.type === "color")
-                            rectDelegate
-                        else if (modelData.type === "date")
-                            dateDelegate
-                        else if (modelData.type === "money")
-                            moneyDelegate
-                        else
-                            textDelegate
-                    }
-
-                    Component {
-                        id: textDelegate
-
-                        FluidControls.CaptionLabel {
-                            verticalAlignment: modelData.verticalAlignment !== undefined ? modelData.verticalAlignment : Qt.AlignVCenter
-                            horizontalAlignment: modelData.horizontalAlignment !== undefined ? modelData.horizontalAlignment : Qt.AlignLeft
-                            text: tableView.model.get(delegate.row)[modelData.role] !== undefined ? tableView.model.get(delegate.row)[modelData.role] : ""
-                            width: modelData.width !== undefined ? modelData.width : tableView.headerItem.itemAt(column).width
-                            clip: true
-                        }
-                    }
-
-                    Component {
-                        id: rectDelegate
-                        Item {
-                            readonly property int column: index
-
-                            visible: tableView.colorModel !== null && column === 0
-                            width: modelData.width !== undefined ? modelData.width : 20
-                            height: modelData.width !== undefined ? modelData.width : 20
-
-                            Rectangle {
-                                color: tableView.colorModel[delegate.row] !== undefined ? tableView.colorModel[delegate.row] : "white"
-                                anchors.centerIn: parent
-                                width: 10
-                                height: width
-                                radius: width / 2
-                            }
-                        }
-                    }
-
-                    Component {
-                        id: dateDelegate
-
-                        FluidControls.CaptionLabel {
-                            verticalAlignment: modelData.verticalAlignment !== undefined ? modelData.verticalAlignment : Qt.AlignVCenter
-                            horizontalAlignment: modelData.horizontalAlignment !== undefined ? modelData.horizontalAlignment : Qt.AlignLeft
-                            text: tableView.model.get(delegate.row)[modelData.role] !== undefined ? Qt.formatDate(tableView.model.get(delegate.row)[modelData.role], modelData.format) : ""
-                            width: modelData.width !== undefined ? modelData.width : tableView.headerItem.itemAt(column).width
-                            clip: true
-                        }
-                    }
-
-                    Component {
-                        id: moneyDelegate
-
-                        FluidControls.CaptionLabel {
-                            verticalAlignment: modelData.verticalAlignment !== undefined ? modelData.verticalAlignment : Qt.AlignVCenter
-                            horizontalAlignment: modelData.horizontalAlignment !== undefined ? modelData.horizontalAlignment : Qt.AlignLeft
-                            text: tableView.model.get(delegate.row)[modelData.role] !== undefined ? Number(tableView.model.get(delegate.row)[modelData.role]).toLocaleCurrencyString(Qt.locale("en_NG")) : ""
-                            width: modelData.width !== undefined ? modelData.width : tableView.headerItem.itemAt(column).width
-                            clip: true
-                        }
-                    }
+                    width: itemListViewDelegate.ListView.view.headerItem.children[index].width
+                    sourceComponent: tableView.itemDelegate
                 }
             }
         }
-
-        onHoveredChanged: {
-            if (hovered)
-                tableView.rowEntered(index);
-            else
-                tableView.rowExited(index);
-        }
     }
-
-    QQC2.ScrollIndicator.horizontal: QQC2.ScrollIndicator { }
-    QQC2.ScrollIndicator.vertical: QQC2.ScrollIndicator { }
 }

@@ -40,7 +40,6 @@
         <file>sales/homecards/TotalRevenueCard.qml</file>
         <file>rrui/HomeCard.qml</file>
         <file>sales/homecards/MostSoldItemCard.qml</file>
-        <file>rrui/TableView.qml</file>
         <file>rrui/SnackBar.qml</file>
         <file>rrui/Page.qml</file>
         <file>rrui/AlertDialog.qml</file>
@@ -82,5 +81,8 @@
         <file>people/debtor/RemoveDebtConfirmationDialog.qml</file>
         <file>common/paymentwizard/DebtorOptionModel.qml</file>
         <file>common/paymentwizard/CreditorOptionModel.qml</file>
+        <file>rrui/ChartTableView.qml</file>
+        <file>rrui/TableView.qml</file>
+        <file>rrui/TableViewColumn.qml</file>
     </qresource>
 </RCC>

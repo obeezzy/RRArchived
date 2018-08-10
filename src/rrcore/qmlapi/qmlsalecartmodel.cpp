@@ -269,7 +269,9 @@ void QMLSaleCartModel::submitTransaction(const QVariantMap &transactionInfo)
 void QMLSaleCartModel::suspendTransaction(const QVariantMap &params)
 {
     if (m_transactionId == -1)
-        addTransaction( {{ "suspended", true }, { "note", params.value("note") } });
+        addTransaction( { { "suspended", true },
+                          { "action", "suspend" },
+                          { "note", params.value("note") } });
     else
         updateSuspendedTransaction({ { "note", params.value("note") } });
 }
