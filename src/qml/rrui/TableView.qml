@@ -9,7 +9,7 @@ Item {
 
     property list<TableViewColumn> columns
     property Component headerDelegate: null
-    property Component itemDelegate: null
+    property Component cellDelegate: null
     property Component rowDelegate: FluidControls.ListItem { showDivider: true }
     property alias interactive: itemListView.interactive
     property alias headerPositioning: itemListView.headerPositioning
@@ -26,7 +26,7 @@ Item {
 
         header: Item {
             width: ListView.view.width
-            height: itemListView.headeritem.height
+            height: itemListView.headerItem.height
 
             Loader {
                 anchors.fill: parent
@@ -49,7 +49,7 @@ Item {
             Repeater {
                 model: tableView.columns
                 delegate: Loader {
-                    readonly property var styleData: {
+                    readonly property var headerData: {
                         "title": tableView.columns[index].title
                     }
 
@@ -68,13 +68,14 @@ Item {
                 model: columns.length
                 delegate: Loader {
                     readonly property int column: index
-                    readonly property var styleData: {
-                        "modelData": itemListView.model.get(itemListView.row)[tableView.columns[index].role],
+                    property var cellData: {
+                        "modelData": itemListView.model.get(itemListViewDelegate.row)[tableView.columns[column].role],
                                 "row": itemListViewDelegate.row,
-                                "column": column
+                                "column": column,
+                                "textRole": tableView.columns[column].role
                     }
-                    width: itemListViewDelegate.ListView.view.headerItem.children[index].width
-                    sourceComponent: tableView.itemDelegate
+                    width: itemListViewDelegate.ListView.view.headerItem.children[column].width
+                    sourceComponent: tableView.cellDelegate
                 }
             }
         }

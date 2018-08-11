@@ -113,6 +113,11 @@ QHash<int, QByteArray> QMLSaleTransactionItemModel::roleNames() const
     return roles;
 }
 
+void QMLSaleTransactionItemModel::refresh()
+{
+    tryQuery();
+}
+
 void QMLSaleTransactionItemModel::tryQuery()
 {
     if (transactionId() <= -1)
@@ -136,6 +141,8 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();
+
+            emit success(ViewSaleTransactionItemsSuccess);
         }
     } else {
         emit error(UnknownError);

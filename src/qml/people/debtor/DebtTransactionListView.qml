@@ -122,7 +122,7 @@ ListView {
                 rightMargin: 24
                 spacing: 16
                 orientation: ListView.Horizontal
-                height: 200
+                height: contentItem.childrenRect.height
                 model: payment_model
                 visible: debtTransactionListView.count > 0
                 delegate: FluidControls.Card {
@@ -134,7 +134,7 @@ ListView {
 
                     padding: 4
                     width: 220
-                    height: ListView.view.height - 24
+                    height: 220
 
                     Column {
                         anchors {
