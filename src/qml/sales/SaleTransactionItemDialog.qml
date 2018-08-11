@@ -135,9 +135,9 @@ RRUi.Dialog {
                     if (cellData.modelData === undefined)
                         return "";
 
-                    switch (cellData.column) {
-                    case tableView.columns.length - 2:
-                    case tableView.columns.length - 1:
+                    switch (cellData.textRole) {
+                    case "unit_price":
+                    case "cost":
                         return GlobalSettings.toCurrencyString(cellData.modelData);
                     default:
                         return cellData.modelData;
@@ -194,7 +194,7 @@ RRUi.Dialog {
                 },
 
                 RRUi.TableViewColumn {
-                    title: qsTr("Revenue")
+                    title: qsTr("Cost")
                     width: tableView.width / tableView.columns.length
                     role: "cost"
                 }

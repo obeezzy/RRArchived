@@ -13,6 +13,7 @@ Item {
     property Component rowDelegate: FluidControls.ListItem { showDivider: true }
     property alias interactive: itemListView.interactive
     property alias headerPositioning: itemListView.headerPositioning
+    property real cellSpacing: 0
 
     property alias model: itemListView.model
 
@@ -46,6 +47,8 @@ Item {
         anchors.fill: parent
 
         header: Row {
+            spacing: tableView.cellSpacing
+
             Repeater {
                 model: tableView.columns
                 delegate: Loader {
@@ -64,11 +67,13 @@ Item {
 
             readonly property int row: index
 
+            spacing: tableView.cellSpacing
+
             Repeater {
                 model: columns.length
                 delegate: Loader {
                     readonly property int column: index
-                    property var cellData: {
+                    readonly property var cellData: {
                         "modelData": itemListView.model.get(itemListViewDelegate.row)[tableView.columns[column].role],
                                 "row": itemListViewDelegate.row,
                                 "column": column,
