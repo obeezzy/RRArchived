@@ -46,7 +46,9 @@ void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &res
             q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch clients.");
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
+                                        q.lastError().text(),
+                                        QStringLiteral("Failed to fetch clients with 'preferred name' filter."));
         } else if (params.value("filter_column").toString() == "phone_number") {
             q.prepare(QString("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
                               "client.phone_number AS phone_number FROM client "
@@ -55,7 +57,19 @@ void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &res
             q.bindValue(":archived", params.value("archived", false), QSql::Out);
 
             if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(), "Failed to fetch clients.");
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
+                                        q.lastError().text(),
+                                        QStringLiteral("Failed to fetch clients with 'phone number' filter."));
+        } else {
+            q.prepare("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
+                      "client.phone_number AS phone_number FROM client "
+                      "WHERE client.archived = :archived");
+            q.bindValue(":archived", params.value("archived", false), QSql::Out);
+
+            if (!q.exec())
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
+                                        q.lastError().text(),
+                                        QStringLiteral("Failed to fetch clients."));
         }
 
         QVariantList clients;
