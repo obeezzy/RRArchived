@@ -83,10 +83,8 @@ RRUi.Dialog {
             }
         }
 
-        QQC2.StackView {
+        RRUi.StackView {
             id: stackView
-
-            property string currentObjectName: currentItem != null ? currentItem.objectName : ""
 
             QQLayouts.Layout.fillWidth: true
             QQLayouts.Layout.fillHeight: true
@@ -261,7 +259,7 @@ RRUi.Dialog {
                         paymentWizard.cartModel.customerName = stackView.currentItem.customerName;
                         paymentWizard.cartModel.customerPhoneNumber = stackView.currentItem.customerPhoneNumber;
 
-                        if (paymentWizard.balance !== 0)
+                        if (paymentWizard.cartModel.balance !== 0)
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentDueDatePage.qml"));
                         else
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentSummaryPage.qml"), {

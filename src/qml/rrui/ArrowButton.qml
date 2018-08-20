@@ -13,5 +13,5 @@ QQC2.RoundButton {
     icon.source: FluidControls.Utils.iconUrl("navigation/chevron_" + direction)
     visible: opacity != 0
 
-    Behavior on opacity { OpacityAnimator { } }
+    Behavior on opacity { NumberAnimation { easing.type: Easing.OutCubic } }
 }

@@ -11,7 +11,13 @@ QQC2.Page {
 
     property string customerName: ""
     property string customerPhoneNumber: ""
-    readonly property bool detailValid: customerName.trim() != "" && customerPhoneNumber.trim() != ""
+    readonly property bool detailValid: customerName.trim() != ""
+                                        && customerPhoneNumber.trim() != ""
+                                        && !hasNameNumberMismatch
+
+    readonly property bool hasNameNumberMismatch: (phoneNumberField.count === 1
+                                                   && (phoneNumberField.text.trim() === phoneNumberField.model.get(0).phone_number)
+                                                   && (customerNameField.text.trim() !== phoneNumberField.model.get(0).preferred_name))
 
     padding: FluidControls.Units.smallSpacing
     title: qsTr("Enter customer credentials")
@@ -96,5 +102,28 @@ QQC2.Page {
                 }
             }
         }
+    }
+
+    FluidControls.SubheadingLabel {
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+            bottomMargin: 24
+        }
+
+        text: {
+            if (customerNameField.text.trim() === "")
+                qsTr("Customer name cannot be empty.");
+            else if (phoneNumberField.text.trim() === "")
+                qsTr("Customer phone number cannot be empty.");
+            else if (paymentCustomerDetailPage.hasNameNumberMismatch)
+                qsTr("Name and phone number must match if the customer exists already.");
+            else
+                ""
+        }
+        color: "red"
+        wrapMode: Text.Wrap
+        horizontalAlignment: Qt.AlignHCenter
     }
 }

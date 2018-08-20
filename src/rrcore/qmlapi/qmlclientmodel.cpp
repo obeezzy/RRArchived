@@ -64,7 +64,7 @@ void QMLClientModel::processResult(const QueryResult result)
         m_records = result.outcome().toMap().value("clients").toList();
         endResetModel();
 
-        emit success(UnknownSuccess);
+        emit success(ViewClientsSuccess);
     } else {
         emit error(UnknownError);
     }

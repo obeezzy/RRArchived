@@ -1,5 +1,8 @@
-import QtQuick 2.0
+import QtQuick 2.10
+import QtQuick.Controls 2.3
 
-Item {
+StackView {
+    id: stackView
 
+    readonly property string currentObjectName: currentItem != null ? currentItem.objectName : ""
 }

@@ -113,6 +113,49 @@ ListView {
 
             ListView {
                 id: paymentListView
+
+                readonly property int topPadding: 4
+                readonly property int bottomPadding: 8
+                readonly property bool canScrollLeft: contentX > 0
+                readonly property bool canScrollRight: contentX < (contentWidth - width)
+                property bool animationEnabled: true
+
+                function scrollRight() {
+                    if (!moving && canScrollRight) {
+                        var pos = contentX;
+                        positionViewAtIndex(indexAt(contentX + width, height / 2), ListView.Beginning);
+                        var dest = contentX;
+                        animationEnabled = false;
+                        contentX = pos;
+                        animationEnabled = true;
+                        contentX = dest;
+                    }
+                }
+
+                function scrollLeft() {
+                    if (!moving && canScrollLeft) {
+                        var pos = contentX;
+                        positionViewAtIndex(indexAt(contentX, height / 2), ListView.End);
+                        var dest = contentX;
+                        animationEnabled = false;
+                        contentX = pos;
+                        animationEnabled = true;
+                        contentX = dest;
+                    }
+                }
+
+                function scrollToEnd() {
+                    if (!moving && canScrollRight) {
+                        var pos = contentX;
+                        positionViewAtIndex(indexAt(contentX + contentWidth, height / 2), ListView.End);
+                        var dest = contentX;
+                        animationEnabled = false;
+                        contentX = pos;
+                        animationEnabled = true;
+                        contentX = dest;
+                    }
+                }
+
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -122,7 +165,7 @@ ListView {
                 rightMargin: 24
                 spacing: 16
                 orientation: ListView.Horizontal
-                height: contentItem.childrenRect.height
+                height: contentItem.childrenRect.height + topPadding + bottomPadding
                 model: payment_model
                 visible: debtTransactionListView.count > 0
                 delegate: FluidControls.Card {
@@ -219,8 +262,14 @@ ListView {
                 }
 
                 add: Transition {
-                    NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
-                    NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+                    SequentialAnimation {
+                        ParallelAnimation {
+                            NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
+                            NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+                        }
+
+                        ScriptAction { script: paymentListView.scrollToEnd(); }
+                    }
                 }
 
                 remove: Transition {
@@ -230,6 +279,11 @@ ListView {
                 removeDisplaced: Transition {
                     NumberAnimation { properties: "x,y"; duration: 300 }
                 }
+
+                Behavior on contentX {
+                    enabled: !paymentListView.dragging && !paymentListView.flicking && paymentListView.animationEnabled
+                    NumberAnimation { easing.type: Easing.OutCubic }
+                }
             }
 
             FluidControls.ThinDivider { visible: !isLastItem }
@@ -238,23 +292,25 @@ ListView {
         RRUi.ArrowButton {
             anchors {
                 verticalCenter: parent.verticalCenter
-                verticalCenterOffset: 32
-                right: parent.left
+                verticalCenterOffset: 40
+                left: parent.left
             }
 
-            opacity: paymentListView.contentX > 0 ? 1 : 0
+            opacity: paymentListView.canScrollLeft ? 1 : 0
             direction: "left"
+            onClicked: paymentListView.scrollLeft();
         }
 
         RRUi.ArrowButton {
             anchors {
                 verticalCenter: parent.verticalCenter
-                verticalCenterOffset: 32
+                verticalCenterOffset: 40
                 right: parent.right
             }
 
-            opacity: paymentListView.contentWidth > paymentListView.width ? 1 : 0
+            opacity: paymentListView.canScrollRight ? 1 : 0
             direction: "right"
+            onClicked: paymentListView.scrollRight();
         }
 
         Row {

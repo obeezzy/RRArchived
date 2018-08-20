@@ -9,6 +9,7 @@ RRUi.TextField {
     property var model: null
     property string textRole: ""
     property string subTextRole: ""
+    readonly property alias count: listView.count
 
     signal itemSelected(var modelData)
 
@@ -32,6 +33,7 @@ RRUi.TextField {
 //        visible: dropdownField.activeFocus && dropdownField.model != null && !dropdownField.model.busy && popup.contentItem.count > 0
 
         contentItem: ListView {
+            id: listView
             onCountChanged: dropdownField.togglePopupDisplay();
             clip: true
             implicitHeight: contentHeight

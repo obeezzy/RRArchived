@@ -31,20 +31,11 @@ FluidControls.Sidebar {
                 contentItem: FocusScope {
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 8
+                        spacing: 24
 
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
                             source: iconName ? FluidControls.Utils.iconUrl(iconName) : ""
-                        }
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            //text: FontAwesome.fa_android
-                            font {
-                                pixelSize: 100
-                                //family: FontAwesome.fontFamily
-                            }
                         }
 
                         FluidControls.SubheadingLabel {

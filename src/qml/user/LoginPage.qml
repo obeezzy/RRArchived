@@ -51,7 +51,7 @@ RRUi.Page {
 
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
-                            name: "social/person"//"communication/email"
+                            name: "social/person"
                             size: 20
                         }
 
@@ -59,7 +59,7 @@ RRUi.Page {
                             id: userNameField
                             focus: true
                             width: 200
-                            placeholderText: qsTr("User name") //qsTr("Email")
+                            placeholderText: qsTr("User name")
                         }
                     }
 

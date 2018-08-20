@@ -44,10 +44,8 @@ Dialog {
             }
         }
 
-        QQC2.StackView {
+        StackView {
             id: stackView
-
-            property string currentObjectName: currentItem != null ? currentItem.objectName : ""
 
             QQLayouts.Layout.fillWidth: true
             QQLayouts.Layout.fillHeight: true

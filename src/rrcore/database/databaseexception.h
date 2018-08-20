@@ -46,7 +46,8 @@ public:
         DuplicateEntryFailure,
         AmountOverpaid,
         InvalidDueDate,
-        ResultMismatch
+        ResultMismatch,
+        ViewClientsFailure
     };
 
     enum class MySqlErrorCode {

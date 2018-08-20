@@ -1,23 +1,6 @@
 #include "qmlstockitemdetailrecord.h"
 #include <QDateTime>
 
-void itemIdChanged();
-void categoryIdChanged();
-void categoryChanged();
-void itemChanged();
-void descriptionChanged();
-void divisibleChanged();
-void imageSourceChanged();
-void quantityChanged();
-void unitIdChanged();
-void unitChanged();
-void costPriceChanged();
-void retailPriceChanged();
-void currencyChanged();
-void createdChanged();
-void lastEditedChanged();
-void userIdChanged();
-void userChanged();
 QMLStockItemDetailRecord::QMLStockItemDetailRecord(QObject *parent) :
     AbstractDetailRecord(parent),
     m_itemId(-1),

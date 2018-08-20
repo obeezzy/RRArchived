@@ -7,7 +7,8 @@
 
 QMLUserProfile::QMLUserProfile(QObject *parent) :
     QObject(parent),
-    m_busy(false)
+    m_busy(false),
+    m_isFirstTime(true)
 {
     connect(this, &QMLUserProfile::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
     connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
@@ -27,6 +28,11 @@ void QMLUserProfile::setBusy(bool busy)
     emit busyChanged();
 }
 
+bool QMLUserProfile::isFirstTime() const
+{
+    return m_isFirstTime;
+}
+
 void QMLUserProfile::signIn(const QString &userName, const QString &password)
 {
     qInfo() << Q_FUNC_INFO << userName << password;
@@ -41,6 +47,13 @@ void QMLUserProfile::signIn(const QString &userName, const QString &password)
         request.setCommand("sign_in_user", { { "user_name", userName }, { "password", password } }, QueryRequest::User);
         emit executeRequest(request);
     }
+}
+
+void QMLUserProfile::signInOnline(const QString &emailAddress, const QString &password)
+{
+    Q_UNUSED(emailAddress)
+    Q_UNUSED(password)
+    setBusy(true);
 }
 
 void QMLUserProfile::signUp(const QString &userName, const QString &password)
@@ -96,4 +109,13 @@ void QMLUserProfile::processResult(const QueryResult &result)
             break;
         }
     }
+}
+
+void QMLUserProfile::setIsFirstTime(bool isFirstTime)
+{
+    if (m_isFirstTime == isFirstTime)
+        return;
+
+    m_isFirstTime = isFirstTime;
+    emit isFirstTimeChanged();
 }

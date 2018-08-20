@@ -84,5 +84,11 @@
         <file>rrui/ChartTableView.qml</file>
         <file>rrui/TableView.qml</file>
         <file>rrui/TableViewColumn.qml</file>
+        <file>user/OnboardingPage.qml</file>
+        <file>rrui/HorizontalStepper.qml</file>
+        <file>rrui/StackView.qml</file>
+        <file>user/OnlineLoginPage.qml</file>
+        <file>user/BusinessSelectionPage.qml</file>
+        <file>user/BusinessDetailPage.qml</file>
     </qresource>
 </RCC>

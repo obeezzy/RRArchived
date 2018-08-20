@@ -19,7 +19,8 @@ public:
     }; Q_ENUM(FilterColumn)
 
     enum SuccessCode {
-        UnknownSuccess
+        UnknownSuccess,
+        ViewClientsSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {

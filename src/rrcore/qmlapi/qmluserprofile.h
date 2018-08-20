@@ -10,6 +10,7 @@ class QMLUserProfile : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool busy READ isBusy WRITE setBusy NOTIFY busyChanged)
+    Q_PROPERTY(bool isFirstTime READ isFirstTime NOTIFY isFirstTimeChanged)
 public:
     explicit QMLUserProfile(QObject *parent = nullptr);
 
@@ -24,7 +25,10 @@ public:
     bool isBusy() const;
     void setBusy(bool busy);
 
+    bool isFirstTime() const;
+
     Q_INVOKABLE void signIn(const QString &userName, const QString &password);
+    Q_INVOKABLE void signInOnline(const QString &emailAddress, const QString &password);
     Q_INVOKABLE void signUp(const QString &userName, const QString &password);
     Q_INVOKABLE void removeUser(const QString &userName);
 signals:
@@ -32,10 +36,15 @@ signals:
     void busyChanged();
     void success();
     void error(int errorCode);
+
+    void isFirstTimeChanged();
 private slots:
     void processResult(const QueryResult &);
 private:
     bool m_busy;
+    bool m_isFirstTime;
+
+    void setIsFirstTime(bool isFirstTime);
 };
 
 #endif // QMLUSERPROFILE_H
