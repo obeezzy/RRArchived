@@ -8,11 +8,7 @@
 #include "database/queryrequest.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
-
-const QString ROOT_USER_NAME("root");
-const QString ROOT_PASSWORD("hello");
-const QString DEFAULT_DATABASE_NAME("rr_temp");
-const int DEFAULT_PORT(3306);
+#include "config/config.h"
 
 UserSqlManager::UserSqlManager(QSqlDatabase connection)
     : AbstractSqlManager(connection)
@@ -66,10 +62,8 @@ bool UserSqlManager::storeProfile(QueryResult &result)
 
 void UserSqlManager::signInUser(const QueryRequest &request, QueryResult result)
 {
-    const QString &userName = request.params()["user_name"].toString();
-    const QString &password = request.params()["password"].toString();
-    QSettings settings;
-    settings.beginGroup("database");
+    const QString &userName = request.params().value("user_name").toString();
+    const QString &password = request.params().value("password").toString();
 
     if (connection().isOpen())
         connection().close();
@@ -79,9 +73,9 @@ void UserSqlManager::signInUser(const QueryRequest &request, QueryResult result)
     else
         connection() = QSqlDatabase::database();
 
-    connection().setDatabaseName(settings.value("database_name", DEFAULT_DATABASE_NAME).toString());
-    connection().setHostName(settings.value("host_name", "localhost").toString());
-    connection().setPort(settings.value("port", DEFAULT_PORT).toInt());
+    connection().setDatabaseName(Config::instance().databaseName());
+    connection().setHostName(Config::instance().hostName());
+    connection().setPort(Config::instance().port());
     connection().setUserName(userName);
     connection().setPassword(password);
     connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
@@ -89,16 +83,12 @@ void UserSqlManager::signInUser(const QueryRequest &request, QueryResult result)
     if (!connection().open() || !storeProfile(result))
         throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(),
                                 QString("Failed to sign in as '%1'.").arg(userName));
-
-    settings.endGroup();
 }
 
 void UserSqlManager::signUpUser(const QueryRequest &request)
 {
     const QString &userName = request.params().value("user_name").toString();
     const QString &password = request.params().value("password").toString();
-    QSettings settings;
-    settings.beginGroup("database");
 
     if (connection().isOpen())
         connection().close();
@@ -109,11 +99,11 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
     else
         connection() = QSqlDatabase::database();
 
-    connection().setDatabaseName(settings.value("database_name", DEFAULT_DATABASE_NAME).toString());
-    connection().setHostName(settings.value("host_name", "localhost").toString());
-    connection().setPort(settings.value("port", DEFAULT_PORT).toInt());
-    connection().setUserName(ROOT_USER_NAME);
-    connection().setPassword(ROOT_PASSWORD);
+    connection().setDatabaseName(Config::instance().databaseName());
+    connection().setHostName(Config::instance().hostName());
+    connection().setPort(Config::instance().port());
+    connection().setUserName(Config::instance().userName());
+    connection().setPassword(Config::instance().password());
     connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection().open())
@@ -153,12 +143,10 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
 
-        settings.endGroup();
-    } catch (DatabaseException &e) {
+    } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
-        settings.endGroup();
         throw;
     }
 }
@@ -167,8 +155,6 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
 {
     const QString &userName = request.params().value("user_name").toString();
     const QString &password = request.params().value("password").toString();
-    QSettings settings;
-    settings.beginGroup("database");
 
     if (connection().isOpen())
         connection().close();
@@ -180,9 +166,9 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
     else
         connection() = QSqlDatabase::database();
 
-    connection().setDatabaseName(settings.value("database_name", DEFAULT_DATABASE_NAME).toString());
-    connection().setHostName(settings.value("host_name", "localhost").toString());
-    connection().setPort(settings.value("port", DEFAULT_PORT).toInt());
+    connection().setDatabaseName(Config::instance().databaseName());
+    connection().setHostName(Config::instance().hostName());
+    connection().setPort(Config::instance().port());
     connection().setUserName(userName);
     connection().setPassword(password);
     connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
@@ -210,12 +196,10 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
 
-        settings.endGroup();
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
-        settings.endGroup();
         throw;
     }
 }
@@ -256,12 +240,10 @@ void UserSqlManager::grantPrivilege(const QString &privilege, const QString &use
 void UserSqlManager::createRRUser(const QString &userName, QSqlQuery &q)
 {
     const QDateTime currentDateTime = QDateTime::currentDateTime();
-    QSettings settings;
-    settings.beginGroup("database");
 
     q.prepare(QString("INSERT INTO %1.user (user, photo, phone_number, email_address, active, pending, created, last_edited) "
               "VALUES (:user, :photo, :phone_number, :email_address, :active, :pending, :created, :last_edited)")
-              .arg(settings.value("database_name", DEFAULT_DATABASE_NAME).toString()));
+              .arg(Config::instance().databaseName()));
     q.bindValue(":user", userName);
     q.bindValue(":photo", QVariant(QVariant::ByteArray));
     q.bindValue(":phone_number", QVariant(QVariant::String));
@@ -274,6 +256,4 @@ void UserSqlManager::createRRUser(const QString &userName, QSqlQuery &q)
     if (!q.exec())
         throw DatabaseException(DatabaseException::RRErrorCode::SignUpFailure, q.lastError().text(),
                                 QString("Failed to create RR user '%1'.").arg(userName));
-
-    settings.endGroup();
 }

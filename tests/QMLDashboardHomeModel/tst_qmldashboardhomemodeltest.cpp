@@ -45,4 +45,4 @@ void QMLDashboardHomeModelTest::test_case1()
 
 QTEST_MAIN(QMLDashboardHomeModelTest)
 
-#include "tst_QMLDashboardHomeModelTest.moc"
+#include "tst_qmldashboardhomemodeltest.moc"

@@ -1,5 +1,6 @@
 #include "qmluserprofile.h"
 #include <QDebug>
+#include <QSettings>
 
 #include "database/databasethread.h"
 #include "database/databaseexception.h"
@@ -7,8 +8,7 @@
 
 QMLUserProfile::QMLUserProfile(QObject *parent) :
     QObject(parent),
-    m_busy(false),
-    m_isFirstTime(true)
+    m_busy(false)
 {
     connect(this, &QMLUserProfile::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
     connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
@@ -30,7 +30,7 @@ void QMLUserProfile::setBusy(bool busy)
 
 bool QMLUserProfile::isFirstTime() const
 {
-    return m_isFirstTime;
+    return QSettings().value("is_first_time", true).toBool();
 }
 
 void QMLUserProfile::signIn(const QString &userName, const QString &password)
@@ -109,13 +109,4 @@ void QMLUserProfile::processResult(const QueryResult &result)
             break;
         }
     }
-}
-
-void QMLUserProfile::setIsFirstTime(bool isFirstTime)
-{
-    if (m_isFirstTime == isFirstTime)
-        return;
-
-    m_isFirstTime = isFirstTime;
-    emit isFirstTimeChanged();
 }

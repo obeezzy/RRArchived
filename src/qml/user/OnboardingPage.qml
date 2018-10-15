@@ -94,15 +94,19 @@ RRUi.Page {
 
                     text: stackView.currentObjectName === "businessDetailPage" ? qsTr("Finish") : qsTr("Next")
                     onClicked: {
-                        if (stackView.currentObjectName === "onlineLoginPage")
+                        if (stackView.currentObjectName === "onlineLoginPage") {
                             stackView.push(Qt.resolvedUrl("BusinessSelectionPage.qml"));
-                        else if (stackView.currentObjectName === "businessSelectionPage")
+                        } else if (stackView.currentObjectName === "businessSelectionPage") {
                             stackView.push(Qt.resolvedUrl("BusinessDetailPage.qml"));
-                        else if (stackView.currentObjectName === "businessDetailPage")
+                        } else if (stackView.currentObjectName === "businessDetailPage") {
+                            databaseCreator.start();
                             onboardingPage.finished();
+                        }
                     }
                 }
             }
         }
     }
+
+    RR.DatabaseCreator { id: databaseCreator }
 }

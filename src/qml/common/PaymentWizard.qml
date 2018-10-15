@@ -217,6 +217,7 @@ RRUi.Dialog {
                         switch (stackView.currentItem.selectedOption) {
                         case "pay_another_way":
                             if (paymentWizard.cartModel.canAcceptCard || paymentWizard.cartModel.canAcceptCash) {
+                                paymentWizard.action = stackView.currentItem.selectedOption;
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentMethodPage.qml"), {
                                                    "canAcceptCash": paymentWizard.cartModel.canAcceptCash,
                                                    "canAcceptCard": paymentWizard.cartModel.canAcceptCard
@@ -224,13 +225,16 @@ RRUi.Dialog {
                             }
                             break;
                         case "overlook_balance":
+                            paymentWizard.action = stackView.currentItem.selectedOption;
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentFinishPage.qml"));
                             break;
                         case "give_change":
+                            paymentWizard.action = stackView.currentItem.selectedOption;
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentChangePage.qml"),
                                            { "changeDue": stackView.currentItem.balance });
                             break;
                         case "create_debtor":
+                            paymentWizard.action = stackView.currentItem.selectedOption;
                             if (paymentWizard.cartModel.customerName.trim() === ""
                                     || paymentWizard.cartModel.customerPhoneNumber.trim() === "")
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
@@ -242,6 +246,7 @@ RRUi.Dialog {
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentDueDatePage.qml"));
                             break;
                         case "create_creditor":
+                            paymentWizard.action = stackView.currentItem.selectedOption;
                             if (paymentWizard.cartModel.customerName.trim() === ""
                                     || paymentWizard.cartModel.customerPhoneNumber.trim() === "")
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentCustomerDetailPage.qml"), {
@@ -253,8 +258,6 @@ RRUi.Dialog {
                                 stackView.push(Qt.resolvedUrl("paymentwizard/PaymentDueDatePage.qml"));
                             break;
                         }
-
-                        paymentWizard.action = stackView.currentItem.selectedOption;
                     } else if (stackView.currentObjectName == "paymentCustomerDetailPage") {
                         paymentWizard.cartModel.customerName = stackView.currentItem.customerName;
                         paymentWizard.cartModel.customerPhoneNumber = stackView.currentItem.customerPhoneNumber;

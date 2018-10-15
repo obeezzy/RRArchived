@@ -61,10 +61,17 @@ void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &res
                                         q.lastError().text(),
                                         QStringLiteral("Failed to fetch clients with 'phone number' filter."));
         } else {
-            q.prepare("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
-                      "client.phone_number AS phone_number FROM client "
-                      "WHERE client.archived = :archived");
-            q.bindValue(":archived", params.value("archived", false), QSql::Out);
+//            q.prepare("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
+//                      "client.phone_number AS phone_number FROM client "
+//                      "WHERE client.archived = :archived");
+//            q.bindValue(":archived", params.value("archived", false), QSql::Out);
+
+//            if (!q.exec())
+//                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
+//                                        q.lastError().text(),
+//                                        QStringLiteral("Failed to fetch clients."));
+            q.prepare("CALL ViewClients(:archived)");
+            q.bindValue(":archived", params.value("archived", false), QSql::In);
 
             if (!q.exec())
                 throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,

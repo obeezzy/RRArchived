@@ -27,7 +27,7 @@ class DatabaseThread : public QThread
     Q_OBJECT
 public:
     static DatabaseThread &instance();
-    ~DatabaseThread();
+    ~DatabaseThread() override;
 
     DatabaseThread(DatabaseThread const &) = delete;
     void operator=(DatabaseThread const &) = delete;

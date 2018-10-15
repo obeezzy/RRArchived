@@ -2,6 +2,8 @@
 #include <QtQml>
 
 #include "rrcore/qmlapi/qmluserprofile.h"
+#include "rrcore/qmlapi/qmldatabasecreator.h"
+
 #include "rrcore/qmlapi/qmldashboardhomemodel.h"
 #include "rrcore/qmlapi/qmlstockcategoryitemmodel.h"
 #include "rrcore/qmlapi/qmlstockitempusher.h"
@@ -28,6 +30,7 @@ void Plugins::registerTypes()
 {
     // Misc
     qmlRegisterType<QMLUserProfile>("com.gecko.rr", 1, 0, "UserProfile");
+    qmlRegisterType<QMLDatabaseCreator>("com.gecko.rr", 1, 0, "DatabaseCreator");
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");
