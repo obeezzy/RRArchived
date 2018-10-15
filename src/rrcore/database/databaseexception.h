@@ -9,6 +9,7 @@ class DatabaseException : public std::exception
 public:
     enum class RRErrorCode {
         Unknown,
+        DatabaseInitializationFailed,
         SignInFailure,
         SignUpFailure,
         RemoveUserFailure,

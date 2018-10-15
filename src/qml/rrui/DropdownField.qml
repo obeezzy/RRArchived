@@ -42,7 +42,7 @@ RRUi.TextField {
                 width: popup.width
                 text: dropdownField.model != null && index > -1 ?
                           dropdownField.model.get(index)[dropdownField.textRole] : ""
-                subText: dropdownField.model != null ?
+                subText: dropdownField.model != null && index > -1 ?
                             dropdownField.model.get(index)[dropdownField.subTextRole] : ""
 
                 onClicked: dropdownField.itemSelected(dropdownField.model.get(index));

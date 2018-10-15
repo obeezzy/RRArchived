@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName("Record Rack");
     QGuiApplication::setApplicationVersion("0.0.1");
     QGuiApplication::setOrganizationName("Gecko");
-    QGuiApplication::setOrganizationDomain("www.gecko.rr.com");
+    QGuiApplication::setOrganizationDomain("recordrack.io");
 
     Plugins::registerTypes();
     QQuickStyle::setStyle("Material");

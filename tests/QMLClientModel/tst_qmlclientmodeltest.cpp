@@ -67,6 +67,10 @@ void QMLClientModelTest::testViewClients()
     busyChangedSpy.clear();
     QCOMPARE(m_clientModel->rowCount(), 0);
 
+    // BUG: DON'T KNOW WHY THIS HAS TO BE HERE BUT IT DOESN'T WORK WITHOUT IT!
+    m_client->connection().close();
+    m_client->connection().open();
+
     QSqlQuery q(m_client->connection());
     q.prepare("INSERT INTO client VALUES (1, 'First', 'Last', 'Preferred', "
               "'123456789', 'Address', NULL, 0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 1)");
@@ -92,6 +96,10 @@ void QMLClientModelTest::testFilterByPreferredName()
     QSignalSpy errorSpy(m_clientModel, &QMLClientModel::error);
 
     QVERIFY(m_client->initialize());
+
+    // BUG: DON'T KNOW WHY THIS HAS TO BE HERE BUT IT DOESN'T WORK WITHOUT IT!
+    m_client->connection().close();
+    m_client->connection().open();
 
     QSqlQuery q(m_client->connection());
     q.prepare("INSERT INTO client VALUES (1, 'First', 'Last', 'Preferred', "

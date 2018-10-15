@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/sql">
+        <file>init.sql</file>
+        <file>procedures/client.sql</file>
+    </qresource>
+</RCC>

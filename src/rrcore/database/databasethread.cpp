@@ -66,7 +66,6 @@ void Worker::execute(const QueryRequest request)
             break;
         default:
             throw DatabaseException(DatabaseException::RRErrorCode::RequestTypeNotFound, "Unhandled request type.");
-            break;
         }
 
         if (!result.isSuccessful())
@@ -103,7 +102,8 @@ void Worker::connectToTestDatabase()
         m_connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
         if (!m_connection.open())
-            throw DatabaseException(DatabaseException::RRErrorCode::ConnectToTestDatabaseFailed, m_connection.lastError().text(), "Failed to connect to test database in worker thread.");
+            throw DatabaseException(DatabaseException::RRErrorCode::ConnectToTestDatabaseFailed, m_connection.lastError().text(),
+                                    "Failed to connect to test database in worker thread.");
 
         qInfo() << "----------------TEST DATABASE MODE------------------------";
     } catch (DatabaseException &e) {

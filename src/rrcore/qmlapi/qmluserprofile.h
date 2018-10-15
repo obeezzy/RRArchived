@@ -10,7 +10,7 @@ class QMLUserProfile : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool busy READ isBusy WRITE setBusy NOTIFY busyChanged)
-    Q_PROPERTY(bool isFirstTime READ isFirstTime NOTIFY isFirstTimeChanged)
+    Q_PROPERTY(bool isFirstTime READ isFirstTime CONSTANT)
 public:
     explicit QMLUserProfile(QObject *parent = nullptr);
 
@@ -42,9 +42,6 @@ private slots:
     void processResult(const QueryResult &);
 private:
     bool m_busy;
-    bool m_isFirstTime;
-
-    void setIsFirstTime(bool isFirstTime);
 };
 
 #endif // QMLUSERPROFILE_H
