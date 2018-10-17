@@ -1,10 +1,10 @@
 USE mysql;
 
 -- Create database
-DROP DATABASE IF EXISTS ###DATABASENAME###;
-CREATE DATABASE ###DATABASENAME###;
+DROP DATABASE IF EXISTS rr_test;
+CREATE DATABASE rr_test;
 
-USE ###DATABASENAME###;
+USE rr_test;
 
 START TRANSACTION;
 -- Create business details table

@@ -17,7 +17,7 @@ Config &Config::instance()
 QString Config::hostName()
 {
     m_settings.beginGroup("Database");
-    const QString &hostName = m_settings.value("hostName").toString();
+    const QString &hostName = m_settings.value("host").toString();
     m_settings.endGroup();
 
     return hostName;
@@ -35,7 +35,7 @@ int Config::port()
 QString Config::userName()
 {
     m_settings.beginGroup("Database");
-    const QString &userName = m_settings.value("userName").toString();
+    const QString &userName = m_settings.value("user").toString();
     m_settings.endGroup();
 
     return userName;
@@ -53,7 +53,7 @@ QString Config::password()
 QString Config::databaseName()
 {
     m_settings.beginGroup("Database");
-    const QString &databaseName = m_settings.value("databaseName").toString();
+    const QString &databaseName = m_settings.value("database").toString();
     m_settings.endGroup();
 
     return databaseName;

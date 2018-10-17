@@ -22,6 +22,7 @@ const QString INIT_SQL_FILE(":/sql/init.sql");
 const QString PROCEDURE_DIR(":/sql/procedures");
 
 const QString CREATE_PROCEDURE_PATTERN("(?<=DELIMITER \\/\\/).*(?=\\/\\/ DELIMITER ;)");
+const QString DATABASE_NAME_PATTERN("###DATABASENAME###");
 
 DatabaseCreator::DatabaseCreator()
 {
@@ -68,6 +69,10 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
     QSqlQuery q(m_connection);
     QString sqlData = file.readAll();
+
+    // Inject database name
+    sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
+
     if(m_connection.driver()->hasFeature(QSqlDriver::Transactions)) {
         // Replace comments and tabs and new lines with space
         sqlData = sqlData.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",
@@ -924,6 +929,7 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
     // Now, create defined procedures
     file.seek(0);
     QString sqlData = file.readAll();
+
     // Replace comments and tabs and new lines with space
     sqlData = sqlData.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",
                                                  QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption), " ");
