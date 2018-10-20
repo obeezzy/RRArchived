@@ -6,6 +6,12 @@ QMLClientModel::QMLClientModel(QObject *parent) :
 
 }
 
+QMLClientModel::QMLClientModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread)
+{
+
+}
+
 int QMLClientModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -22,13 +28,10 @@ QVariant QMLClientModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case ClientIdRole:
         return m_records.at(index.row()).toMap().value("client_id").toString();
-        break;
     case PreferredNameRole:
         return m_records.at(index.row()).toMap().value("preferred_name").toString();
-        break;
     case PhoneNumberRole:
         return m_records.at(index.row()).toMap().value("phone_number").toString();
-        break;
     }
 
     return QVariant();

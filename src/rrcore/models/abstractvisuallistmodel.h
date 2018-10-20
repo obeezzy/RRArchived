@@ -10,6 +10,7 @@
 
 class QueryRequest;
 class QueryResult;
+class DatabaseThread;
 
 class AbstractVisualListModel : public QAbstractListModel, public QQmlParserStatus
 {
@@ -21,7 +22,8 @@ class AbstractVisualListModel : public QAbstractListModel, public QQmlParserStat
     Q_PROPERTY(int filterColumn READ filterColumn WRITE setFilterColumn NOTIFY filterColumnChanged)
 public:
     explicit AbstractVisualListModel(QObject *parent = nullptr);
-    virtual ~AbstractVisualListModel();
+    explicit AbstractVisualListModel(DatabaseThread &thread);
+    virtual ~AbstractVisualListModel() override;
 
     bool autoQuery() const;
     void setAutoQuery(bool);

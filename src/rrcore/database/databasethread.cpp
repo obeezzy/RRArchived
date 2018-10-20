@@ -4,6 +4,9 @@
 #include <QSqlError>
 #include <QSqlDriver>
 #include <QSqlQuery>
+#include <QProcessEnvironment>
+#include <QCoreApplication>
+#include <QElapsedTimer>
 #include <QDebug>
 
 #include "databaseserver.h"
@@ -16,9 +19,6 @@
 #include "sqlmanager/salesqlmanager.h"
 #include "sqlmanager/debtorsqlmanager.h"
 #include "sqlmanager/clientsqlmanager.h"
-#include <QCoreApplication>
-#include <QElapsedTimer>
-#include <QDebug>
 
 Worker::Worker(QObject *parent) :
     QObject(parent)
@@ -125,6 +125,11 @@ DatabaseThread::DatabaseThread(QObject *parent) :
         worker->moveToThread(this);
         start();
     }
+}
+
+DatabaseThread::DatabaseThread(QueryResult *, QObject *parent) :
+    QThread(parent)
+{
 }
 
 DatabaseThread::~DatabaseThread()

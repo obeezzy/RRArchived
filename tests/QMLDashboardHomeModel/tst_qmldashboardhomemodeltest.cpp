@@ -9,7 +9,6 @@ class QMLDashboardHomeModelTest : public QObject
 
 public:
     QMLDashboardHomeModelTest();
-    ~QMLDashboardHomeModelTest();
 
 private slots:
     void init();
@@ -19,11 +18,6 @@ private slots:
 };
 
 QMLDashboardHomeModelTest::QMLDashboardHomeModelTest()
-{
-
-}
-
-QMLDashboardHomeModelTest::~QMLDashboardHomeModelTest()
 {
 
 }

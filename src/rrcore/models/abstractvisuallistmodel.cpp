@@ -18,6 +18,22 @@ AbstractVisualListModel::AbstractVisualListModel(QObject *parent) :
     connect(this, &AbstractVisualListModel::filterColumnChanged, this, &AbstractVisualListModel::filter);
 }
 
+AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread) :
+    m_autoQuery(true),
+    m_busy(false),
+    m_filterText(QString()),
+    m_filterColumn(-1),
+    m_lastRequest(QueryRequest())
+{
+    connect(this, &AbstractVisualListModel::executeRequest, &thread, &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::processResult);
+
+    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::saveRequest);
+
+    connect(this, &AbstractVisualListModel::filterTextChanged, this, &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::filterColumnChanged, this, &AbstractVisualListModel::filter);
+}
+
 AbstractVisualListModel::~AbstractVisualListModel()
 {
 

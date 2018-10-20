@@ -6,6 +6,7 @@
 #include "qmlapi/qmldebttransactionmodel.h"
 #include "models/debtpaymentmodel.h"
 #include "databaseclient.h"
+#include "mockdatabasethread.h"
 
 class QMLDebtTransactionModelTest : public QObject
 {
@@ -48,12 +49,16 @@ private Q_SLOTS:
     void testSubmitMultipleDebts();
 
     void testFetchDebtAndAddNewPayment();
+
 private:
     QMLDebtTransactionModel *m_debtTransactionModel;
+    QueryResult m_result;
+    MockDatabaseThread m_thread;
     DatabaseClient *m_client;
 };
 
-QMLDebtTransactionModelTest::QMLDebtTransactionModelTest()
+QMLDebtTransactionModelTest::QMLDebtTransactionModelTest() :
+    m_thread(&m_result)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }

@@ -26,8 +26,10 @@ class DatabaseThread : public QThread
 {
     Q_OBJECT
 public:
+    explicit DatabaseThread(QueryResult *, QObject *parent = nullptr); // For testing
+
     static DatabaseThread &instance();
-    ~DatabaseThread() override;
+    virtual ~DatabaseThread() override;
 
     DatabaseThread(DatabaseThread const &) = delete;
     void operator=(DatabaseThread const &) = delete;
