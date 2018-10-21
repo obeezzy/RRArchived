@@ -1,11 +1,9 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include <QSqlQuery>
 
 #include "qmlapi/qmldebttransactionmodel.h"
 #include "models/debtpaymentmodel.h"
-#include "databaseclient.h"
 #include "mockdatabasethread.h"
 
 class QMLDebtTransactionModelTest : public QObject
@@ -51,25 +49,22 @@ private:
     QMLDebtTransactionModel *m_debtTransactionModel;
     QueryResult m_result;
     MockDatabaseThread m_thread;
-    DatabaseClient *m_client;
 };
 
 QMLDebtTransactionModelTest::QMLDebtTransactionModelTest() :
     m_thread(&m_result)
 {
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLDebtTransactionModelTest::init()
 {
     m_debtTransactionModel = new QMLDebtTransactionModel(m_thread);
-    m_client = new DatabaseClient;
 }
 
 void QMLDebtTransactionModelTest::cleanup()
 {
     m_debtTransactionModel->deleteLater();
-    delete m_client;
 }
 
 void QMLDebtTransactionModelTest::testSetImageSource()

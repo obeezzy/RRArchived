@@ -9,6 +9,12 @@ QMLDebtorModel::QMLDebtorModel(QObject *parent) :
 
 }
 
+QMLDebtorModel::QMLDebtorModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread)
+{
+
+}
+
 int QMLDebtorModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -25,31 +31,22 @@ QVariant QMLDebtorModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case ClientIdRole:
         return m_records.at(index.row()).toMap().value("client_id").toInt();
-        break;
     case DebtorIdRole:
         return m_records.at(index.row()).toMap().value("debtor_id").toInt();
-        break;
     case ImageSourceRole:
         return m_records.at(index.row()).toMap().value("image_source").toString();
-        break;
     case PreferredNameRole:
         return m_records.at(index.row()).toMap().value("preferred_name").toString();
-        break;
     case TotalDebtRole:
         return m_records.at(index.row()).toMap().value("total_debt").toDouble();
-        break;
     case NoteRole:
         return m_records.at(index.row()).toMap().value("note").toString();
-        break;
     case CreatedRole:
         return m_records.at(index.row()).toMap().value("created").toDateTime();
-        break;
     case LastEditedRole:
         return m_records.at(index.row()).toMap().value("last_edited").toDateTime();
-        break;
     case UserRole:
         return m_records.at(index.row()).toMap().value("user").toString();
-        break;
     }
 
     return QVariant();
