@@ -44,11 +44,11 @@ void QMLClientModelTest::cleanup()
 
 void QMLClientModelTest::testViewClients()
 {
-    auto threadReturnsEmptySet = [this]() {
+    auto databaseWillReturnEmptySet = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
     };
-    auto threadReturnsSingleClient = [this]() {
+    auto databaseWillReturnSingleClient = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         QVariantList clients;
@@ -68,7 +68,7 @@ void QMLClientModelTest::testViewClients()
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 0);
 
-    threadReturnsEmptySet();
+    databaseWillReturnEmptySet();
     m_clientModel->componentComplete();
 
     QCOMPARE(successSpy.count(), 1);
@@ -78,7 +78,7 @@ void QMLClientModelTest::testViewClients()
     busyChangedSpy.clear();
     QCOMPARE(m_clientModel->rowCount(), 0);
 
-    threadReturnsSingleClient();
+    databaseWillReturnSingleClient();
     m_clientModel->componentComplete();
 
     QCOMPARE(successSpy.count(), 1);
@@ -95,11 +95,11 @@ void QMLClientModelTest::testViewClients()
 
 void QMLClientModelTest::testFilterByPreferredName()
 {
-    auto threadReturnsEmptySet = [this]() {
+    auto databaseWillReturnEmptySet = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
     };
-    auto threadReturnsSingleClient = [this]() {
+    auto databaseWillReturnSingleClient = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         QVariantList clients;
@@ -110,7 +110,7 @@ void QMLClientModelTest::testFilterByPreferredName()
                        });
         m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
-    auto threadReturnsTwoClient = [this]() {
+    auto databaseWillReturnTwoClient = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         QVariantList clients;
@@ -131,7 +131,7 @@ void QMLClientModelTest::testFilterByPreferredName()
     QSignalSpy successSpy(m_clientModel, &QMLClientModel::success);
     QSignalSpy errorSpy(m_clientModel, &QMLClientModel::error);
 
-    threadReturnsEmptySet();
+    databaseWillReturnEmptySet();
 
     m_clientModel->setFilterColumn(QMLClientModel::PreferredNameColumn);
     m_clientModel->setFilterText("A");
@@ -141,7 +141,7 @@ void QMLClientModelTest::testFilterByPreferredName()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_clientModel->rowCount(), 0);
 
-    threadReturnsTwoClient();
+    databaseWillReturnTwoClient();
 
     m_clientModel->setFilterText("P");
     QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
@@ -150,7 +150,7 @@ void QMLClientModelTest::testFilterByPreferredName()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_clientModel->rowCount(), 2);
 
-    threadReturnsSingleClient();
+    databaseWillReturnSingleClient();
 
     m_clientModel->setFilterText("Preferred again");
     QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
@@ -166,11 +166,11 @@ void QMLClientModelTest::testFilterByPreferredName()
 
 void QMLClientModelTest::testFilterByPhoneNumber()
 {
-    auto threadReturnsEmptySet = [this]() {
+    auto databaseWillReturnEmptySet = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
     };
-    auto threadReturnsSingleClient = [this]() {
+    auto databaseWillReturnSingleClient = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         QVariantList clients;
@@ -181,7 +181,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
                        });
         m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
-    auto threadReturnsTwoClient = [this]() {
+    auto databaseWillReturnTwoClients = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         QVariantList clients;
@@ -202,7 +202,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
     QSignalSpy successSpy(m_clientModel, &QMLClientModel::success);
     QSignalSpy errorSpy(m_clientModel, &QMLClientModel::error);
 
-    threadReturnsEmptySet();
+    databaseWillReturnEmptySet();
 
     m_clientModel->setFilterColumn(QMLClientModel::PhoneNumberColumn);
     m_clientModel->setFilterText("0");
@@ -211,7 +211,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_clientModel->rowCount(), 0);
 
-    threadReturnsTwoClient();
+    databaseWillReturnTwoClients();
 
     m_clientModel->setFilterText("1");
     QCOMPARE(successSpy.count(), 1);
@@ -219,7 +219,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_clientModel->rowCount(), 2);
 
-    threadReturnsSingleClient();
+    databaseWillReturnSingleClient();
 
     m_clientModel->setFilterText("987654321");
     QCOMPARE(successSpy.count(), 1);

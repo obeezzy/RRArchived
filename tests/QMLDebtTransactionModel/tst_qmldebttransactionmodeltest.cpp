@@ -540,7 +540,7 @@ void QMLDebtTransactionModelTest::testRemovePayment()
 
 void QMLDebtTransactionModelTest::testSetDebtorId()
 {
-    auto threadReturnsEmptyResult = [this]() {
+    auto databaseWillReturnEmptyResult = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
     };
@@ -551,7 +551,7 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
     // STEP: Ensure debtor ID is not set.
     QCOMPARE(m_debtTransactionModel->debtorId(), -1);
 
-    threadReturnsEmptyResult();
+    databaseWillReturnEmptyResult();
 
     // STEP: Set debtor ID.
     m_debtTransactionModel->setDebtorId(1);
@@ -563,7 +563,7 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
     QCOMPARE(debtorIdChangedSpy.count(), 0);
     debtorIdChangedSpy.clear();
 
-    threadReturnsEmptyResult();
+    databaseWillReturnEmptyResult();
 
     // STEP: Ensure user is not notified if debtor ID is set to the same value.
     m_debtTransactionModel->setDebtorId(1);
@@ -577,7 +577,7 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
 
 void QMLDebtTransactionModelTest::testSubmitDebt()
 {
-    auto threadReturnsSingleDebt = [this]() {
+    auto databaseWillReturnSingleDebt = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         const QueryRequest &request = m_result.request();
@@ -625,7 +625,7 @@ void QMLDebtTransactionModelTest::testSubmitDebt()
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CurrentBalanceRole).toDouble(), 1234.56);
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
 
-    threadReturnsSingleDebt();
+    databaseWillReturnSingleDebt();
 
     // STEP: Submit debt info.
     QVERIFY(m_debtTransactionModel->submit());
@@ -636,7 +636,7 @@ void QMLDebtTransactionModelTest::testSubmitDebt()
 
 void QMLDebtTransactionModelTest::testSubmitPayment()
 {
-    auto threadReturnsSingleDebtWithSinglePayment = [this]() {
+    auto databaseWillReturnSingleDebtWithSinglePayment = [this]() {
         m_result.setOutcome(QVariant());
         m_result.setSuccessful(true);
         const QueryRequest &request = m_result.request();
@@ -696,7 +696,7 @@ void QMLDebtTransactionModelTest::testSubmitPayment()
     QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::AmountPaidRole).toDouble(), 1234.56);
     QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::NoteRole).toString(), QStringLiteral("Payment Note"));
 
-    threadReturnsSingleDebtWithSinglePayment();
+    databaseWillReturnSingleDebtWithSinglePayment();
 
     // STEP: Submit debt info.
     QVERIFY(m_debtTransactionModel->submit());

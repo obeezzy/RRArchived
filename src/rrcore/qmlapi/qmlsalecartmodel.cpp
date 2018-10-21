@@ -31,6 +31,28 @@ QMLSaleCartModel::QMLSaleCartModel(QObject *parent) :
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
 }
 
+QMLSaleCartModel::QMLSaleCartModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread),
+    m_transactionId(-1),
+    m_customerName(QString()),
+    m_customerPhoneNumber(QString()),
+    m_clientId(-1),
+    m_note(QString()),
+    m_totalCost(0.0),
+    m_amountPaid(0.0),
+    m_balance(0.0),
+    m_canAcceptCash(true),
+    m_canAcceptCard(false), // Toggle to disable, genius
+    m_records(QVariantList())
+{
+    m_paymentModel = new SalePaymentModel(this);
+
+    connect (m_paymentModel, &SalePaymentModel::cashPaymentCountChanged, this, &QMLSaleCartModel::updateCanAcceptCash);
+    connect (m_paymentModel, &SalePaymentModel::cardPaymentCountChanged, this, &QMLSaleCartModel::updateCanAcceptCard);
+
+    connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
+}
+
 QMLSaleCartModel::~QMLSaleCartModel()
 {
     qDeleteAll(m_salePayments);
@@ -53,41 +75,28 @@ QVariant QMLSaleCartModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryIdRole:
         return m_records.at(index.row()).toMap().value("category_id").toInt();
-        break;
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-        break;
     case ItemIdRole:
         return m_records.at(index.row()).toMap().value("item_id").toInt();
-        break;
     case ItemRole:
         return m_records.at(index.row()).toMap().value("item").toString();
-        break;
-        break;
     case AvailableQuantityRole:
         return m_records.at(index.row()).toMap().value("available_quantity").toDouble();
-        break;
     case QuantityRole:
         return m_records.at(index.row()).toMap().value("quantity").toDouble();
-        break;
     case UnitRole:
         return m_records.at(index.row()).toMap().value("unit").toString();
-        break;
     case UnitIdRole:
         return m_records.at(index.row()).toMap().value("unit_id").toInt();
-        break;
     case CostPriceRole:
         return m_records.at(index.row()).toMap().value("cost_price").toDouble();
-        break;
     case RetailPriceRole:
         return m_records.at(index.row()).toMap().value("retail_price").toDouble();
-        break;
     case UnitPriceRole:
         return m_records.at(index.row()).toMap().value("unit_price").toDouble();
-        break;
     case CostRole:
         return m_records.at(index.row()).toMap().value("cost").toDouble();
-        break;
     }
 
     return QVariant();
