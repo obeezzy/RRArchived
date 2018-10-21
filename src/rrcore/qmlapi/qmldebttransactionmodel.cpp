@@ -13,6 +13,15 @@ QMLDebtTransactionModel::QMLDebtTransactionModel(QObject *parent) :
     connect(this, &QMLDebtTransactionModel::debtorIdChanged, this, &QMLDebtTransactionModel::tryQuery);
 }
 
+QMLDebtTransactionModel::QMLDebtTransactionModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread),
+    m_debtorId(-1),
+    m_clientId(-1),
+    m_dirty(false)
+{
+    connect(this, &QMLDebtTransactionModel::debtorIdChanged, this, &QMLDebtTransactionModel::tryQuery);
+}
+
 QMLDebtTransactionModel::~QMLDebtTransactionModel()
 {
     clearAll();
@@ -37,7 +46,6 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
             return m_records.at(index.row()).toMap().value("transaction_id").toInt();
         else
             return -1;
-        break;
     case RelatedTransactionRole: {
         if (isExistingRecord(index.row())) {
             const QString &relatedTransaction = m_records.at(index.row()).toMap().value("related_transaction_table").toString();
@@ -53,35 +61,29 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
             return m_records.at(index.row()).toMap().value("related_transaction_id").toInt();
         else
             return -1;
-        break;
     case NoteRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("note_id").toString();
         else
             return m_newDebtTransactions.at(index.row() - m_records.count())->note;
-        break;
     case DueDateRole:
         if (isExistingRecord(index.row()))
             return m_existingDebtTransactions.at(index.row())->dueDateTime;
         else
             return m_newDebtTransactions.at(index.row() - m_records.count())->dueDateTime;
-        break;
     case CreatedRole:
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("created").toDateTime();
         else
             return QDateTime();
-        break;
     case PaymentModelRole:
         return QVariant::fromValue<QObject *>(m_debtPaymentModels.at(index.row()));
-        break;
     case CurrentBalanceRole: {
         if (isExistingRecord(index.row()))
             return m_existingDebtTransactions.at(index.row())->totalDebt;
         else
             return m_newDebtTransactions.at(index.row() - m_records.count())->totalDebt;
     }
-        break;
     }
 
     return QVariant();
@@ -112,6 +114,7 @@ void QMLDebtTransactionModel::setDebtorId(int debtorId)
     if (m_debtorId == debtorId)
         return;
 
+    qDebug() << "Debtor ID===" << debtorId;
     m_debtorId = debtorId;
     emit debtorIdChanged();
 }
@@ -317,7 +320,7 @@ void QMLDebtTransactionModel::updateDebt(int debtIndex, const QDateTime &dueDate
     debtTransaction->dueDateTime = dueDateTime;
     debtTransaction->note = note;
     debtTransaction->state = DebtTransaction::State::Dirty;
-    setDirty(true);
+    setDirty(m_debtorId > -1);
 
     emit dataChanged(index(debtIndex), index(debtIndex));
 }
@@ -345,7 +348,7 @@ void QMLDebtTransactionModel::removeDebt(int debtIndex)
     if (debtTransaction->state != DebtTransaction::State::New)
         m_archivedDebtTransactionIds.append(debtTransaction->id);
 
-    setDirty(true);
+    setDirty(m_debtorId > -1);
 
     delete debtTransaction;
     endRemoveRows();
@@ -371,11 +374,11 @@ void QMLDebtTransactionModel::addPayment(int debtIndex, double amount, const QSt
         DebtPayment *debtPayment = new DebtPayment{ -1, amount, note, DebtPayment::State::New };
         debtTransaction->debtPayments.append(debtPayment);
         debtTransaction->totalDebt -= debtPayment->amount;
-        debtTransaction->state = DebtTransaction::State::Dirty;
+        debtTransaction->state = m_debtorId == -1 ? DebtTransaction::State::New : DebtTransaction::State::Dirty;
         m_debtPaymentModels.at(debtIndex)->addPayment(debtPayment);
     }
 
-    setDirty(true);
+    setDirty(m_debtorId > -1);
     emit dataChanged(index(debtIndex), index(debtIndex));
 }
 
@@ -406,7 +409,7 @@ void QMLDebtTransactionModel::updatePayment(int debtIndex, int paymentIndex, dou
 
         m_debtPaymentModels.at(debtIndex)->updatePayment(debtPayment);
         debtTransaction->totalDebt += (oldAmount - debtPayment->amount);
-        setDirty(true);
+        setDirty(m_debtorId > -1);
         emit dataChanged(index(debtIndex), index(debtIndex));
     }
 }
@@ -437,7 +440,7 @@ void QMLDebtTransactionModel::removePayment(int debtIndex, int paymentIndex)
     if (debtPayment->state != DebtPayment::State::New)
         m_archivedDebtPaymentIds.append(debtPayment->id);
 
-    setDirty(true);
+    setDirty(m_debtorId > -1);
 
     delete debtPayment;
     emit dataChanged(index(debtIndex), index(debtIndex));
@@ -480,7 +483,7 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
             m_records = result.outcome().toMap().value("transactions").toList();
             const QVariantList paymentGroups = result.outcome().toMap().value("payment_groups").toList();
 
-            setDebtorId(result.outcome().toMap().value("debtor_id").toInt());
+            //setDebtorId(result.outcome().toMap().value("debtor_id").toInt());
             setClientId(result.outcome().toMap().value("client_id").toInt());
             setPreferredName(result.outcome().toMap().value("preferred_name").toString());
             setPrimaryPhoneNumber(result.outcome().toMap().value("primary_phone_number").toString());

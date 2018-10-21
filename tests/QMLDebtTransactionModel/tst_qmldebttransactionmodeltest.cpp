@@ -43,12 +43,9 @@ private Q_SLOTS:
     void testUpdatePayment();
     void testRemovePayment();
 
-    // Long-running tests
     void testSetDebtorId();
-    void testSubmitOneDebt();
-    void testSubmitMultipleDebts();
-
-    void testFetchDebtAndAddNewPayment();
+    void testSubmitDebt();
+    void testSubmitPayment();
 
 private:
     QMLDebtTransactionModel *m_debtTransactionModel;
@@ -60,12 +57,12 @@ private:
 QMLDebtTransactionModelTest::QMLDebtTransactionModelTest() :
     m_thread(&m_result)
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLDebtTransactionModelTest::init()
 {
-    m_debtTransactionModel = new QMLDebtTransactionModel(this);
+    m_debtTransactionModel = new QMLDebtTransactionModel(m_thread);
     m_client = new DatabaseClient;
 }
 
@@ -513,7 +510,7 @@ void QMLDebtTransactionModelTest::testUpdatePayment()
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 0.0);
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QString());
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toBool(), false);
-//    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), currentDateTime);
 
     QSignalSpy dataChangedSpy(m_debtTransactionModel, &DebtPaymentModel::dataChanged);
 
@@ -548,40 +545,81 @@ void QMLDebtTransactionModelTest::testRemovePayment()
 
 void QMLDebtTransactionModelTest::testSetDebtorId()
 {
+    auto threadReturnsEmptyResult = [this]() {
+        m_result.setOutcome(QVariant());
+        m_result.setSuccessful(true);
+    };
+
     QSignalSpy debtorIdChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::debtorIdChanged);
     QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
 
-    QVERIFY(m_client->initialize());
-
     // STEP: Ensure debtor ID is not set.
     QCOMPARE(m_debtTransactionModel->debtorId(), -1);
+
+    threadReturnsEmptyResult();
 
     // STEP: Set debtor ID.
     m_debtTransactionModel->setDebtorId(1);
     QCOMPARE(debtorIdChangedSpy.count(), 1);
     debtorIdChangedSpy.clear();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
 
     // STEP: Ensure debtor ID is set and user is not notified again.
     QCOMPARE(m_debtTransactionModel->debtorId(), 1);
     QCOMPARE(debtorIdChangedSpy.count(), 0);
     debtorIdChangedSpy.clear();
 
+    threadReturnsEmptyResult();
+
     // STEP: Ensure user is not notified if debtor ID is set to the same value.
     m_debtTransactionModel->setDebtorId(1);
     QCOMPARE(debtorIdChangedSpy.count(), 0);
 
-    // STEP: Ensure that the transaction succeeded.
+    // STEP: Ensure the transaction succeeded.
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
     QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 
-void QMLDebtTransactionModelTest::testSubmitOneDebt()
+void QMLDebtTransactionModelTest::testSubmitDebt()
 {
+    auto threadReturnsSingleDebt = [this]() {
+        m_result.setOutcome(QVariant());
+        m_result.setSuccessful(true);
+        const QueryRequest &request = m_result.request();
+        const QVariantList paymentGroups {
+            QVariantMap {
+                { "debt_transaction_id", 1 },
+                { "debt_payment_id", 1 },
+                { "total_amount", request.params().value("total_debt") },
+                { "amount_paid", request.params().value("amount_paid") },
+                { "balance", request.params().value("total_debt") },
+                { "currency", "NGN" },
+                { "archived", request.params().value("archived") }
+            }
+        };
+        const QVariantList transactions {
+            QVariantMap {
+                { "debt_transaction_id", 1 },
+                { "related_transaction_table", "debtor" },
+                { "related_transaction_id", 1 },
+                { "total_debt", request.params().value("total_debt") },
+                { "note_id", 1 }
+            }
+        };
+        m_result.setOutcome(QVariantMap {
+                                { "client_id", -1 },
+                                { "debtor_id", 1 },
+                                { "preferred_name", request.params().value("preferred_name") },
+                                { "primary_phone_number", request.params().value("primary_phone_number") },
+                                { "note", "" },
+                                { "transactions", transactions },
+                                { "payment_groups", paymentGroups },
+                                { "record_count", transactions.count() }
+                            });
+    };
+
     const QDateTime &dueDate = QDateTime::currentDateTime().addDays(2);
     QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
-    QVERIFY(m_client->initialize());
 
     // STEP: Provide mandatory fields.
     m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));
@@ -589,100 +627,87 @@ void QMLDebtTransactionModelTest::testSubmitOneDebt()
 
     // STEP: Add debt.
     m_debtTransactionModel->addDebt(1234.56, dueDate, QStringLiteral("Note"));
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CurrentBalanceRole).toDouble(), 1234.56);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
+
+    threadReturnsSingleDebt();
+
+    // STEP: Submit debt info.
+    QVERIFY(m_debtTransactionModel->submit());
+    QCOMPARE(successSpy.count(), 1);
+    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::AddDebtorSuccess);
+    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
+}
+
+void QMLDebtTransactionModelTest::testSubmitPayment()
+{
+    auto threadReturnsSingleDebtWithSinglePayment = [this]() {
+        m_result.setOutcome(QVariant());
+        m_result.setSuccessful(true);
+        const QueryRequest &request = m_result.request();
+        const QVariantList paymentGroups {
+            QVariantMap {
+                { "debt_transaction_id", 1 },
+                { "debt_payment_id", 1 },
+                { "total_amount", request.params().value("total_debt") },
+                { "amount_paid", request.params().value("amount_paid") },
+                { "balance", request.params().value("total_debt") },
+                { "currency", "NGN" },
+                { "archived", request.params().value("archived") }
+            }
+        };
+        const QVariantList transactions {
+            QVariantMap {
+                { "debt_transaction_id", 1 },
+                { "related_transaction_table", "debtor" },
+                { "related_transaction_id", 1 },
+                { "total_debt", request.params().value("total_debt") },
+                { "note_id", 1 }
+            }
+        };
+        m_result.setOutcome(QVariantMap {
+                                { "client_id", -1 },
+                                { "debtor_id", 1 },
+                                { "preferred_name", request.params().value("preferred_name") },
+                                { "primary_phone_number", request.params().value("primary_phone_number") },
+                                { "note", "" },
+                                { "transactions", transactions },
+                                { "payment_groups", paymentGroups },
+                                { "record_count", transactions.count() }
+                            });
+    };
+
+    const QDateTime &dueDate = QDateTime::currentDateTime().addDays(2);
+    QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
+
+    // STEP: Provide mandatory fields.
+    m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));
+    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
+
+    // STEP: Add debt.
+    m_debtTransactionModel->addDebt(1234.56, dueDate, QStringLiteral("Note"));
+    m_debtTransactionModel->addPayment(0, 1234.56, QStringLiteral("Payment Note"));
 
     // STEP: Ensure debt payment model is updated properly.
     DebtPaymentModel *debtPaymentModel = m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::PaymentModelRole).value<DebtPaymentModel *>();
     QVERIFY(debtPaymentModel != nullptr);
-    QCOMPARE(debtPaymentModel->rowCount(), 1);
+    QCOMPARE(debtPaymentModel->rowCount(), 2);
+
+    // STEP: Check the first row of the debt payment table
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 0.0);
+    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QString());
+
+    // STEP: Check the second row of the debt payment table
+    QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::AmountPaidRole).toDouble(), 1234.56);
+    QCOMPARE(debtPaymentModel->index(1).data(DebtPaymentModel::NoteRole).toString(), QStringLiteral("Payment Note"));
+
+    threadReturnsSingleDebtWithSinglePayment();
 
     // STEP: Submit debt info.
     QVERIFY(m_debtTransactionModel->submit());
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::AddDebtorSuccess);
-
-    // STEP: Ensure results are correct.
-    QSqlQuery q(m_client->connection());
-    QVERIFY(q.exec("SELECT preferred_name, phone_number FROM client WHERE id = 1"));
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.next());
-    QCOMPARE(q.value("preferred_name").toString(), QStringLiteral("Mr. Okoro"));
-    QCOMPARE(q.value("phone_number").toString(), QStringLiteral("123456789"));
-
-    QVERIFY(q.exec("SELECT id FROM debtor WHERE id = 1"));
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.next());
-
-    QVERIFY(q.exec("SELECT debtor_id, transaction_table FROM debt_transaction WHERE id = 1"));
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.next());
-    QCOMPARE(q.value("debtor_id").toInt(), 1);
-    QCOMPARE(q.value("transaction_table").toString(), QStringLiteral("debtor"));
-
-    QVERIFY(q.exec("SELECT debt_transaction_id, total_amount, amount_paid, balance, "
-                   "due_date, archived FROM debt_payment WHERE id = 1"));
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.next());
-    QCOMPARE(q.value("debt_transaction_id").toInt(), 1);
-    QCOMPARE(q.value("total_amount").toDouble(), 1234.56);
-    QCOMPARE(q.value("amount_paid").toDouble(), 0.0);
-    QCOMPARE(q.value("balance").toDouble(), 1234.56);
-    QCOMPARE(q.value("due_date").toDateTime().secsTo(dueDate), 0);
-    QCOMPARE(q.value("archived").toBool(), false);
-}
-
-void QMLDebtTransactionModelTest::testSubmitMultipleDebts()
-{
-    QVERIFY(true);
-}
-
-void QMLDebtTransactionModelTest::testFetchDebtAndAddNewPayment()
-{
-    QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
-    QSignalSpy errorSpy(m_debtTransactionModel, &QMLDebtTransactionModel::error);
-    const QDateTime &dueDate = QDateTime::currentDateTime().addDays(2);
-
-    QVERIFY(m_client->initialize());
-
-    // STEP: Submit debt.
-    m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));
-    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
-    m_debtTransactionModel->addDebt(1234.56, dueDate, QStringLiteral("Note"));
-    QVERIFY(m_debtTransactionModel->submit());
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
-    QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::AddDebtorSuccess);
-    successSpy.clear();
-    QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_debtTransactionModel->rowCount(), 0);
-
-    // STEP: Retrieve debtor info.
-    m_debtTransactionModel->setDebtorId(1);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
-    QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
-    QCOMPARE(m_debtTransactionModel->rowCount(), 1);
-    successSpy.clear();
-    QCOMPARE(errorSpy.count(), 0);
-
-    // STEP: Add new payment.
-    m_debtTransactionModel->addPayment(0, 1000.0);
-    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CurrentBalanceRole).toDouble(), 234.56);
-    QVERIFY(m_debtTransactionModel->submit());
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtTransactionModel->isBusy(); }, 2000));
-    QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::UpdateDebtorSuccess);
-    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
-    successSpy.clear();
-    QCOMPARE(errorSpy.count(), 0);
-
-    QSqlQuery q(m_client->connection());
-    QVERIFY(q.exec(QStringLiteral("SELECT amount_paid FROM debt_payment WHERE debt_transaction_id = 1")));
-    QCOMPARE(q.size(), 2);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("amount_paid").toDouble(), 0.0);
-    QVERIFY(q.next());
-    QCOMPARE(q.value("amount_paid").toDouble(), 1000.0);
 }
 
 QTEST_MAIN(QMLDebtTransactionModelTest)
