@@ -12,6 +12,12 @@ QMLStockCategoryItemModel::QMLStockCategoryItemModel(QObject *parent) :
 {
 }
 
+QMLStockCategoryItemModel::QMLStockCategoryItemModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread),
+    m_totalItems(0)
+{
+}
+
 int QMLStockCategoryItemModel::totalItems() const
 {
     return m_totalItems;
@@ -36,13 +42,10 @@ QVariant QMLStockCategoryItemModel::data(const QModelIndex &index, int role) con
         StockItemModel *model = m_stockItemModels.at(index.row());
         return model->data(model->index(0), StockItemModel::CategoryIdRole).toInt();
     }
-        break;
     case CategoryRole:
         return m_categories.at(index.row());
-        break;
     case ItemModelRole:
         return QVariant::fromValue<QObject *>(m_stockItemModels.at(index.row()));
-        break;
     }
 
     return QVariant();

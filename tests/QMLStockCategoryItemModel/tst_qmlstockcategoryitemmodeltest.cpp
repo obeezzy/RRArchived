@@ -1,13 +1,10 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include <QSqlQuery>
-#include <QLoggingCategory>
 
 #include "qmlapi/qmlstockcategoryitemmodel.h"
-#include "qmlapi/qmlstockitempusher.h"
 #include "models/stockitemmodel.h"
-#include "../utils/databaseclient.h"
+#include "mockdatabasethread.h"
 
 class QMLStockCategoryItemModelTest : public QObject
 {
@@ -20,7 +17,6 @@ private Q_SLOTS:
     void init();
     void cleanup();
 
-    // Long-running tests
     void testViewStockItems();
     void testRefresh();
     void testRemoveItem();
@@ -29,75 +25,106 @@ private Q_SLOTS:
     void testFilterItem();
 private:
     QMLStockCategoryItemModel *m_stockCategoryItemModel;
-    QMLStockItemPusher *m_stockItemPusher;
-    DatabaseClient *m_client;
+    MockDatabaseThread m_thread;
+    QueryResult m_result;
 };
 
-QMLStockCategoryItemModelTest::QMLStockCategoryItemModelTest()
+QMLStockCategoryItemModelTest::QMLStockCategoryItemModelTest() :
+    m_thread(&m_result)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLStockCategoryItemModelTest::init()
 {
-    m_stockCategoryItemModel = new QMLStockCategoryItemModel(this);
-    m_stockItemPusher = new QMLStockItemPusher(this);
-    m_client = new DatabaseClient;
+    m_stockCategoryItemModel = new QMLStockCategoryItemModel(m_thread);
 }
 
 void QMLStockCategoryItemModelTest::cleanup()
 {
     m_stockCategoryItemModel->deleteLater();
-    m_stockItemPusher->deleteLater();
-    delete m_client;
 }
 
 void QMLStockCategoryItemModelTest::testViewStockItems()
 {
+    auto databaseWillReturnThreeItems = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        const QVariantMap itemInfo1 {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 1 },
+            { "item", "Item1" },
+            { "description", "Description1" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit1" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantMap itemInfo2 {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 2 },
+            { "item", "Item2" },
+            { "description", "Description2" },
+            { "quantity", 1.0 },
+            { "unit_id", 2 },
+            { "unit", "Unit2" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantMap itemInfo3 {
+            { "category_id", 2 },
+            { "category", "Category2" },
+            { "item_id", 3 },
+            { "item", "Item3" },
+            { "description", "Description3" },
+            { "quantity", 1.0 },
+            { "unit_id", 3 },
+            { "unit", "Unit3" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantList categories {
+            { "Category1" },
+            { "Category2" }
+        };
+
+        const QVariantList category1Items {
+            itemInfo1,
+            itemInfo2
+        };
+
+        const QVariantList category2Items {
+            { itemInfo3 }
+        };
+
+        const QVariantList itemGroups {
+            category1Items, category2Items
+        };
+
+        m_result.setOutcome(QVariantMap {
+                                { "categories", categories },
+                                { "item_groups", itemGroups }
+                            });
+    };
     QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
     QSignalSpy busyChangedSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::busyChanged);
 
-    QVERIFY(m_client->initialize());
-
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
-
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item2");
-    m_stockItemPusher->setDescription("Description2");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(4.0);
-    m_stockItemPusher->setUnit("Unit2");
-    m_stockItemPusher->setCostPrice(5.0);
-    m_stockItemPusher->setRetailPrice(6.0);
-    m_stockItemPusher->push();
-
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
-
-    m_stockItemPusher->setCategory("Category2");
-    m_stockItemPusher->setItem("Item3");
-    m_stockItemPusher->setDescription("Description3");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(7.0);
-    m_stockItemPusher->setUnit("Unit3");
-    m_stockItemPusher->setCostPrice(8.0);
-    m_stockItemPusher->setRetailPrice(9.0);
-    m_stockItemPusher->push();
-
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    databaseWillReturnThreeItems();
 
     m_stockCategoryItemModel->componentComplete(); // Trigger auto-query
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockCategoryItemModel::ViewItemsSuccess);
@@ -105,106 +132,172 @@ void QMLStockCategoryItemModelTest::testViewStockItems()
 
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 2);
 
-    QCOMPARE(m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(0), QMLStockCategoryItemModel::CategoryRole).toString(), "Category1");
-    QCOMPARE(m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(1), QMLStockCategoryItemModel::CategoryRole).toString(), "Category2");
+    QCOMPARE(m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(0), QMLStockCategoryItemModel::CategoryRole).toString(),
+             QStringLiteral("Category1"));
+    QCOMPARE(m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(1), QMLStockCategoryItemModel::CategoryRole).toString(),
+             QStringLiteral("Category2"));
 
     StockItemModel *model1 = m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(0), QMLStockCategoryItemModel::ItemModelRole)
             .value<StockItemModel *>();
     QVERIFY(model1 != nullptr);
     QCOMPARE(model1->rowCount(), 2);
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::ItemRole).toString(), "Item1");
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::DescriptionRole).toString(), "Description1");
+    QCOMPARE(model1->data(model1->index(0), StockItemModel::ItemRole).toString(), QStringLiteral("Item1"));
+    QCOMPARE(model1->data(model1->index(0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description1"));
     QCOMPARE(model1->data(model1->index(0), StockItemModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::UnitRole).toString(), "Unit1");
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::CostPriceRole).toDouble(), 2.0);
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::RetailPriceRole).toDouble(), 3.0);
+    QCOMPARE(model1->data(model1->index(0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit1"));
+    QCOMPARE(model1->data(model1->index(0), StockItemModel::CostPriceRole).toDouble(), 11.0);
+    QCOMPARE(model1->data(model1->index(0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
 
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::ItemRole).toString(), "Item2");
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::DescriptionRole).toString(), "Description2");
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::QuantityRole).toDouble(), 4.0);
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::UnitRole).toString(), "Unit2");
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::CostPriceRole).toDouble(), 5.0);
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::RetailPriceRole).toDouble(), 6.0);
+    QCOMPARE(model1->data(model1->index(1), StockItemModel::ItemRole).toString(), QStringLiteral("Item2"));
+    QCOMPARE(model1->data(model1->index(1), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description2"));
+    QCOMPARE(model1->data(model1->index(1), StockItemModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(model1->data(model1->index(1), StockItemModel::UnitRole).toString(), QStringLiteral("Unit2"));
+    QCOMPARE(model1->data(model1->index(1), StockItemModel::CostPriceRole).toDouble(), 11.0);
+    QCOMPARE(model1->data(model1->index(1), StockItemModel::RetailPriceRole).toDouble(), 10.0);
 
     StockItemModel *model2 = m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(1), QMLStockCategoryItemModel::ItemModelRole)
             .value<StockItemModel *>();
     QVERIFY(model2 != nullptr);
     QCOMPARE(model2->rowCount(), 1);
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::ItemRole).toString(), "Item3");
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::DescriptionRole).toString(), "Description3");
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::QuantityRole).toDouble(), 7.0);
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::UnitRole).toString(), "Unit3");
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::CostPriceRole).toDouble(), 8.0);
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::RetailPriceRole).toDouble(), 9.0);
+    QCOMPARE(model2->data(model1->index(0), StockItemModel::ItemRole).toString(), QStringLiteral("Item3"));
+    QCOMPARE(model2->data(model1->index(0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description3"));
+    QCOMPARE(model2->data(model1->index(0), StockItemModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(model2->data(model1->index(0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit3"));
+    QCOMPARE(model2->data(model1->index(0), StockItemModel::CostPriceRole).toDouble(), 11.0);
+    QCOMPARE(model2->data(model1->index(0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
 }
 
 void QMLStockCategoryItemModelTest::testRefresh()
 {
-    QVERIFY(m_client->initialize());
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
+    auto databaseWillReturnSingleItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        const QVariantMap itemInfo {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 1 },
+            { "item", "Item1" },
+            { "description", "Description1" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit1" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantList categories {
+            { "Category1" }
+        };
+
+        const QVariantList itemGroups {
+            QVariantList {
+                { itemInfo }
+            }
+        };
+
+        m_result.setOutcome(QVariantMap {
+                                { "categories", categories },
+                                { "item_groups", itemGroups },
+                                { "record_count", 1 }
+                            });
+    };
+
+    databaseWillReturnEmptyResult();
 
     m_stockCategoryItemModel->componentComplete();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    databaseWillReturnSingleItem();
 
-    QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
     m_stockCategoryItemModel->refresh();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
-    QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
-    StockItemModel *stockItemModel = m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(0), QMLStockCategoryItemModel::ItemModelRole)
+    StockItemModel *stockItemModel = m_stockCategoryItemModel->index(0).data(QMLStockCategoryItemModel::ItemModelRole)
             .value<StockItemModel *>();
+    QVERIFY(stockItemModel != nullptr);
     QCOMPARE(stockItemModel->rowCount(), 1);
 }
 
 void QMLStockCategoryItemModelTest::testRemoveItem()
 {
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
+    auto databaseWillReturnRemovedItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        m_result.setOutcome(QVariantMap {
+                                { "category_id", 1 },
+                                { "item_id", 1 }
+                            });
+    };
+    auto databaseWillReturnSingleItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        const QVariantMap itemInfo {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 1 },
+            { "item", "Item1" },
+            { "description", "Description1" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit1" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantList categories {
+            { "Category1" }
+        };
+
+        const QVariantList itemGroups {
+            QVariantList {
+                { itemInfo }
+            }
+        };
+
+        m_result.setOutcome(QVariantMap {
+                                { "categories", categories },
+                                { "item_groups", itemGroups },
+                                { "record_count", 1 }
+                            });
+    };
     QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
     QSignalSpy errorSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::error);
 
-    QVERIFY(m_client->initialize());
-
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->componentComplete();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
+    databaseWillReturnRemovedItem();
+
     m_stockCategoryItemModel->removeItem(1);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
     QCOMPARE(successSpy.takeFirst().first().value<QMLStockCategoryItemModel::SuccessCode>(), QMLStockCategoryItemModel::RemoveItemSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
 
+    databaseWillReturnEmptyResult();
+
     m_stockCategoryItemModel->refresh();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
@@ -213,42 +306,76 @@ void QMLStockCategoryItemModelTest::testRemoveItem()
 
 void QMLStockCategoryItemModelTest::testUndoRemoveItem()
 {
+    auto databaseWillReturnRemovedItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        m_result.setOutcome(QVariantMap {
+                                { "category_id", 1 },
+                                { "item_id", 1 }
+                            });
+    };
+    auto databaseWillReturnSingleItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        const QVariantMap itemInfo {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 1 },
+            { "item", "Item1" },
+            { "description", "Description1" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit1" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantList categories {
+            { "Category1" }
+        };
+
+        const QVariantList itemGroups {
+            QVariantList {
+                { itemInfo }
+            }
+        };
+
+        m_result.setOutcome(QVariantMap {
+                                { "categories", categories },
+                                { "item_groups", itemGroups },
+                                { "record_count", 1 }
+                            });
+    };
     QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
 
-    QVERIFY(m_client->initialize());
-
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->componentComplete();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
+    databaseWillReturnRemovedItem();
+
     m_stockCategoryItemModel->removeItem(1);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
+
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->undoLastCommit();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 0);
 
+    databaseWillReturnSingleItem();
+
     m_stockCategoryItemModel->refresh();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
@@ -256,21 +383,48 @@ void QMLStockCategoryItemModelTest::testUndoRemoveItem()
 
 void QMLStockCategoryItemModelTest::testFilterCategory()
 {
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
+    auto databaseWillReturnSingleItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        const QVariantMap itemInfo {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 1 },
+            { "item", "Item1" },
+            { "description", "Description1" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit1" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantList categories {
+            { "Category1" }
+        };
+
+        const QVariantList itemGroups {
+            QVariantList {
+                { itemInfo }
+            }
+        };
+
+        m_result.setOutcome(QVariantMap {
+                                { "categories", categories },
+                                { "item_groups", itemGroups },
+                                { "record_count", 1 }
+                            });
+    };
     QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
 
-    QVERIFY(m_client->initialize());
-
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->componentComplete();
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
@@ -278,21 +432,26 @@ void QMLStockCategoryItemModelTest::testFilterCategory()
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
+    databaseWillReturnSingleItem();
+
     m_stockCategoryItemModel->setFilterColumn(QMLStockCategoryItemModel::CategoryColumn);
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     m_stockCategoryItemModel->setFilterText("Category1");
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
+
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->setFilterText("Category");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
+
+    databaseWillReturnEmptyResult();
 
     m_stockCategoryItemModel->setFilterText("Category2");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
@@ -303,27 +462,55 @@ void QMLStockCategoryItemModelTest::testFilterCategory()
 
 void QMLStockCategoryItemModelTest::testFilterItem()
 {
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
+    auto databaseWillReturnSingleItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+
+        const QVariantMap itemInfo {
+            { "category_id", 1 },
+            { "category", "Category1" },
+            { "item_id", 1 },
+            { "item", "Item1" },
+            { "description", "Description1" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit1" },
+            { "cost_price", 11.0 },
+            { "retail_price", 10.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 }
+        };
+
+        const QVariantList categories {
+            { "Category1" }
+        };
+
+        const QVariantList itemGroups {
+            QVariantList {
+                { itemInfo }
+            }
+        };
+
+        m_result.setOutcome(QVariantMap {
+                                { "categories", categories },
+                                { "item_groups", itemGroups },
+                                { "record_count", 1 }
+                            });
+    };
     QSignalSpy successSpy(m_stockCategoryItemModel, &QMLStockCategoryItemModel::success);
 
-    QVERIFY(m_client->initialize());
-
-    // Push some items
-    m_stockItemPusher->setCategory("Category1");
-    m_stockItemPusher->setItem("Item1");
-    m_stockItemPusher->setDescription("Description1");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit1");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->componentComplete();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
+
+    databaseWillReturnSingleItem();
 
     m_stockCategoryItemModel->setFilterColumn(QMLStockCategoryItemModel::ItemColumn);
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
@@ -335,11 +522,15 @@ void QMLStockCategoryItemModelTest::testFilterItem()
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
 
+    databaseWillReturnSingleItem();
+
     m_stockCategoryItemModel->setFilterText("Item");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockCategoryItemModel->rowCount(), 1);
+
+    databaseWillReturnEmptyResult();
 
     m_stockCategoryItemModel->setFilterText("Item2");
     QVERIFY(QTest::qWaitFor([&]() { return !m_stockCategoryItemModel->isBusy(); }, 2000));
