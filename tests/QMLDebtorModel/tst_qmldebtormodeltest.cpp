@@ -43,7 +43,7 @@ void QMLDebtorModelTest::cleanup()
 
 void QMLDebtorModelTest::testViewDebtors()
 {
-    auto threadReturnsSingleDebtor = [this]() {
+    auto databaseWillReturnSingleDebtor = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -67,7 +67,7 @@ void QMLDebtorModelTest::testViewDebtors()
     QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
     QSignalSpy busyChangedSpy(m_debtorModel, &QMLDebtorModel::busyChanged);
 
-    threadReturnsSingleDebtor();
+    databaseWillReturnSingleDebtor();
 
     // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
     m_debtorModel->componentComplete();
@@ -89,7 +89,7 @@ void QMLDebtorModelTest::testViewDebtors()
 
 void QMLDebtorModelTest::testRemoveDebtor()
 {
-    auto threadReturnsSingleDebtor = [this]() {
+    auto databaseWillReturnSingleDebtor = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -109,14 +109,14 @@ void QMLDebtorModelTest::testRemoveDebtor()
                                 { "record_count", debtors.count() }
                             });
     };
-    auto threadReturnsRemovedDebtor = [this]() {
+    auto databaseWillReturnRemovedDebtor = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariantMap {
                                 { "debtor_id", 1 },
                                 { "debtor_row", 1 }
                             });
     };
-    auto threadReturnsEmptyResult = [this]() {
+    auto databaseWillReturnEmptyResult = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
     };
@@ -125,7 +125,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QSignalSpy busyChangedSpy(m_debtorModel, &QMLDebtorModel::busyChanged);
 
     // STEP: Add a debtor to the database.
-    threadReturnsSingleDebtor();
+    databaseWillReturnSingleDebtor();
 
     // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
     m_debtorModel->componentComplete();
@@ -138,7 +138,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_debtorModel->rowCount(), 1);
 
-    threadReturnsRemovedDebtor();
+    databaseWillReturnRemovedDebtor();
 
     // STEP: Remove a debtor from the database.
     m_debtorModel->removeDebtor(1);
@@ -151,7 +151,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
-    threadReturnsEmptyResult();
+    databaseWillReturnEmptyResult();
 
     // STEP: Ensure debtor is removed even after model is re-populated.
     m_debtorModel->refresh();
@@ -165,7 +165,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
 
 void QMLDebtorModelTest::testUndoRemoveDebtor()
 {
-    auto threadReturnsSingleDebtor = [this]() {
+    auto databaseWillReturnSingleDebtor = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -185,14 +185,14 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
                                 { "record_count", debtors.count() }
                             });
     };
-    auto threadReturnsRemovedDebtor = [this]() {
+    auto databaseWillReturnRemovedDebtor = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariantMap {
                                 { "debtor_id", 1 },
                                 { "debtor_row", 1 }
                             });
     };
-    auto threadReturnsUndoRemovedDebtor = [this]() {
+    auto databaseWillReturnUndoRemovedDebtor = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -217,7 +217,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
     QSignalSpy busyChangedSpy(m_debtorModel, &QMLDebtorModel::busyChanged);
 
-    threadReturnsSingleDebtor();
+    databaseWillReturnSingleDebtor();
 
     // STEP: Instantiate model in QML and check if debtors are fetched.
     m_debtorModel->componentComplete();
@@ -230,7 +230,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 1);
 
-    threadReturnsRemovedDebtor();
+    databaseWillReturnRemovedDebtor();
 
     // STEP: Remove a debtor.
     m_debtorModel->removeDebtor(1);
@@ -243,7 +243,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
-    threadReturnsUndoRemovedDebtor();
+    databaseWillReturnUndoRemovedDebtor();
 
     // Undo the last removal.
     m_debtorModel->undoLastCommit();
