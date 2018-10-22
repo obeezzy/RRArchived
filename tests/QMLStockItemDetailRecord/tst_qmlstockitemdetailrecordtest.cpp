@@ -1,51 +1,71 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include <QSqlQuery>
-#include <QLoggingCategory>
 
 #include "qmlapi/qmlstockitemdetailrecord.h"
-#include "qmlapi/qmlstockitempusher.h"
-#include "../utils/databaseclient.h"
+#include "mockdatabasethread.h"
 
 class QMLStockItemDetailRecordTest : public QObject
 {
     Q_OBJECT
+
 public:
     QMLStockItemDetailRecordTest();
+
 private Q_SLOTS:
     void init();
     void cleanup();
 
-    // Long-running tests
     void testViewStockItemDetails();
+
 private:
     QMLStockItemDetailRecord *m_stockItemDetailRecord;
-    QMLStockItemPusher *m_stockItemPusher;
-    DatabaseClient *m_client;
+    MockDatabaseThread m_thread;
+    QueryResult m_result;
 };
 
-QMLStockItemDetailRecordTest::QMLStockItemDetailRecordTest()
+QMLStockItemDetailRecordTest::QMLStockItemDetailRecordTest() :
+    m_thread(&m_result)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLStockItemDetailRecordTest::init()
 {
-    m_stockItemDetailRecord = new QMLStockItemDetailRecord(this);
-    m_stockItemPusher = new QMLStockItemPusher(this);
-    m_client = new DatabaseClient;
+    m_stockItemDetailRecord = new QMLStockItemDetailRecord(m_thread);
 }
 
 void QMLStockItemDetailRecordTest::cleanup()
 {
     m_stockItemDetailRecord->deleteLater();
-    m_stockItemPusher->deleteLater();
-    delete m_client;
 }
 
 void QMLStockItemDetailRecordTest::testViewStockItemDetails()
 {
+    auto databaseWillReturnSingleItem = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+        const QVariantMap itemInfo {
+            { "category_id", 1 },
+            { "category", "Category" },
+            { "item_id", 1 },
+            { "item", "Item" },
+            { "description", "Description" },
+            { "quantity", 1.0 },
+            { "unit_id", 1 },
+            { "unit", "Unit" },
+            { "cost_price", 2.0 },
+            { "retail_price", 3.0 },
+            { "unit_price", 13.0 },
+            { "available_quantity", 10.0 },
+            { "divisible", true },
+            { "currency", QStringLiteral("NGN") },
+            { "created", QDateTime::currentDateTime() },
+            { "last_edited", QDateTime::currentDateTime() },
+            { "user", QStringLiteral("user") }
+        };
+        m_result.setOutcome(QVariantMap { { "item", itemInfo } });
+    };
     QSignalSpy successSpy(m_stockItemDetailRecord, &QMLStockItemDetailRecord::success);
     QSignalSpy errorSpy(m_stockItemDetailRecord, &QMLStockItemDetailRecord::error);
     QSignalSpy busyChangedSpy(m_stockItemDetailRecord, &QMLStockItemDetailRecord::busyChanged);
@@ -65,20 +85,6 @@ void QMLStockItemDetailRecordTest::testViewStockItemDetails()
     QSignalSpy lastEditedChangedSpy(m_stockItemDetailRecord, &QMLStockItemDetailRecord::lastEditedChanged);
     QSignalSpy userIdChangedSpy(m_stockItemDetailRecord, &QMLStockItemDetailRecord::userIdChanged);
     QSignalSpy userChangedSpy(m_stockItemDetailRecord, &QMLStockItemDetailRecord::userChanged);
-
-    QVERIFY(m_client->initialize());
-
-    // STEP: Add an item to the database.
-    m_stockItemPusher->setCategory("Category");
-    m_stockItemPusher->setItem("Item");
-    m_stockItemPusher->setDescription("Description");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setQuantity(1.0);
-    m_stockItemPusher->setUnit("Unit");
-    m_stockItemPusher->setCostPrice(2.0);
-    m_stockItemPusher->setRetailPrice(3.0);
-    m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
 
     // STEP: Instantiate model in QML.
     m_stockItemDetailRecord->componentComplete();
@@ -118,13 +124,13 @@ void QMLStockItemDetailRecordTest::testViewStockItemDetails()
     QCOMPARE(userChangedSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 0);
 
+    databaseWillReturnSingleItem();
 
     // STEP: Set item ID so that record can be fetched.
     m_stockItemDetailRecord->setItemId(1);
     QCOMPARE(m_stockItemDetailRecord->itemId(), 1);
     QCOMPARE(itemIdChangedSpy.count(), 1);
     itemIdChangedSpy.clear();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemDetailRecord->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
@@ -160,7 +166,7 @@ void QMLStockItemDetailRecordTest::testViewStockItemDetails()
     QCOMPARE(lastEditedChangedSpy.count(), 1);
     QCOMPARE(m_stockItemDetailRecord->userId(), 0);
     QCOMPARE(userIdChangedSpy.count(), 1);
-    QCOMPARE(m_stockItemDetailRecord->user(), QStringLiteral("0"));
+    QCOMPARE(m_stockItemDetailRecord->user(), QStringLiteral("user"));
     QCOMPARE(userChangedSpy.count(), 1);
     QCOMPARE(busyChangedSpy.count(), 0);
 }

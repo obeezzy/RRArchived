@@ -6,6 +6,8 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
+class DatabaseThread;
+
 class AbstractDetailRecord : public QObject, public QQmlParserStatus
 {
     Q_OBJECT
@@ -14,7 +16,8 @@ class AbstractDetailRecord : public QObject, public QQmlParserStatus
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
 public:
     explicit AbstractDetailRecord(QObject *parent = nullptr);
-    virtual ~AbstractDetailRecord();
+    explicit AbstractDetailRecord(DatabaseThread &thread); // For testing
+    virtual ~AbstractDetailRecord() override;
 
     bool autoQuery() const;
     void setAutoQuery(bool autoQuery);

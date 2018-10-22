@@ -27,6 +27,7 @@ class QMLStockItemDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(QString user READ user NOTIFY userChanged)
 public:
     explicit QMLStockItemDetailRecord(QObject *parent = nullptr);
+    explicit QMLStockItemDetailRecord(DatabaseThread &thread);
 
     int itemId() const;
     void setItemId(int itemId);

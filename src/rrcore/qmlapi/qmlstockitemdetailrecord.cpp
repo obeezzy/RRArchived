@@ -15,6 +15,20 @@ QMLStockItemDetailRecord::QMLStockItemDetailRecord(QObject *parent) :
     connect(this, &QMLStockItemDetailRecord::itemIdChanged, this, &QMLStockItemDetailRecord::tryQuery);
 }
 
+QMLStockItemDetailRecord::QMLStockItemDetailRecord(DatabaseThread &thread) :
+    AbstractDetailRecord(thread),
+    m_itemId(-1),
+    m_categoryId(-1),
+    m_divisible(false),
+    m_quantity(0.0),
+    m_unitId(-1),
+    m_costPrice(0.0),
+    m_retailPrice(0.0),
+    m_userId(-1)
+{
+    connect(this, &QMLStockItemDetailRecord::itemIdChanged, this, &QMLStockItemDetailRecord::tryQuery);
+}
+
 int QMLStockItemDetailRecord::itemId() const
 {
     return m_itemId;

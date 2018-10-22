@@ -10,6 +10,14 @@ AbstractDetailRecord::AbstractDetailRecord(QObject *parent) :
     connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractDetailRecord::processResult);
 }
 
+AbstractDetailRecord::AbstractDetailRecord(DatabaseThread &thread) :
+    m_autoQuery(true),
+    m_busy(false)
+{
+    connect(this, &AbstractDetailRecord::executeRequest, &thread, &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this, &AbstractDetailRecord::processResult);
+}
+
 AbstractDetailRecord::~AbstractDetailRecord()
 {
 
