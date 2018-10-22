@@ -5,6 +5,7 @@
 
 class QueryRequest;
 class QueryResult;
+class DatabaseThread;
 
 class QMLUserProfile : public QObject
 {
@@ -13,6 +14,7 @@ class QMLUserProfile : public QObject
     Q_PROPERTY(bool isFirstTime READ isFirstTime CONSTANT)
 public:
     explicit QMLUserProfile(QObject *parent = nullptr);
+    explicit QMLUserProfile(DatabaseThread &);
 
     enum ErrorCode {
         Unknown,

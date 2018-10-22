@@ -4,6 +4,8 @@
 #include "detailrecord/abstractdetailrecord.h"
 #include <QDateTime>
 
+class DatabaseThread;
+
 class QMLDebtorDetailRecord : public AbstractDetailRecord
 {
     Q_OBJECT
@@ -28,6 +30,7 @@ public:
     }; Q_ENUM(ErrorCode)
 
     explicit QMLDebtorDetailRecord(QObject *parent = nullptr);
+    explicit QMLDebtorDetailRecord(DatabaseThread &thread);
 
     int debtorId() const;
     void setDebtorId(int debtorId);

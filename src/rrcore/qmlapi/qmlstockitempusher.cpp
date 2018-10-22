@@ -21,6 +21,25 @@ QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
 
 }
 
+QMLStockItemPusher::QMLStockItemPusher(DatabaseThread &thread) :
+    AbstractPusher(thread),
+    m_itemId(-1),
+    m_imageSource(QString()),
+    m_category(QString()),
+    m_item(QString()),
+    m_description(QString()),
+    m_quantity(0.0),
+    m_unit(QString()),
+    m_categoryNote(QString()),
+    m_itemNote(QString()),
+    m_tracked(false),
+    m_divisible(false),
+    m_costPrice(0.0),
+    m_retailPrice(0.0)
+{
+
+}
+
 int QMLStockItemPusher::itemId() const
 {
     return m_itemId;

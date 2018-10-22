@@ -1,10 +1,8 @@
 ﻿#include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include <QSqlQuery>
 
 #include "qmlapi/qmlclientmodel.h"
-#include "databaseclient.h"
 #include "mockdatabasethread.h"
 
 class QMLClientModelTest : public QObject
@@ -16,7 +14,6 @@ private slots:
     void init();
     void cleanup();
 
-    // Long-running tests
     void testViewClients();
     void testFilterByPreferredName();
     void testFilterByPhoneNumber();
@@ -134,7 +131,7 @@ void QMLClientModelTest::testFilterByPreferredName()
     databaseWillReturnEmptySet();
 
     m_clientModel->setFilterColumn(QMLClientModel::PreferredNameColumn);
-    m_clientModel->setFilterText("A");
+    m_clientModel->setFilterText(QStringLiteral("A"));
     QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 2);
     successSpy.clear();
@@ -143,7 +140,7 @@ void QMLClientModelTest::testFilterByPreferredName()
 
     databaseWillReturnTwoClient();
 
-    m_clientModel->setFilterText("P");
+    m_clientModel->setFilterText(QStringLiteral("P"));
     QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
@@ -152,7 +149,7 @@ void QMLClientModelTest::testFilterByPreferredName()
 
     databaseWillReturnSingleClient();
 
-    m_clientModel->setFilterText("Preferred again");
+    m_clientModel->setFilterText(QStringLiteral("Preferred again"));
     QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
@@ -205,7 +202,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
     databaseWillReturnEmptySet();
 
     m_clientModel->setFilterColumn(QMLClientModel::PhoneNumberColumn);
-    m_clientModel->setFilterText("0");
+    m_clientModel->setFilterText(QStringLiteral("0"));
     QCOMPARE(successSpy.count(), 2);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
@@ -221,7 +218,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
 
     databaseWillReturnSingleClient();
 
-    m_clientModel->setFilterText("987654321");
+    m_clientModel->setFilterText(QStringLiteral("987654321"));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);

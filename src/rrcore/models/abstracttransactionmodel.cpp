@@ -12,6 +12,14 @@ AbstractTransactionModel::AbstractTransactionModel(QObject *parent) :
 
 }
 
+AbstractTransactionModel::AbstractTransactionModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread),
+    m_transactionId(-1),
+    m_keys(None)
+{
+
+}
+
 int AbstractTransactionModel::keys() const
 {
     return m_keys;

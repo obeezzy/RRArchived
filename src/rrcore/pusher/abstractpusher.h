@@ -5,6 +5,7 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
+class DatabaseThread;
 class QueryResult;
 
 class AbstractPusher : public QObject
@@ -13,6 +14,7 @@ class AbstractPusher : public QObject
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
 public:
     explicit AbstractPusher(QObject *parent = nullptr);
+    explicit AbstractPusher(DatabaseThread &thread);
     virtual ~AbstractPusher();
 
     bool isBusy() const;

@@ -20,6 +20,7 @@ public:
     }; Q_ENUM(FilterKey)
 
     explicit AbstractTransactionModel(QObject *parent = nullptr);
+    explicit AbstractTransactionModel(DatabaseThread &thread);
 
     int keys() const;
     void setKeys(int keys);

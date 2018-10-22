@@ -14,6 +14,13 @@ QMLUserProfile::QMLUserProfile(QObject *parent) :
     connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
 }
 
+QMLUserProfile::QMLUserProfile(DatabaseThread &thread) :
+    m_busy(false)
+{
+    connect(this, &QMLUserProfile::executeRequest, &thread, &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
+}
+
 bool QMLUserProfile::isBusy() const
 {
     return m_busy;

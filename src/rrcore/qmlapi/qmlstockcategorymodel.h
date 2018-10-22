@@ -10,6 +10,7 @@ class QMLStockCategoryModel : public AbstractVisualListModel
     Q_OBJECT
 public:
     explicit QMLStockCategoryModel(QObject *parent = nullptr);
+    explicit QMLStockCategoryModel(DatabaseThread &thread);
 
     enum Roles {
         CategoryIdRole = Qt::UserRole,

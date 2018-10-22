@@ -10,6 +10,12 @@ QMLSaleTransactionItemModel::QMLSaleTransactionItemModel(QObject *parent) :
 
 }
 
+QMLSaleTransactionItemModel::QMLSaleTransactionItemModel(DatabaseThread &thread) :
+    AbstractTransactionItemModel(thread)
+{
+
+}
+
 int QMLSaleTransactionItemModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -26,61 +32,42 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
     switch (role) {
     case TransactionItemIdRole:
         return m_records.at(index.row()).toMap().value("id").toInt();
-        break;
     case CategoryIdRole:
         return m_records.at(index.row()).toMap().value("category_id").toInt();
-        break;
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-        break;
     case ItemIdRole:
         return m_records.at(index.row()).toMap().value("item_id").toInt();
-        break;
     case ItemRole:
         return m_records.at(index.row()).toMap().value("item").toString();
-        break;
     case UnitPriceRole:
         return m_records.at(index.row()).toMap().value("unit_price").toDouble();
-        break;
     case QuantityRole:
         return m_records.at(index.row()).toMap().value("quantity").toDouble();
-        break;
     case UnitIdRole:
         return m_records.at(index.row()).toMap().value("unit_id").toInt();
-        break;
     case UnitRole:
         return m_records.at(index.row()).toMap().value("unit").toString();
-        break;
     case CostRole:
         return m_records.at(index.row()).toMap().value("cost").toDouble();
-        break;
     case DiscountRole:
         return m_records.at(index.row()).toMap().value("discount").toDouble();
-        break;
     case NoteIdRole:
         return m_records.at(index.row()).toMap().value("note_id").toInt();
-        break;
     case NoteRole:
         return m_records.at(index.row()).toMap().value("note").toString();
-        break;
     case SuspendedRole:
         return m_records.at(index.row()).toMap().value("suspended").toBool();
-        break;
     case ArchivedRole:
         return m_records.at(index.row()).toMap().value("archived").toBool();
-        break;
     case CreatedRole:
         return m_records.at(index.row()).toMap().value("created").toDateTime();
-        break;
     case LastEditedRole:
         return m_records.at(index.row()).toMap().value("last_edited").toDateTime();
-        break;
     case UserIdRole:
         return m_records.at(index.row()).toMap().value("user_id").toInt();
-        break;
     case UserRole:
-        return m_records.at(index.row()).toMap().value("user").toInt();
-        break;
+        return m_records.at(index.row()).toMap().value("user").toString();
     }
 
     return QVariant();

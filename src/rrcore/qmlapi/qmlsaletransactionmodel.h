@@ -56,6 +56,7 @@ public:
     };
 
     explicit QMLSaleTransactionModel(QObject *parent = nullptr);
+    explicit QMLSaleTransactionModel(DatabaseThread &thread);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

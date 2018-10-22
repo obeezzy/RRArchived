@@ -10,6 +10,13 @@ QMLStockCategoryModel::QMLStockCategoryModel(QObject *parent) :
 
 }
 
+QMLStockCategoryModel::QMLStockCategoryModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread)
+{
+
+}
+
+
 int QMLStockCategoryModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -26,10 +33,8 @@ QVariant QMLStockCategoryModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryIdRole:
         return m_records.at(index.row()).toMap().value("category_id").toInt();
-        break;
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-        break;
     }
 
     return QVariant();

@@ -6,7 +6,15 @@ QMLDebtorDetailRecord::QMLDebtorDetailRecord(QObject *parent) :
     m_debtorId(-1),
     m_userId(-1)
 {
-    //connect (this, &QMLDebtorDetailRecord::debtorIdChanged, this, &QMLDebtorDetailRecord::tryQuery);
+    connect(this, &QMLDebtorDetailRecord::debtorIdChanged, this, &QMLDebtorDetailRecord::tryQuery);
+}
+
+QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread &thread) :
+    AbstractDetailRecord(thread),
+    m_debtorId(-1),
+    m_userId(-1)
+{
+    connect(this, &QMLDebtorDetailRecord::debtorIdChanged, this, &QMLDebtorDetailRecord::tryQuery);
 }
 
 int QMLDebtorDetailRecord::debtorId() const

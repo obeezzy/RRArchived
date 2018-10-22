@@ -11,6 +11,12 @@ QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
 
 }
 
+QMLSaleHomeModel::QMLSaleHomeModel(DatabaseThread &thread) :
+    AbstractVisualListModel(thread)
+{
+
+}
+
 int QMLSaleHomeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())

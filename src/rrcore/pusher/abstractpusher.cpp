@@ -14,6 +14,15 @@ AbstractPusher::AbstractPusher(QObject *parent) :
     connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractPusher::saveRequest);
 }
 
+AbstractPusher::AbstractPusher(DatabaseThread &thread) :
+    m_busy(false)
+{
+    connect(this, &AbstractPusher::executeRequest, &thread, &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::processResult);
+
+    connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::saveRequest);
+}
+
 AbstractPusher::~AbstractPusher()
 {
 

@@ -16,6 +16,7 @@ public:
     };
 
     explicit QMLSaleHomeModel(QObject *parent = nullptr);
+    explicit QMLSaleHomeModel(DatabaseThread &thread);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;

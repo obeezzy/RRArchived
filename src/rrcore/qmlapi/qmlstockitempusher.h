@@ -5,6 +5,8 @@
 
 #include "../pusher/abstractpusher.h"
 
+class DatabaseThread;
+
 class QMLStockItemPusher : public AbstractPusher
 {
     Q_OBJECT
@@ -23,6 +25,7 @@ class QMLStockItemPusher : public AbstractPusher
     Q_PROPERTY(double retailPrice READ retailPrice WRITE setRetailPrice NOTIFY retailPriceChanged)
 public:
     explicit QMLStockItemPusher(QObject *parent = nullptr);
+    explicit QMLStockItemPusher(DatabaseThread &thread); // For testing
 
     enum SuccessCode {
         UnknownSuccess,
