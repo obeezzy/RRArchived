@@ -13,6 +13,14 @@ QMLDashboardHomeModel::QMLDashboardHomeModel(QObject *parent)
     QTimer::singleShot(1500, Qt::CoarseTimer, this, &QMLDashboardHomeModel::startQuery);
 }
 
+QMLDashboardHomeModel::QMLDashboardHomeModel(DatabaseThread &thread)
+{
+    connect(this, &QMLDashboardHomeModel::sendRequest, &thread, &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this, &QMLDashboardHomeModel::processResult);
+
+    QTimer::singleShot(1500, Qt::CoarseTimer, this, &QMLDashboardHomeModel::startQuery);
+}
+
 int QMLDashboardHomeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())

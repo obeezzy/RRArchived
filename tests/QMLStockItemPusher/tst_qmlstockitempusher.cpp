@@ -1,11 +1,10 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include <QSqlQuery>
-#include <QLoggingCategory>
 
 #include "qmlapi/qmlstockitempusher.h"
-#include "../utils/databaseclient.h"
+#include "database/databaseexception.h"
+#include "mockdatabasethread.h"
 
 class QMLStockItemPusherTest : public QObject
 {
@@ -31,7 +30,6 @@ private Q_SLOTS:
     void testSetTracked();
     void testSetImageSource();
 
-    // Long-running tests
     void testPushNewItem();
     void testPushSameItem();
     void testPushUpdatedItem();
@@ -41,24 +39,24 @@ private Q_SLOTS:
     // void testPushDifferentCategoryItems();
 private:
     QMLStockItemPusher *m_stockItemPusher;
-    DatabaseClient *m_client;
+    MockDatabaseThread m_thread;
+    QueryResult m_result;
 };
 
-QMLStockItemPusherTest::QMLStockItemPusherTest()
+QMLStockItemPusherTest::QMLStockItemPusherTest() :
+    m_thread(&m_result)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLStockItemPusherTest::init()
 {
-    m_stockItemPusher = new QMLStockItemPusher(this);
-    m_client = new DatabaseClient;
+    m_stockItemPusher = new QMLStockItemPusher(m_thread);
 }
 
 void QMLStockItemPusherTest::cleanup()
 {
     m_stockItemPusher->deleteLater();
-    delete m_client;
 }
 
 void QMLStockItemPusherTest::testSetCategory()
@@ -255,10 +253,12 @@ void QMLStockItemPusherTest::testSetImageSource()
 
 void QMLStockItemPusherTest::testPushNewItem()
 {
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
     QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
     QSignalSpy successSpy(m_stockItemPusher, &QMLStockItemPusher::success);
-
-    QVERIFY(m_client->initialize());
 
     m_stockItemPusher->setCategory("Category");
     m_stockItemPusher->setItem("Item");
@@ -273,160 +273,59 @@ void QMLStockItemPusherTest::testPushNewItem()
     m_stockItemPusher->setTracked(true);
     m_stockItemPusher->setImageSource("Image source");
 
+    databaseWillReturnEmptyResult();
+
     m_stockItemPusher->push();
 
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
     QCOMPARE(successSpy.count(), 1);
-
-    /*****************************************************************************************************************************/
-    /************************************ DATABASE OPERATIONS ********************************************************************/
-    /*****************************************************************************************************************************/
-    // Verify category data
-    QSqlQuery q(m_client->connection());
-    q.prepare("SELECT id, category, archived, created, last_edited, user_id FROM category");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("category").toString(), "Category");
-    QCOMPARE(q.value("archived").toBool(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
-
-    // Verify item data
-    q.prepare("SELECT id, category_id, item, description, divisible, archived, created, last_edited, user_id FROM item");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("category_id").toInt(), 1);
-    QCOMPARE(q.value("item").toString(), "Item");
-    QCOMPARE(q.value("description").toString(), "Description");
-    QCOMPARE(q.value("divisible").toBool(), true);
-    QCOMPARE(q.value("archived").toBool(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
-
-    // Verify current quantity data
-    q.prepare("SELECT id, item_id, quantity, unit_id, created, last_edited, user_id FROM current_quantity");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("item_id").toInt(), 1);
-    QCOMPARE(q.value("quantity").toDouble(), 10.5);
-    QCOMPARE(q.value("unit_id").toInt(), 1);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
-
-    // Verify initial quantity data
-    q.prepare("SELECT id, item_id, quantity, unit_id, reason, archived, created, last_edited, user_id FROM initial_quantity");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("item_id").toInt(), 1);
-    QCOMPARE(q.value("quantity").toDouble(), 10.5);
-    QCOMPARE(q.value("unit_id").toInt(), 1);
-    QCOMPARE(q.value("reason").toString(), "add_new_stock_item");
-    QCOMPARE(q.value("archived").toBool(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
-
-    // Verify unit data
-    q.prepare("SELECT id, item_id, unit, base_unit_equivalent, cost_price, retail_price, archived, created, last_edited, user_id FROM unit");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("id").toInt(), 1);
-    QCOMPARE(q.value("item_id").toInt(), 1);
-    QCOMPARE(q.value("unit").toString(), "Unit");
-    QCOMPARE(q.value("base_unit_equivalent").toInt(), 1);
-    QCOMPARE(q.value("cost_price").toDouble(), 10.85);
-    QCOMPARE(q.value("retail_price").toDouble(), 20.12);
-    QCOMPARE(q.value("archived").toBool(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0); // Temporary
-    /*****************************************************************************************************************************/
-    /******************************************** END DATABASE OPERATIONS ********************************************************/
-    /*****************************************************************************************************************************/
 }
 
 void QMLStockItemPusherTest::testPushSameItem()
 {
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
+    auto databaseWillReturnDuplicateEntryError = [this]() {
+        m_result.setSuccessful(false);
+        m_result.setOutcome(QVariant());
+        m_result.setErrorCode(static_cast<int>(DatabaseException::RRErrorCode::DuplicateEntryFailure));
+    };
     QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
     QSignalSpy errorSpy(m_stockItemPusher, &QMLStockItemPusher::error);
     QSignalSpy successSpy(m_stockItemPusher, &QMLStockItemPusher::success);
 
-    QVERIFY(m_client->initialize());
-
-    m_stockItemPusher->setCategory("Category");
-    m_stockItemPusher->setItem("Item");
-    m_stockItemPusher->setDescription("Description");
-    m_stockItemPusher->setQuantity(10.5);
-    m_stockItemPusher->setUnit("Unit");
-    m_stockItemPusher->setCategoryNote("Category note");
-    m_stockItemPusher->setItemNote("Item note");
-    m_stockItemPusher->setDivisible(true);
-    m_stockItemPusher->setCostPrice(10.85);
-    m_stockItemPusher->setRetailPrice(20.12);
-    m_stockItemPusher->setTracked(true);
-    m_stockItemPusher->setImageSource("Image source");
+    databaseWillReturnEmptyResult();
 
     m_stockItemPusher->push();
 
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
-    QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
+    QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
 
+    databaseWillReturnDuplicateEntryError();
+
     m_stockItemPusher->push();
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
-    QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
+    QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 0);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 1);
     QCOMPARE(errorSpy.takeFirst().first().value<QMLStockItemPusher::ErrorCode>(), QMLStockItemPusher::DuplicateEntryError);
     errorSpy.clear();
-
-    // Verify category data
-    QSqlQuery q(m_client->connection());
-    q.prepare("SELECT id, category, archived, created, last_edited, user_id FROM category");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-
-    // Verify item data
-    q.prepare("SELECT id, category_id, item, description, divisible, archived, created, last_edited, user_id FROM item");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-
-    // Verify current quantity data
-    q.prepare("SELECT id, item_id, quantity, unit_id, created, last_edited, user_id FROM current_quantity");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-
-    // Verify initial quantity data
-    q.prepare("SELECT id, item_id, quantity, unit_id, reason, archived, created, last_edited, user_id FROM initial_quantity");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-
-    // Verify unit data
-    q.prepare("SELECT id, item_id, unit, base_unit_equivalent, cost_price, retail_price, archived, created, last_edited, user_id FROM unit");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
 }
 
 void QMLStockItemPusherTest::testPushUpdatedItem()
 {
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
     QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
     QSignalSpy errorSpy(m_stockItemPusher, &QMLStockItemPusher::error);
     QSignalSpy successSpy(m_stockItemPusher, &QMLStockItemPusher::success);
-
-    // NOTE: Must be called before any database operations
-    QVERIFY(m_client->initialize());
 
     // STEP: Ensure item ID is not set.
     QCOMPARE(m_stockItemPusher->itemId(), -1);
@@ -444,9 +343,11 @@ void QMLStockItemPusherTest::testPushUpdatedItem()
     m_stockItemPusher->setRetailPrice(20.12);
     m_stockItemPusher->setTracked(true);
     m_stockItemPusher->setImageSource("Image source");
+
+    databaseWillReturnEmptyResult();
+
     m_stockItemPusher->push();
     QCOMPARE(errorSpy.count(), 0);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
@@ -455,14 +356,7 @@ void QMLStockItemPusherTest::testPushUpdatedItem()
     QCOMPARE(errorSpy.count(), 0);
     errorSpy.clear();
 
-    QSqlQuery q(m_client->connection());
-    // STEP: Verify item exists.
-    q.prepare("SELECT id FROM item");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("id").toInt(), 1);
-    q.finish();
+    databaseWillReturnEmptyResult();
 
     // STEP: Update the previously added item's properties.
     m_stockItemPusher->setItemId(1);
@@ -479,7 +373,6 @@ void QMLStockItemPusherTest::testPushUpdatedItem()
     m_stockItemPusher->setImageSource("Image source2");
     m_stockItemPusher->push();
     QCOMPARE(errorSpy.count(), 0);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_stockItemPusher->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2); // "busy" must be true, then false
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
@@ -487,71 +380,6 @@ void QMLStockItemPusherTest::testPushUpdatedItem()
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     errorSpy.clear();
-
-    // BUG: DON'T KNOW WHY THIS HAS TO BE HERE BUT IT DOESN'T WORK WITHOUT IT!
-    m_client->connection().close();
-    m_client->connection().open();
-
-    // STEP: Verify category table was updated properly.
-    q.prepare("SELECT id, category, archived, created, last_edited, user_id FROM category");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 2);
-    QVERIFY(q.last());
-    QCOMPARE(q.value("id").toInt(), 2);
-    QCOMPARE(q.value("category").toString(), QStringLiteral("Category2"));
-    QCOMPARE(q.value("archived").toBool(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0);
-
-    // STEP: Verify item table was updated properly.
-    q.prepare("SELECT id, category_id, item, description, divisible, archived, created, last_edited, user_id FROM item");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("category_id").toInt(), 2);
-    QCOMPARE(q.value("item").toString(), QStringLiteral("Item2"));
-    QCOMPARE(q.value("description").toString(), QStringLiteral("Description2"));
-    QCOMPARE(q.value("divisible").toBool(), false);
-    QCOMPARE(q.value("archived").toBool(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0);
-
-    // STEP: Verify current quantity table was not updated at all.
-    q.prepare("SELECT id, item_id, quantity, unit_id, created, last_edited, user_id FROM current_quantity");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("item_id").toInt(), 1);
-    QCOMPARE(q.value("quantity").toDouble(), 10.5);
-    QCOMPARE(q.value("unit_id").toInt(), 1);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0);
-
-    // STEP: Verify initial quantity table was not updated at all.
-    q.prepare("SELECT id, item_id, quantity, unit_id, reason, archived, created, last_edited, user_id FROM initial_quantity");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("item_id").toInt(), 1);
-    QCOMPARE(q.value("quantity").toDouble(), 10.5);
-    QCOMPARE(q.value("unit_id").toInt(), 1);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0);
-
-    // STEP: Verify unit table was updated properly.
-    q.prepare("SELECT id, item_id, unit, base_unit_equivalent, cost_price, retail_price, archived, created, "
-              "last_edited, user_id FROM unit");
-    QVERIFY(q.exec());
-    QCOMPARE(q.size(), 1);
-    QVERIFY(q.first());
-    QCOMPARE(q.value("item_id").toInt(), 1);
-    QCOMPARE(q.value("unit").toString(), QStringLiteral("Unit2"));
-    QCOMPARE(q.value("base_unit_equivalent").toDouble(), 1.0);
-    QCOMPARE(q.value("cost_price").toDouble(), 12.34);
-    QCOMPARE(q.value("retail_price").toDouble(), 56.78);
-    QCOMPARE(q.value("archived").toDouble(), false);
-    QCOMPARE(q.value("created").toDateTime(), q.value("last_edited").toDateTime());
-    QCOMPARE(q.value("user_id").toInt(), 0);
 }
 
 QTEST_MAIN(QMLStockItemPusherTest)

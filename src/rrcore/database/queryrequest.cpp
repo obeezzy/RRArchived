@@ -1,14 +1,12 @@
 #include "queryrequest.h"
 
 QueryRequest::QueryRequest(QObject *receiver) :
-    QObject(nullptr),
     m_receiver(receiver)
 {
     qRegisterMetaType<QueryRequest>("QueryRequest");
 }
 
 QueryRequest::QueryRequest(const QueryRequest &other)
-    : QObject(nullptr)
 {
     setCommand(other.command(), other.params(), other.type());
     setReceiver(other.receiver());

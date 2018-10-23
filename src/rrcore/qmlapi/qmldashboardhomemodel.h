@@ -7,11 +7,14 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
+class DatabaseThread;
+
 class QMLDashboardHomeModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
     explicit QMLDashboardHomeModel(QObject *parent = nullptr);
+    explicit QMLDashboardHomeModel(DatabaseThread &thread);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;

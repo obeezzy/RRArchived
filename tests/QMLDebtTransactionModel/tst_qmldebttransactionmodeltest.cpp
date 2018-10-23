@@ -410,7 +410,6 @@ void QMLDebtTransactionModelTest::testAddDebt()
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::RelatedTransactionRole).toString(), QString());
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::DueDateRole).toDateTime(), currentDateTime);
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
-//    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::CurrentBalanceRole).toDouble(), 1234.56);
 
     // STEP: Ensure debt payment model is updated properly.
@@ -420,7 +419,6 @@ void QMLDebtTransactionModelTest::testAddDebt()
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 0.0);
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QString());
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toDouble(), 0.0);
-    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
 }
 
 void QMLDebtTransactionModelTest::testUpdateDebt()
@@ -515,7 +513,6 @@ void QMLDebtTransactionModelTest::testUpdatePayment()
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::AmountPaidRole).toDouble(), 12.34);
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::NoteRole).toString(), QStringLiteral("Payment note"));
     QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::ArchivedRole).toBool(), false);
-//    QCOMPARE(debtPaymentModel->index(0).data(DebtPaymentModel::CreatedRole).toDateTime(), QDateTime::currentDateTime());
 }
 
 void QMLDebtTransactionModelTest::testRemovePayment()

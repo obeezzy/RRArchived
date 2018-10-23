@@ -1,7 +1,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
+#include "qmlapi/qmldashboardhomemodel.h"
+#include "mockdatabasethread.h"
 
 class QMLDashboardHomeModelTest : public QObject
 {
@@ -15,21 +16,26 @@ private slots:
     void cleanup();
     void test_case1();
 
+private:
+    QMLDashboardHomeModel *m_dashboardHomeModel;
+    MockDatabaseThread m_thread;
+    QueryResult m_result;
 };
 
-QMLDashboardHomeModelTest::QMLDashboardHomeModelTest()
+QMLDashboardHomeModelTest::QMLDashboardHomeModelTest() :
+    m_thread(&m_result)
 {
-
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
 void QMLDashboardHomeModelTest::init()
 {
-
+    m_dashboardHomeModel = new QMLDashboardHomeModel(m_thread);
 }
 
 void QMLDashboardHomeModelTest::cleanup()
 {
-
+    m_dashboardHomeModel->deleteLater();
 }
 
 void QMLDashboardHomeModelTest::test_case1()

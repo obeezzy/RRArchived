@@ -3,7 +3,6 @@
 #include <QCoreApplication>
 
 #include "qmlapi/qmlsalecartmodel.h"
-#include "qmlapi/qmlstockitempusher.h"
 #include "mockdatabasethread.h"
 #include "utility/saleutils.h"
 
