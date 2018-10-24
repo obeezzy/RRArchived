@@ -1,15 +1,8 @@
 #include "databasethread.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>
-#include <QSqlError>
-#include <QSqlDriver>
-#include <QSqlQuery>
-#include <QProcessEnvironment>
-#include <QCoreApplication>
-#include <QElapsedTimer>
 #include <QDebug>
 
-#include "databaseserver.h"
 #include "databaseexception.h"
 #include "queryrequest.h"
 #include "queryresult.h"
@@ -41,9 +34,6 @@ void Worker::execute(const QueryRequest request)
     try {
         if (request.command().trimmed().isEmpty())
             throw DatabaseException(DatabaseException::RRErrorCode::NoCommand, "No command set.");
-
-        if ((!m_connection.isValid() || !m_connection.isOpen()) && qEnvironmentVariable("TEST_GUI_ENABLED", "") == "1")
-            connectToTestDatabase();
 
         switch (request.type()) {
         case QueryRequest::User:
@@ -80,36 +70,6 @@ void Worker::execute(const QueryRequest request)
 
     emit resultReady(result);
     qInfo() << "Worker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
-}
-
-void Worker::connectToTestDatabase()
-{
-    try {
-        if (!QSqlDatabase::contains())
-            m_connection = QSqlDatabase::addDatabase("QMYSQL");
-        else
-            m_connection = QSqlDatabase::database();
-
-        // Disconnect and connect to 'mysql'
-        if (m_connection.isOpen())
-            m_connection.close();
-
-        m_connection.setDatabaseName("rr_test");
-        m_connection.setHostName("localhost");
-        m_connection.setPort(3306);
-        m_connection.setUserName("root");
-        m_connection.setPassword("hello");
-        m_connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
-
-        if (!m_connection.open())
-            throw DatabaseException(DatabaseException::RRErrorCode::ConnectToTestDatabaseFailed, m_connection.lastError().text(),
-                                    "Failed to connect to test database in worker thread.");
-
-        qInfo() << "----------------TEST DATABASE MODE------------------------";
-    } catch (DatabaseException &e) {
-        qCritical() << "Exception caught:" << e.message() << e.userMessage();
-        throw;
-    }
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :

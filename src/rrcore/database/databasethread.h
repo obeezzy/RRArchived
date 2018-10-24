@@ -18,8 +18,6 @@ signals:
     void resultReady(const QueryResult result);
 private:
     QSqlDatabase m_connection;
-
-    void connectToTestDatabase();
 };
 
 class DatabaseThread : public QThread

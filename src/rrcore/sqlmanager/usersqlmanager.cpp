@@ -92,7 +92,6 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
 
     if (connection().isOpen())
         connection().close();
-    connection().setDatabaseName("mysql");
 
     if (!QSqlDatabase::contains())
         connection() = QSqlDatabase::addDatabase("QMYSQL");
