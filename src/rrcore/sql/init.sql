@@ -8,7 +8,6 @@ USE ###DATABASENAME###;
 
 START TRANSACTION;
 -- Create business details table
-DROP TABLE IF EXISTS business_details;
 CREATE TABLE business_details (
     id INT(11) NOT NULL AUTO_INCREMENT,
     address VARCHAR(200) NOT NULL,
@@ -23,7 +22,6 @@ CREATE TABLE business_details (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create category table
-DROP TABLE IF EXISTS category;
 CREATE TABLE category (
     id INT(11) NOT NULL AUTO_INCREMENT,
     category VARCHAR(100) NOT NULL,
@@ -38,7 +36,6 @@ CREATE TABLE category (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create client table
-DROP TABLE IF EXISTS client;
 CREATE TABLE client (
     id INT(11) NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(100) DEFAULT NULL,
@@ -56,7 +53,6 @@ CREATE TABLE client (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create credit payment table
-DROP TABLE IF EXISTS credit_payment;
 CREATE TABLE credit_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     credit_transaction_id INT(11) NOT NULL,
@@ -74,7 +70,6 @@ CREATE TABLE credit_payment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create creditor table
-DROP TABLE IF EXISTS creditor;
 CREATE TABLE creditor (
     id INT(11) NOT NULL AUTO_INCREMENT,
     client_id INT(11) NOT NULL,
@@ -87,7 +82,6 @@ CREATE TABLE creditor (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create credit transaction table
-DROP TABLE IF EXISTS credit_transaction;
 CREATE TABLE credit_transaction (
     id INT(11) NOT NULL AUTO_INCREMENT,
     creditor_id INT(11) NOT NULL,
@@ -102,7 +96,6 @@ CREATE TABLE credit_transaction (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create current quantity table
-DROP TABLE IF EXISTS current_quantity;
 CREATE TABLE current_quantity (
     id INT(11) NOT NULL AUTO_INCREMENT,
     item_id INT(11) DEFAULT NULL,
@@ -116,7 +109,6 @@ CREATE TABLE current_quantity (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create customer table
-DROP TABLE IF EXISTS customer;
 CREATE TABLE customer (
     id INT(11) NOT NULL AUTO_INCREMENT,
     client_id INT(11) DEFAULT NULL,
@@ -128,7 +120,6 @@ CREATE TABLE customer (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create damaged quantity table
-DROP TABLE IF EXISTS damaged_quantity;
 CREATE TABLE damaged_quantity (
     id INT(11) NOT NULL AUTO_INCREMENT,
     item_id INT(11) DEFAULT NULL,
@@ -142,7 +133,6 @@ CREATE TABLE damaged_quantity (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create DB info table
-DROP TABLE IF EXISTS db_info;
 CREATE TABLE db_info (
     version VARCHAR(20) NOT NULL,
     rack_id VARCHAR(40) NOT NULL,
@@ -152,7 +142,6 @@ CREATE TABLE db_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create debt payment table
-DROP TABLE IF EXISTS debt_payment;
 CREATE TABLE debt_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     debt_transaction_id INT(11) NOT NULL,
@@ -170,7 +159,6 @@ CREATE TABLE debt_payment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create debt transaction table
-DROP TABLE IF EXISTS debt_transaction;
 CREATE TABLE debt_transaction (
     id INT(11) NOT NULL AUTO_INCREMENT,
     debtor_id INT(11) NOT NULL,
@@ -185,7 +173,6 @@ CREATE TABLE debt_transaction (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create debtor table
-DROP TABLE IF EXISTS debtor;
 CREATE TABLE debtor (
     id INT(11) NOT NULL AUTO_INCREMENT,
     client_id INT(11) NOT NULL,
@@ -198,7 +185,6 @@ CREATE TABLE debtor (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create expense table
-DROP TABLE IF EXISTS expense;
 CREATE TABLE expense (
     id INT(11) NOT NULL AUTO_INCREMENT,
     name VARCHAR(30) DEFAULT NULL,
@@ -217,7 +203,6 @@ CREATE TABLE expense (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create expense payment table
-DROP TABLE IF EXISTS expense_payment;
 CREATE TABLE expense_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     expense_id INT(11) NOT NULL,
@@ -232,7 +217,6 @@ CREATE TABLE expense_payment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create expense purpose table
-DROP TABLE IF EXISTS expense_purpose;
 CREATE TABLE expense_purpose (
     id INT(11) NOT NULL AUTO_INCREMENT,
     purpose VARCHAR(100) NOT NULL,
@@ -244,7 +228,6 @@ CREATE TABLE expense_purpose (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create income table
-DROP TABLE IF EXISTS income;
 CREATE TABLE income (
     id INT(11) NOT NULL AUTO_INCREMENT,
     name VARCHAR(30) DEFAULT NULL,
@@ -263,7 +246,6 @@ CREATE TABLE income (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create income payment table
-DROP TABLE IF EXISTS income_payment;
 CREATE TABLE income_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     income_id INT(11) NOT NULL,
@@ -278,7 +260,6 @@ CREATE TABLE income_payment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create income purpose table
-DROP TABLE IF EXISTS income_purpose;
 CREATE TABLE income_purpose (
     id INT(11) NOT NULL AUTO_INCREMENT,
     purpose VARCHAR(100) NOT NULL,
@@ -290,7 +271,6 @@ CREATE TABLE income_purpose (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create initial quantity table
-DROP TABLE IF EXISTS initial_quantity;
 CREATE TABLE initial_quantity (
     id INT(11) NOT NULL AUTO_INCREMENT,
     item_id INT(11) NOT NULL,
@@ -305,7 +285,6 @@ CREATE TABLE initial_quantity (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create item table
-DROP TABLE IF EXISTS item;
 CREATE TABLE item (
     id INT(11) NOT NULL AUTO_INCREMENT,
     category_id INT(11) NOT NULL,
@@ -326,7 +305,6 @@ CREATE TABLE item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create last used date/time table
-DROP TABLE IF EXISTS last_used_date_time;
 CREATE TABLE last_used_date_time (
     last_date_time DATETIME NOT NULL,
     created DATETIME NOT NULL,
@@ -334,7 +312,6 @@ CREATE TABLE last_used_date_time (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create note table
-DROP TABLE IF EXISTS note;
 CREATE TABLE note (
     id INT(11) NOT NULL AUTO_INCREMENT,
     note VARCHAR(200) NOT NULL,
@@ -346,7 +323,6 @@ CREATE TABLE note (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create purchase item table
-DROP TABLE IF EXISTS purchase_item;
 CREATE TABLE purchase_item (
     id INT(11) NOT NULL AUTO_INCREMENT,
     purchase_transaction_id INT(11) NOT NULL,
@@ -364,7 +340,6 @@ CREATE TABLE purchase_item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create purchase payment table
-DROP TABLE IF EXISTS purchase_payment;
 CREATE TABLE purchase_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     purchase_transaction_id INT(11) NOT NULL,
@@ -379,7 +354,6 @@ CREATE TABLE purchase_payment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create purchase transaction table
-DROP TABLE IF EXISTS purchase_transaction;
 CREATE TABLE purchase_transaction (
     id INT(11) NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
@@ -398,7 +372,6 @@ CREATE TABLE purchase_transaction (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create sale item table
-DROP TABLE IF EXISTS sale_item;
 CREATE TABLE sale_item (
     id INT(11) NOT NULL AUTO_INCREMENT,
     sale_transaction_id INT(11) NOT NULL,
@@ -418,7 +391,6 @@ CREATE TABLE sale_item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create sale payment table
-DROP TABLE IF EXISTS sale_payment;
 CREATE TABLE sale_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     sale_transaction_id INT(11) NOT NULL,
@@ -433,7 +405,6 @@ CREATE TABLE sale_payment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create sale transaction table
-DROP TABLE IF EXISTS sale_transaction;
 CREATE TABLE sale_transaction (
     id INT(11) NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
@@ -453,7 +424,6 @@ CREATE TABLE sale_transaction (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create unit tale
-DROP TABLE IF EXISTS unit;
 CREATE TABLE unit (
     id INT(11) NOT NULL AUTO_INCREMENT,
     item_id INT(11) NOT NULL,
@@ -473,7 +443,6 @@ CREATE TABLE unit (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create unit relation table
-DROP TABLE IF EXISTS unit_relation;
 CREATE TABLE unit_relation (
     id INT(11) NOT NULL AUTO_INCREMENT,
     item_id INT(11) NOT NULL,
@@ -490,7 +459,6 @@ CREATE TABLE unit_relation (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user table
-DROP TABLE IF EXISTS user;
 CREATE TABLE user (
     id INT(11) NOT NULL AUTO_INCREMENT,
     user VARCHAR(60) DEFAULT NULL,
@@ -505,7 +473,6 @@ CREATE TABLE user (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user privilege table
-DROP TABLE IF EXISTS user_privilege;
 CREATE TABLE user_privilege (
     id INT(11) NOT NULL AUTO_INCREMENT,
     user_id INT(11) NOT NULL,
@@ -515,7 +482,6 @@ CREATE TABLE user_privilege (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create vendor table
-DROP TABLE IF EXISTS vendor;
 CREATE TABLE vendor (
     id INT(11) NOT NULL AUTO_INCREMENT,
     client_id INT(11) NOT NULL,
