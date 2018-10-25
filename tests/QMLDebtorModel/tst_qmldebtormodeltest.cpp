@@ -248,7 +248,6 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     // Undo the last removal.
     m_debtorModel->undoLastCommit();
     QCOMPARE(errorSpy.count(), 0);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_debtorModel->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);

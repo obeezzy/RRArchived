@@ -132,7 +132,6 @@ void QMLClientModelTest::testFilterByPreferredName()
 
     m_clientModel->setFilterColumn(QMLClientModel::PreferredNameColumn);
     m_clientModel->setFilterText(QStringLiteral("A"));
-    QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 2);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
@@ -141,7 +140,6 @@ void QMLClientModelTest::testFilterByPreferredName()
     databaseWillReturnTwoClient();
 
     m_clientModel->setFilterText(QStringLiteral("P"));
-    QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
@@ -150,7 +148,6 @@ void QMLClientModelTest::testFilterByPreferredName()
     databaseWillReturnSingleClient();
 
     m_clientModel->setFilterText(QStringLiteral("Preferred again"));
-    QVERIFY(QTest::qWaitFor([&]() { return !m_clientModel->isBusy(); }, 2000));
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
