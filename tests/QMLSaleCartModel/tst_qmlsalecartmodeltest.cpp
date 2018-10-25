@@ -556,7 +556,6 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     // STEP: Suspend transaction.
     m_saleCartModel->suspendTransaction();
     QCOMPARE(errorSpy.count(), 0);
-    QVERIFY(QTest::qWaitFor([&]() { return !m_saleCartModel->isBusy(); }, 2000));
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
