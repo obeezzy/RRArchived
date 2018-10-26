@@ -67,6 +67,10 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
     QSqlQuery q(m_connection);
     QString sqlData = file.readAll();
 
+    if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
+        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+                                q.lastError().text(), "Database name cannot be mysql.");
+
     // Inject database name
     sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
 
@@ -193,6 +197,13 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
     // Now, create defined procedures
     file.seek(0);
     QString sqlData = file.readAll();
+
+    if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
+        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+                                q.lastError().text(), "Database name cannot be mysql.");
+
+    // Inject database name
+    sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
 
     // Replace comments and tabs and new lines with space
     sqlData = sqlData.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",

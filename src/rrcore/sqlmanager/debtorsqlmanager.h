@@ -9,7 +9,7 @@
 class DebtorSqlManager : public AbstractSqlManager
 {
 public:
-    explicit DebtorSqlManager(QSqlDatabase connection);
+    explicit DebtorSqlManager(const QString &connectionName);
 
     QueryResult execute(const QueryRequest &request) override final;
 private:

@@ -6,7 +6,7 @@
 class ClientSqlManager : public AbstractSqlManager
 {
 public:
-    explicit ClientSqlManager(QSqlDatabase connection);
+    explicit ClientSqlManager(const QString &connectionName);
 
     QueryResult execute(const QueryRequest &request) override;
 private:

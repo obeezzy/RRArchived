@@ -6,8 +6,8 @@
 
 #include "singletons/userprofile.h"
 
-DebtorSqlManager::DebtorSqlManager(QSqlDatabase connection) :
-    AbstractSqlManager(connection)
+DebtorSqlManager::DebtorSqlManager(const QString &connectionName) :
+    AbstractSqlManager(connectionName)
 {
 
 }
@@ -49,6 +49,7 @@ QueryResult DebtorSqlManager::execute(const QueryRequest &request)
 
 void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
     const QVariantList newDebtTransactions = params.value("new_debt_transactions").toList();
@@ -57,7 +58,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
     int clientId = 0;
     QVariantList debtTransactionIds;
     QVector<int> debtTransactionNoteIds;
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "preferred_name", "primary_phone_number" }, params);
@@ -241,12 +242,13 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
 void DebtorSqlManager::undoAddNewDebtor(const QueryRequest &request, QueryResult &result)
 {
     Q_UNUSED(result)
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
 
     const QVariantMap &params = request.params();
     const QVariantList &debtTransactionIds = params.value("outcome").toMap().value("debt_transaction_ids").toList();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "client_id", "debtor_id", "debt_transaction_ids" }, params.value("outcome").toMap());
@@ -302,6 +304,7 @@ void DebtorSqlManager::undoAddNewDebtor(const QueryRequest &request, QueryResult
 
 void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QVariantList &updatedDebtTransactions = params.value("updated_debt_transactions").toList();
     const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
@@ -314,7 +317,7 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
     QVariantList updatedDebtTransactionIds;
     QVariantList newDebtTransactionIds;
     QVector<int> newDebtTransactionNoteIds;
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "client_id", "debtor_id", "preferred_name", "primary_phone_number" }, params);
@@ -586,8 +589,9 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
 
 void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         // STEP: Get total balance for each debtor.
@@ -649,9 +653,10 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
 
 void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
@@ -663,7 +668,6 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
                                     QStringLiteral("Failed to start transation."));
 
-        QSqlQuery q(connection());
         q.prepare("UPDATE debtor SET archived = 1, last_edited = CURRENT_TIMESTAMP(), "
                   "user_id = :user_id WHERE id = :debtor_id");
         q.bindValue(":debtor_id", params.value("debtor_id"));
@@ -714,10 +718,11 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
 
 void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QVariantList &debtTransactionIds = params.value("outcome").toMap().value("debt_transaction_ids").toList();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
@@ -728,7 +733,6 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        QSqlQuery q(connection());
         q.prepare("UPDATE debtor SET archived = 0, last_edited = CURRENT_TIMESTAMP(), "
                   "user_id = :user_id WHERE id = :debtor_id");
         q.bindValue(":debtor_id", params.value("debtor_id"));
@@ -798,12 +802,13 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
 
 void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     int clientId = 0;
     QString preferredName;
     QString primaryPhoneNumber;
     QString debtorNote;
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
@@ -912,8 +917,9 @@ void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryRe
 
 void DebtorSqlManager::viewDebtorDetails(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);

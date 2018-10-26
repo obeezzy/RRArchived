@@ -8,7 +8,7 @@ class QSqlQuery;
 class UserSqlManager : public AbstractSqlManager
 {
 public:
-    UserSqlManager(QSqlDatabase connection);
+    UserSqlManager(const QString &connectionName);
 
     QueryResult execute(const QueryRequest &request) override final;
 private:

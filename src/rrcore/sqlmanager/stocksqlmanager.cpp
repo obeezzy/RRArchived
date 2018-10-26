@@ -14,8 +14,8 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 
-StockSqlManager::StockSqlManager(QSqlDatabase connection)
-    : AbstractSqlManager(connection)
+StockSqlManager::StockSqlManager(const QString &connectionName)
+    : AbstractSqlManager(connectionName)
 {
 
 }
@@ -55,6 +55,7 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
 
 void StockSqlManager::addNewStockItem(const QueryRequest &request)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int categoryNoteId = 0;
@@ -63,7 +64,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
     int itemId = 0;
     int unitId = 0;
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
@@ -239,11 +240,12 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
 
 void StockSqlManager::updateStockItem(const QueryRequest &request)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int categoryId = 0;
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     if (params.contains("quantity"))
         qWarning() << Q_FUNC_INFO << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
@@ -372,10 +374,11 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
 
 void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap params = request.params();
 
     try {
-        QSqlQuery q(connection());
+        QSqlQuery q(connection);
         QString itemInfoQuery = "SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
                                 "item.divisible, item.image, current_quantity.quantity, "
                                 "unit.id as unit_id, unit.unit, unit.cost_price, "
@@ -481,12 +484,13 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
 
 void StockSqlManager::viewStockItemDetails(const QueryRequest request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
 
     try {
         AbstractSqlManager::enforceArguments({ "item_id" }, params);
 
-        QSqlQuery q(connection());
+        QSqlQuery q(connection);
         q.prepare("SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
                   "item.divisible, item.image, current_quantity.quantity, "
                   "unit.id as unit_id, unit.unit, unit.cost_price, "
@@ -522,9 +526,10 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest request, QueryResu
 void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResult &result)
 {
     Q_UNUSED(request)
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
 
     try {
-        QSqlQuery q(connection());
+        QSqlQuery q(connection);
         q.prepare("SELECT id as category_id, category FROM category ORDER BY LOWER(category) ASC");
 
         if (!q.exec())
@@ -546,10 +551,11 @@ void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResu
 
 void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (params.value("item_id").toInt() <= 0)
@@ -557,7 +563,7 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        QSqlQuery q(connection());
+        QSqlQuery q(connection);
         q.prepare("UPDATE item SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :item_id");
         q.bindValue(":item_id", params.value("item_id"));
         q.bindValue(":last_edited", currentDateTime);
@@ -597,10 +603,11 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
 
 void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (params.value("item_id").toInt() <= 0)
@@ -608,7 +615,6 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        QSqlQuery q(connection());
         q.prepare("UPDATE item SET archived = 0, last_edited = :last_edited, user_id = :user_id WHERE id = :item_id");
         q.bindValue(":item_id", params.value("item_id"));
         q.bindValue(":last_edited", currentDateTime);

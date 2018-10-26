@@ -3,10 +3,11 @@
 #include "database/databaseexception.h"
 
 #include <QSqlQuery>
+#include <QSqlDriver>
 #include <QSqlError>
 
-ClientSqlManager::ClientSqlManager(QSqlDatabase connection) :
-    AbstractSqlManager(connection)
+ClientSqlManager::ClientSqlManager(const QString &connectionName) :
+    AbstractSqlManager(connectionName)
 {
 
 }
@@ -34,8 +35,9 @@ QueryResult ClientSqlManager::execute(const QueryRequest &request)
 
 void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (params.value("filter_column").toString() == "preferred_name") {
@@ -61,19 +63,15 @@ void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &res
                                         q.lastError().text(),
                                         QStringLiteral("Failed to fetch clients with 'phone number' filter."));
         } else {
-//            q.prepare("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
-//                      "client.phone_number AS phone_number FROM client "
-//                      "WHERE client.archived = :archived");
-//            q.bindValue(":archived", params.value("archived", false), QSql::Out);
-
-//            if (!q.exec())
-//                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
-//                                        q.lastError().text(),
-//                                        QStringLiteral("Failed to fetch clients."));
-            q.prepare("CALL ViewClients(:archived)");
-            q.bindValue(":archived", params.value("archived", false), QSql::In);
-
-            if (!q.exec())
+            const QString &storedProcedure = QString("CALL ViewClients(%1, @id, @preferred_name, @phone_number)")
+                    .arg(params.value("archived", false).toString());
+            if (!q.exec(storedProcedure))
+                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
+                                        q.lastError().text(),
+                                        QStringLiteral("Procedure ViewClients() failed."));
+            if (!q.exec("SELECT @id AS client_id,"
+                        "@preferred_name AS preferred_name,"
+                        "@phone_number AS phone_number"))
                 throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
                                         q.lastError().text(),
                                         QStringLiteral("Failed to fetch clients."));

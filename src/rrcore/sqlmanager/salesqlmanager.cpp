@@ -3,8 +3,8 @@
 #include <QDateTime>
 #include <QSqlError>
 
-SaleSqlManager::SaleSqlManager(QSqlDatabase connection) :
-    AbstractSqlManager(connection)
+SaleSqlManager::SaleSqlManager(const QString &connectionName) :
+    AbstractSqlManager(connectionName)
 {
 
 }
@@ -44,6 +44,7 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
 
 void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult &result, bool skipSqlTransaction)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QVariantList &payments = params.value("payments").toList();
     const QVariantList &items = params.value("items").toList();
@@ -58,7 +59,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     int creditorId = 0;
     int creditTransactionId = 0;
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
 //        AbstractSqlManager::enforceArguments( { "action" }, params);
@@ -393,10 +394,11 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
 
 void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
     const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         // STEP: Ensure suspended flag is set to true.
@@ -449,8 +451,9 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
 
 void SaleSqlManager::viewSaleCart(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QVariantMap params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 /*
 SELECT sale_transaction.id as transaction_id,
 sale_transaction.name as customer_name,
@@ -530,10 +533,11 @@ LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 
 
 void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QVariantMap params = request.params();
     const QDateTime currentDateTime = QDateTime::currentDateTime();
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
@@ -612,8 +616,9 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
 
 void SaleSqlManager::viewSaleTransactions(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         q.prepare("SELECT sale_transaction.id as transaction_id, sale_transaction.name as customer_name, "
@@ -646,8 +651,9 @@ void SaleSqlManager::viewSaleTransactions(const QueryRequest &request, QueryResu
 
 void SaleSqlManager::viewSaleTransactionItems(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         AbstractSqlManager::enforceArguments({ "transaction_id" }, params);
@@ -686,8 +692,9 @@ void SaleSqlManager::viewSaleTransactionItems(const QueryRequest &request, Query
 
 void SaleSqlManager::viewSaleHome(const QueryRequest &request, QueryResult &result)
 {
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QVariantMap params = request.params();
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
     QVariantList records;
     const int currentYear = QDate::currentDate().year();
 
