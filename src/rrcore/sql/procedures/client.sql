@@ -1,13 +1,18 @@
+USE ###DATABASENAME###;
+
 START TRANSACTION;
 
-DROP PROCEDURE IF EXISTS ViewClients;
 DELIMITER //
 CREATE PROCEDURE ViewClients(
-    IN archived TINYINT)
+    IN archived TINYINT,
+    OUT rClientId INTEGER,
+    OUT rPreferredNmae VARCHAR(100),
+    OUT rPhoneNumber VARCHAR(100)
+    )
 BEGIN
 
-SELECT client.id AS client_id, client.preferred_name AS preferred_name,
-client.phone_number AS phone_number FROM client
+SELECT id, preferred_name, phone_number
+INTO rClientId, rPreferredNmae, rPhoneNumber FROM client
 WHERE client.archived = archived;
 
 END //

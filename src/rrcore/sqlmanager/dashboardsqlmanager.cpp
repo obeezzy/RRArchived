@@ -1,8 +1,8 @@
 #include "dashboardsqlmanager.h"
 #include <QSqlQuery>
 
-DashboardSqlManager::DashboardSqlManager(QSqlDatabase connection) :
-    AbstractSqlManager(connection)
+DashboardSqlManager::DashboardSqlManager(const QString &connectionName) :
+    AbstractSqlManager(connectionName)
 {
 
 }

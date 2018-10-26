@@ -11,23 +11,18 @@
 class AbstractSqlManager
 {
 public:
-    explicit AbstractSqlManager(QSqlDatabase connection);
+    explicit AbstractSqlManager(const QString &connectionName);
     virtual ~AbstractSqlManager();
-
-    AbstractSqlManager &operator() (QSqlDatabase connection) {
-        m_connection = connection;
-        return *this;
-    }
 
     virtual QueryResult execute(const QueryRequest &request) = 0;
 protected:
-    QSqlDatabase &connection() { return m_connection; }
+    QString connectionName() const { return m_connectionName; }
     QVariantMap recordToMap(const QSqlRecord &);
     QSqlRecord mapToRecord(const QVariantMap &);
 
     void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
 private:
-    QSqlDatabase m_connection;
+    QString m_connectionName;
 };
 
 #endif // ABSTRACTSQLMANAGER_H

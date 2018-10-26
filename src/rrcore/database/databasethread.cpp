@@ -13,6 +13,8 @@
 #include "sqlmanager/debtorsqlmanager.h"
 #include "sqlmanager/clientsqlmanager.h"
 
+const QString CONNECTION_NAME(QStringLiteral("db_thread"));
+
 Worker::Worker(QObject *parent) :
     QObject(parent)
 {
@@ -20,7 +22,8 @@ Worker::Worker(QObject *parent) :
 
 Worker::~Worker()
 {
-    m_connection.close();
+    QSqlDatabase connection = QSqlDatabase::database(CONNECTION_NAME);
+    connection.close();
 }
 
 void Worker::execute(const QueryRequest request)
@@ -37,22 +40,22 @@ void Worker::execute(const QueryRequest request)
 
         switch (request.type()) {
         case QueryRequest::User:
-            result = UserSqlManager(m_connection).execute(request);
+            result = UserSqlManager(CONNECTION_NAME).execute(request);
             break;
         case QueryRequest::Client:
-            result = ClientSqlManager(m_connection).execute(request);
+            result = ClientSqlManager(CONNECTION_NAME).execute(request);
             break;
         case QueryRequest::Dashboard:
-            result = DashboardSqlManager(m_connection).execute(request);
+            result = DashboardSqlManager(CONNECTION_NAME).execute(request);
             break;
         case QueryRequest::Stock:
-            result = StockSqlManager(m_connection).execute(request);
+            result = StockSqlManager(CONNECTION_NAME).execute(request);
             break;
         case QueryRequest::Sales:
-            result = SaleSqlManager(m_connection).execute(request);
+            result = SaleSqlManager(CONNECTION_NAME).execute(request);
             break;
         case QueryRequest::Debtor:
-            result = DebtorSqlManager(m_connection).execute(request);
+            result = DebtorSqlManager(CONNECTION_NAME).execute(request);
             break;
         default:
             throw DatabaseException(DatabaseException::RRErrorCode::RequestTypeNotFound, "Unhandled request type.");

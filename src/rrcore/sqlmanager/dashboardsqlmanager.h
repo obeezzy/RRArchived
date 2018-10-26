@@ -6,7 +6,7 @@
 class DashboardSqlManager : public AbstractSqlManager
 {
 public:
-    DashboardSqlManager(QSqlDatabase connection);
+    DashboardSqlManager(const QString &connectionName);
 
     QueryResult execute(const QueryRequest &request) override final;
 };

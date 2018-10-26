@@ -6,7 +6,7 @@
 class StockSqlManager : public AbstractSqlManager
 {
 public:
-    explicit StockSqlManager(QSqlDatabase connection);
+    explicit StockSqlManager(const QString &connectionName);
 
     QueryResult execute(const QueryRequest &request) override final;
 private:

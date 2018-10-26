@@ -10,7 +10,7 @@
 class SaleSqlManager : public AbstractSqlManager
 {
 public:
-    explicit SaleSqlManager(QSqlDatabase connection);
+    explicit SaleSqlManager(const QString &connectionName);
 
     QueryResult execute(const QueryRequest &request) override final;
 private:

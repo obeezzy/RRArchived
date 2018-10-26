@@ -10,8 +10,8 @@
 #include "database/databaseutils.h"
 #include "config/config.h"
 
-UserSqlManager::UserSqlManager(QSqlDatabase connection)
-    : AbstractSqlManager(connection)
+UserSqlManager::UserSqlManager(const QString &connectionName)
+    : AbstractSqlManager(connectionName)
 {
 
 }
@@ -45,8 +45,9 @@ QueryResult UserSqlManager::execute(const QueryRequest &request)
 
 bool UserSqlManager::storeProfile(QueryResult &result)
 {
-    if (connection().isOpen()) {
-        QSqlQuery q(connection());
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    if (connection.isOpen()) {
+        QSqlQuery q(connection);
         q.prepare("SELECT id, user FROM user");
         if (!q.exec())
             return false;
@@ -62,54 +63,53 @@ bool UserSqlManager::storeProfile(QueryResult &result)
 
 void UserSqlManager::signInUser(const QueryRequest &request, QueryResult result)
 {
+    QSqlDatabase connection;
     const QString &userName = request.params().value("user_name").toString();
     const QString &password = request.params().value("password").toString();
 
-    if (connection().isOpen())
-        connection().close();
-
     if (!QSqlDatabase::contains())
-        connection() = QSqlDatabase::addDatabase("QMYSQL");
+        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
     else
-        connection() = QSqlDatabase::database();
+        connection = QSqlDatabase::database(connectionName());
 
-    connection().setDatabaseName(Config::instance().databaseName());
-    connection().setHostName(Config::instance().hostName());
-    connection().setPort(Config::instance().port());
-    connection().setUserName(userName);
-    connection().setPassword(password);
-    connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+    connection.setDatabaseName(Config::instance().databaseName());
+    connection.setHostName(Config::instance().hostName());
+    connection.setPort(Config::instance().port());
+    connection.setUserName(userName);
+    connection.setPassword(password);
+    connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
-    if (!connection().open() || !storeProfile(result))
-        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(),
+    if (!connection.open() || !storeProfile(result))
+        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection.lastError().text(),
                                 QString("Failed to sign in as '%1'.").arg(userName));
 }
 
 void UserSqlManager::signUpUser(const QueryRequest &request)
 {
+    QSqlDatabase connection;
     const QString &userName = request.params().value("user_name").toString();
     const QString &password = request.params().value("password").toString();
 
-    if (connection().isOpen())
-        connection().close();
+    if (connection.isOpen())
+        connection.close();
 
     if (!QSqlDatabase::contains())
-        connection() = QSqlDatabase::addDatabase("QMYSQL");
+        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
     else
-        connection() = QSqlDatabase::database();
+        connection = QSqlDatabase::database(connectionName());
 
-    connection().setDatabaseName(Config::instance().databaseName());
-    connection().setHostName(Config::instance().hostName());
-    connection().setPort(Config::instance().port());
-    connection().setUserName(Config::instance().userName());
-    connection().setPassword(Config::instance().password());
-    connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+    connection.setDatabaseName(Config::instance().databaseName());
+    connection.setHostName(Config::instance().hostName());
+    connection.setPort(Config::instance().port());
+    connection.setUserName(Config::instance().userName());
+    connection.setPassword(Config::instance().password());
+    connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
-    if (!connection().open())
-        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection().lastError().text(),
+    if (!connection.open())
+        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection.lastError().text(),
                                 QString("Failed to open connection."));
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
@@ -152,27 +152,25 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
 
 void UserSqlManager::signUpRootUser(const QueryRequest &request)
 {
+    QSqlDatabase connection;
     const QString &userName = request.params().value("user_name").toString();
     const QString &password = request.params().value("password").toString();
 
-    if (connection().isOpen())
-        connection().close();
-
-    connection().setDatabaseName("mysql");
+    connection.setDatabaseName("mysql");
 
     if (!QSqlDatabase::contains())
-        connection() = QSqlDatabase::addDatabase("QMYSQL");
+        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
     else
-        connection() = QSqlDatabase::database();
+        connection = QSqlDatabase::database(connectionName());
 
-    connection().setDatabaseName(Config::instance().databaseName());
-    connection().setHostName(Config::instance().hostName());
-    connection().setPort(Config::instance().port());
-    connection().setUserName(userName);
-    connection().setPassword(password);
-    connection().setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+    connection.setDatabaseName(Config::instance().databaseName());
+    connection.setHostName(Config::instance().hostName());
+    connection.setPort(Config::instance().port());
+    connection.setUserName(userName);
+    connection.setPassword(password);
+    connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
@@ -205,18 +203,19 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
 
 void UserSqlManager::removeUser(const QueryRequest &request)
 {
+    QSqlDatabase connection;
     const QString &userName = request.params().value("user_name").toString();
 
     if (!QSqlDatabase::contains())
-        connection() = QSqlDatabase::addDatabase("QMYSQL");
+        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
     else
-        connection() = QSqlDatabase::database();
+        connection = QSqlDatabase::database(connectionName());
 
-    if (!connection().isOpen())
+    if (!connection.isOpen())
         throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure,
-                                connection().lastError().text(), QString("Connection is closed."));
+                                connection.lastError().text(), QString("Connection is closed."));
 
-    QSqlQuery q(connection());
+    QSqlQuery q(connection);
     q.prepare("DROP USER :user_name@'localhost'");
     q.bindValue(":user_name", userName);
 

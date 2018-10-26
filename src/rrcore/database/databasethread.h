@@ -16,8 +16,6 @@ public:
     void execute(const QueryRequest request);
 signals:
     void resultReady(const QueryResult result);
-private:
-    QSqlDatabase m_connection;
 };
 
 class DatabaseThread : public QThread

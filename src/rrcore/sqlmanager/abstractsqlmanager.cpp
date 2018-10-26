@@ -1,8 +1,8 @@
 #include "abstractsqlmanager.h"
 #include "database/databaseexception.h"
 
-AbstractSqlManager::AbstractSqlManager(QSqlDatabase connection) :
-    m_connection(connection)
+AbstractSqlManager::AbstractSqlManager(const QString &connectionName) :
+    m_connectionName(connectionName)
 {
 
 }
