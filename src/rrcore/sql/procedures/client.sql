@@ -1,21 +1,33 @@
 USE ###DATABASENAME###;
 
-START TRANSACTION;
+#START TRANSACTION;
 
-DELIMITER //
+#DELIMITER //
+
 CREATE PROCEDURE ViewClients(
-    IN archived TINYINT,
-    OUT rClientId INTEGER,
-    OUT rPreferredNmae VARCHAR(100),
-    OUT rPhoneNumber VARCHAR(100)
+    IN iFilterColumn VARCHAR(100),
+    IN iFilterText VARCHAR(100),
+    IN iArchived TINYINT,
+    OUT oClientId INTEGER,
+    OUT oPreferredNmae VARCHAR(100),
+    OUT oPhoneNumber VARCHAR(100)
     )
 BEGIN
+    IF LOWER(iFilterColumn) = "preferred_name" THEN
+        SELECT id, preferred_name, phone_number
+        INTO oClientId, oPreferredNmae, oPhoneNumber FROM client
+        WHERE client.archived = iArchived AND client.preferred_name LIKE CONCAT('%', iFilterText, '%');
+    ELSEIF LOWER(iFilterColumn) = "phone_number" THEN
+        SELECT id, preferred_name, phone_number
+        INTO oClientId, oPreferredNmae, oPhoneNumber FROM client
+        WHERE client.archived = iArchived AND client.phone_number LIKE CONCAT('%', iFilterText, '%');
+    ELSE
+        SELECT id, preferred_name, phone_number
+        INTO oClientId, oPreferredNmae, oPhoneNumber FROM client
+        WHERE client.archived = iArchived;
+   END IF;
+END;#//
 
-SELECT id, preferred_name, phone_number
-INTO rClientId, rPreferredNmae, rPhoneNumber FROM client
-WHERE client.archived = archived;
+#DELIMITER ;
 
-END //
-DELIMITER ;
-
-COMMIT;
+#COMMIT;

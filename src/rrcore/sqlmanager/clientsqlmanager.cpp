@@ -35,51 +35,46 @@ QueryResult ClientSqlManager::execute(const QueryRequest &request)
 
 void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &result)
 {
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    QSqlQuery q(connection);
 
     try {
-        if (params.value("filter_column").toString() == "preferred_name") {
-            q.prepare(QString("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
-                              "client.phone_number AS phone_number FROM client "
-                              "WHERE client.archived = :archived AND client.preferred_name LIKE '%%1%'")
-                      .arg(params.value("filter_text").toString()));
-            q.bindValue(":archived", params.value("archived", false), QSql::Out);
+        QList<QSqlRecord> records(callProcedure("ViewClients", {
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "filter_column",
+                                                        params.value("filter_column", QVariant::String)
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "filter_text",
+                                                        params.value("filter_text", QVariant::String)
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "archived",
+                                                        params.value("archived", false)
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::Out,
+                                                        "client_id",
+                                                        {}
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::Out,
+                                                        "preferred_name",
+                                                        {}
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::Out,
+                                                        "phone_number",
+                                                        {}
+                                                    }
+                                                }, { "client_id", "preferred_name", "phone_number" }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Failed to fetch clients with 'preferred name' filter."));
-        } else if (params.value("filter_column").toString() == "phone_number") {
-            q.prepare(QString("SELECT client.id AS client_id, client.preferred_name AS preferred_name, "
-                              "client.phone_number AS phone_number FROM client "
-                              "WHERE client.archived = :archived AND client.phone_number LIKE '%%1%'")
-                      .arg(params.value("filter_text").toString()));
-            q.bindValue(":archived", params.value("archived", false), QSql::Out);
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Failed to fetch clients with 'phone number' filter."));
-        } else {
-            const QString &storedProcedure = QString("CALL ViewClients(%1, @id, @preferred_name, @phone_number)")
-                    .arg(params.value("archived", false).toString());
-            if (!q.exec(storedProcedure))
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Procedure ViewClients() failed."));
-            if (!q.exec("SELECT @id AS client_id,"
-                        "@preferred_name AS preferred_name,"
-                        "@phone_number AS phone_number"))
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewClientsFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Failed to fetch clients."));
-        }
 
         QVariantList clients;
-        while (q.next()) {
-            clients.append(recordToMap(q.record()));
+        for (const QSqlRecord &record : records) {
+            clients.append(recordToMap(record));
         }
 
         result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });

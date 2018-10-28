@@ -2,11 +2,18 @@
 #define ABSTRACTSQLMANAGER_H
 
 #include <QString>
-#include <QSqlDatabase>
 #include <QVariantMap>
 #include <QSqlRecord>
+#include <initializer_list>
 #include "database/queryresult.h"
 #include "database/queryrequest.h"
+
+struct ProcedureArgument {
+    enum class Type { In, Out, InOut };
+    Type type;
+    QString name;
+    QVariant value;
+};
 
 class AbstractSqlManager
 {
@@ -21,6 +28,8 @@ protected:
     QSqlRecord mapToRecord(const QVariantMap &);
 
     void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
+    QList<QSqlRecord> callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments,
+                                    const QStringList &outArgumentsThatMustNotBeNull = QStringList()); // throw DatabaseException
 private:
     QString m_connectionName;
 };
