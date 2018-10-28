@@ -488,34 +488,103 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest request, QueryResu
     const QVariantMap &params = request.params();
 
     try {
-        AbstractSqlManager::enforceArguments({ "item_id" }, params);
+        enforceArguments({ "item_id" }, params);
 
-        QSqlQuery q(connection);
-        q.prepare("SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
-                  "item.divisible, item.image, current_quantity.quantity, "
-                  "unit.id as unit_id, unit.unit, unit.cost_price, "
-                  "unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, item.user_id AS user "
-                  "FROM item "
-                  "INNER JOIN category ON item.category_id = category.id "
-                  "INNER JOIN unit ON item.id = unit.item_id "
-                  "INNER JOIN current_quantity ON item.id = current_quantity.item_id "
-                  "LEFT JOIN user ON item.user_id = user.id "
-                  "WHERE item.archived = 0 AND unit.base_unit_equivalent = 1 "
-                  "AND item.id = :item_id");
-        q.bindValue(":item_id", params.value("item_id"), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemDetailsFailed,
-                                    q.lastError().text(),
-                                    "Failed to fetch item details.");
+        const QList<QSqlRecord> records(callProcedure("ViewStockItemDetails", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::InOut,
+                                                              "item",
+                                                              params.value("item_id")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "category_id",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "category",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "item",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "description",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "divisible",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "image",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "quantity",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "unit_id",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "unit",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "cost_price",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "retail_price",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "currency",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "created",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "last_edited",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "user_id",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "user",
+                                                              {}
+                                                          }
+                                                      }));
 
         QVariantMap itemInfo;
-        if (q.first())
-            itemInfo = recordToMap(q.record());
+        if (!records.isEmpty())
+            itemInfo = recordToMap(records.first());
         else
             throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemDetailsFailed,
-                                    q.lastError().text(),
-                                    QString("Item details do not exists for item %1.").arg(params.value("item_id").toString()));
+                                    QString(),
+                                    QString("Item details do not exists for item '%1'.").arg(params.value("item_id").toString()));
 
         result.setOutcome(QVariantMap { { "item", itemInfo }, { "record_count", 1 } });
     } catch (DatabaseException &) {

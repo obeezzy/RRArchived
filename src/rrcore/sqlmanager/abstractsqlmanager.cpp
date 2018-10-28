@@ -56,8 +56,7 @@ void AbstractSqlManager::enforceArguments(QStringList argumentsToEnforce, const 
                                 QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")));
 }
 
-QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments,
-                                                    const QStringList &outArgumentsThatMustNotBeNull)
+QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments)
 {
     if (procedure.trimmed().isEmpty())
         return QList<QSqlRecord>();
@@ -67,6 +66,17 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
     QList<QSqlRecord> records;
     QStringList sqlArguments;
     QStringList outArguments;
+    QStringList selectStatementSuffixes;
+
+    auto areAllArgumentsNull = [](const QSqlRecord &record, const QStringList &arguments) {
+        int nullArgumentCount = 0;
+        for (const QString &argument : arguments) {
+            if (record.value(argument).isNull())
+                nullArgumentCount++;
+        }
+
+        return nullArgumentCount == arguments.count();
+    };
 
     for (const auto &argument : arguments) {
         switch (argument.type) {
@@ -75,16 +85,32 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                 sqlArguments.append(QStringLiteral("NULL"));
             else if (argument.value.type() == QVariant::Bool)
                 sqlArguments.append(argument.value.toBool() ? "1" : "0");
-            else if (argument.value.type() == QVariant::String)
+            else if (argument.value.type() == QVariant::String || argument.value.type() == QVariant::ByteArray)
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toString()));
             else
                 sqlArguments.append(argument.value.toString());
             break;
         case ProcedureArgument::Type::Out:
             sqlArguments.append(QString("@") + argument.name);
-            outArguments.append(QString("@%1 AS %1").arg(argument.name));
+            outArguments.append(argument.name);
+            selectStatementSuffixes.append(QString("@%1 AS %1").arg(argument.name));
             break;
         case ProcedureArgument::Type::InOut:
+        {
+            QString inArgument;
+            if (argument.value.type() == QVariant::String || argument.value.type() == QVariant::ByteArray)
+                inArgument = QStringLiteral("'%1'").arg(argument.value.toString());
+            else
+                inArgument = QStringLiteral("%1").arg(argument.value.toString());
+
+            if (!q.exec(QStringLiteral("SET @%1 = %2").arg(argument.name, inArgument)))
+                throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
+                                        QStringLiteral("Failed to SET variable @%1").arg(argument.name));
+
+            sqlArguments.append(QString("@") + argument.name);
+            outArguments.append(argument.name);
+            selectStatementSuffixes.append(QString("@%1 AS %1").arg(argument.name));
+        }
             break;
         }
     }
@@ -96,17 +122,15 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                                 q.lastError().text(),
                                 QStringLiteral("Procedure '%1' failed.").arg(procedure));
 
-    if (!outArguments.isEmpty()) {
-        if (!q.exec(QStringLiteral("SELECT %1").arg(outArguments.join(", "))))
+    if (!selectStatementSuffixes.isEmpty()) {
+        if (!q.exec(QStringLiteral("SELECT %1").arg(selectStatementSuffixes.join(", "))))
             throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
                                     q.lastError().text(),
                                     QStringLiteral("Failed to select out arguments for procedure '%1'.").arg(procedure));
 
         while (q.next()) {
-            for (const QString &outArgument : outArgumentsThatMustNotBeNull) {
-                if (q.record().value(outArgument).isNull())
-                    return QList<QSqlRecord>();
-            }
+            if (areAllArgumentsNull(q.record(), outArguments))
+                return QList<QSqlRecord>();
 
             records.append(q.record());
         }
