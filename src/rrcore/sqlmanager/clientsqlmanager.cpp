@@ -38,38 +38,38 @@ void ClientSqlManager::viewClients(const QueryRequest &request, QueryResult &res
     const QVariantMap &params = request.params();
 
     try {
-        QList<QSqlRecord> records(callProcedure("ViewClients", {
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "filter_column",
-                                                        params.value("filter_column", QVariant::String)
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "filter_text",
-                                                        params.value("filter_text", QVariant::String)
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "archived",
-                                                        params.value("archived", false)
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::Out,
-                                                        "client_id",
-                                                        {}
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::Out,
-                                                        "preferred_name",
-                                                        {}
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::Out,
-                                                        "phone_number",
-                                                        {}
-                                                    }
-                                                }, { "client_id", "preferred_name", "phone_number" }));
+        const QList<QSqlRecord> records(callProcedure("ViewClients", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "filter_column",
+                                                              params.value("filter_column", QVariant::String)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "filter_text",
+                                                              params.value("filter_text", QVariant::String)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "archived",
+                                                              params.value("archived", false)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "client_id",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "preferred_name",
+                                                              {}
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::Out,
+                                                              "phone_number",
+                                                              {}
+                                                          }
+                                                      }));
 
 
         QVariantList clients;

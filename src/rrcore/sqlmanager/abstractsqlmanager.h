@@ -28,8 +28,7 @@ protected:
     QSqlRecord mapToRecord(const QVariantMap &);
 
     void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
-    QList<QSqlRecord> callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments,
-                                    const QStringList &outArgumentsThatMustNotBeNull = QStringList()); // throw DatabaseException
+    QList<QSqlRecord> callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments); // throw DatabaseException
 private:
     QString m_connectionName;
 };
