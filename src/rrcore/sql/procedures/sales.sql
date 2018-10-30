@@ -26,7 +26,7 @@ CREATE PROCEDURE ViewStockItemDetails(
 BEGIN
     SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description,
         item.divisible, item.image, current_quantity.quantity,
-        unit.id as unit_id, unit.unit, unit.cost_price,
+        unit.id AS unit_id, unit.unit, unit.cost_price,
         unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, 'user' AS user
         INTO ioItemId, oCategoryId, oCategory, oItem, oDescription, oDivisible, oImage, oQuantity, oUnitId,
         oUnit, oCostPrice, oRetailPrice, oCurrency, oCreated, oLastEdited, oUserId, oUser
