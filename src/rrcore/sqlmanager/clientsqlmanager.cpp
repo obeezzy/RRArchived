@@ -1,10 +1,5 @@
 #include "clientsqlmanager.h"
-
 #include "database/databaseexception.h"
-
-#include <QSqlQuery>
-#include <QSqlDriver>
-#include <QSqlError>
 
 ClientSqlManager::ClientSqlManager(const QString &connectionName) :
     AbstractSqlManager(connectionName)

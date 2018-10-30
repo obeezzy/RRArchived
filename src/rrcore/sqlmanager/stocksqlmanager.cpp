@@ -482,7 +482,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
     }
 }
 
-void StockSqlManager::viewStockItemDetails(const QueryRequest request, QueryResult &result)
+void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryResult &result)
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
@@ -594,22 +594,20 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest request, QueryResu
 
 void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResult &result)
 {
-    Q_UNUSED(request)
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params(request.params());
 
     try {
-        QSqlQuery q(connection);
-        q.prepare("SELECT id as category_id, category FROM category ORDER BY LOWER(category) ASC");
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockCategoriesFailed,
-                                    q.lastError().text(),
-                                    "Failed to fetch categories.");
+        QList<QSqlRecord> records(callProcedure("ViewStockCategories", {
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "sort_order",
+                                                        params.value("sort_order")
+                                                    }
+                                                }));
 
         QVariantList categories;
-
-        while (q.next()) {
-            categories.append(recordToMap(q.record()));
+        for (const auto &record : records) {
+            categories.append(recordToMap(record));
         }
 
         result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", categories.count() } });

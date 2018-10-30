@@ -134,6 +134,10 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
 
             records.append(q.record());
         }
+    } else if (outArguments.isEmpty()) {
+        while (q.next()) {
+            records.append(q.record());
+        }
     }
 
     return records;
