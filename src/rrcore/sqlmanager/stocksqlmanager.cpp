@@ -374,80 +374,74 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
 
 void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &result)
 {
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    const QVariantMap params = request.params();
+    const QVariantMap &params = request.params();
 
     try {
-        QSqlQuery q(connection);
-        QString itemInfoQuery = "SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
-                                "item.divisible, item.image, current_quantity.quantity, "
-                                "unit.id as unit_id, unit.unit, unit.cost_price, "
-                                "unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, item.user_id AS user "
-                                "FROM item "
-                                "INNER JOIN category ON item.category_id = category.id "
-                                "INNER JOIN unit ON item.id = unit.item_id "
-                                "INNER JOIN current_quantity ON item.id = current_quantity.item_id "
-                                "LEFT JOIN user ON item.user_id = user.id "
-                                "WHERE item.archived = 0 AND unit.base_unit_equivalent = 1 "
-                                "%1 ORDER BY LOWER(category.category) %2, LOWER(item.item) ASC";
-        QString sortOrder;
-        QString filterColumn;
+        const QList<QSqlRecord> records(callProcedure("ViewStockItems", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "filter_column",
+                                                              params.value("filter_column")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "filter_text",
+                                                              params.value("filter_text")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "sort_column",
+                                                              params.value("sort_column", QStringLiteral("category"))
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "sort_order",
+                                                              params.value("sort_order").toInt() == Qt::DescendingOrder
+                                                              ? "descending" : "ascending"
+                                                          }
+                                                      }));
 
-        if (params.value("sort_column").toString() == "item" && params.value("sort_order").toString() == "descending") {
-            sortOrder = "DESC";
-        } else {
-            sortOrder = "ASC";
-        }
-
-        if (!params.value("filter_text").isNull() && !params.value("filter_column").isNull()) {
-            if (params.value("filter_column").toString() == QStringLiteral("item"))
-                filterColumn = QString(" AND item.item LIKE '%%1%'").arg(params.value("filter_text").toString());
-            else if (params.value("filter_column").toString() == QStringLiteral("category"))
-                filterColumn = QString(" AND category.category LIKE '%%1%'").arg(params.value("filter_text").toString());
-        }
-
-        q.prepare(itemInfoQuery.arg(filterColumn, sortOrder));
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemsFailed,
-                                    q.lastError().text(), "Failed to fetch tracked stock items.");
 
         QStringList categories;
         QVariantList itemGroups;
         int itemCount = 0;
-
-        while (q.next()) {
-            const int categoryId = q.value("category_id").toInt();
-            const QString &category = q.value("category").toString();
+        for (int i = 0; i < records.count(); ++i) {
+            auto record = records[i];
+            const auto categoryId = record.value("category_id").toInt();
+            const auto &category = record.value("category").toString();
 
             QVariantList items;
 
-           do {
+            while ((i < records.count()) && categoryId == record.value("category_id").toInt()) {
                 QVariantMap itemRecord;
-                itemRecord.insert("item_id", q.value("item_id"));
+                itemRecord.insert("item_id", record.value("item_id"));
                 itemRecord.insert("category_id", categoryId);
                 itemRecord.insert("category", category);
-                itemRecord.insert("item", q.value("item"));
-                itemRecord.insert("description", q.value("description"));
-                itemRecord.insert("divisible", q.value("divisible"));
-                itemRecord.insert("image", DatabaseUtils::byteArrayToImage(q.value("image").toByteArray()));
-                itemRecord.insert("quantity", q.value("quantity"));
-                itemRecord.insert("unit", q.value("unit"));
-                itemRecord.insert("unit_id", q.value("unit_id"));
-                itemRecord.insert("cost_price", q.value("cost_price"));
-                itemRecord.insert("retail_price", q.value("retail_price"));
-                itemRecord.insert("currency", q.value("currency"));
-                itemRecord.insert("created", q.value("created"));
-                itemRecord.insert("last_edited", q.value("last_edited"));
-                itemRecord.insert("user", q.value("user")); // TODO: Inner join on user table
+                itemRecord.insert("item", record.value("item"));
+                itemRecord.insert("description", record.value("description"));
+                itemRecord.insert("divisible", record.value("divisible"));
+                itemRecord.insert("image", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+                itemRecord.insert("quantity", record.value("quantity"));
+                itemRecord.insert("unit", record.value("unit"));
+                itemRecord.insert("unit_id", record.value("unit_id"));
+                itemRecord.insert("cost_price", record.value("cost_price"));
+                itemRecord.insert("retail_price", record.value("retail_price"));
+                itemRecord.insert("currency", record.value("currency"));
+                itemRecord.insert("created", record.value("created"));
+                itemRecord.insert("last_edited", record.value("last_edited"));
+                itemRecord.insert("user", record.value("user"));
 
                 items.append(itemRecord);
                 itemCount++;
-            } while (q.next() && categoryId == q.value("category_id").toInt());
+
+                if ((i + 1) < records.count() && categoryId == records.at(i + 1).value("category_id").toInt())
+                    record = records[i++];
+                else
+                    break;
+            }
 
             categories.append(category);
             itemGroups.append(QVariant(items));
-            q.previous();
         }
 
         /*
