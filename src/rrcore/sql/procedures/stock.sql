@@ -18,9 +18,9 @@ END //
 #COMMIT;
 
 --
-DROP PROCEDURE viewStockItems;
-START TRANSACTION;
-DELIMITER //
+#DROP PROCEDURE viewStockItems;
+#START TRANSACTION;
+#DELIMITER //
 
 CREATE PROCEDURE ViewStockItems(
     IN iFilterColumn VARCHAR(20),
@@ -56,7 +56,7 @@ BEGIN
                     WHEN (iSortOrder IS NULL AND iSortColumn IS NULL) OR (LOWER(iSortOrder) <> 'descending' AND LOWER(iSortColumn) = 'category')
                     THEN LOWER(category.category) END) ASC,
         LOWER(item.item) ASC;
-END //
+END #//
 
-DELIMITER ;
-COMMIT;
+#DELIMITER ;
+#COMMIT;
