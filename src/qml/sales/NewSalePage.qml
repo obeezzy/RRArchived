@@ -81,7 +81,7 @@ RRUi.Page {
     ]
 
     Connections {
-        target: newSalePage.RRUi.ApplicationWindow.window.snackBar
+        target: newSalePage.RRUi.ApplicationWindow.window.snackBar !== undefined ? newSalePage.RRUi.ApplicationWindow.window.snackBar : null
         onClicked: cartListView.undoLastTransaction();
     }
 
@@ -311,8 +311,8 @@ RRUi.Page {
                                 }
 
                                 FluidControls.Icon {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    name: "social/person"
+                                    QQLayouts.Layout.alignment: Qt.AlignVCenter
+                                    source: FluidControls.Utils.iconUrl("social/person")
                                     size: 20
                                     QQLayouts.Layout.preferredWidth: size
                                     QQLayouts.Layout.preferredHeight: size

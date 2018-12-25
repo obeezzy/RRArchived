@@ -39,7 +39,7 @@ QQC2.Page {
 
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
-                            name: model.iconName
+                            source: FluidControls.Utils.iconUrl(model.iconName)
                             size: FluidControls.Units.iconSizes.medium
                         }
 

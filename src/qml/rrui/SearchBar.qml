@@ -11,8 +11,8 @@ QQLayouts.RowLayout {
     readonly property alias text: searchField.text
 
     FluidControls.Icon {
-        anchors.verticalCenter: parent.verticalCenter
-        name: "action/search"
+        QQLayouts.Layout.alignment: Qt.AlignVCenter
+        source: FluidControls.Utils.iconUrl("action/search")
         size: FluidControls.Units.iconSizes.medium
     }
 

@@ -70,7 +70,7 @@ QQC2.Control {
                             anchors.centerIn: parent
                             visible: itemImage.name === ""
                             color: "white"
-                            name: "image/photo_camera"
+                            source: FluidControls.Utils.iconUrl("image/photo_camera")
                         }
                     }
 
@@ -108,7 +108,7 @@ QQC2.Control {
                             right: parent.right
                         }
 
-                        icon.name: "social/person"
+                        icon.source: FluidControls.Utils.iconUrl("social/person")
                         textField.placeholderText: qsTr("Name")
                         textField.text: debtorDetailRecord.preferredName
 
@@ -125,7 +125,7 @@ QQC2.Control {
                             right: parent.right
                         }
 
-                        icon.name: "communication/phone"
+                        icon.source: FluidControls.Utils.iconUrl("communication/phone")
                         textField.placeholderText: qsTr("Primary phone number")
                         textField.validator: RRComponents.DoubleValidator { bottom: 0 }
                         textField.text: debtorDetailRecord.phoneNumber
@@ -147,7 +147,7 @@ QQC2.Control {
                         delegate: RRUi.IconTextField {
                             width: ListView.view.width
 
-                            icon.name: "communication/location_on"
+                            icon.source: FluidControls.Utils.iconUrl("communication/location_on")
                             textField.placeholderText: qsTr("Address")
                             textField.text: debtorDetailRecord.addressModel.length === 0 ? "" : modelData
                         }
@@ -162,7 +162,7 @@ QQC2.Control {
                         model: debtorDetailRecord.emailModel.length === 0 ? 1 : debtorDetailRecord.emailModel
 
                         delegate: RRUi.IconTextField {
-                            icon.name: "communication/email"
+                            icon.source: FluidControls.Utils.iconUrl("communication/email")
                             textField.placeholderText: qsTr("Email")
                             textField.text: debtorDetailRecord.emailModel.length === 0 ? "" : modelData
                         }

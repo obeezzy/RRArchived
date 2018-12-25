@@ -104,7 +104,7 @@ RRUi.Page {
                                     anchors.centerIn: parent
                                     visible: itemImage.name === ""
                                     color: "white"
-                                    name: "image/photo_camera"
+                                    source: FluidControls.Utils.iconUrl("image/photo_camera")
                                 }
                             }
 
@@ -155,7 +155,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        name: "communication/vpn_key"
+                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
                                     }
 
                                     Item { width: 12; height: 1 }
@@ -229,7 +229,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        name: "communication/vpn_key"
+                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
                                     }
 
                                     RRUi.TextField {
@@ -244,7 +244,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        name: "communication/vpn_key"
+                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
                                     }
 
                                     RRUi.TextField {
@@ -268,7 +268,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        name: "communication/vpn_key"
+                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
                                     }
 
                                     QQC2.SpinBox {
@@ -316,7 +316,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        name: "editor/attach_money"
+                                        source: FluidControls.Utils.iconUrl("editor/attach_money")
                                     }
 
                                     QQC2.SpinBox {
