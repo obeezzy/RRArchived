@@ -23,7 +23,7 @@ FluidControls.Sidebar {
             model: sidebar.model
             delegate: QQC2.ItemDelegate {
                 id: control
-                width: column.width
+                width: sidebar.availableWidth
                 height: 40
                 highlighted: index === sidebar.currentIndex
                 onClicked: sidebar.currentIndex = index;

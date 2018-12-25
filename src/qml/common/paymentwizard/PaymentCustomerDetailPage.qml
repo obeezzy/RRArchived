@@ -49,7 +49,7 @@ QQC2.Page {
 
                 FluidControls.Icon {
                     anchors.verticalCenter: parent.verticalCenter
-                    name: "social/person"
+                    source: FluidControls.Utils.iconUrl("social/person")
                     size: 20
                 }
 
@@ -78,7 +78,7 @@ QQC2.Page {
 
                 FluidControls.Icon {
                     anchors.verticalCenter: parent.verticalCenter
-                    name: "communication/phone"
+                    source: FluidControls.Utils.iconUrl("communication/phone")
                     size: 20
                 }
 

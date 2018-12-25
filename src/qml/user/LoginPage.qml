@@ -51,7 +51,7 @@ RRUi.Page {
 
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
-                            name: "social/person"
+                            source: FluidControls.Utils.iconUrl("social/person")
                             size: 20
                         }
 
@@ -68,7 +68,7 @@ RRUi.Page {
 
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
-                            name: "action/lock"
+                            source: FluidControls.Utils.iconUrl("action/lock")
                             size: 20
                         }
 

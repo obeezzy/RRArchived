@@ -1,5 +1,6 @@
 import QtQuick 2.10
 import QtQuick.Controls 2.3 as QQC2
+import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
@@ -81,31 +82,44 @@ ListView {
                     id: itemListItem
                     width: ListView.view.width
                     height: 40
-                    text: item
                     showDivider: true
+                    clip: true
+                    padding: 0
 
-                    leftItem: RRUi.LetterCircleImage {
-                        anchors.verticalCenter: parent.verticalCenter
-                        name: model.item
-                    }
+                    QQLayouts.RowLayout {
+                        anchors.fill: parent
+                        spacing: 16
 
-                    rightItem: Loader {
-                        id: rightButtonLoader
-
-                        readonly property var modelData: {
-                            "category_id": category_id,
-                                    "category": category,
-                                    "item_id": model.item_id,
-                                    "item": model.item,
-                                    "unit_id": model.unit_id,
-                                    "unit": model.unit,
-                                    "quantity": model.quantity,
-                                    "retail_price": model.retail_price,
-                                    "cost_price": model.cost_price
+                        RRUi.LetterCircleImage {
+                            QQLayouts.Layout.alignment: Qt.AlignVCenter
+                            name: model.item
                         }
 
-                        anchors.verticalCenter: parent.verticalCenter
-                        sourceComponent: categoryListView.buttonRow
+                        FluidControls.SubheadingLabel {
+                            QQLayouts.Layout.alignment: Qt.AlignVCenter
+                            QQLayouts.Layout.fillWidth: true
+                            text: item
+                        }
+
+                        Loader {
+                            id: rightButtonLoader
+
+                            readonly property var modelData: {
+                                "category_id": category_id,
+                                "category": category,
+                                "item_id": model.item_id,
+                                "item": model.item,
+                                "unit_id": model.unit_id,
+                                "unit": model.unit,
+                                "quantity": model.quantity,
+                                "retail_price": model.retail_price,
+                                "cost_price": model.cost_price
+                            }
+
+                            QQLayouts.Layout.fillHeight: true
+                            QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                            sourceComponent: categoryListView.buttonRow
+                        }
                     }
                 }
 

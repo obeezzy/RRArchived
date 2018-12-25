@@ -23,14 +23,13 @@ Item {
 
         FluidControls.Icon {
             id: icon
-            anchors.verticalCenter: parent.verticalCenter
+            QQLayouts.Layout.alignment: Qt.AlignVCenter
             name: "action/bug_report"
         }
 
         RRUi.TextField {
             id: textField
             QQLayouts.Layout.fillWidth: true
-            width: 200
         }
     }
 }

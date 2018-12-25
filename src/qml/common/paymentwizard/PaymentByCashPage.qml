@@ -41,7 +41,7 @@ QQC2.Page {
 
                 FluidControls.Icon {
                     anchors.verticalCenter: parent.verticalCenter
-                    name: "editor/attach_money"
+                    source: FluidControls.Utils.iconUrl("editor/attach_money")
                     size: FluidControls.Units.iconSizes.smallMedium
                 }
 
