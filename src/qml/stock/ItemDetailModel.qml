@@ -1,4 +1,4 @@
-import QtQuick 2.10
+import QtQuick 2.12
 import com.gecko.rr.models 1.0 as RRModels
 import "../singletons"
 
