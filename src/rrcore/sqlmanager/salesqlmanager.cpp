@@ -48,11 +48,8 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     const QVariantMap &params = request.params();
     const QVariantList &payments = params.value("payments").toList();
     const QVariantList &items = params.value("items").toList();
-    const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int noteId = 0;
-    int salePaymentNoteId = 0;
     int clientId = 0;
-    int newClientId = 0;
     int saleTransactionId = 0;
     int debtorId = 0;
     int debtTransactionId = 0;
@@ -68,112 +65,134 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
                                     QStringLiteral("Failed to start transation."));
 
-        // STEP: Get client ID
+        // STEP: Add client, if client does not exist.
         if (!params.value("customer_phone_number").toString().trimmed().isEmpty() && !params.value("suspended").toBool()) {
-            q.prepare("SELECT id FROM client WHERE phone_number = :customer_phone_number");
-            q.bindValue(":customer_phone_number", params.value("customer_phone_number"), QSql::Out);
+            const QList<QSqlRecord> records(callProcedure("AddClient", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "preferred_name",
+                                                                  params.value("customer_name", QVariant::String)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "phone_number",
+                                                                  params.value("customer_phone_number", QVariant::String)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to get client ID."));
-
-            if (q.first())
-                clientId = q.value("id").toInt();
-            else {
-                q.prepare("INSERT INTO client (preferred_name, phone_number, archived, created, last_edited, user_id) VALUES "
-                          "(:preferred_name, :phone_number, :archived, :created, :last_edited, :user_id)");
-                q.bindValue(":preferred_name", params.value("customer_name"));
-                q.bindValue(":phone_number", params.value("customer_phone_number"));
-                q.bindValue(":archived", false);
-                q.bindValue(":created", currentDateTime);
-                q.bindValue(":last_edited", currentDateTime);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to insert client ID."));
-
-                clientId = q.lastInsertId().toInt();
-                newClientId = clientId;
-            }
-
-            if (!clientId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Invalid sales transaction note ID returned."));
+                clientId = records.first().value("id").toInt();
         }
 
-        // STEP: Insert note
+        // STEP: Insert note, if available.
         if (!params.value("note").toString().trimmed().isEmpty()) {
-            q.prepare("INSERT INTO note (note, table_name, created, last_edited, user_id) "
-                      "VALUES (:note, :table_name, :created, :last_edited, :user_id)");
-            q.bindValue(":note", params.value("note"));
-            q.bindValue(":table_name", "sale_transaction");
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            const QList<QSqlRecord> records(callProcedure("AddNote", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  params.value("note", QVariant::String)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "table_name",
+                                                                  QStringLiteral("sale_transaction")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "transaction_id",
+                                                                  QVariant(QVariant::Int)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert sales transaction note."));
-
-            noteId = q.lastInsertId().toInt();
-            if (!noteId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Invalid sales transaction note ID returned."));
+            noteId = records.first().value("id").toInt();
         }
 
-        // STEP: Insert sale transaction
-        q.prepare("INSERT INTO sale_transaction (name, client_id, total_cost, amount_paid, balance, "
-                  "discount, suspended, note_id, archived, created, "
-                  "last_edited, user_id) VALUES (:customer_name, :client_id, :total_cost, "
-                  ":amount_paid, :balance, :discount, :suspended, :note_id, "
-                  ":archived, :created, :last_edited, :user_id)");
-        q.bindValue(":customer_name", params.value("customer_name"));
-        q.bindValue(":client_id", clientId > 0 ? clientId : QVariant(QVariant::Int));
-        q.bindValue(":total_cost", params.value("total_cost"));
-        q.bindValue(":amount_paid", params.value("amount_paid"));
+        // STEP: Insert sale transaction.
+        const QList<QSqlRecord> records(callProcedure("AddSaleTransaction", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "name",
+                                                              params.value("customer_name", QVariant::String)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "client_id",
+                                                              clientId > 0 ? clientId : QVariant(QVariant::Int)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "balance",
+                                                              (params.value("action").toString() == "give_change" ?
+                                                              0.0 : qAbs(params.value("balance").toDouble()))
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "discount",
+                                                              params.value("discount", 0.0)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "suspended",
+                                                              params.value("suspended", false)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "note",
+                                                              params.value("note", QVariant::String)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "user_id",
+                                                              UserProfile::instance().userId()
+                                                          }
+                                                      }));
 
-        if (params.value("action").toString() == "give_change")
-            q.bindValue(":balance", 0.0);
-        else
-            q.bindValue(":balance", qAbs(params.value("balance").toDouble()));
-        //q.bindValue(":change_due", params.value("give_change").toBool() ? qAbs(params.value("balance").toDouble()) : 0.0);
+        saleTransactionId = records.first().value("id").toInt();
 
-        q.bindValue(":discount", params.value("discount", 0.0));
-        q.bindValue(":suspended", params.value("suspended", false));
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                    QStringLiteral("Failed to insert sale transaction."));
-
-        saleTransactionId = q.lastInsertId().toInt();
-        if (!saleTransactionId)
-            throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                    QStringLiteral("Invalid sale transaction ID returned."));
-
-        // STEP: Insert sale payments
+        // STEP: Insert sale payments.
         for (const QVariant &payment : payments) {
-            QVariantMap paymentInfo = payment.toMap();
-            q.prepare("INSERT INTO sale_payment (sale_transaction_id, amount, method, currency, note_id, "
-                      "created, last_edited, user_id) VALUES (:sale_transaction_id, :amount, :method, "
-                      ":currency, :note_id, :created, :last_edited, :user_id)");
-            q.bindValue(":sale_transaction_id", saleTransactionId);
-            q.bindValue(":amount", paymentInfo.value("amount"));
-            q.bindValue(":method", paymentInfo.value("method"));
-            q.bindValue(":note_id", salePaymentNoteId > 0 ? salePaymentNoteId : QVariant(QVariant::Int));
-            q.bindValue(":currency", params.value("currency"));
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert sale payment."));
-
+            const QVariantMap &paymentInfo = payment.toMap();
+            const QList<QSqlRecord> records(callProcedure("AddSalePayment", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "sale_transaction_id",
+                                                                  saleTransactionId
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "amount",
+                                                                  paymentInfo.value("amount")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "method",
+                                                                  params.value("method")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "currency",
+                                                                  params.value("currency")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  params.value("note", QVariant::String)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
         }
 
         for (const QVariant &item : items) {
@@ -182,197 +201,274 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             // 1. This is a non-suspended transaction.
             // 2. This is a suspended transaction and you want to reserve the goods for this customer.
             if (!params.value("suspended", false).toBool()) {
-                // Check available quantity
-                double availableQuantity = 0.0;
-                q.prepare("SELECT quantity FROM current_quantity WHERE item_id = :item_id");
-                q.bindValue(":item_id", itemInfo.value("item_id"), QSql::Out);
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to get available quantity."));
-
-                if (q.first())
-                    availableQuantity = q.value("quantity").toDouble();
-                else
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                            QString("Item %1 does not exist in current quantity table.").arg(itemInfo.value("item_id").toInt()));
-
-                if (availableQuantity < itemInfo.value("quantity").toDouble())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                            QString("Insuffient quantity for item %1 -> available=%2, sold=%3")
-                                            .arg(itemInfo.value("item_id").toString(),
-                                                 QString::number(availableQuantity),
-                                                 itemInfo.value("quantity").toString()));
-
-                // Insert into initial_quantity
-                q.prepare("INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id) "
-                          "VALUES (:item_id, :quantity, :unit_id, :reason, :archived, :created, :last_edited, :user_id)");
-                q.bindValue(":item_id", itemInfo.value("item_id"));
-                q.bindValue(":quantity", availableQuantity);
-                q.bindValue(":unit_id", itemInfo.value("unit_id"));
-                q.bindValue(":reason", request.command());
-                q.bindValue(":archived", false);
-                q.bindValue(":created", currentDateTime);
-                q.bindValue(":last_edited", currentDateTime);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to insert initial quantity."));
-
-                itemInfo.insert("initial_quantity_id", q.lastInsertId());
-
-                // STEP: Update current quantity
-                q.prepare("UPDATE current_quantity SET quantity = :quantity, last_edited = :last_edited, user_id = :user_id "
-                          "WHERE item_id = :item_id");
-                q.bindValue(":item_id", itemInfo.value("item_id"));
-                q.bindValue(":quantity", availableQuantity - itemInfo.value("quantity").toDouble());
-                q.bindValue(":last_edited", currentDateTime);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to update current quantity."));
+                const QList<QSqlRecord> records(callProcedure("DeductStockQuantity", {
+                                                                  ProcedureArgument {
+                                                                      ProcedureArgument::Type::In,
+                                                                      "item_id",
+                                                                      itemInfo.value("item_id")
+                                                                  },
+                                                                  ProcedureArgument {
+                                                                      ProcedureArgument::Type::In,
+                                                                      "quantity",
+                                                                      itemInfo.value("quantity").toDouble()
+                                                                  },
+                                                                  ProcedureArgument {
+                                                                      ProcedureArgument::Type::In,
+                                                                      "unit_id",
+                                                                      itemInfo.value("unit_id")
+                                                                  },
+                                                                  ProcedureArgument {
+                                                                      ProcedureArgument::Type::In,
+                                                                      "reason",
+                                                                      request.command()
+                                                                  },
+                                                                  ProcedureArgument {
+                                                                      ProcedureArgument::Type::In,
+                                                                      "user_id",
+                                                                      UserProfile::instance().userId()
+                                                                  },
+                                                                  ProcedureArgument {
+                                                                      ProcedureArgument::Type::Out,
+                                                                      "initial_quantity_id",
+                                                                      {}
+                                                                  }
+                                                              }));
             }
 
-            // STEP: Insert sale item
-            q.prepare("INSERT INTO sale_item (sale_transaction_id, item_id, unit_id, unit_price, quantity, cost, discount, currency, "
-                      "archived, created, last_edited, user_id) "
-                      "VALUES (:sale_transaction_id, :item_id, :unit_id, :unit_price, :quantity, :cost, :discount, :currency, "
-                      ":archived, :created, :last_edited, :user_id)");
-            q.bindValue(":sale_transaction_id", saleTransactionId);
-            q.bindValue(":item_id", itemInfo.value("item_id"));
-            q.bindValue(":unit_id", itemInfo.value("unit_id"));
-            q.bindValue(":unit_price", itemInfo.value("unit_price"));
-            q.bindValue(":quantity", itemInfo.value("quantity"));
-            q.bindValue(":cost", itemInfo.value("cost"));
-            q.bindValue(":discount", itemInfo.value("discount", 0.0));
-            q.bindValue(":currency", "NGN");
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert sale item."));
+            const QList<QSqlRecord> records(callProcedure("AddSaleItem", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "sale_transaction_id",
+                                                                  saleTransactionId
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "item_id",
+                                                                  itemInfo.value("item_id")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "unit_id",
+                                                                  itemInfo.value("unit_id")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "unit_price",
+                                                                  itemInfo.value("unit_price")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "quantity",
+                                                                  itemInfo.value("quantity")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "cost",
+                                                                  itemInfo.value("cost")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "discount",
+                                                                  itemInfo.value("discount")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "currency",
+                                                                  QStringLiteral("NGN")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
         }
 
-        // STEP: Insert debt or credit
+        // STEP: Insert debt or credit.
         if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() > 0.0) {
-            q.prepare("INSERT INTO debtor (client_id, note_id, archived, created, last_edited, user_id) "
-                      "VALUES (:client_id, :note_id, :archived, :created, :last_edited, :user_id)");
-            q.bindValue(":client_id", clientId);
-            q.bindValue(":note_id", QVariant(QVariant::Int));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            QList<QSqlRecord> records(callProcedure("AddDebtor", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "client_id",
+                                                                  clientId
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  {}
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
+            debtorId = records.first().value("id").toInt();
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert debtor."));
+            records = callProcedure("AddDebtTransaction", {
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "debtor_id",
+                                            debtorId
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "transaction_table",
+                                            "sale_transaction"
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "transaction_id",
+                                            saleTransactionId
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "note",
+                                            {}
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "user_id",
+                                            UserProfile::instance().userId()
+                                        }
+                                    });
 
-            debtorId = q.lastInsertId().toInt();
+            debtTransactionId = records.first().value("id").toInt();
 
-            q.prepare("INSERT INTO debt_transaction (debtor_id, transaction_table, transaction_id, note_id, archived, "
-                      "created, last_edited, user_id) "
-                      "VALUES (:debtor_id, :transaction_table, :transaction_id, :note_id, :archived, :created, "
-                      ":last_edited, :user_id)");
-            q.bindValue(":debtor_id", debtorId);
-            q.bindValue(":transaction_table", "sale_transaction");
-            q.bindValue(":transaction_id", saleTransactionId);
-            q.bindValue(":note_id", QVariant(QVariant::Int));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Failed to insert debt transaction."));
-
-            debtTransactionId = q.lastInsertId().toInt();
-            if (!debtTransactionId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Invalid debt transaction ID returned."));
-
-            q.prepare("INSERT INTO debt_payment (debt_transaction_id, total_amount, amount_paid, balance, currency, due_date, note_id, "
-                      "archived, created, last_edited, user_id) VALUES (:debt_transaction_id, :total_amount, :amount_paid, :balance, "
-                      ":currency, :due_date, :note_id, :archived, :created, :last_edited, :user_id)");
-            q.bindValue(":debt_transaction_id", debtTransactionId);
-            q.bindValue(":total_amount", params.value("total_cost"));
-            q.bindValue(":amount_paid", params.value("amount_paid"));
-            q.bindValue(":balance", qAbs(params.value("balance").toDouble()));
-            q.bindValue(":currency", "NGN");
-            q.bindValue(":due_date", params.value("due_date"));
-            q.bindValue(":note_id", QVariant(QVariant::Int));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert debt payment."));
+            records = callProcedure("AddDebtPayment", {
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "debt_transaction_id",
+                                            debtTransactionId
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "total_amount",
+                                            params.value("total_cost")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "amount_paid",
+                                            params.value("amount_paid")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "balance",
+                                            params.value("balance")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "currency",
+                                            QStringLiteral("NGN")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "due_date",
+                                            params.value("due_date")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "note",
+                                            {}
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "user_id",
+                                            UserProfile::instance().userId()
+                                        }
+                                    });
         } else if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() < 0.0) {
-            q.prepare("INSERT INTO creditor (client_id, note_id, archived, created, last_edited, user_id) "
-                      "VALUES (:client_id, :note_id, :archived, :created, :last_edited, :user_id)");
-            q.bindValue(":client_id", clientId);
-            q.bindValue(":note_id", QVariant(QVariant::Int));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            QList<QSqlRecord> records(callProcedure("AddCreditor", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "client_id",
+                                                                  clientId
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  {}
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
+            creditorId = records.first().value("id").toInt();
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert creditor."));
+            records = callProcedure("AddCreditTransaction", {
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "creditor_id",
+                                            debtorId
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "transaction_table",
+                                            "sale_transaction"
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "transaction_id",
+                                            saleTransactionId
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "note",
+                                            {}
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "user_id",
+                                            UserProfile::instance().userId()
+                                        }
+                                    });
 
-            creditorId = q.lastInsertId().toInt();
+            creditTransactionId = records.first().value("id").toInt();
 
-            q.prepare("INSERT INTO credit_transaction (creditor_id, transaction_table, transaction_id, note_id, "
-                      "archived, created, last_edited, user_id) "
-                      "VALUES (:client_id, :transaction_table, :transaction_id, :note_id, :archived, :created, "
-                      ":last_edited, :user_id)");
-            q.bindValue(":creditor_id", creditorId);
-            q.bindValue(":transaction_table", "sale_transaction");
-            q.bindValue(":transaction_id", saleTransactionId);
-            q.bindValue(":note_id", QVariant(QVariant::Int));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert credit transaction."));
-
-            creditTransactionId = q.lastInsertId().toInt();
-            if (!creditTransactionId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Invalid credit transaction ID returned."));
-
-            q.prepare("INSERT INTO credit_payment (credit_transaction_id, total_amount, amount_paid, balance, currency, due_date, note_id, "
-                      "archived, created, last_edited, user_id) VALUES (:credit_transaction_id, :total_amount, :amount_paid, :balance, "
-                      ":currency, :due_date, :note_id, :archived, :created, :last_edited, :user_id)");
-            q.bindValue(":credit_transaction_id", creditTransactionId);
-            q.bindValue(":total_amount", params.value("total_cost"));
-            q.bindValue(":amount_paid", params.value("amount_paid"));
-            q.bindValue(":balance", qAbs(params.value("balance").toDouble()));
-            q.bindValue(":currency", "NGN");
-            q.bindValue(":due_date", params.value("due_date"));
-            q.bindValue(":note_id", QVariant(QVariant::Int));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddTransactionFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert credit payment."));
+            records = callProcedure("AddCreditPayment", {
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "credit_transaction_id",
+                                            creditTransactionId
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "total_amount",
+                                            params.value("total_cost")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "amount_paid",
+                                            params.value("amount_paid")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "balance",
+                                            params.value("balance")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "currency",
+                                            QStringLiteral("NGN")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "due_date",
+                                            params.value("due_date")
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "note",
+                                            {}
+                                        },
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "user_id",
+                                            UserProfile::instance().userId()
+                                        }
+                                    });
         }
 
         if (!skipSqlTransaction && !DatabaseUtils::commitTransaction(q))
@@ -380,7 +476,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                     QStringLiteral("Failed to commit."));
 
         QVariantMap outcome;
-        outcome.insert("client_id", newClientId);
+        outcome.insert("client_id", clientId);
         outcome.insert("transaction_id", saleTransactionId);
 
         result.setOutcome(outcome);
@@ -621,26 +717,32 @@ void SaleSqlManager::viewSaleTransactions(const QueryRequest &request, QueryResu
     QSqlQuery q(connection);
 
     try {
-        q.prepare("SELECT sale_transaction.id as transaction_id, sale_transaction.name as customer_name, "
-                  "sale_transaction.client_id,  total_cost, amount_paid, balance, discount, "
-                  "suspended, note_id, note.note, sale_transaction.archived, sale_transaction.created, "
-                  "sale_transaction.last_edited, sale_transaction.user_id FROM sale_transaction "
-                  "LEFT JOIN note ON sale_transaction.note_id = note.id "
-                  "WHERE sale_transaction.suspended = :suspended AND sale_transaction.archived = :archived "
-                  "AND sale_transaction.created BETWEEN :from AND :to ORDER BY created ASC");
-        q.bindValue(":suspended", params.value("suspended", false), QSql::Out);
-        q.bindValue(":archived", params.value("archived", false), QSql::Out);
-        q.bindValue(":from", params.value("from", QDateTime()), QSql::Out);
-        q.bindValue(":to", params.value("to", QDateTime::currentDateTime()), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleTransactionFailure,
-                                    q.lastError().text(),
-                                    QStringLiteral("Failed to fetch sale transactions."));
+        const QList<QSqlRecord> records(callProcedure("ViewSaleTransactions", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "suspended",
+                                                              params.value("suspended")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "archived",
+                                                              params.value("archived")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "from",
+                                                              params.value("from")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "to",
+                                                              params.value("to")
+                                                          }
+                                                      }));
 
         QVariantList transactions;
-        while (q.next()) {
-            transactions.append(recordToMap(q.record()));
+        for (const QSqlRecord &record : records) {
+            transactions.append(recordToMap(record));
         }
 
         result.setOutcome(QVariantMap { { "transactions", transactions }, { "record_count", transactions.count() } });
@@ -704,7 +806,8 @@ void SaleSqlManager::viewSaleHome(const QueryRequest &request, QueryResult &resu
             SELECT DATE(created), SUM(amount_paid) FROM sale_transaction WHERE archived = 0 AND suspended = 0
             AND DATE(created) BETWEEN DATE('2018-03-05') AND CURDATE() GROUP BY DATE(created);
             */
-            q.prepare("SELECT DATE(sale_transaction.created) AS created, SUM(sale_transaction.amount_paid) AS amount_paid FROM sale_transaction "
+            q.prepare("SELECT DATE(sale_transaction.created) AS created, SUM(sale_payment.amount) AS amount_paid FROM sale_transaction "
+                      "INNER JOIN sale_payment ON sale_payment.sale_transaction_id = sale_transaction.id "
                       "WHERE sale_transaction.suspended = 0 AND sale_transaction.archived = 0 "
                       "AND DATE(sale_transaction.created) BETWEEN DATE(:from_date) AND DATE(:to_date) "
                       "GROUP BY DATE(sale_transaction.created)");
