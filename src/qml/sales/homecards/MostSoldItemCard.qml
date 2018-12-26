@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
-import QtCharts 2.2 as QCharts
+import QtCharts 2.3 as QCharts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../../rrui" as RRUi

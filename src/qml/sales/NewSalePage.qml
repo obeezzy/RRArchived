@@ -344,7 +344,7 @@ RRUi.Page {
 
                                 FluidControls.Icon {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    name: "communication/phone"
+                                    source: FluidControls.Utils.iconUrl("communication/phone")
                                     size: 20
                                 }
 
