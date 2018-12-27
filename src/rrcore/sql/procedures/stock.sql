@@ -121,3 +121,170 @@ BEGIN
         AND item.id = ioItemId;
 END //
 DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE AddStockCategory (
+	IN iCategory VARCHAR(100),
+    IN iShortForm VARCHAR(10),
+    IN iNoteId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	INSERT IGNORE INTO category (category, short_form, note_id, archived, created, last_edited, user_id)
+		VALUES (iCategory, iShortForm, iNoteId, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+
+	IF LAST_INSERT_ID() > 0 THEN
+		SELECT LAST_INSERT_ID() AS id;
+	ELSE
+		SELECT id FROM category WHERE category = iCategory;
+    END IF;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE AddStockItem(
+	IN iCategoryId INTEGER,
+    IN iItem VARCHAR(200),
+    IN iShortForm VARCHAR(10),
+    IN iDescription VARCHAR(200),
+    IN iBarcode VARCHAR(50),
+    IN iDivisible BOOLEAN,
+    IN iImage BLOB,
+    IN iNoteId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	INSERT INTO item (category_id, item, short_form, description, barcode, divisible, image,
+		note_id, archived, created, last_edited, user_id)
+		VALUES (iCategoryId, iItem, iShortForm, iDescription, iBarcode, iDivisible, iImage,
+		iNoteId, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+
+	    IF LAST_INSERT_ID() > 0 THEN
+		    SELECT LAST_INSERT_ID() AS id;
+	    ELSE
+		    SELECT id FROM item WHERE item = iItem;
+        END IF;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE AddStockUnit (
+	IN iItemId INTEGER,
+    IN iUnit INTEGER,
+    IN iShortForm VARCHAR(10),
+    IN iBaseUnitEquivalent INTEGER,
+    IN iCostPrice DECIMAL(19,2),
+    IN iRetailPrice DECIMAL(19,2),
+    IN iPreferred BOOLEAN,
+    IN iCurrency VARCHAR(4),
+    IN iNoteId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	INSERT INTO unit (item_id, unit, short_form, base_unit_equivalent, cost_price, retail_price, preferred, currency, note_id,
+		archived, created, last_edited, user_id)
+		VALUES (iItemId, iUnit, iShortForm, iBaseUnitEquivalent, iCostPrice, iRetailPrice, iPreferred, iCurrency, iNoteId,
+		FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+
+	IF LAST_INSERT_ID() > 0 THEN
+		SELECT LAST_INSERT_ID() AS id;
+	ELSE
+		SELECT id FROM unit WHERE unit = iUnit;
+    END IF;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE AddInitialQuantity (
+	IN iItemId INTEGER,
+    IN iQuantity DOUBLE,
+    IN iUnitId INTEGER,
+    IN iReason VARCHAR(20),
+    IN iUserId INTEGER
+)
+BEGIN
+	INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id)
+		VALUES (iItemId, iQuantity, iUnitId, iReason, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE AddCurrentQuantity (
+	IN iItemId INTEGER,
+    IN iQuantity DOUBLE,
+    IN iUnitId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	INSERT INTO current_quantity (item_id, quantity, unit_id, created, last_edited, user_id)
+		VALUES (iItemId, iQuantity, iUnitId, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE GetStockCategoryId (
+	IN iItemId INTEGER
+)
+BEGIN
+	SELECT (SELECT category_id FROM item WHERE item.id = iItemId) AS category_id;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE UpdateStockItem (
+	IN iCategoryId INTEGER,
+    IN iItemId INTEGER,
+    IN iItem VARCHAR(100),
+    IN iShortForm VARCHAR(10),
+    IN iDescription VARCHAR(200),
+    IN iBarcode VARCHAR(50),
+    IN iDivisible BOOLEAN,
+    IN iImage BLOB,
+    IN iNoteId INTEGER,
+    IN iUser INTEGER
+)
+BEGIN
+	UPDATE item SET category_id = iCategoryId, item = iItem, short_form = iShortForm, description = iDescription,
+		barcode = iBarcode, divisible = iDivisible, image = iImage,
+        note_id = (CASE WHEN iNoteId IS NOT NULL THEN iNoteId ELSE note_id END), archived = FALSE,
+		last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
+		WHERE item.id = iItemId;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE UpdateStockUnit (
+	IN iItemId INTEGER,
+	IN iUnit VARCHAR(100),
+    IN iShortForm VARCHAR(10),
+    IN iBaseUnitEquivalent INTEGER,
+    IN iCostPrice DECIMAL(19,2),
+    IN iRetailPrice DECIMAL(19,2),
+    IN iPreferred BOOLEAN,
+    IN iCurrency VARCHAR(4),
+    IN iNoteId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	UPDATE unit SET unit = iUnit, short_form = iShortForm,
+		base_unit_equivalent = iBaseUnitEquivalent, cost_price = iCostPrice, retail_price = iRetailPrice,
+        preferred = iPreferred, currency = iCurrency, note_id = iNoteId, archived = FALSE,
+        last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE item_id = iItemId;
+END //
+DELIMITER ;
