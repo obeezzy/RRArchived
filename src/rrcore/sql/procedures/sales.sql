@@ -85,6 +85,69 @@ BEGIN
         sale_transaction.last_edited, sale_transaction.user_id FROM sale_transaction
         LEFT JOIN note ON sale_transaction.note_id = note.id
         WHERE sale_transaction.suspended = iSuspended AND sale_transaction.archived = iArchived
-        AND sale_transaction.created BETWEEN iFrom AND iTo ORDER BY created ASC;
+        AND sale_transaction.created BETWEEN (CASE
+												WHEN iFrom IS NULL
+												THEN '1970-01-01 00:00:00'
+												ELSE iFrom
+												END)
+									 AND (CASE
+											WHEN iTo IS NULL
+											THEN CURRENT_TIMESTAMP()
+											ELSE iTo
+											END) ORDER BY created ASC;
+END //
+DELIMITER ;
+
+--
+DELIMITER //
+CREATE PROCEDURE IsSaleTransactionSuspended(
+	IN iTransactionId INTEGER
+)
+BEGIN
+	SELECT suspended FROM sale_transaction WHERE archived = 0 AND id = iTransactionId;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ArchiveSaleTransaction(
+	IN iSaleTransactionId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	UPDATE sale_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iSaleTransactionId;
+    UPDATE sale_item SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE sale_transaction_id = iSaleTransactionId;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ViewSaleCart(
+	IN iTransactionId INTEGER,
+    IN iSaleTransactionArchived BOOLEAN,
+    IN iSaleItemArchived BOOLEAN
+)
+BEGIN
+	SELECT sale_transaction.id as transaction_id, sale_transaction.name as customer_name, sale_transaction.client_id as client_id,
+		client.phone_number as customer_phone_number,
+		(SELECT SUM(cost) FROM sale_item WHERE sale_transaction_id = iTransactionId) AS total_cost, sale_transaction.suspended,
+        sale_transaction.note_id, sale_transaction.created,
+        sale_transaction.last_edited, sale_transaction.user_id, category.id as category_id, category.category,
+        sale_item.item_id, item.item, sale_item.unit_price as unit_price,
+        sale_item.quantity, current_quantity.quantity as available_quantity, unit.id as unit_id, unit.unit,
+        unit.cost_price as cost_price, unit.retail_price as retail_price,
+        sale_item.cost, sale_item.discount,
+        sale_item.currency, note.note FROM (sale_item
+        INNER JOIN sale_transaction ON sale_item.sale_transaction_id = sale_transaction.id
+        INNER JOIN item ON sale_item.item_id = item.id
+        INNER JOIN unit ON sale_item.item_id = unit.item_id
+        INNER JOIN current_quantity ON sale_item.item_id = current_quantity.item_id)
+        INNER JOIN category ON item.category_id = category.id
+        LEFT JOIN client ON sale_transaction.client_id = client.id
+        LEFT JOIN note ON sale_item.note_id = note.id
+        WHERE sale_transaction.id = iTransactionId AND sale_transaction.archived = iSaleTransactionArchived
+        AND sale_item.archived = iSaleItemArchived;
 END //
 DELIMITER ;

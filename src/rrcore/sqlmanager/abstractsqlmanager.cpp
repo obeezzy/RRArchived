@@ -90,7 +90,7 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                      || argument.value.type() == QVariant::DateTime
                      || argument.value.type() == QVariant::Date
                      || argument.value.type() == QVariant::Time)
-                sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toString()));
+                sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toString().replace("'", "\\'")));
             else
                 sqlArguments.append(argument.value.toString());
             break;
@@ -103,7 +103,7 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
         {
             QString inArgument;
             if (argument.value.type() == QVariant::String || argument.value.type() == QVariant::ByteArray)
-                inArgument = QStringLiteral("'%1'").arg(argument.value.toString());
+                inArgument = QStringLiteral("'%1'").arg(argument.value.toString().replace("'", "\\'"));
             else
                 inArgument = QStringLiteral("%1").arg(argument.value.toString());
 
