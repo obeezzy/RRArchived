@@ -73,3 +73,17 @@ BEGIN
 	SELECT LAST_INSERT_ID() AS id;
 END //
 DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ArchiveCreditTransaction(
+	IN iTransactionTable VARCHAR(40),
+    IN iTransactionId INTEGER,
+	IN iUserId INTEGER
+)
+BEGIN
+	UPDATE credit_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
+		WHERE transaction_table = iTransactionTable AND transaction_id = iTransactionId;
+END //
+DELIMITER ;

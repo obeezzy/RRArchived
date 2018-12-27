@@ -151,3 +151,81 @@ BEGIN
         AND sale_item.archived = iSaleItemArchived;
 END //
 DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ViewSaleTransactionItems(
+	IN iTransactionId INTEGER,
+    IN iSuspended BOOLEAN,
+    IN iArchived BOOLEAN
+)
+BEGIN
+	SELECT category.id as category_id, category.category, sale_item.item_id, item.item,
+		sale_item.unit_price, sale_item.quantity, sale_item.unit_id,
+		unit.unit, sale_item.cost, sale_item.discount, sale_item.currency, sale_item.note_id, note.note,
+        sale_item.archived, sale_item.created, sale_item.last_edited, sale_item.user_id, user.user FROM sale_item
+        INNER JOIN item ON sale_item.item_id = item.id
+        INNER JOIN category ON category.id = item.category_id
+        INNER JOIN unit ON sale_item.unit_id = unit.id
+        INNER JOIN sale_transaction ON sale_transaction.id = sale_item.sale_transaction_id
+		LEFT JOIN user ON sale_item.user_id = user.id
+        LEFT JOIN note ON sale_transaction.note_id = note.id
+        WHERE sale_transaction_id = iTransactionId AND sale_transaction.suspended = iSuspended
+        AND sale_transaction.archived = iArchived;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE `RevertSaleQuantityUpdate` (
+	IN iTransactionId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	UPDATE current_quantity
+		INNER JOIN sale_item ON current_quantity.item_id = sale_item.item_id
+		INNER JOIN sale_transaction ON sale_item.sale_transaction_id = sale_transaction.id
+        SET current_quantity.quantity = current_quantity.quantity + sale_item.quantity,
+        current_quantity.last_edited = CURRENT_TIMESTAMP(), current_quantity.user_id = iUserId
+		WHERE sale_transaction.id = iTransactionId;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE GetTotalRevenue (
+	IN iFrom DATE,
+    IN iTo DATE
+)
+BEGIN
+	SELECT DATE(sale_transaction.created) AS created, SUM(sale_payment.amount) AS amount_paid FROM sale_transaction
+		INNER JOIN sale_payment ON sale_payment.sale_transaction_id = sale_transaction.id
+		WHERE sale_transaction.suspended = 0 AND sale_transaction.archived = 0
+		AND DATE(sale_transaction.created) BETWEEN DATE(iFrom) AND DATE(iTo)
+		GROUP BY DATE(sale_transaction.created);
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE GetMostSoldItems (
+	IN iFrom DATETIME,
+    IN iTo DATETIME,
+    IN iLimit INTEGER
+)
+BEGIN
+	SELECT category.id AS category_id, category.category, sale_item.item_id, item.item,
+		SUM(sale_item.cost - sale_item.discount) AS total_revenue, SUM(sale_item.quantity) AS total_quantity
+		FROM sale_item
+		INNER JOIN item ON item.id = sale_item.item_id
+		INNER JOIN category ON category.id = item.category_id
+		WHERE sale_item.created BETWEEN iFrom AND iTo
+		GROUP BY sale_item.item_id
+		ORDER BY SUM(sale_item.quantity) DESC
+		LIMIT iLimit;
+END //
+DELIMITER ;
