@@ -49,7 +49,8 @@ public:
         InvalidDueDate,
         ResultMismatch,
         ViewClientsFailure,
-        ProcedureFailed
+        ProcedureFailed,
+        EmptyResultSet
     };
 
     enum class MySqlErrorCode {

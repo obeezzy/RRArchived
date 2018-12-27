@@ -57,7 +57,6 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int categoryNoteId = 0;
     int itemNoteId = 0;
     int categoryId = 0;
@@ -70,163 +69,238 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        // Insert category note
+        // STEP: Insert category note
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
-            q.prepare("INSERT INTO note (note, created, last_edited, user_id) VALUES (:note, :created, :last_edited, :user_id)");
-            q.bindValue(":note", params.value("category_note").toString());
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            const QList<QSqlRecord> records(callProcedure("AddNote", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  params.value("category_note", QVariant::String)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "table_name",
+                                                                  QStringLiteral("category")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category note.");
-
-            categoryNoteId = q.lastInsertId().toInt();
-
-            if (!categoryNoteId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid category note ID returned.");
+            categoryNoteId = records.first().value("id").toInt();
         }
 
-        // Insert item note
+        // STEP: Insert item note
         if (!params.value("item_note").toString().trimmed().isEmpty()) {
-            q.prepare("INSERT INTO note (note, created, last_edited, user_id) VALUES (:note, :created, :last_edited, :user_id)");
-            q.bindValue(":note", params.value("item_note").toString());
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            const QList<QSqlRecord> records(callProcedure("AddNote", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  params.value("item_note", QVariant::String)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "table_name",
+                                                                  QStringLiteral("item")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert item note.");
-
-            itemNoteId = q.lastInsertId().toInt();
-            if (!itemNoteId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid item note ID returned.");
+            itemNoteId = records.first().value("id").toInt();
         }
 
 
-        // Insert category
-        q.prepare("INSERT IGNORE INTO category (category, short_form, note_id, archived, created, last_edited, user_id) "
-                  "VALUES (:category, :short_form, :note_id, :archived, :created, :last_edited, :user_id)");
-        q.bindValue(":category", params.value("category").toString());
-        q.bindValue(":short_form", QVariant(QVariant::String));
-        q.bindValue(":note_id", categoryNoteId > 0 ? categoryNoteId : QVariant(QVariant::Int));
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
+        // STEP: Insert category
+        QList<QSqlRecord> records(callProcedure("AddStockCategory", {
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "category",
+                                                        params.value("category")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "short_form",
+                                                        params.value("short_form")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "note_id",
+                                                        categoryNoteId > 0 ? categoryNoteId : QVariant(QVariant::Int)
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "user_id",
+                                                        UserProfile::instance().userId()
+                                                    }
+                                                }));
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category.");
+        categoryId = records.first().value("id").toInt();
 
-        if (q.numRowsAffected() > 0) {
-            categoryId = q.lastInsertId().toInt();
-            if (!categoryId)
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid category ID returned.");
-        } else {
-            // Insert category
-            q.prepare("SELECT id FROM category WHERE category = :category");
-            q.bindValue(":category", params.value("category").toString());
+        // STEP: Insert item.
+        records = callProcedure("AddStockItem", {
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "category_id",
+                                        categoryId
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "item",
+                                        params.value("item")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "short_form",
+                                        params.value("short_form")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "description",
+                                        params.value("description")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "barcode",
+                                        params.value("barcode")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "divisible",
+                                        params.value("divisible")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "image",
+                                        DatabaseUtils::imageToByteArray(params.value("image_source").toString())// Store image as BLOB
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "note_id",
+                                        itemNoteId > 0 ? itemNoteId : QVariant(QVariant::Int)
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "user_id",
+                                        UserProfile::instance().userId()
+                                    }
+                                });
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert category.");
+        itemId = records.first().value("id").toInt();
 
-            if (!q.first())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
-                                        q.lastError().text(),
-                                        QString("Expected category ID for category '%1'.")
-                                        .arg(params.value("category").toString()));
+        // STEP: Insert unit.
+        records = callProcedure("AddStockUnit", {
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "item_id",
+                                        itemId
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "unit",
+                                        params.value("unit")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "short_form",
+                                        params.value("short_form")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "base_unit_equivalent",
+                                        1
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "cost_price",
+                                        params.value("cost_price")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "retail_price",
+                                        params.value("retail_price")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "preferred",
+                                        true
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "currency",
+                                        QStringLiteral("NGN")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "note_id",
+                                        QVariant(QVariant::Int)
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "user_id",
+                                        UserProfile::instance().userId()
+                                    }
+                                });
 
-            categoryId = q.value("id").toInt();
-        }
+        unitId = records.first().value("id").toInt();
 
-        // Insert item
-        q.prepare("INSERT INTO item (category_id, item, short_form, description, barcode, divisible, image, "
-                  "note_id, archived, created, last_edited, user_id) "
-                  "VALUES (:category_id, :item, :short_form, :description, :barcode, :divisible, :image, "
-                  ":note_id, :archived, :created, :last_edited, :user_id)");
-        q.bindValue(":category_id", categoryId);
-        q.bindValue(":item", params.value("item").toString());
-        q.bindValue(":short_form", QVariant(QVariant::String));
-        q.bindValue(":description", params.value("description").toString());
-        q.bindValue(":barcode", QVariant(QVariant::String));
-        q.bindValue(":divisible", params.value("divisible").toBool());
-        q.bindValue(":image", DatabaseUtils::imageToByteArray(params.value("image_source").toString())); // Store image as BLOB
-        q.bindValue(":note_id", itemNoteId > 0 ? itemNoteId : QVariant(QVariant::Int));
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
+        // STEP: Insert quantity into initial_quantity table.
+        callProcedure("AddInitialQuantity", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item_id",
+                              itemId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "quantity",
+                              params.value("quantity")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "unit_id",
+                              unitId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "reason",
+                              request.command()
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
-        if (!q.exec()) {
-            if (q.lastError().number() == int(DatabaseException::MySqlErrorCode::DuplicateEntryError))
-                throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure,
-                                        q.lastError().text(), "Failed to insert item because item already exists.");
-            else
-                throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert item.");
-        }
-
-        itemId = q.lastInsertId().toInt();
-        if (!itemId)
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid item ID returned.");
-
-
-        // Insert unit
-        q.prepare("INSERT INTO unit (item_id, unit, short_form, base_unit_equivalent, cost_price, retail_price, preferred, currency, note_id, "
-                  "archived, created, last_edited, user_id) "
-                  "VALUES (:item_id, :unit, :short_form, :base_unit_equivalent, :cost_price, :retail_price, :preferred, :currency, :note_id, "
-                  ":archived, :created, :last_edited, :user_id)");
-        q.bindValue(":item_id", itemId);
-        q.bindValue(":unit", params.value("unit").toString());
-        q.bindValue(":short_form", QVariant(QVariant::String));
-        q.bindValue(":base_unit_equivalent", 1);
-        q.bindValue(":cost_price", params.value("cost_price").toString());
-        q.bindValue(":retail_price", params.value("retail_price").toString());
-        q.bindValue(":preferred", true);
-        q.bindValue(":currency", "NGN");
-        q.bindValue(":note_id", QVariant(QVariant::Int));
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Failed to insert unit.");
-
-        unitId = q.lastInsertId().toInt();
-        if (!unitId)
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure, q.lastError().text(), "Invalid unit ID returned.");
-
-
-        // Insert quantity into initial_quantity table
-        q.prepare("INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id) "
-                  "VALUES (:item_id, :quantity, :unit_id, :reason, :archived, :created, :last_edited, :user_id)");
-        q.bindValue(":item_id", itemId);
-        q.bindValue(":quantity", params.value("quantity").toDouble());
-        q.bindValue(":unit_id", unitId);
-        q.bindValue(":reason", request.command());
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
-                                    q.lastError().text(), "Failed to insert quantity into initial_quantity.");
-
-
-        // Insert unit into current_quantity table
-        q.prepare("INSERT INTO current_quantity (item_id, quantity, unit_id, created, last_edited, user_id) "
-                  "VALUES (:item_id, :quantity, :unit_id, :created, :last_edited, :user_id)");
-        q.bindValue(":item_id", itemId);
-        q.bindValue(":quantity", params.value("quantity").toDouble());
-        q.bindValue(":unit_id", unitId);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddItemFailure,
-                                    q.lastError().text(), "Failed to insert quantity into current_quantity.");
+        // STEP: Insert unit into current_quantity table.
+        callProcedure("AddCurrentQuantity", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item_id",
+                              itemId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "quantity",
+                              params.value("quantity")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "unit_id",
+                              unitId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -242,7 +316,6 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    const QDateTime &currentDateTime = QDateTime::currentDateTime();
     int categoryId = 0;
 
     QSqlQuery q(connection);
@@ -254,113 +327,185 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        // STEP: Update category note.
+        // STEP: Insert category note.
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
-            q.prepare("UPDATE note SET note = :note, last_edited = :last_edited, user_id = :user_id WHERE id = :category_note_id");
-            q.bindValue(":note", params.value("category_note"));
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-            q.bindValue(":category_note_id", params.value("category_note_id"));
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to update category note."));
+            const QList<QSqlRecord> records(callProcedure("AddNote", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note",
+                                                                  params.value("category_note")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "table_name",
+                                                                  QStringLiteral("category")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
         }
 
-        // STEP: Insert item note.
+        // STEP: Update item note.
         if (!params.value("item_note").toString().trimmed().isEmpty()) {
-            q.prepare("UPDATE note SET note = :note, last_edited = :last_edited, user_id = :user_id WHERE id = :item_note_id");
-            q.bindValue(":note", params.value("item_note").toString());
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-            q.bindValue(":item_note_id", params.value("item_note_id"));
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to update item note."));
+            callProcedure("UpdateNote", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "note_id",
+                                  params.value("item_note_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "note",
+                                  params.value("item_note")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "table_name",
+                                  QStringLiteral("item")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
         }
 
         // STEP: Insert category if it doesn't exist. Else, get the category ID.
-        q.prepare("INSERT IGNORE INTO category (category, short_form, note_id, archived, created, last_edited, user_id) "
-                  "VALUES (:category, :short_form, :note_id, :archived, :created, :last_edited, :user_id)");
-        q.bindValue(":category", params.value("category").toString());
-        q.bindValue(":short_form", params.value("short_form", QVariant(QVariant::String)));
-        q.bindValue(":note_id", params.value("category_note_id", QVariant(QVariant::Int)));
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
-                                    QStringLiteral("Failed to insert new category."));
-
-        if (q.numRowsAffected() > 0) {
-            categoryId = q.lastInsertId().toInt();
-            if (!categoryId)
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
-                                        QStringLiteral("Invalid category ID returned."));
-        } else {
-            q.prepare("SELECT id FROM category WHERE category = :category");
-            q.bindValue(":category", params.value("category").toString());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to find category ID."));
-
-            if (!q.first())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure,
-                                        q.lastError().text(),
-                                        QString("Expected category ID for category '%1'.")
-                                        .arg(params.value("category").toString()));
-
-            categoryId = q.value("id").toInt();
-        }
+        QList<QSqlRecord> records(callProcedure("AddStockCategory", {
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "category",
+                                                        params.value("category")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "short_form",
+                                                        {}
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "note_id",
+                                                        {}
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "user_id",
+                                                        UserProfile::instance().userId()
+                                                    }
+                                                }));
+        categoryId = records.first().value("id").toInt();
 
         // STEP: Update item.
-        q.prepare("UPDATE item SET category_id = :category_id, item = :item, short_form = :short_form, description = :description, "
-                  "barcode = :barcode, divisible = :divisible, image = :image, note_id = :note_id, archived = :archived, "
-                  "last_edited = :last_edited, user_id = :user_id "
-                  "WHERE item.id = :item_id");
-        q.bindValue(":category_id", categoryId);
-        q.bindValue(":item", params.value("item"));
-        q.bindValue(":short_form", params.value("short_form", QVariant(QVariant::String)));
-        q.bindValue(":description", params.value("description", QVariant(QVariant::String)));
-        q.bindValue(":barcode", params.value("barcode", QVariant(QVariant::String)));
-        q.bindValue(":divisible", params.value("divisible"));
-        q.bindValue(":image", DatabaseUtils::imageToByteArray(params.value("image_source").toString())); // Store image as BLOB
-        q.bindValue(":note_id", params.value("item_note_id", QVariant(QVariant::Int)));
-        q.bindValue(":archived", false);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-        q.bindValue(":item_id", params.value("item_id"));
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure,
-                                    q.lastError().text(),
-                                    QStringLiteral("Failed to update item."));
+        callProcedure("UpdateStockItem", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "category_id",
+                              categoryId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item_id",
+                              params.value("item_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item",
+                              params.value("item")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "short_form",
+                              params.value("short_form")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "description",
+                              params.value("description")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "barcode",
+                              params.value("barcode")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "divisible",
+                              params.value("divisible")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "image",
+                              DatabaseUtils::imageToByteArray(params.value("image_source").toString()) // Store image as BLOB
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "note_id",
+                              params.value("item_note_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         // STEP: Update unit.
-        q.prepare("UPDATE unit SET unit = :unit, short_form = :short_form, "
-                  "base_unit_equivalent = :base_unit_equivalent, cost_price = :cost_price, retail_price = :retail_price, "
-                  "preferred = :preferred, currency = :currency, note_id = :note_id, archived = :archived, "
-                  "last_edited = :last_edited, user_id = :user_id WHERE item_id = :item_id");
-        q.bindValue(":unit", params.value("unit"));
-        q.bindValue(":short_form", QVariant(QVariant::String));
-        q.bindValue(":base_unit_equivalent", 1);
-        q.bindValue(":cost_price", params.value("cost_price"));
-        q.bindValue(":retail_price", params.value("retail_price"));
-        q.bindValue(":preferred", true);
-        q.bindValue(":currency", "NGN");
-        q.bindValue(":note_id", QVariant(QVariant::Int));
-        q.bindValue(":archived", false);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-        q.bindValue(":item_id", params.value("item_id"));
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateItemFailure, q.lastError().text(), "Failed to update unit.");
+        callProcedure("UpdateStockUnit", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item_id",
+                              params.value("item_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "unit",
+                              params.value("unit")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "short_form",
+                              params.value("short_form")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "base_unit_equivalent",
+                              1
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "cost_price",
+                              params.value("cost_price")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "retail_price",
+                              params.value("retail_price")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "preferred",
+                              params.value("preferred")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "currency",
+                              QStringLiteral("NGN")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "note_id",
+                              QVariant(QVariant::Int)
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -435,7 +580,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
                 itemCount++;
 
                 if ((i + 1) < records.count() && categoryId == records.at(i + 1).value("category_id").toInt())
-                    record = records[i++];
+                    record = records[++i];
                 else
                     break;
             }
@@ -443,23 +588,6 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
             categories.append(category);
             itemGroups.append(QVariant(items));
         }
-
-        /*
-        qInfo() << "--------------------Outcome-----------------------";
-        QMapIterator<QString, QVariant> categoryIter(categoryRecords);
-        while (categoryIter.hasNext()) {
-            categoryIter.next();
-            qInfo() << categoryIter.key();
-            qInfo() << "-------------------------------------------------";
-            const QVariantList &items = categoryIter.value().toList();
-
-            for (const QVariant &itemRecord : items) {
-                qInfo() << "Item name:" << itemRecord.toMap().value("item").toString();
-            }
-
-            qInfo() << "-------------------------------------------------";
-        }
-        */
 
         if (categories.count() != itemGroups.count())
             throw DatabaseException(DatabaseException::RRErrorCode::ResultMismatch,
@@ -619,38 +747,32 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
     QSqlQuery q(connection);
 
     try {
-        if (params.value("item_id").toInt() <= 0)
-            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Item ID is null.");
+        enforceArguments({ "item_id" }, params);
+
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        QSqlQuery q(connection);
-        q.prepare("UPDATE item SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :item_id");
-        q.bindValue(":item_id", params.value("item_id"));
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
+        const QList<QSqlRecord> records(callProcedure("ArchiveStockItem", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "item_id",
+                                                              params.value("item_id")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "user_id",
+                                                              UserProfile::instance().userId()
+                                                          }
+                                                      }));
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to remove stock item.");
+        if (records.isEmpty())
+            throw DatabaseException(DatabaseException::RRErrorCode::EmptyResultSet, QString(), "No results returned.");
 
-        q.prepare("SELECT category.id as category_id, item.id as item_id "
-                  "FROM item "
-                  "INNER JOIN category ON item.category_id = category.id "
-                  "WHERE item.id = :item_id");
-        q.bindValue(":item_id", params.value("item_id"), QSql::Out);
+        QVariantMap outcome;
+        outcome.insert("category_id", records.first().value("category_id"));
+        outcome.insert("item_id", records.first().value("item_id"));
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
-
-        if (!q.first())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
-        else {
-            QVariantMap outcome;
-            outcome.insert("category_id", q.value("category_id"));
-            outcome.insert("item_id", q.value("item_id"));
-
-            result.setOutcome(outcome);
-        }
+        result.setOutcome(outcome);
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -671,45 +793,33 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
     QSqlQuery q(connection);
 
     try {
-        if (params.value("item_id").toInt() <= 0)
-            throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Item ID is null.");
+        enforceArguments({ "item_id" }, params);
+
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        q.prepare("UPDATE item SET archived = 0, last_edited = :last_edited, user_id = :user_id WHERE id = :item_id");
-        q.bindValue(":item_id", params.value("item_id"));
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
+        const QList<QSqlRecord> records(callProcedure("UndoArchiveStockItem", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "item_id",
+                                                              params.value("item_id")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "user_id",
+                                                              UserProfile::instance().userId()
+                                                          }
+                                                      }));
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UndoFailed, q.lastError().text(), "Failed to undo stock item removal.");
+        if (records.isEmpty())
+            throw DatabaseException(DatabaseException::RRErrorCode::EmptyResultSet, QString(), "No results returned.");
 
-        q.prepare("SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description, "
-                  "item.divisible, item.image, current_quantity.quantity, "
-                  "unit.id as unit_id, unit.unit, unit.cost_price, "
-                  "unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, item.user_id AS user "
-                  "FROM item "
-                  "INNER JOIN category ON item.category_id = category.id "
-                  "INNER JOIN unit ON item.id = unit.item_id "
-                  "INNER JOIN current_quantity ON item.id = current_quantity.item_id "
-                  "LEFT JOIN user ON item.user_id = user.id "
-                  "WHERE item.archived = 0 AND unit.base_unit_equivalent = 1 "
-                  "AND item.id = :item_id");
-        q.bindValue(":item_id", params.value("item_id"), QSql::Out);
+        QVariantMap outcome;
+        outcome.insert("category_id", records.first().value("category_id"));
+        outcome.insert("item_id", records.first().value("item_id"));
+        outcome.insert("item_info", recordToMap(records.first()));
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to fetch category ID.");
-
-        if (!q.first()) {
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(), "Failed to retrieve category ID.");
-        } else {
-            QVariantMap outcome;
-            outcome.insert("category_id", q.value("category_id"));
-            outcome.insert("item_id", q.value("item_id"));
-            outcome.insert("item_info", recordToMap(q.record()));
-
-            result.setOutcome(outcome);
-        }
+        result.setOutcome(outcome);
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");

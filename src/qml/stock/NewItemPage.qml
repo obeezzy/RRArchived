@@ -336,11 +336,11 @@ RRUi.Page {
                                         }
 
                                         textFromValue: function(value, locale) {
-                                            return "\u20a6 " + Number(value / 100).toLocaleString(locale, 'f', retailPriceSpinBox.decimals)
+                                            return "\u20a6 " + Number(value).toLocaleString(locale, 'f', retailPriceSpinBox.decimals)
                                         }
 
                                         valueFromText: function(text, locale) {
-                                            return Number.fromLocaleString(locale, text) * 100
+                                            return Number.fromLocaleString(locale, text.replace("\u20a6 ", ""))
                                         }
                                     }
                                 }
