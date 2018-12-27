@@ -43,3 +43,15 @@ BEGIN
 SELECT id FROM client WHERE phone_number = iPhoneNumber;
 END //
 DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ArchiveClient (
+	IN iClientId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	UPDATE client SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iClientId;
+END //
+DELIMITER ;
