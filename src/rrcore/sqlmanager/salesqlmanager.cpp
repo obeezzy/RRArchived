@@ -103,11 +103,6 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
-                                                                  "transaction_id",
-                                                                  QVariant(QVariant::Int)
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
                                                                   "user_id",
                                                                   UserProfile::instance().userId()
                                                               }
@@ -401,7 +396,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "creditor_id",
-                                            debtorId
+                                            creditorId
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
@@ -492,48 +487,38 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
-    const QDateTime &currentDateTime = QDateTime::currentDateTime();
 
     QSqlQuery q(connection);
 
     try {
-        // STEP: Ensure suspended flag is set to true.
-        if (!params.value("suspended").toBool())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Suspended flag must be set to true.");
-
-        // STEP: Check if transaction is suspended. (VALIDATION)
-        q.prepare("SELECT id FROM sale_transaction WHERE suspended = 1 AND archived = 0 AND id = :transaction_id");
-        q.bindValue(":transaction_id", params.value("transaction_id"), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to fetch transaction ID.");
-
-        if (!q.first())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Only suspended sale transactions can be updated.");
-
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
+        const QList<QSqlRecord> &records(callProcedure("IsSaleTransactionSuspended", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "transaction_id",
+                                                               params.value("transaction_id")
+                                                           }
+                                                       }));
+
+        if (!records.first().value("suspended").toBool())
+            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
+
         addSaleTransaction(request, result, true);
 
-        // STEP: Archive old sale transaction.
-        q.prepare("UPDATE sale_transaction SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :transaction_id");
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-        q.bindValue(":transaction_id", params.value("transaction_id"));
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale transaction.");
-
-        // STEP: Archive old sale item.
-        q.prepare("UPDATE sale_item SET archived = 1, last_edited = :last_edited, user_id = :user_id "
-                  "WHERE sale_transaction_id = :transaction_id");
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
-        q.bindValue(":transaction_id", params.value("transaction_id"));
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, q.lastError().text(), "Failed to archive sale item.");
+        callProcedure("ArchiveSaleTransaction", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "transaction_id",
+                              params.value("transaction_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -550,65 +535,30 @@ void SaleSqlManager::viewSaleCart(const QueryRequest &request, QueryResult &resu
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QVariantMap params = request.params();
     QSqlQuery q(connection);
-/*
-SELECT sale_transaction.id as transaction_id,
-sale_transaction.name as customer_name,
-sale_transaction.client_id,
-sale_transaction.total_cost,
-sale_transaction.suspended,
-sale_transaction.note_id,
-sale_transaction.created,
-sale_transaction.last_edited,
-sale_transaction.user_id,
-category.id as category_id,
-category.category,
-sale_item.item_id,
-item.item,
-sale_item.unit_price,
-sale_item.quantity,
-current_quantity.quantity as available_quantity,
-unit.id as unit_id,
-unit.unit,
-sale_item.cost, sale_item.discount,
-sale_item.currency, note.note FROM
-(sale_item
-INNER JOIN sale_transaction ON sale_item.sale_transaction_id = sale_transaction.id
-INNER JOIN item ON sale_item.item_id = item.id
-INNER JOIN unit ON sale_item.item_id = unit.item_id
-INNER JOIN current_quantity ON sale_item.item_id = current_quantity.item_id)
-INNER JOIN category ON item.category_id = category.id
-LEFT JOIN note ON sale_item.note_id = note.id WHERE sale_transaction.archived = 0 AND sale_item.archived = 0 AND sale_transaction.id = 3;
-*/
-    try {
-        q.prepare("SELECT sale_transaction.id as transaction_id, sale_transaction.name as customer_name, sale_transaction.client_id as client_id, "
-                  "client.phone_number as customer_phone_number, "
-                  "sale_transaction.total_cost, sale_transaction.suspended, sale_transaction.note_id, sale_transaction.created, "
-                  "sale_transaction.last_edited, sale_transaction.user_id, category.id as category_id, category.category, "
-                  "sale_item.item_id, item.item, sale_item.unit_price as unit_price, "
-                  "sale_item.quantity, current_quantity.quantity as available_quantity, unit.id as unit_id, unit.unit, "
-                  "unit.cost_price as cost_price, unit.retail_price as retail_price, "
-                  "sale_item.cost, sale_item.discount, "
-                  "sale_item.currency, note.note FROM (sale_item "
-                  "INNER JOIN sale_transaction ON sale_item.sale_transaction_id = sale_transaction.id "
-                  "INNER JOIN item ON sale_item.item_id = item.id "
-                  "INNER JOIN unit ON sale_item.item_id = unit.item_id "
-                  "INNER JOIN current_quantity ON sale_item.item_id = current_quantity.item_id) "
-                  "INNER JOIN category ON item.category_id = category.id "
-                  "LEFT JOIN client ON sale_transaction.client_id = client.id "
-                  "LEFT JOIN note ON sale_item.note_id = note.id "
-                  "WHERE sale_transaction.id = :transaction_id AND sale_transaction.archived = :sale_transaction_archived "
-                  "AND sale_item.archived = :sale_item_archived");
-        q.bindValue(":transaction_id", params.value("transaction_id"), QSql::Out);
-        q.bindValue(":sale_transaction_archived", params.value("sale_transaction_archived", false), QSql::Out);
-        q.bindValue(":sale_item_archived", params.value("sale_item_archived", false), QSql::Out);
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewSaleTransactionFailure, q.lastError().text(), "Failed to fetch sale cart.");
+    try {
+        const QList<QSqlRecord> records(callProcedure("ViewSaleCart", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "transaction_id",
+                                                              params.value("transaction_id")
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "sale_transaction_archived",
+                                                              params.value("sale_transaction_archived", false)
+                                                          },
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "sale_item_archived",
+                                                              params.value("sale_item_archived", false)
+                                                          }
+                                                      }));
 
         QVariantMap outcome;
         QVariantList items;
-        while (q.next()) {
-            items.append(recordToMap(q.record()));
+        for (const QSqlRecord &record : records) {
+            items.append(recordToMap(record));
         }
 
         if (!items.isEmpty()) {
