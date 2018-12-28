@@ -29,6 +29,9 @@ protected:
 
     void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
     QList<QSqlRecord> callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments); // throw DatabaseException
+
+    int addNote(const QString &note, const QString &tableName); // throw DatabaseException
+    void updateNote(int noteId, const QString &note, const QString &tableName = QString()); // throw DatabaseException
 private:
     QString m_connectionName;
 };

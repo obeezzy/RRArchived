@@ -16,13 +16,14 @@ DELIMITER ;
 --
 
 DELIMITER //
-CREATE PROCEDURE UpdateNote(
+CREATE PROCEDURE UpdateNote (
+	IN iNoteId INTEGER,
     IN iNote VARCHAR(200),
     IN iTableName VARCHAR(20),
     IN iUserId INTEGER
     )
 BEGIN
-    UPDATE note SET note = iNote, table_name = iTableName, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId;
-	SELECT LAST_INSERT_ID();
+    UPDATE note SET note = iNote, table_name = iTableName, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
+		WHERE id = iNoteId;
 END //
 DELIMITER ;
