@@ -231,3 +231,60 @@ BEGIN
 		WHERE debtor.archived = 0 AND debtor.id = iDebtorId;
 END //
 DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ViewDebtorDetails (
+	IN iDebtorId INTEGER,
+    IN iArchived BOOLEAN
+)
+BEGIN
+	SELECT debtor.id AS debtor_id, client.preferred_name AS preferred_name,
+		client.first_name, client.last_name, client.phone_number, debtor.archived,
+        debtor.user_id, debtor.user_id AS user
+        FROM debtor
+        INNER JOIN client ON client.id = debtor.client_id
+        WHERE debtor.id = iDebtorId AND debtor.archived = iArchived;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ViewFewDebtorDetails (
+	IN iDebtorId INTEGER,
+    IN iArchived BOOLEAN
+)
+BEGIN
+	SELECT client.id AS client_id, client.preferred_name, client.phone_number AS primary_phone_number,
+		note.note FROM client
+		INNER JOIN debtor ON debtor.client_id = client.id
+		LEFT JOIN note ON note.id = debtor.note_id
+		WHERE debtor.id = iDebtorId AND debtor.archived = iArchived;
+END //
+DELIMITER ;
+
+--
+
+DELIMITER //
+CREATE PROCEDURE ViewDebtTransactions (
+	IN iDebtorId INTEGER,
+    IN iArchived BOOLEAN
+)
+BEGIN
+	SELECT debt_transaction.id AS debt_transaction_id, debt_transaction.transaction_table AS related_transaction_table,
+		debt_transaction.transaction_id AS related_transaction_id, debt_transaction.created AS debt_transaction_created,
+		debt_payment.id AS debt_payment_id, debt_payment.total_amount, debt_payment.amount_paid,
+		debt_payment.balance AS balance, debt_payment.currency,
+		debt_payment.due_date, debt_transaction.note_id AS debt_transaction_note_id,
+		debt_payment.note_id AS debt_payment_note_id, debt_transaction.archived,
+		debt_payment.created AS debt_payment_created
+		FROM debt_payment
+		INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id
+		INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id
+		LEFT JOIN note ON note.id = debt_transaction.note_id
+		WHERE debtor.id = iDebtorId AND debt_transaction.archived = iArchived
+		ORDER BY debt_payment.last_edited ASC;
+END //
+DELIMITER ;
