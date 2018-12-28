@@ -42,6 +42,7 @@ CREATE TABLE client (
     last_name VARCHAR(100) DEFAULT NULL,
     preferred_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
+    alternate_phone_number VARCHAR(20) DEFAULT NULL,
     address VARCHAR(100) DEFAULT NULL,
     note_id INT(11) DEFAULT NULL,
     archived TINYINT NOT NULL DEFAULT 0,

@@ -66,7 +66,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
 
         // STEP: Add client, if client does not exist.
         if (!params.value("customer_phone_number").toString().trimmed().isEmpty() && !params.value("suspended").toBool()) {
-            const QList<QSqlRecord> records(callProcedure("AddClient", {
+            const QList<QSqlRecord> records(callProcedure("AddClientQuick", {
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
                                                                   "preferred_name",
@@ -315,7 +315,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
-                                            "note",
+                                            "note_id",
                                             {}
                                         },
                                         ProcedureArgument {
@@ -360,7 +360,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
-                                            "note",
+                                            "note_id",
                                             {}
                                         },
                                         ProcedureArgument {
@@ -378,7 +378,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
-                                                                  "note",
+                                                                  "note_id",
                                                                   {}
                                                               },
                                                               ProcedureArgument {
@@ -407,7 +407,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
-                                            "note",
+                                            "note_id",
                                             {}
                                         },
                                         ProcedureArgument {
@@ -452,7 +452,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
-                                            "note",
+                                            "note_id",
                                             {}
                                         },
                                         ProcedureArgument {

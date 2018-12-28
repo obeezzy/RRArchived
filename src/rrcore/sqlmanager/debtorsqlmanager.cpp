@@ -73,44 +73,25 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
 
         // STEP: Ensure that debtor doesn't already exist
         if (!params.value("primary_phone_number").toString().isEmpty()) {
-            q.prepare("SELECT phone_number FROM client "
-                      "INNER JOIN debtor ON client.id = debtor.client_id "
-                      "WHERE phone_number = :phone_number");
-            q.bindValue(":phone_number", params.value("primary_phone_number"), QSql::Out);
+            const QList<QSqlRecord> records(callProcedure("IsExistingDebtor", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "phone_number",
+                                                                  params.value("primary_phone_number")
+                                                              }
+                                                          }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(), "Failed to check if client exists.");
-
-            if (q.first())
+            if (records.first().value("id").toBool())
                 throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, q.lastError().text(),
                                         "Failed to insert debtor because debtor already exists.");
         }
 
-        auto addNote = [&q, &currentDateTime](const QString &note) {
-            if (note.trimmed().isEmpty())
-                return 0;
-
-            // STEP: Add note
-            q.prepare("INSERT INTO note (note, table_name, created, last_edited, user_id) VALUES ("
-                      ":note, :table_name, :created, :last_edited, :user_id)");
-            q.bindValue(":note", note.isNull() ? QVariant(QVariant::String) : note);
-            q.bindValue(":table_name", "debtor");
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(), "Failed to insert into note table.");
-
-            return q.lastInsertId().toInt();
-        };
-
-        noteId = addNote(params.value("note").toString());
+        noteId = addNote(params.value("note").toString(), "debtor");
 
         // STEP: Add notes for each debt transaction
         for (int i = 0; i < newDebtTransactions.count(); ++i) {
             const QString note = newDebtTransactions.at(i).toMap().value("note").toString();
-            debtTransactionNoteIds.append(addNote(note));
+            debtTransactionNoteIds.append(addNote(note, "debtor"));
         }
 
         if (newDebtTransactions.count() != debtTransactionNoteIds.count())
@@ -118,65 +99,98 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
                                     "Failed to match note ID count with transaction count.");
 
         // STEP: Add client
-        q.prepare("INSERT INTO client (first_name, last_name, preferred_name, phone_number, address, note_id, archived, created, last_edited, "
-                  "user_id) VALUES (:first_name, :last_name, :preferred_name, :phone_number, :address, :note_id, :archived, :created, "
-                  ":last_edited, :user_id)");
-        q.bindValue(":first_name", params.value("first_name"));
-        q.bindValue(":last_name", params.value("last_name"));
-        q.bindValue(":preferred_name", params.value("preferred_name"));
-        q.bindValue(":phone_number", params.value("primary_phone_number"));
-        q.bindValue(":address", params.value("address"));
-        q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
+        QList<QSqlRecord> records(callProcedure("AddClient", {
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "first_name",
+                                                        params.value("first_name")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "last_name",
+                                                        params.value("last_name")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "preferred_name",
+                                                        params.value("preferred_name")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "phone_number",
+                                                        params.value("primary_phone_number")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "address",
+                                                        params.value("address")
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "note_id",
+                                                        noteId == 0 ? QVariant(QVariant::Int) : noteId
+                                                    },
+                                                    ProcedureArgument {
+                                                        ProcedureArgument::Type::In,
+                                                        "user_id",
+                                                        UserProfile::instance().userId()
+                                                    }
+                                                }));
 
-        if (!q.exec()) {
-            if (q.lastError().number() == int(DatabaseException::MySqlErrorCode::DuplicateEntryError))
-                throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, q.lastError().text(),
-                                        "Failed to insert client because client already exists.");
-            else
-                throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(),
-                                        "Failed to insert into client table.");
-        }
-
-        clientId = q.lastInsertId().toInt();
+        clientId = records.first().value("id").toInt();
 
         // STEP: Add debtor
-        q.prepare("INSERT INTO debtor (client_id, note_id, archived, created, last_edited, user_id) VALUES ("
-                  ":client_id, :note_id, :archived, :created, :last_edited, :user_id)");
-        q.bindValue(":client_id", clientId);
-        q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
-        q.bindValue(":archived", false);
-        q.bindValue(":created", currentDateTime);
-        q.bindValue(":last_edited", currentDateTime);
-        q.bindValue(":user_id", UserProfile::instance().userId());
+        records = callProcedure("AddDebtor", {
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "client_id",
+                                        clientId
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "note_id",
+                                        noteId == 0 ? QVariant(QVariant::Int) : noteId
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "user_id",
+                                        UserProfile::instance().userId()
+                                    }
+                                });
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(), "Failed to insert into debtor table.");
-
-        debtorId = q.lastInsertId().toInt();
+        debtorId = records.first().value("id").toInt();
 
         // STEP: Add debt transactions
         for (int i = 0; i < newDebtTransactions.count(); ++i) {
-            q.prepare("INSERT INTO debt_transaction (debtor_id, transaction_table, transaction_id, note_id, archived, created, last_edited, "
-                      "user_id) VALUES (:debtor_id, :transaction_table, :transaction_id, :note_id, :archived, "
-                      ":created, :last_edited, :user_id)");
-            q.bindValue(":debtor_id", debtorId);
-            q.bindValue(":transaction_table", "debtor");
-            q.bindValue(":transaction_id", 0);
-            q.bindValue(":note_id", debtTransactionNoteIds.at(i) == 0 ? QVariant(QVariant::Int) : debtTransactionNoteIds.at(i));
-            q.bindValue(":archived", false);
-            q.bindValue(":created", currentDateTime);
-            q.bindValue(":last_edited", currentDateTime);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            callProcedure("AddDebtTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "debtor_id",
+                                  debtorId
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_table",
+                                  QStringLiteral("debtor")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_id",
+                                  0
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "note_id",
+                                  debtTransactionNoteIds.at(i) == 0 ? QVariant(QVariant::Int) : debtTransactionNoteIds.at(i)
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert into debt transaction table."));
-
-            const int debtTransactionId = q.lastInsertId().toInt();
+            const int debtTransactionId = records.first().value("id").toInt();
             const double totalDebt = newDebtTransactions.at(i).toMap().value("total_debt").toDouble();
             const QVariantList &newDebtPayments = newDebtTransactions.at(i).toMap().value("new_debt_payments").toList();
             const QDateTime &dueDateTime = newDebtTransactions.at(i).toMap().value("due_date").toDateTime();
@@ -192,31 +206,53 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
                 const double amountPaid = debtPayment.toMap().value("amount").toDouble();
                 const QString note = debtPayment.toMap().value("note").toString();
 
-                const int noteId = !note.isEmpty() ? addNote(note) : 0;
+                const int noteId = !note.isEmpty() ? addNote(note, "debtor") : 0;
 
                 // Add debt payment
-                q.prepare("INSERT INTO debt_payment (debt_transaction_id, total_amount, amount_paid, balance, currency, "
-                          "due_date, note_id, archived, created, last_edited, user_id) VALUES (:debt_transaction_id, "
-                          ":total_amount, :amount_paid, :balance, :currency, :due_date, :note_id, :archived, "
-                          ":created, :last_edited, :user_id)");
-                q.bindValue(":debt_transaction_id", debtTransactionId);
-                q.bindValue(":total_amount", newDebt);
-                q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", qAbs(newDebt - amountPaid));
-                q.bindValue(":currency", "NGN");
-                q.bindValue(":due_date", dueDateTime);
-                q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
-                q.bindValue(":archived", false);
-                q.bindValue(":created", currentDateTime);
-                q.bindValue(":last_edited", currentDateTime);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(),
-                                            "Failed to insert into debt payment table.");
+                records = callProcedure("AddDebtPayment", {
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "debt_transaction_id",
+                                                debtTransactionId
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "total_amount",
+                                                newDebt
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "amount_paid",
+                                                amountPaid
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "balance",
+                                                qAbs(newDebt - amountPaid)
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "currency",
+                                                QStringLiteral("NGN")
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "due_date",
+                                                dueDateTime
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "note_id",
+                                                noteId == 0 ? QVariant(QVariant::Int) : noteId
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "user_id",
+                                                UserProfile::instance().userId()
+                                            }
+                                        });
 
                 newDebt -= amountPaid;
-
                 if (newDebt < 0.0)
                     throw DatabaseException(DatabaseException::RRErrorCode::AmountOverpaid, q.lastError().text(),
                                             QStringLiteral("Total amount paid is greater than total debt."));
@@ -331,54 +367,20 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
             throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments, q.lastError().text(),
                                     QString("No new/updated debt transactions for debtor %1.").arg(params.value("preferred_name").toString()));
 
-        auto addNote = [&q](const QString &note) {
-            if (note.trimmed().isEmpty())
-                return 0;
-
-            // STEP: Add note.
-            q.prepare("INSERT INTO note (note, table_name, created, last_edited, user_id) VALUES ("
-                      ":note, :table_name, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), :user_id)");
-            q.bindValue(":note", note.isNull() ? QVariant(QVariant::String) : note);
-            q.bindValue(":table_name", "debtor");
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert into note table."));
-
-            return q.lastInsertId().toInt();
-        };
-
-        auto updateNote = [&q](int noteId, const QString &note) {
-            if (noteId <= 0 || note.trimmed().isEmpty())
-                return;
-
-            // STEP: Update note.
-            q.prepare("UPDATE note SET note = :note, last_edited = CURRENT_TIMESTAMP(), "
-                      "user_id = :user_id WHERE id = :note_id");
-            q.bindValue(":note", note.isNull() ? QVariant(QVariant::String) : note);
-            q.bindValue(":user_id", UserProfile::instance().userId());
-            q.bindValue(":note_id", noteId);
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to update note table."));
-        };
-
         // STEP: Update notes for debtor.
-        updateNote(noteId, note);
+        AbstractSqlManager::updateNote(noteId, note, "debtor");
 
         // STEP: Add notes for updated debt transaction.
         for (int i = 0; i < updatedDebtTransactions.count(); ++i) {
             const int noteId = updatedDebtTransactions.at(i).toMap().value("note_id").toInt();
             const QString &note = updatedDebtTransactions.at(i).toMap().value("note").toString();
-            updateNote(noteId, note);
+            AbstractSqlManager::updateNote(noteId, note, "debtor");
         }
 
         // STEP: Add notes for new debt transaction.
         for (int i = 0; i < newDebtTransactions.count(); ++i) {
             const QString &note = newDebtTransactions.at(i).toMap().value("note").toString();
-            newDebtTransactionNoteIds.append(addNote(note));
+            newDebtTransactionNoteIds.append(AbstractSqlManager::addNote(note, "debtor"));
         }
 
         if (newDebtTransactions.count() != newDebtTransactionNoteIds.count())
@@ -386,20 +388,38 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                                     QStringLiteral("Failed to match note ID count with transaction count."));
 
         // STEP: Update client details.
-        q.prepare("UPDATE client SET first_name = :first_name, last_name = :last_name, "
-                  "preferred_name = :preferred_name, phone_number = :primary_phone_number, "
-                  "last_edited = CURRENT_TIMESTAMP(), user_id = :user_id "
-                  "WHERE id = :client_id");
-        q.bindValue(":first_name", params.value("first_name"));
-        q.bindValue(":last_name", params.value("last_name"));
-        q.bindValue(":preferred_name", params.value("preferred_name"));
-        q.bindValue(":primary_phone_number", params.value("primary_phone_number"));
-        q.bindValue(":user_id", UserProfile::instance().userId());
-        q.bindValue(":client_id", params.value("client_id"));
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to update client table."));
+        callProcedure("UpdateClient", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "client_id",
+                              clientId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "first_name",
+                              params.value("first_name")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "last_name",
+                              params.value("last_name")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "preferred_name",
+                              params.value("preferred_name")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "phone_number",
+                              params.value("primary_phone_number")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         // STEP: Update debt transactions.
         for (int i = 0; i < updatedDebtTransactions.count(); ++i) {
@@ -416,14 +436,19 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                 throw DatabaseException(DatabaseException::RRErrorCode::InvalidDueDate, q.lastError().text(),
                                         QStringLiteral("Due date is earlier than the current date or invalid."));
 
-            q.prepare("UPDATE debt_transaction SET last_edited = CURRENT_TIMESTAMP(), user_id = :user_id "
-                      "WHERE id = :debt_transaction_id");
-            q.bindValue(":user_id", UserProfile::instance().userId());
-            q.bindValue(":debt_transaction_id", debtTransactionId);
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert into debt transaction table."));
+            // Update timestamp for debt transactions.
+            callProcedure("TouchDebtTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "debt_transaction_id",
+                                  debtTransactionId
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
 
             // STEP: Update debt payments.
             const QVariantList &updatedDebtPayments(updatedDebtTransactions.at(i).toMap().value("updated_debt_payments").toList());
@@ -435,23 +460,45 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                     throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, q.lastError().text(),
                                             QStringLiteral("Debt payment ID used to update table is invalid."));
 
-                q.prepare("UPDATE debt_payment SET total_amount = :total_amount, amount_paid = :amount_paid, "
-                          "balance = :balance, due_date = :due_date, last_edited = CURRENT_TIMESTAMP(), user_id = :user_id "
-                          "WHERE id = :debt_payment_id");
-                q.bindValue(":debt_payment_id", debtPaymentId);
-                q.bindValue(":total_amount", newDebt);
-                q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", qAbs(newDebt - amountPaid));
-                q.bindValue(":currency", "NGN");
-                q.bindValue(":due_date", dueDateTime);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to update debt payment table."));
+                callProcedure("UpdateDebtPayment", {
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "debt_payment_id",
+                                      debtPaymentId
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "total_amount",
+                                      newDebt
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "amount_paid",
+                                      amountPaid
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "balance",
+                                      qAbs(newDebt - amountPaid)
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "currency",
+                                      QStringLiteral("NGN")
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "due_date",
+                                      dueDateTime
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "user_id",
+                                      UserProfile::instance().userId()
+                                  }
+                              });
 
                 newDebt -= amountPaid;
-
                 if (newDebt < 0.0)
                     throw DatabaseException(DatabaseException::RRErrorCode::AmountOverpaid, q.lastError().text(),
                                             QStringLiteral("Total amount paid is greater than total debt."));
@@ -463,44 +510,83 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                 const double updatedDebt = newDebtPayments.at(j).toMap().value("total_amount").toDouble();
                 const double amountPaid = newDebtPayments.at(j).toMap().value("amount_paid").toDouble();
 
-                q.prepare("INSERT INTO debt_payment (debt_transaction_id, total_amount, amount_paid, balance, currency, "
-                          "due_date, note_id, archived, created, last_edited, user_id) VALUES (:debt_transaction_id, "
-                          ":total_amount, :amount_paid, :balance, :currency, :due_date, :note_id, :archived, "
-                          "CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), :user_id)");
-                q.bindValue(":debt_transaction_id", debtTransactionId);
-                q.bindValue(":total_amount", updatedDebt);
-                q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", qAbs(updatedDebt - amountPaid));
-                q.bindValue(":currency", "NGN");
-                q.bindValue(":due_date", dueDateTime);
-                q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
-                q.bindValue(":archived", false);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::AddDebtorFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to insert into debt payment table."));
+                callProcedure("AddDebtPayment", {
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "debt_transaction_id",
+                                      debtTransactionId
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "total_amount",
+                                      updatedDebt
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "amount_paid",
+                                      amountPaid
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "balance",
+                                      qAbs(updatedDebt - amountPaid)
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "currency",
+                                      QStringLiteral("NGN")
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "due_date",
+                                      dueDateTime
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "note_id",
+                                      noteId == 0 ? QVariant(QVariant::Int) : noteId
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "user_id",
+                                      UserProfile::instance().userId()
+                                  }
+                              });
             }
         }
 
         // STEP: Add debt transactions
         for (int i = 0; i < newDebtTransactions.count(); ++i) {
-            q.prepare("INSERT INTO debt_transaction (debtor_id, transaction_table, transaction_id, note_id, "
-                      "archived, created, last_edited, user_id) VALUES (:debtor_id, :transaction_table, "
-                      ":transaction_id, :note_id, :archived, "
-                      "CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), :user_id)");
-            q.bindValue(":debtor_id", debtorId);
-            q.bindValue(":transaction_table", "debtor");
-            q.bindValue(":transaction_id", 0);
-            q.bindValue(":note_id", newDebtTransactionNoteIds.at(i) == 0 ? QVariant(QVariant::Int) : newDebtTransactionNoteIds.at(i));
-            q.bindValue(":archived", false);
-            q.bindValue(":user_id", UserProfile::instance().userId());
+            const QList<QSqlRecord> records(callProcedure("AddDebtTransaction", {
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "debtor_id",
+                                                                  debtorId
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "transaction_table",
+                                                                  QStringLiteral("debtor")
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "transaction_id",
+                                                                  0
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "note_id",
+                                                                  newDebtTransactionNoteIds.at(i) == 0 ?
+                                                                  QVariant(QVariant::Int) : newDebtTransactionNoteIds.at(i)
+                                                              },
+                                                              ProcedureArgument {
+                                                                  ProcedureArgument::Type::In,
+                                                                  "user_id",
+                                                                  UserProfile::instance().userId()
+                                                              }
+                                                          }));
 
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to insert into debt transaction table."));
-
-            const int debtTransactionId = q.lastInsertId().toInt();
+            const int debtTransactionId = records.first().value("id").toInt();
             const double totalDebt = newDebtTransactions.at(i).toMap().value("total_debt").toDouble();
             const QVariantList newDebtPayments = newDebtTransactions.at(i).toMap().value("new_debt_payments").toList();
             const QDateTime dueDateTime = newDebtTransactions.at(i).toMap().value("due_date").toDateTime();
@@ -516,29 +602,53 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                 const double amountPaid = debtPayment.toMap().value("amount").toDouble();
                 const QString &note = debtPayment.toMap().value("note").toString();
 
-                const int noteId = !note.isEmpty() ? addNote(note) : 0;
+                const int noteId = !note.isEmpty() ? addNote(note, "debtor") : 0;
 
                 // Add debt payment
-                q.prepare("INSERT INTO debt_payment (debt_transaction_id, total_amount, amount_paid, balance, currency, "
-                          "due_date, note_id, archived, created, last_edited, user_id) VALUES (:debt_transaction_id, "
-                          ":total_amount, :amount_paid, :balance, :currency, :due_date, :note_id, :archived, "
-                          "CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), :user_id)");
-                q.bindValue(":debt_transaction_id", debtTransactionId);
-                q.bindValue(":total_amount", newDebt);
-                q.bindValue(":amount_paid", amountPaid);
-                q.bindValue(":balance", qAbs(newDebt - amountPaid));
-                q.bindValue(":currency", "NGN");
-                q.bindValue(":due_date", dueDateTime);
-                q.bindValue(":note_id", noteId == 0 ? QVariant(QVariant::Int) : noteId);
-                q.bindValue(":archived", false);
-                q.bindValue(":user_id", UserProfile::instance().userId());
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                            QStringLiteral("Failed to insert into debt payment table."));
+                callProcedure("AddDebtPayment", {
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "debt_transaction_id",
+                                      debtTransactionId
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "total_amount",
+                                      newDebt
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "amount_paid",
+                                      amountPaid
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "balance",
+                                      qAbs(newDebt - amountPaid)
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "currency",
+                                      QStringLiteral("NGN")
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "due_date",
+                                      dueDateTime
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "note_id",
+                                      noteId == 0 ? QVariant(QVariant::Int) : noteId
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "user_id",
+                                      UserProfile::instance().userId()
+                                  }
+                              });
 
                 newDebt -= amountPaid;
-
                 if (newDebt < 0.0)
                     throw DatabaseException(DatabaseException::RRErrorCode::AmountOverpaid, q.lastError().text(),
                                             QStringLiteral("Total amount paid is greater than total debt."));
@@ -547,26 +657,34 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
 
         // STEP: Remove debt transactions.
         for (int i = 0; i < removedDebtTransactionIds.count(); ++i) {
-            q.prepare("UPDATE debt_transaction SET archived = 1, CURRENT_TIMESTAMP(), user_id = :user_id "
-                      "WHERE id = :debt_transaction_id");
-            q.bindValue(":user_id", UserProfile::instance().userId());
-            q.bindValue(":debt_transaction_id", removedDebtTransactionIds.at(i));
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to remove debt transaction table."));
+            callProcedure("ArchiveDebtTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "debt_transaction_id",
+                                  removedDebtTransactionIds.at(i)
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
         }
 
         // STEP: Remove debt payments.
         for (int i = 0; i < removedDebtPaymentIds.count(); ++i) {
-            q.prepare("UPDATE debt_payment SET archived = 1, CURRENT_TIMESTAMP(), user_id = :user_id "
-                      "WHERE id = :debt_payment_id");
-            q.bindValue(":user_id", UserProfile::instance().userId());
-            q.bindValue(":debt_payment_id", removedDebtTransactionIds.at(i));
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::UpdateDebtorFailure, q.lastError().text(),
-                                        QStringLiteral("Failed to remove debt payment table."));
+            callProcedure("ArchiveDebtPayment", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "debt_payment_id",
+                                  removedDebtPaymentIds.at(i)
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
         }
 
         QVariantMap outcome;
@@ -591,58 +709,44 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
+    QList<QSqlRecord> records;
     QSqlQuery q(connection);
 
     try {
         // STEP: Get total balance for each debtor.
         if (params.value("filter_text").isNull() || params.value("filter_column").isNull()) {
-            q.prepare("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
-                      "debt_payment.balance AS total_debt, debtor.archived, "
-                      "MAX(debt_payment.last_edited) FROM debt_payment "
-                      "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
-                      "INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id "
-                      "INNER JOIN client ON client.id = debtor.client_id "
-                      "WHERE debt_transaction.archived = :archived "
-                      "GROUP BY debtor.id, debt_payment.balance, "
-                      "debt_payment.last_edited, debt_transaction.archived "
-                      "HAVING MAX(debt_payment.last_edited) = debt_payment.last_edited "
-                      "AND debt_transaction.archived = :archived");
-            q.bindValue(":archived", params.value("archived", false), QSql::Out);
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure,
-                                        q.lastError().text(),
-                                        QStringLiteral("Failed to fetch debtors."));
+            records = callProcedure("ViewDebtors", {
+                                        ProcedureArgument {
+                                            ProcedureArgument::Type::In,
+                                            "archived",
+                                            params.value("archived", false)
+                                        }
+                                    });
         } else {
             // STEP: Filter total balance for each debtor
             if (params.value("filter_column").toString() == "preferred_name") {
-                q.prepare(QString("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
-                                  "debt_payment.balance AS total_debt, debtor.archived FROM debt_payment "
-                                  "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
-                                  "INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id "
-                                  "INNER JOIN client ON client.id = debtor.client_id "
-                                  "WHERE debt_transaction.archived = :archived AND client.preferred_name LIKE '%%1%'"
-                                  "GROUP BY debtor.id, debt_payment.debt_transaction_id, debt_payment.balance, "
-                                  "debt_payment.last_edited "
-                                  "HAVING MAX(debt_payment.last_edited) = debt_payment.last_edited "
-                                  "AND archived = :archived")
-                          .arg(params.value("filter_text").toString()));
-                q.bindValue(":archived", params.value("archived", false), QSql::Out);
-
-                if (!q.exec())
-                    throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure,
-                                            q.lastError().text(),
-                                            QStringLiteral("Failed to fetch debtors."));
+                records = callProcedure("FilterDebtorsByName", {
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "name",
+                                                params.value("filter_text")
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "archived",
+                                                params.value("archived")
+                                            }
+                                        });
             }
         }
 
         QVariantList debtors;
-        while (q.next()) {
-            qDebug() << "Debtor?" << q.value("debtor_id").toInt()
-                     << q.value("preferred_name").toString()
-                     << q.value("total_debt").toDouble()
-                     << q.value("archived").toBool();
-            debtors.append(recordToMap(q.record()));
+        for (const QSqlRecord &record : records) {
+            qDebug() << "Debtor?" << record.value("debtor_id").toInt()
+                     << record.value("preferred_name").toString()
+                     << record.value("total_debt").toDouble()
+                     << record.value("archived").toBool();
+            debtors.append(recordToMap(record));
         }
 
         result.setOutcome(QVariantMap { { "debtors", debtors }, { "record_count", debtors.count() } });
@@ -668,36 +772,45 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
                                     QStringLiteral("Failed to start transation."));
 
-        q.prepare("UPDATE debtor SET archived = 1, last_edited = CURRENT_TIMESTAMP(), "
-                  "user_id = :user_id WHERE id = :debtor_id");
-        q.bindValue(":debtor_id", params.value("debtor_id"));
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to remove debtor."));
+        callProcedure("ArchiveDebtor", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "debtor_id",
+                              params.value("debtor_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         // Archive debt transactions.
-        q.prepare("UPDATE debt_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), "
-                  "user_id = :user_id WHERE id = :debtor_id");
-        q.bindValue(":debtor_id", params.value("debtor_id"));
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to remove debt transactions for debtor."));
+        callProcedure("ArchiveDebtTransaction", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "debtor_id",
+                              params.value("debtor_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         // Retrieve archived debt transaction IDs.
-        q.prepare("SELECT id FROM debt_transaction WHERE debtor_id = :debtor_id");
-        q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to fetch debt transactions for debtor."));
+        const QList<QSqlRecord> records(callProcedure("GetDebtTransaction", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "debtor_id",
+                                                              params.value("debtor_id")
+                                                          }
+                                                      }));
 
         QVariantList debtTransactionIds;
-        while (q.next()) {
-            debtTransactionIds.append(q.value("id").toInt());
+        for (const QSqlRecord &record : records) {
+            debtTransactionIds.append(record.value("id").toInt());
         }
 
         result.setOutcome(QVariantMap{ { "debtor_id", params.value("debtor_id") },
@@ -733,51 +846,48 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        q.prepare("UPDATE debtor SET archived = 0, last_edited = CURRENT_TIMESTAMP(), "
-                  "user_id = :user_id WHERE id = :debtor_id");
-        q.bindValue(":debtor_id", params.value("debtor_id"));
-        q.bindValue(":user_id", UserProfile::instance().userId());
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to undo 'remove debtor'."));
+        // Archive debt transactions.
+        callProcedure("UndoArchiveDebtor", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "debtor_id",
+                              params.value("debtor_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         // STEP: Restore archived transactions.
         for (int i = 0; i < debtTransactionIds.count(); ++i) {
-            q.prepare("UPDATE debt_transaction SET archived = 0, last_edited = CURRENT_TIMESTAMP(), "
-                      "user_id = :user_id WHERE id = :debt_transaction_id");
-            q.bindValue(":debt_transaction_id", debtTransactionIds.at(i).toInt());
-            q.bindValue(":user_id", UserProfile::instance().userId());
-
-            if (!q.exec())
-                throw DatabaseException(DatabaseException::RRErrorCode::RemoveStockItemFailed, q.lastError().text(),
-                                        QStringLiteral("Failed to update debt transactions during undo."));
+            callProcedure("UndoArchiveDebtTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "debt_transaction_id",
+                                  debtTransactionIds.at(i).toInt()
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
         }
 
         // STEP: Get total balance for each debtor.
-        q.prepare("SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
-                  "(SELECT SUM(debt_payment.balance) FROM debt_payment "
-                  "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
-                  "INNER JOIN debtor ON debt_transaction.debtor_id = debtor.id "
-                  "WHERE debt_payment.debt_transaction_id IN "
-                  "(SELECT debt_transaction.id FROM debt_transaction "
-                  "WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0) "
-                  "AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt, "
-                  "note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user "
-                  "FROM debtor "
-                  "INNER JOIN client ON client.id = debtor.client_id "
-                  "LEFT JOIN user ON user.id = debtor.user_id "
-                  "LEFT JOIN note ON debtor.note_id = note.id "
-                  "WHERE debtor.archived = 0 AND debtor.id = :debtor_id");
-        q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure, q.lastError().text(),
-                                    QStringLiteral("Failed to fetch removed debtor."));
+        const QList<QSqlRecord> records(callProcedure("ViewTotalBalanceForDebtor", {
+                                                          ProcedureArgument {
+                                                              ProcedureArgument::Type::In,
+                                                              "debtor_id",
+                                                              params.value("debtor_id")
+                                                          }
+                                                      }));
 
         QVariantMap debtor;
-        if (q.first()) {
-            debtor = recordToMap(q.record());
+        if (!records.isEmpty()) {
+            debtor = recordToMap(records.first());
             result.setOutcome(QVariantMap { { "debtor", QVariant(debtor) },
                                             { "record_count", 1 },
                                             { "debtor_id", params.value("debtor_id") },
@@ -809,68 +919,62 @@ void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryRe
     QString primaryPhoneNumber;
     QString debtorNote;
     QSqlQuery q(connection);
+    QList<QSqlRecord> records;
 
     try {
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
 
-        q.prepare("SELECT client.id AS client_id, client.preferred_name, client.phone_number AS primary_phone_number, "
-                  "note.note FROM client "
-                  "INNER JOIN debtor ON debtor.client_id = client.id "
-                  "LEFT JOIN note ON note.id = debtor.note_id "
-                  "WHERE debtor.id = :debtor_id AND debtor.archived = :archived");
-        q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
-        q.bindValue(":archived", params.value("archived", false), QSql::Out);
+        records = callProcedure("ViewFewDebtorDetails", {
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "debt_transaction_id",
+                                        params.value("debtor_id")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "archived",
+                                        params.value("archived", false)
+                                    }
+                                });
 
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtTransactionsFailure,
-                                    q.lastError().text(),
-                                    QStringLiteral("Failed to fetch client details for debt transactions."));
-
-        if (q.first()) {
-            clientId = q.value("client_id").toInt();
-            preferredName = q.value("preferred_name").toString();
-            primaryPhoneNumber = q.value("primary_phone_number").toString();
-            debtorNote = q.value("note").toString();
+        if (!records.isEmpty()) {
+            clientId = records.first().value("client_id").toInt();
+            preferredName = records.first().value("preferred_name").toString();
+            primaryPhoneNumber = records.first().value("primary_phone_number").toString();
+            debtorNote = records.first().value("note").toString();
         }
 
-        q.prepare("SELECT debt_transaction.id AS debt_transaction_id, debt_transaction.transaction_table AS related_transaction_table, "
-                  "debt_transaction.transaction_id AS related_transaction_id, debt_transaction.created AS debt_transaction_created, "
-                  "debt_payment.id AS debt_payment_id, debt_payment.total_amount, debt_payment.amount_paid, "
-                  "debt_payment.balance AS balance, debt_payment.currency, "
-                  "debt_payment.due_date, debt_transaction.note_id AS debt_transaction_note_id, "
-                  "debt_payment.note_id AS debt_payment_note_id, debt_transaction.archived, "
-                  "debt_payment.created AS debt_payment_created "
-                  "FROM debt_payment "
-                  "INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id "
-                  "INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id "
-                  "LEFT JOIN note ON note.id = debt_transaction.note_id "
-                  "WHERE debtor.id = :debtor_id AND debt_transaction.archived = :archived "
-                  "ORDER BY debt_payment.last_edited ASC");
-        q.bindValue(":debtor_id", params.value("debtor_id"), QSql::Out);
-        q.bindValue(":archived", params.value("archived", false), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtTransactionsFailure,
-                                    q.lastError().text(),
-                                    QStringLiteral("Failed to fetch debt transactions."));
+        records = callProcedure("ViewDebtTransactions", {
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "debtor_id",
+                                        params.value("debtor_id")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "archived",
+                                        params.value("archived", false)
+                                    }
+                                });
 
         QVariantList transactions;
         QVariantList paymentGroups;
 
-        while (q.next()) {
+        for (int i = 0; i < records.count(); ++i) {
+            QSqlRecord &record = records[i];
             QVariantMap transactionRecord;
-            const int debtTransactionId = q.value("debt_transaction_id").toInt();
-            const QString &relatedTransactionTable = q.value("related_transaction_table").toString();
-            const int relatedTransactionId = q.value("related_transaction_id").toInt();
-            const double totalDebt = q.value("balance").toDouble();
-            const QDateTime &dueDate = q.value("due_date").toDateTime();
-            const QDateTime created = q.value("debt_transaction_created").toDateTime();
+            const int debtTransactionId = record.value("debt_transaction_id").toInt();
+            const QString &relatedTransactionTable = record.value("related_transaction_table").toString();
+            const int relatedTransactionId = record.value("related_transaction_id").toInt();
+            const double totalDebt = record.value("balance").toDouble();
+            const QDateTime &dueDate = record.value("due_date").toDateTime();
+            const QDateTime created = record.value("debt_transaction_created").toDateTime();
 
             transactionRecord.insert("debt_transaction_id", debtTransactionId);
             transactionRecord.insert("related_transaction_table", relatedTransactionTable);
             transactionRecord.insert("related_transaction_id", relatedTransactionId);
             transactionRecord.insert("total_debt", totalDebt);
-            transactionRecord.insert("note_id", q.value("debt_transaction_note_id"));
+            transactionRecord.insert("note_id", record.value("debt_transaction_note_id"));
             transactionRecord.insert("due_date", dueDate);
             transactionRecord.insert("created", created);
 
@@ -879,22 +983,22 @@ void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryRe
             do {
                 QVariantMap paymentRecord;
                 paymentRecord.insert("debt_transaction_id", debtTransactionId);
-                paymentRecord.insert("debt_payment_id", q.value("debt_payment_id"));
-                paymentRecord.insert("total_amount", q.value("total_amount"));
-                paymentRecord.insert("amount_paid", q.value("amount_paid"));
-                paymentRecord.insert("balance", q.value("balance"));
-                paymentRecord.insert("currency", q.value("currency"));
-                paymentRecord.insert("due_date", q.value("due_date"));
-                paymentRecord.insert("note_id", q.value("debt_payment_note_id"));
-                paymentRecord.insert("archived", q.value("archived"));
-                paymentRecord.insert("created", q.value("debt_payment_created"));
+                paymentRecord.insert("debt_payment_id", record.value("debt_payment_id"));
+                paymentRecord.insert("total_amount", record.value("total_amount"));
+                paymentRecord.insert("amount_paid", record.value("amount_paid"));
+                paymentRecord.insert("balance", record.value("balance"));
+                paymentRecord.insert("currency", record.value("currency"));
+                paymentRecord.insert("due_date", record.value("due_date"));
+                paymentRecord.insert("note_id", record.value("debt_payment_note_id"));
+                paymentRecord.insert("archived", record.value("archived"));
+                paymentRecord.insert("created", record.value("debt_payment_created"));
 
                 payments.append(paymentRecord);
-            } while (q.next() && debtTransactionId == q.value("debt_transaction_id").toInt());
+            } while ((++i < records.count()) && debtTransactionId == record.value("debt_transaction_id").toInt());
 
             transactions.append(transactionRecord);
             paymentGroups.append(QVariant(payments));
-            q.previous();
+            --i;
         }
 
         if (transactions.count() != paymentGroups.count())
@@ -925,23 +1029,22 @@ void DebtorSqlManager::viewDebtorDetails(const QueryRequest &request, QueryResul
         AbstractSqlManager::enforceArguments({ "debtor_id" }, params);
 
         // STEP: Get total balance for each debtor
-        q.prepare("SELECT debtor.id AS debtor_id, client.preferred_name AS preferred_name, "
-                  "client.first_name, client.last_name, client.phone_number, debtor.archived, "
-                  "debtor.user_id, debtor.user_id AS user "
-                  "FROM debtor "
-                  "INNER JOIN client ON client.id = debtor.client_id "
-                  "WHERE debtor.id = :debtor_id AND debtor.archived = :archived");
-        q.bindValue(":debtor_id", params.value("debtor_id", false), QSql::Out);
-        q.bindValue(":archived", params.value("archived", false), QSql::Out);
-
-        if (!q.exec())
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewDebtorsFailure,
-                                    q.lastError().text(),
-                                    QStringLiteral("Failed to fetch debtor details."));
+        const auto records = callProcedure("ViewDebtorDetails", {
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "debtor_id",
+                                        params.value("debtor_id")
+                                    },
+                                    ProcedureArgument {
+                                        ProcedureArgument::Type::In,
+                                        "archived",
+                                        params.value("archived", false)
+                                    }
+                                });
 
         QVariantMap debtorInfo;
-        if (q.next()) {
-            debtorInfo = recordToMap(q.record());
+        if (!records.isEmpty()) {
+            debtorInfo = recordToMap(records.first());
             result.setOutcome(QVariantMap { { "debtor", debtorInfo }, { "record_count", 1 } });
         }
     } catch (DatabaseException &) {

@@ -85,16 +85,8 @@ BEGIN
         sale_transaction.last_edited, sale_transaction.user_id FROM sale_transaction
         LEFT JOIN note ON sale_transaction.note_id = note.id
         WHERE sale_transaction.suspended = iSuspended AND sale_transaction.archived = iArchived
-        AND sale_transaction.created BETWEEN (CASE
-												WHEN iFrom IS NULL
-												THEN '1970-01-01 00:00:00'
-												ELSE iFrom
-												END)
-									 AND (CASE
-											WHEN iTo IS NULL
-											THEN CURRENT_TIMESTAMP()
-											ELSE iTo
-											END) ORDER BY created ASC;
+        AND sale_transaction.created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
+									 AND IFNULL(iTo, CURRENT_TIMESTAMP()) ORDER BY created ASC;
 END //
 DELIMITER ;
 

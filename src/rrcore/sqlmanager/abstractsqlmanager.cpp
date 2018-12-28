@@ -1,5 +1,6 @@
 #include "abstractsqlmanager.h"
 #include "database/databaseexception.h"
+#include "singletons/userprofile.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -146,3 +147,56 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
 
     return records;
 }
+
+int AbstractSqlManager::addNote(const QString &note, const QString &tableName) {
+    if (note.trimmed().isEmpty() || tableName.trimmed().isEmpty())
+        return 0;
+
+    const QList<QSqlRecord> records(callProcedure("AddNote", {
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "note",
+                                                          note
+                                                      },
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "table_name",
+                                                          "debtor"
+                                                      },
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "user_id",
+                                                          UserProfile::instance().userId()
+                                                      }
+                                                  }));
+
+    return records.first().value("id").toInt();
+}
+
+void AbstractSqlManager::updateNote(int noteId, const QString &note, const QString &tableName) {
+    if (noteId <= 0 || note.trimmed().isEmpty())
+        throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments, "Missing arguments for updateNote().");
+
+    const QList<QSqlRecord> records(callProcedure("UpdateNote", {
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "note_id",
+                                                          noteId
+                                                      },
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "note",
+                                                          note
+                                                      },
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "table_name",
+                                                          tableName
+                                                      },
+                                                      ProcedureArgument {
+                                                          ProcedureArgument::Type::In,
+                                                          "user_id",
+                                                          UserProfile::instance().userId()
+                                                      }
+                                                  }));
+};

@@ -329,49 +329,12 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
 
         // STEP: Insert category note.
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
-            const QList<QSqlRecord> records(callProcedure("AddNote", {
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "note",
-                                                                  params.value("category_note")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "table_name",
-                                                                  QStringLiteral("category")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "user_id",
-                                                                  UserProfile::instance().userId()
-                                                              }
-                                                          }));
+            AbstractSqlManager::addNote(params.value("category_note").toString(), "item");
         }
 
         // STEP: Update item note.
         if (!params.value("item_note").toString().trimmed().isEmpty()) {
-            callProcedure("UpdateNote", {
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "note_id",
-                                  params.value("item_note_id")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "note",
-                                  params.value("item_note")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "table_name",
-                                  QStringLiteral("item")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "user_id",
-                                  UserProfile::instance().userId()
-                              }
-                          });
+            AbstractSqlManager::updateNote(params.value("item_note_id").toInt(), params.value("item_note").toString(), "item");
         }
 
         // STEP: Insert category if it doesn't exist. Else, get the category ID.
