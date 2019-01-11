@@ -20,7 +20,7 @@ ListModel {
     }
 
     ListElement {
-        title: qsTr("Purchase")
+        title: qsTr("Purchases")
         iconName: ""
         fileName: "common/DashboardPage.qml"
     }

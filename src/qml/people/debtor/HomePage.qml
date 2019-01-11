@@ -177,6 +177,7 @@ RRUi.Page {
     }
 
     Connections {
+        enabled: homePage.RRUi.ApplicationWindow.window !== null
         target: homePage.RRUi.ApplicationWindow.window.snackBar
         onClicked: debtorListView.undoLastCommit();
     }
