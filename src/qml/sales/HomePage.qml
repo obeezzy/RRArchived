@@ -63,4 +63,10 @@ RRUi.Page {
             ]
         }
     }
+
+    FluidControls.Placeholder {
+        anchors.centerIn: parent
+        icon.source: FluidControls.Utils.iconUrl("editor/bubble_chart")
+        text: qsTr("No data available.")
+    }
 }

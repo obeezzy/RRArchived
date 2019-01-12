@@ -165,10 +165,17 @@ RRUi.Page {
 
     /********************** ON-DEMAND ITEMS *****************************/
     FluidControls.Placeholder {
-        visible: debtorListView.count == 0
+        visible: debtorListView.count == 0 && searchBar.text !== ""
         anchors.centerIn: parent
         icon.source: FluidControls.Utils.iconUrl("action/search")
         text: qsTr("No results for this search query.")
+    }
+
+    FluidControls.Placeholder {
+        visible: debtorListView.count == 0 && searchBar.text === ""
+        anchors.centerIn: parent
+        icon.source: FluidControls.Utils.iconUrl("social/person")
+        text: qsTr("No debtor entry has been made.")
     }
 
     RemoveDebtorConfirmationDialog {
