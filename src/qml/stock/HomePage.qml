@@ -141,17 +141,6 @@ RRUi.Page {
         visible: categoryListView.model.busy
     }
 
-    Loader {
-        active: categoryListView.count == 0
-        anchors.centerIn: parent
-        sourceComponent: FluidControls.SubheadingLabel {
-            color: Material.color(Material.Grey)
-            text: /*categoryListView.model.filterText ? */qsTr("No results for this search query.")
-                                                    //: qsTr("You have no items.\nClick the <img src='%1' width='20' height='20'/> button below to add items.").arg(FluidControls.Utils.iconUrl("content/add"))
-            horizontalAlignment: Qt.AlignHCenter
-        }
-    }
-
     ItemDetailPopup {
         id: itemDetailPopup
         onEditRequested: {
@@ -188,6 +177,20 @@ RRUi.Page {
                 text: qsTr("View all items.")
             }
         ]
+    }
+
+    FluidControls.Placeholder {
+        visible: categoryListView.count == 0 && searchBar.text !== ""
+        anchors.centerIn: parent
+        icon.source: FluidControls.Utils.iconUrl("action/search")
+        text: qsTr("No results for this search query.")
+    }
+
+    FluidControls.Placeholder {
+        visible: categoryListView.count == 0 && searchBar.text === ""
+        anchors.centerIn: parent
+        icon.source: Qt.resolvedUrl("qrc:/truck.svg")
+        text: qsTr("No items available.")
     }
 
     QQC2.StackView.onActivating: {

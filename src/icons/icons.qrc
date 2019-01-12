@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>exclamation.svg</file>
+        <file>shape.svg</file>
+        <file>truck.svg</file>
+    </qresource>
+</RCC>
