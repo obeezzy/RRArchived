@@ -2,5 +2,11 @@
     <qresource prefix="/sql">
         <file>init.sql</file>
         <file>procedures/client.sql</file>
+        <file>procedures/creditor.sql</file>
+        <file>procedures/debtor.sql</file>
+        <file>procedures/note.sql</file>
+        <file>procedures/sales.sql</file>
+        <file>procedures/stock.sql</file>
+        <file>procedures/user.sql</file>
     </qresource>
 </RCC>

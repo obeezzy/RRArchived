@@ -4,22 +4,44 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 
-QMLDatabaseCreator::QMLDatabaseCreator(QObject *parent) : QObject(parent)
+QMLDatabaseCreator::QMLDatabaseCreator(QObject *parent) :
+    QObject(parent),
+    m_busy(false)
 {
     m_databaseCreator = new DatabaseCreator();
+}
+
+bool QMLDatabaseCreator::busy() const
+{
+    return m_busy;
 }
 
 void QMLDatabaseCreator::start()
 {
     if (!m_futureWatcher.isRunning()) {
-        qDebug() << "Called!";
+        qDebug() << "Building database...";
         disconnect(&m_futureWatcher, &QFutureWatcher<bool>::finished, this, &QMLDatabaseCreator::onFinished);
         connect(&m_futureWatcher, &QFutureWatcher<bool>::finished, this, &QMLDatabaseCreator::onFinished);
         m_futureWatcher.setFuture(QtConcurrent::run(m_databaseCreator, &DatabaseCreator::start));
+        setBusy(true);
     }
+}
+
+void QMLDatabaseCreator::setBusy(bool busy)
+{
+    if (m_busy == busy)
+        return;
+
+    m_busy = busy;
+    emit busyChanged();
 }
 
 void QMLDatabaseCreator::onFinished()
 {
-    qDebug() << "What is the result of database creation? " << m_futureWatcher.result();
+    setBusy(false);
+
+    if (m_futureWatcher.result())
+        emit success();
+    else
+        emit error();
 }

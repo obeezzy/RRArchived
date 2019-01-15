@@ -1,6 +1,7 @@
 USE ###DATABASENAME###;
 
-DELIMITER //
+---
+
 CREATE PROCEDURE ViewStockCategories(
     IN iSortOrder VARCHAR(4)
     )
@@ -10,12 +11,10 @@ BEGIN
     ELSE
         SELECT id, category FROM category ORDER BY LOWER(category) ASC;
     END IF;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ViewStockItems(
     IN iFilterColumn VARCHAR(20),
     IN iFilterText VARCHAR(100),
@@ -50,12 +49,10 @@ BEGIN
                     WHEN (iSortOrder IS NULL AND iSortColumn IS NULL) OR (LOWER(iSortOrder) <> 'descending' AND LOWER(iSortColumn) = 'category')
                     THEN LOWER(category.category) END) ASC,
         LOWER(item.item) ASC;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE DeductStockQuantity(
 	IN iItemId INTEGER,
 	IN iQuantity DOUBLE,
@@ -80,12 +77,10 @@ BEGIN
 
     UPDATE current_quantity SET quantity = @availableQuantity - iQuantity, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
 		WHERE item_id = iItemId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ViewStockItemDetails(
     INOUT ioItemId INTEGER,
     OUT oCategoryId INTEGER,
@@ -119,12 +114,10 @@ BEGIN
         LEFT JOIN user ON item.user_id = user.id
         WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
         AND item.id = ioItemId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddStockCategory (
 	IN iCategory VARCHAR(100),
     IN iShortForm VARCHAR(10),
@@ -140,12 +133,10 @@ BEGIN
 	ELSE
 		SELECT id FROM category WHERE category = iCategory;
     END IF;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddStockItem(
 	IN iCategoryId INTEGER,
     IN iItem VARCHAR(200),
@@ -168,12 +159,10 @@ BEGIN
 	    ELSE
 		    SELECT id FROM item WHERE item = iItem;
         END IF;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddStockUnit (
 	IN iItemId INTEGER,
     IN iUnit INTEGER,
@@ -197,12 +186,10 @@ BEGIN
 	ELSE
 		SELECT id FROM unit WHERE unit = iUnit;
     END IF;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddInitialQuantity (
 	IN iItemId INTEGER,
     IN iQuantity DOUBLE,
@@ -213,12 +200,10 @@ CREATE PROCEDURE AddInitialQuantity (
 BEGIN
 	INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id)
 		VALUES (iItemId, iQuantity, iUnitId, iReason, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddCurrentQuantity (
 	IN iItemId INTEGER,
     IN iQuantity DOUBLE,
@@ -228,23 +213,19 @@ CREATE PROCEDURE AddCurrentQuantity (
 BEGIN
 	INSERT INTO current_quantity (item_id, quantity, unit_id, created, last_edited, user_id)
 		VALUES (iItemId, iQuantity, iUnitId, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE GetStockCategoryId (
 	IN iItemId INTEGER
 )
 BEGIN
 	SELECT (SELECT category_id FROM item WHERE item.id = iItemId) AS category_id;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE UpdateStockItem (
 	IN iCategoryId INTEGER,
     IN iItemId INTEGER,
@@ -263,12 +244,10 @@ BEGIN
         note_id = (CASE WHEN iNoteId IS NOT NULL THEN iNoteId ELSE note_id END), archived = FALSE,
 		last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
 		WHERE item.id = iItemId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE UpdateStockUnit (
 	IN iItemId INTEGER,
 	IN iUnit VARCHAR(100),
@@ -286,5 +265,4 @@ BEGIN
 		base_unit_equivalent = iBaseUnitEquivalent, cost_price = iCostPrice, retail_price = iRetailPrice,
         preferred = iPreferred, currency = iCurrency, note_id = iNoteId, archived = FALSE,
         last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE item_id = iItemId;
-END //
-DELIMITER ;
+END;

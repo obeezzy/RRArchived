@@ -100,7 +100,6 @@ RRUi.Page {
                             stackView.push(Qt.resolvedUrl("BusinessDetailPage.qml"));
                         } else if (stackView.currentObjectName === "businessDetailPage") {
                             databaseCreator.start();
-                            onboardingPage.finished();
                         }
                     }
                 }
@@ -108,5 +107,10 @@ RRUi.Page {
         }
     }
 
-    RR.DatabaseCreator { id: databaseCreator }
+    RR.DatabaseCreator {
+        id: databaseCreator
+        onSuccess: onboardingPage.finished();
+    }
+
+    RRUi.BusyOverlay { visible: databaseCreator.busy }
 }

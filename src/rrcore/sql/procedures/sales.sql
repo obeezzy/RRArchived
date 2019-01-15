@@ -1,6 +1,7 @@
 USE ###DATABASENAME###;
 
-DELIMITER //
+---
+
 CREATE PROCEDURE AddSaleItem(
 	IN iSaleTransactionId INTEGER,
     IN iItemId INTEGER,
@@ -16,11 +17,10 @@ BEGIN
 	INSERT INTO sale_item (sale_transaction_id, item_id, unit_id, unit_price, quantity, cost, discount, currency, archived,
 		created, last_edited, user_id) VALUES (iSaleTransactionId, iItemId, iUnitId, iUnitPrice, iQuantity, iCost, iDiscount,
         iCurrency, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
-END //
-DELIMITER ;
+END;
 
---
-DELIMITER //
+---
+
 CREATE PROCEDURE AddSalePayment(
 	IN iSaleTransactionId INTEGER,
     IN iAmount DECIMAL(19,2),
@@ -38,12 +38,10 @@ BEGIN
 	INSERT INTO sale_payment (sale_transaction_id, amount, method, currency, note_id,
 		created, last_edited, user_id) VALUES (iSaleTransactionId, iAmount, iMethod, iCurrency,
         @noteId, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddSaleTransaction(
 	IN iClientName VARCHAR(100),
     IN iClientId INTEGER,
@@ -66,12 +64,10 @@ BEGIN
         CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
 
     SELECT LAST_INSERT_ID() AS id;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ViewSaleTransactions(
 	IN iSuspended BOOLEAN,
     IN iArchived BOOLEAN,
@@ -87,22 +83,19 @@ BEGIN
         WHERE sale_transaction.suspended = iSuspended AND sale_transaction.archived = iArchived
         AND sale_transaction.created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
 									 AND IFNULL(iTo, CURRENT_TIMESTAMP()) ORDER BY created ASC;
-END //
-DELIMITER ;
+END;
 
---
-DELIMITER //
+---
+
 CREATE PROCEDURE IsSaleTransactionSuspended(
 	IN iTransactionId INTEGER
 )
 BEGIN
 	SELECT suspended FROM sale_transaction WHERE archived = 0 AND id = iTransactionId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ArchiveSaleTransaction(
 	IN iSaleTransactionId INTEGER,
     IN iUserId INTEGER
@@ -110,12 +103,10 @@ CREATE PROCEDURE ArchiveSaleTransaction(
 BEGIN
 	UPDATE sale_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iSaleTransactionId;
     UPDATE sale_item SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE sale_transaction_id = iSaleTransactionId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ViewSaleCart(
 	IN iTransactionId INTEGER,
     IN iSaleTransactionArchived BOOLEAN,
@@ -141,12 +132,10 @@ BEGIN
         LEFT JOIN note ON sale_item.note_id = note.id
         WHERE sale_transaction.id = iTransactionId AND sale_transaction.archived = iSaleTransactionArchived
         AND sale_item.archived = iSaleItemArchived;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ViewSaleTransactionItems(
 	IN iTransactionId INTEGER,
     IN iSuspended BOOLEAN,
@@ -165,12 +154,10 @@ BEGIN
         LEFT JOIN note ON sale_transaction.note_id = note.id
         WHERE sale_transaction_id = iTransactionId AND sale_transaction.suspended = iSuspended
         AND sale_transaction.archived = iArchived;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE `RevertSaleQuantityUpdate` (
 	IN iTransactionId INTEGER,
     IN iUserId INTEGER
@@ -182,12 +169,10 @@ BEGIN
         SET current_quantity.quantity = current_quantity.quantity + sale_item.quantity,
         current_quantity.last_edited = CURRENT_TIMESTAMP(), current_quantity.user_id = iUserId
 		WHERE sale_transaction.id = iTransactionId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE GetTotalRevenue (
 	IN iFrom DATE,
     IN iTo DATE
@@ -198,12 +183,10 @@ BEGIN
 		WHERE sale_transaction.suspended = 0 AND sale_transaction.archived = 0
 		AND DATE(sale_transaction.created) BETWEEN DATE(iFrom) AND DATE(iTo)
 		GROUP BY DATE(sale_transaction.created);
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE GetMostSoldItems (
 	IN iFrom DATETIME,
     IN iTo DATETIME,
@@ -219,5 +202,4 @@ BEGIN
 		GROUP BY sale_item.item_id
 		ORDER BY SUM(sale_item.quantity) DESC
 		LIMIT iLimit;
-END //
-DELIMITER ;
+END;

@@ -6,7 +6,6 @@ CREATE DATABASE ###DATABASENAME###;
 
 USE ###DATABASENAME###;
 
-START TRANSACTION;
 -- Create business details table
 CREATE TABLE business_details (
     id INT(11) NOT NULL AUTO_INCREMENT,
@@ -491,5 +490,3 @@ CREATE TABLE vendor (
     PRIMARY KEY (id),
     UNIQUE client_id (client_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-COMMIT;

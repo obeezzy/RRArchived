@@ -21,7 +21,8 @@ const QString CONNECTION_NAME("databasecreator");
 const QString INIT_SQL_FILE(":/sql/init.sql");
 const QString PROCEDURE_DIR(":/sql/procedures");
 
-const QString CREATE_PROCEDURE_PATTERN("(?<=DELIMITER \\/\\/).*(?=\\/\\/ DELIMITER ;)");
+const QString PROCEDURE_SEPARATOR("---");
+const QString SPACES_AND_TABS_PATTERN("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)"); // Replace comments and tabs and new lines with space
 const QString DATABASE_NAME_PATTERN("###DATABASENAME###");
 
 DatabaseCreator::DatabaseCreator(QSqlDatabase connection) :
@@ -183,17 +184,6 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
 
     // Drop procedures first
     QSqlQuery q(m_connection);
-    while (file.bytesAvailable()) {
-        QString sqlLine = file.readLine();
-        if (sqlLine.trimmed().startsWith("DROP PROCEDURE")) {
-            sqlLine = sqlLine.remove(';').remove('\n');
-            if (!q.exec(sqlLine))
-                throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
-                                        q.lastError().text(),
-                                        QString("Failed to execute query: %1").arg(sqlLine));
-        }
-    }
-
     // Now, create defined procedures
     file.seek(0);
     QString sqlData = file.readAll();
@@ -205,23 +195,21 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
     // Inject database name
     sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
 
-    // Replace comments and tabs and new lines with space
-    sqlData = sqlData.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",
-                                                 QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption), " ");
-    // Remove waste spaces
-    sqlData = sqlData.trimmed();
+    QStringList statements = sqlData.split(PROCEDURE_SEPARATOR);
+    for (auto &statement : statements) {
+        // Remove waste spaces
+        statement = statement.trimmed();
 
-    QRegularExpression expression(CREATE_PROCEDURE_PATTERN,
-                                  QRegularExpression::MultilineOption | QRegularExpression::DotMatchesEverythingOption);
-    QRegularExpressionMatch match = expression.match(sqlData);
-    if (match.hasMatch()) {
-        for (int i = 0; i < match.capturedLength(); ++i) {
-            if (!match.captured(i).trimmed().isEmpty()) {
-                if (!q.exec(match.captured(i).trimmed()))
-                    throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
-                                            q.lastError().text(),
-                                            QString("Failed to execute query: %1").arg(match.captured(i).trimmed()));
-            }
+        // Replace comments and tabs and new lines with space
+        statement = statement.replace(QRegularExpression(SPACES_AND_TABS_PATTERN,
+                                                     QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption), " ");
+        // Remove waste spaces
+        statement = statement.trimmed();
+
+        if (!q.exec(statement)) {
+            qDebug() << "Invalid statement=====" << statement;
+            throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+                                    QString("Failed to execute query: %1").arg(statement));
         }
     }
 }
