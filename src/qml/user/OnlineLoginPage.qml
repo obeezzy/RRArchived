@@ -34,7 +34,7 @@ RRUi.Page {
             RRUi.IconTextField {
                 id: emailAddressField
                 icon {
-                    name: "communication/email"
+                    source: FluidControls.Utils.iconUrl("communication/email")
                     size: 20
                 }
 
@@ -48,7 +48,7 @@ RRUi.Page {
             RRUi.IconTextField {
                 id: passwordField
                 icon {
-                    name: "action/lock"
+                    source: FluidControls.Utils.iconUrl("action/lock")
                     size: 20
                 }
 

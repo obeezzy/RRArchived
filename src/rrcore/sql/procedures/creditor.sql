@@ -1,7 +1,8 @@
 
 USE ###DATABASENAME###;
 
-DELIMITER //
+---
+
 CREATE PROCEDURE AddCreditor(
 	IN iClientId INTEGER,
     IN iNoteId INTEGER,
@@ -11,12 +12,10 @@ BEGIN
 	INSERT INTO creditor (client_id, note_id, archived, created, last_edited, user_id)
 		VALUES (iClientId, iNoteId, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
 	SELECT LAST_INSERT_ID() AS id;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddCreditPayment(
 	IN iCreditTransactionId INTEGER,
     IN iTotalAmount DECIMAL(19,2),
@@ -32,12 +31,10 @@ BEGIN
 		archived, created, last_edited, user_id) VALUES (iCreditTransactionId, iTotalAmount, iAmountPaid, iBalance, 
 		iCurrency, iDueDate, iNoteId, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
 	SELECT LAST_INSERT_ID() AS id;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddCreditTransaction(
 	IN iCreditorId INTEGER,
     IN iTransactionTable VARCHAR(20),
@@ -50,12 +47,10 @@ BEGIN
 		VALUES (iCreditorId, iTransactionTable, iTransactionId, iNoteId, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
 
 	SELECT LAST_INSERT_ID() AS id;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ArchiveCreditTransaction(
 	IN iTransactionTable VARCHAR(40),
     IN iTransactionId INTEGER,
@@ -64,5 +59,4 @@ CREATE PROCEDURE ArchiveCreditTransaction(
 BEGIN
 	UPDATE credit_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
 		WHERE transaction_table = iTransactionTable AND transaction_id = iTransactionId;
-END //
-DELIMITER ;
+END;

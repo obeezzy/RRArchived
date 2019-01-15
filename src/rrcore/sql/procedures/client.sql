@@ -1,6 +1,7 @@
 USE ###DATABASENAME###;
 
-DELIMITER //
+---
+
 CREATE PROCEDURE ViewClients(
     IN iFilterColumn VARCHAR(100),
     IN iFilterText VARCHAR(100),
@@ -23,12 +24,10 @@ BEGIN
         INTO oClientId, oPreferredName, oPhoneNumber FROM client
         WHERE client.archived = iArchived;
    END IF;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddClient (
 	IN iFirstName VARCHAR(100),
     IN iLastName VARCHAR(100),
@@ -47,12 +46,10 @@ BEGIN
 	ELSE
 		SELECT id FROM client WHERE phone_number = iPhoneNumber;
 	END IF;
-END //
-DELIMTER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE AddClientQuick (
     IN iPreferredName VARCHAR(100),
     IN iPhoneNumber VARCHAR(20),
@@ -66,24 +63,20 @@ BEGIN
         ) LIMIT 1;
 
     SELECT id FROM client WHERE phone_number = iPhoneNumber;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE ArchiveClient (
 	IN iClientId INTEGER,
     IN iUserId INTEGER
 )
 BEGIN
 	UPDATE client SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iClientId;
-END //
-DELIMITER ;
+END;
 
---
+---
 
-DELIMITER //
 CREATE PROCEDURE UpdateClient (
 	IN iClientId INTEGER,
 	IN iFirstName VARCHAR(100),
@@ -97,5 +90,4 @@ BEGIN
 		preferred_name = iPreferredName, phone_number = iPhoneNumber,
         last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
 		WHERE id = iClientId;
-END //
-DELIMITER ;
+END;

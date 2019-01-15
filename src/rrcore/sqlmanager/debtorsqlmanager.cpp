@@ -657,7 +657,7 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
 
         // STEP: Remove debt transactions.
         for (int i = 0; i < removedDebtTransactionIds.count(); ++i) {
-            callProcedure("ArchiveDebtTransaction", {
+            callProcedure("ArchiveDebtTransaction2", {
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "debt_transaction_id",
@@ -786,7 +786,7 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
                       });
 
         // Archive debt transactions.
-        callProcedure("ArchiveDebtTransaction", {
+        callProcedure("ArchiveDebtTransaction3", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "debtor_id",
