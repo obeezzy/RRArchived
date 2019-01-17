@@ -5,7 +5,8 @@ QT += core qml quick quickcontrols2 sql svg printsupport
 CONFIG += c++14
 
 RESOURCES += sql/sql.qrc \
-    config/config.qrc
+    config/config.qrc \
+    json/json.qrc
 
 INCLUDEPATH += .
 
@@ -54,7 +55,9 @@ SOURCES += \
     qmlapi/qmldebtordetailrecord.cpp \
     models/salepaymentmodel.cpp \
     qmlapi/qmldatabasecreator.cpp \
-    config/config.cpp
+    config/config.cpp \
+    json/messagecenter.cpp \
+    models/abstracthomemodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -103,4 +106,6 @@ HEADERS += \
     utility/saleutils.h \
     models/salepaymentmodel.h \
     qmlapi/qmldatabasecreator.h \
-    config/config.h
+    config/config.h \
+    json/messagecenter.h \
+    models/abstracthomemodel.h

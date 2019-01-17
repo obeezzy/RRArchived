@@ -30,13 +30,10 @@ QVariant SalePaymentModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case AmountRole:
         return m_salePayments.at(index.row())->amount;
-        break;
     case MethodRole:
         return static_cast<int>(m_salePayments.at(index.row())->method);
-        break;
     case NoteRole:
         return m_salePayments.at(index.row())->note;
-        break;
     }
 
     return QVariant();

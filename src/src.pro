@@ -14,4 +14,5 @@ SOURCES += main.cpp \
 HEADERS += plugins.h
 
 RESOURCES += qml/qml.qrc \
-    icons/icons.qrc
+    icons/icons.qrc \
+    images.qrc

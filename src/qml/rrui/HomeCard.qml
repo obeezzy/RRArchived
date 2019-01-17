@@ -7,14 +7,17 @@ import QtQuick.Controls.Material 2.3
 FluidControls.Card {
     id: homeCard
 
-    property string title: ""
+    property string cardTitle: ""
     property string subtitle: ""
+    property string shortDescription: ""
+    property url imageUrl: ""
+    property string primaryAction: ""
     property var model: null
     property bool dismissable: true
     default property alias content: dataColumn.data
 
-    signal viewButtonClicked
-    signal dismissButtonClicked
+    signal viewRequested(string action)
+    signal dismissRequested
 
     implicitWidth: 200
     implicitHeight: dataColumn.height + topPadding + bottomPadding + buttonRow.height
@@ -33,8 +36,14 @@ FluidControls.Card {
                 left: parent.left
                 right: parent.right
             }
-            text: homeCard.title
+            text: homeCard.cardTitle
             visible: text != ""
+        }
+
+        Image {
+            anchors.horizontalCenter: parent.horizontalCenter
+            source: homeCard.imageUrl
+            fillMode: Image.PreserveAspectFit
         }
 
         FluidControls.SubheadingLabel {
@@ -45,6 +54,19 @@ FluidControls.Card {
             text: homeCard.subtitle
             color: "darkgray"
             visible: text != ""
+        }
+
+        Item { width: 1; height: 16 }
+
+        FluidControls.BodyLabel {
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            text: homeCard.shortDescription
+            visible: text != ""
+            wrapMode: Text.WordWrap
+            maximumLineCount: 6
         }
     }
 
@@ -61,13 +83,13 @@ FluidControls.Card {
             flat: true
             visible: homeCard.dismissable
             text: qsTr("Dismiss")
-            onClicked: homeCard.dismissButtonClicked();
+            onClicked: homeCard.dismissRequested();
         }
 
         QQC2.Button {
             flat: true
             text: qsTr("View")
-            onClicked: homeCard.viewButtonClicked();
+            onClicked: homeCard.viewRequested(primaryAction);
         }
     }
 }
