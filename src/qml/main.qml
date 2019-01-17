@@ -41,4 +41,13 @@ RRUi.ApplicationWindow {
             onLoggedIn: mainWindow.pageStack.replace(sidebar.model.get(0).fileName);
         }
     }
+
+    Connections {
+        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ?
+                    mainWindow.pageStack.currentItem : null
+        onLinkActivated: {
+            sidebar.currentIndex = sidebar.findIndexFromFileName(Array.isArray(link) ? link[0] : link);
+            mainWindow.pageStack.replace(link, properties);
+        }
+    }
 }

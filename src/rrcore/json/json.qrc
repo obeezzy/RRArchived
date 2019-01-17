@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/json">
+        <file>messages.json</file>
+    </qresource>
+</RCC>

@@ -2,27 +2,16 @@
 #define QMLDASHBOARDHOMEMODEL_H
 
 #include <QObject>
-#include <QAbstractListModel>
+#include "models/abstracthomemodel.h"
 
-#include "database/queryrequest.h"
-#include "database/queryresult.h"
-
-class DatabaseThread;
-
-class QMLDashboardHomeModel : public QAbstractListModel
+class QMLDashboardHomeModel : public AbstractHomeModel
 {
     Q_OBJECT
 public:
     explicit QMLDashboardHomeModel(QObject *parent = nullptr);
     explicit QMLDashboardHomeModel(DatabaseThread &thread);
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
-signals:
-    void sendRequest(const QueryRequest request);
-private:
-    void startQuery();
-    void processResult(const QueryResult result);
+protected:
+    void tryQuery() override;
 };
 
 #endif // QMLDASHBOARDHOMEMODEL_H

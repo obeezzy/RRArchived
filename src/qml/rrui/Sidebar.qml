@@ -10,6 +10,15 @@ FluidControls.Sidebar {
     property int currentIndex: 0
     readonly property ListModel model: NavMenuModel { }
 
+    function findIndexFromFileName(fileName) {
+        for (var i = 0; i < sidebar.model.count; ++i) {
+            if (fileName === sidebar.model.get(i).fileName)
+                return i;
+        }
+
+        return -1;
+    }
+
     width: 220
 
     Column {
