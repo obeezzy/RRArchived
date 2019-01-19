@@ -9,7 +9,7 @@ import "../../rrui" as RRUi
 RRUi.HomeCard {
     id: mostSoldItemCard
 
-    title: qsTr("Top sold items today")
+    cardTitle: qsTr("Top sold items today")
     subtitle: qsTr("Top 5")
     bottomPadding: 4
 
@@ -67,7 +67,7 @@ RRUi.HomeCard {
 
         RRUi.ChartTableView {
             QQLayouts.Layout.fillWidth: true
-            anchors.verticalCenter: chartView.verticalCenter
+            QQLayouts.Layout.alignment: Qt.AlignHCenter
             height: contentHeight
             model: mostSoldItemCard.model
             interactive: false

@@ -13,8 +13,10 @@ public:
     enum Role {
         TitleRole = Qt::UserRole,
         ImageUrlRole,
+        IconUrlRole,
         ShortDescriptionRole,
-        LongDescriptionRole
+        LongDescriptionRole,
+        BreadcrumbsRole
     };
     explicit AbstractHomeModel(QObject *parent = nullptr);
     explicit AbstractHomeModel(DatabaseThread &thread);

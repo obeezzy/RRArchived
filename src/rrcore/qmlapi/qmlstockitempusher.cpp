@@ -267,7 +267,7 @@ void QMLStockItemPusher::processResult(const QueryResult result)
             emit success(UpdateItemSuccess);
     } else {
         switch (result.errorCode()) {
-        case int(DatabaseException::RRErrorCode::DuplicateEntryFailure):
+        case static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException):
             emit error(DuplicateEntryError);
             break;
         default:

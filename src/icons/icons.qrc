@@ -1,7 +1,24 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/icons">
         <file>exclamation.svg</file>
         <file>shape.svg</file>
         <file>truck.svg</file>
+        <file>book-open-variant.svg</file>
+        <file>cube-outline.svg</file>
+        <file>file-document-box-outline.svg</file>
+        <file>shopping.svg</file>
+        <file>tag.svg</file>
+        <file>bottle-wine.svg</file>
+        <file>account-star.svg</file>
+        <file>account-star-outline.svg</file>
+        <file>cart.svg</file>
+        <file>cash-multiple.svg</file>
+        <file>cloud-upload.svg</file>
+        <file>coin.svg</file>
+        <file>file-document-box-multiple-outline.svg</file>
+        <file>home.svg</file>
+        <file>tune.svg</file>
+        <file>wallet.svg</file>
+        <file>notifications.svg</file>
     </qresource>
 </RCC>

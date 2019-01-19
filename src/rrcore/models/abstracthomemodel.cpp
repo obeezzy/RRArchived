@@ -35,10 +35,14 @@ QVariant AbstractHomeModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("title").toString();
     case ImageUrlRole:
         return m_records.at(index.row()).toMap().value("image_url").toString();
+    case IconUrlRole:
+        return m_records.at(index.row()).toMap().value("icon_url").toString();
     case ShortDescriptionRole:
         return m_records.at(index.row()).toMap().value("short_description").toString();
     case LongDescriptionRole:
         return m_records.at(index.row()).toMap().value("long_description").toString();
+    case BreadcrumbsRole:
+        return m_records.at(index.row()).toMap().value("breadcrumbs").toList();
     }
 
     return QVariant();
@@ -49,8 +53,10 @@ QHash<int, QByteArray> AbstractHomeModel::roleNames() const
     return {
         { TitleRole, "title" },
         { ImageUrlRole, "image_url" },
+        { IconUrlRole, "icon_url" },
         { ShortDescriptionRole, "short_description" },
-        { LongDescriptionRole, "long_description" }
+        { LongDescriptionRole, "long_description" },
+        { BreadcrumbsRole, "breadcrumbs" }
     };
 }
 

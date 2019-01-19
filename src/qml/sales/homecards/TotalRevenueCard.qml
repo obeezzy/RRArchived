@@ -10,7 +10,7 @@ import "../../singletons"
 RRUi.HomeCard {
     id: totalRevenueCard
 
-    title: qsTr("Total revenue made for the week")
+    cardTitle: qsTr("Total revenue made for the week")
     subtitle: qsTr("Revenue for week")
 
     QQLayouts.RowLayout {

@@ -254,3 +254,22 @@ BEGIN
 		WHERE debtor.id = iDebtorId AND debt_transaction.archived = iArchived
 		ORDER BY debt_payment.last_edited ASC;
 END;
+
+---
+
+CREATE PROCEDURE ViewDebtors (
+	IN iArchived INTEGER
+)
+BEGIN
+	SELECT debtor.client_id, debtor.id AS debtor_id, client.preferred_name AS preferred_name,
+		debt_payment.balance AS total_debt, debtor.archived,
+        MAX(debt_payment.last_edited) FROM debt_payment
+        INNER JOIN debt_transaction ON debt_transaction.id = debt_payment.debt_transaction_id
+		INNER JOIN debtor ON debtor.id = debt_transaction.debtor_id
+        INNER JOIN client ON client.id = debtor.client_id
+		WHERE debt_transaction.archived = IFNULL(iArchived, FALSE)
+        GROUP BY debtor.id, debt_payment.balance,
+        debt_payment.last_edited, debt_transaction.archived
+        HAVING MAX(debt_payment.last_edited) = debt_payment.last_edited
+        AND debt_transaction.archived = IFNULL(iArchived, FALSE);
+END;

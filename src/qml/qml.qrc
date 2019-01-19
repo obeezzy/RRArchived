@@ -90,5 +90,7 @@
         <file>user/OnlineLoginPage.qml</file>
         <file>user/BusinessSelectionPage.qml</file>
         <file>user/BusinessDetailPage.qml</file>
+        <file>rrui/HomeListViewBase.qml</file>
+        <file>common/DashboardListView.qml</file>
     </qresource>
 </RCC>
