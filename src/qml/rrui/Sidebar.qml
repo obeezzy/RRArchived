@@ -44,7 +44,7 @@ FluidControls.Sidebar {
 
                         FluidControls.Icon {
                             anchors.verticalCenter: parent.verticalCenter
-                            source: iconName ? FluidControls.Utils.iconUrl(iconName) : ""
+                            source: iconUrl
                         }
 
                         FluidControls.SubheadingLabel {

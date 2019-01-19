@@ -17,63 +17,15 @@ RRUi.Page {
     leftPadding: 20
     rightPadding: 20
 
-    ListView {
+    DashboardListView {
         id: listView
         anchors {
             top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
         }
-        width: 800
-        topMargin: 20
-        bottomMargin: 20
-        spacing: 24
 
-        model: RRModels.DashboardHomeModel { }
-
-        delegate: RRUi.HomeCard {
-            width: ListView.view.width
-            cardTitle: title
-            shortDescription: short_description
-            imageUrl: image_url
-
-            onViewRequested: {
-                dashboardPage.linkActivated(["stock/HomePage.qml", "stock/NewItemPage.qml"], { });
-            }
-        }
-
-        populate: Transition {
-            id: populateTransition
-
-            SequentialAnimation {
-                PropertyAction {
-                    property: "y"
-                    value: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
-                }
-
-                PropertyAction {
-                    property: "opacity"
-                    value: .01
-                }
-
-                PauseAnimation { duration: 600 }
-                ParallelAnimation {
-                    YAnimator {
-                        duration: 300
-                        from: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
-                        to: populateTransition.ViewTransition.destination.y
-                        easing.type: Easing.OutCubic
-                    }
-
-                    NumberAnimation {
-                        property: "opacity"
-                        duration: 300
-                        to: 1
-                        easing.type: Easing.OutCubic
-                    }
-                }
-            }
-        }
+        onViewRequested: dashboardPage.linkActivated(breadcrumbs, { });
     }
 
     FluidControls.Placeholder {

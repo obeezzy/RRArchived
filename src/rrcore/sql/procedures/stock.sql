@@ -137,7 +137,7 @@ END;
 
 ---
 
-CREATE PROCEDURE AddStockItem(
+CREATE PROCEDURE AddStockItem (
 	IN iCategoryId INTEGER,
     IN iItem VARCHAR(200),
     IN iShortForm VARCHAR(10),
@@ -149,6 +149,13 @@ CREATE PROCEDURE AddStockItem(
     IN iUserId INTEGER
 )
 BEGIN
+    SET @itemAlreadyExists := NULL;
+    SELECT id INTO @itemAlreadyExists FROM item WHERE LOWER(item) = LOWER(iItem) AND archived = FALSE;
+    IF @itemAlreadyExists IS NOT NULL THEN
+        SIGNAL SQLSTATE '80001'
+            SET MESSAGE_TEXT = 'Product already exists.';
+    END IF;
+
 	INSERT INTO item (category_id, item, short_form, description, barcode, divisible, image,
 		note_id, archived, created, last_edited, user_id)
 		VALUES (iCategoryId, iItem, iShortForm, iDescription, iBarcode, iDivisible, iImage,
@@ -165,7 +172,7 @@ END;
 
 CREATE PROCEDURE AddStockUnit (
 	IN iItemId INTEGER,
-    IN iUnit INTEGER,
+    IN iUnit VARCHAR(100),
     IN iShortForm VARCHAR(10),
     IN iBaseUnitEquivalent INTEGER,
     IN iCostPrice DECIMAL(19,2),
@@ -236,7 +243,7 @@ CREATE PROCEDURE UpdateStockItem (
     IN iDivisible BOOLEAN,
     IN iImage BLOB,
     IN iNoteId INTEGER,
-    IN iUser INTEGER
+    IN iUserId INTEGER
 )
 BEGIN
 	UPDATE item SET category_id = iCategoryId, item = iItem, short_form = iShortForm, description = iDescription,
@@ -265,4 +272,38 @@ BEGIN
 		base_unit_equivalent = iBaseUnitEquivalent, cost_price = iCostPrice, retail_price = iRetailPrice,
         preferred = iPreferred, currency = iCurrency, note_id = iNoteId, archived = FALSE,
         last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE item_id = iItemId;
+END;
+
+---
+
+CREATE PROCEDURE ArchiveStockItem(
+	IN iItemId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	UPDATE item SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iItemId;
+	SELECT category.id as category_id, item.id as item_id FROM item 
+		INNER JOIN category ON item.category_id = category.id
+		WHERE item.id = iItemId;
+END;
+
+---
+
+CREATE PROCEDURE UndoArchiveStockItem(
+	IN iItemId INTEGER,
+    IN iUserId INTEGER
+)
+BEGIN
+	UPDATE item SET archived = 0, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iItemId;
+	SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description,
+		item.divisible, item.image, current_quantity.quantity,
+		unit.id as unit_id, unit.unit, unit.cost_price,
+		unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, item.user_id AS user
+		FROM item
+		INNER JOIN category ON item.category_id = category.id
+		INNER JOIN unit ON item.id = unit.item_id
+		INNER JOIN current_quantity ON item.id = current_quantity.item_id
+		LEFT JOIN user ON item.user_id = iUserId
+		WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
+		AND item.id = iItemId;
 END;

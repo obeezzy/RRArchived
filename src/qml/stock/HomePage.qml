@@ -26,8 +26,6 @@ RRUi.Page {
         }
     ]
 
-    background: Rectangle { }
-
     QtObject {
         id: privateProperties
 
@@ -37,97 +35,124 @@ RRUi.Page {
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
 
-    RRUi.SearchBar {
-        id: searchBar
+    Rectangle {
+        width: 800
         anchors {
+            horizontalCenter: parent.horizontalCenter
             top: parent.top
-            left: parent.left
-            right: parent.right
-        }
-    }
-
-    RRUi.ChipListView {
-        id: filterChipListView
-        height: 30
-        anchors {
-            top: searchBar.bottom
-            left: parent.left
-            right: parent.right
-        }
-
-        model: [
-            privateProperties.filterModel[privateProperties.filterIndex],
-            privateProperties.sortModel[privateProperties.sortIndex]
-        ]
-
-        onClicked: {
-            switch (index) {
-            case 0:
-                filterColumnDialogLoader.active = true;
-                break;
-            case 1:
-                sortOrderDialogLoader.active = true;
-                break;
-            }
-        }
-    }
-
-    FluidControls.SubheadingLabel {
-        anchors {
-            top: searchBar.bottom
-            right: parent.right
-        }
-        text: qsTr("%1 result%2 found.").arg(categoryListView.model.totalItems).arg(categoryListView.model.totalItems === 1 ? "" : "s")
-        font.bold: true
-    }
-
-    CategoryListView {
-        id: categoryListView
-        anchors {
-            top: filterChipListView.bottom
-            left: parent.left
-            right: parent.right
             bottom: parent.bottom
         }
 
-        filterText: searchBar.text
-        filterColumn: RRModels.StockCategoryItemModel.ItemColumn
-        bottomMargin: 100
-
-        buttonRow: Row {
-            spacing: 0
-
-            RRUi.ToolButton {
-                id: viewButton
-                icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
-                text: qsTr("View details")
-                onClicked: itemDetailPopup.show(modelData.item_id);
-            }
-
-            RRUi.ToolButton {
-                id: editButton
-                icon.source: FluidControls.Utils.iconUrl("image/edit")
-                text: qsTr("Edit item")
-                onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"), { "itemId": modelData.item_id });
-            }
-
-            RRUi.ToolButton {
-                id: deleteButton
-                icon.source: FluidControls.Utils.iconUrl("action/delete")
-                text: qsTr("Delete item")
-                onClicked: categoryListView.model.removeItem(modelData.item_id);
+        RRUi.SearchBar {
+            id: searchBar
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                margins: 8
             }
         }
 
-        onSuccess: {
-            switch (successCode) {
-            case RRModels.StockCategoryItemModel.RemoveItemSuccess:
-                homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
-                break;
-            case RRModels.StockCategoryItemModel.UndoRemoveItemSuccess:
-                homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful."));
-                break;
+        RRUi.ChipListView {
+            id: filterChipListView
+            height: 30
+            anchors {
+                top: searchBar.bottom
+                left: parent.left
+                right: parent.right
+                margins: 8
             }
+
+            model: [
+                privateProperties.filterModel[privateProperties.filterIndex],
+                privateProperties.sortModel[privateProperties.sortIndex]
+            ]
+
+            onClicked: {
+                switch (index) {
+                case 0:
+                    filterColumnDialogLoader.active = true;
+                    break;
+                case 1:
+                    sortOrderDialogLoader.active = true;
+                    break;
+                }
+            }
+        }
+
+        FluidControls.SubheadingLabel {
+            anchors {
+                top: searchBar.bottom
+                right: categoryListView.right
+                margins: 8
+            }
+            //visible: searchBar.text.trim() != ""
+            text: qsTr("%1 result%2 found.").arg(categoryListView.model.totalItems).arg(categoryListView.model.totalItems === 1 ? "" : "s")
+            font.bold: true
+        }
+
+        CategoryListView {
+            id: categoryListView
+            anchors {
+                top: filterChipListView.bottom
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+                margins: 8
+            }
+
+            filterText: searchBar.text
+            filterColumn: RRModels.StockCategoryItemModel.ItemColumn
+            bottomMargin: 100
+            clip: true
+
+            buttonRow: Row {
+                spacing: 0
+
+                RRUi.ToolButton {
+                    id: viewButton
+                    icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
+                    text: qsTr("View details")
+                    onClicked: itemDetailPopup.show(modelData.item_id);
+                }
+
+                RRUi.ToolButton {
+                    id: editButton
+                    icon.source: FluidControls.Utils.iconUrl("image/edit")
+                    text: qsTr("Edit item")
+                    onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"), { "itemId": modelData.item_id });
+                }
+
+                RRUi.ToolButton {
+                    id: deleteButton
+                    icon.source: FluidControls.Utils.iconUrl("action/delete")
+                    text: qsTr("Delete item")
+                    onClicked: categoryListView.model.removeItem(modelData.item_id);
+                }
+            }
+
+            onSuccess: {
+                switch (successCode) {
+                case RRModels.StockCategoryItemModel.RemoveItemSuccess:
+                    homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
+                    break;
+                case RRModels.StockCategoryItemModel.UndoRemoveItemSuccess:
+                    homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful."));
+                    break;
+                }
+            }
+        }
+
+        RRUi.FloatingActionButton {
+            anchors {
+                right: parent.right
+                bottom: parent.bottom
+                margins: 24
+            }
+
+            text: qsTr("New product")
+            icon.source: FluidControls.Utils.iconUrl("content/add")
+            onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"));
         }
     }
 
@@ -147,18 +172,6 @@ RRUi.Page {
             close();
             homePage.push(Qt.resolvedUrl("NewItemPage.qml"), { "itemId": itemId });
         }
-    }
-
-    RRUi.FloatingActionButton {
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            margins: 24
-        }
-
-        text: qsTr("New stock item")
-        icon.source: FluidControls.Utils.iconUrl("content/add")
-        onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"));
     }
 
     FluidControls.BottomSheetList {
@@ -190,7 +203,7 @@ RRUi.Page {
         visible: categoryListView.count == 0 && searchBar.text === ""
         anchors.centerIn: parent
         icon.source: Qt.resolvedUrl("qrc:/truck.svg")
-        text: qsTr("No items available.")
+        text: qsTr("No products available.")
     }
 
     QQC2.StackView.onActivating: {

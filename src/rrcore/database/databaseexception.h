@@ -54,17 +54,18 @@ public:
     };
 
     enum class MySqlErrorCode {
-        DuplicateEntryError = 1062
+        DuplicateEntryError = 1062,
+        UserDefinedException = 1644
     };
     explicit DatabaseException(int errorCode);
     explicit DatabaseException(RRErrorCode errorCode, const QString &message, const QString &userMessage = "");
     explicit DatabaseException(int errorCode, const QString &message, const QString &userMessage = "");
-    ~DatabaseException() throw ();
+    ~DatabaseException() override;
 
     int code() const;
     QString message() const;
     QString userMessage() const;
-    const char *what() const throw () override final;
+    const char *what() const noexcept override final;
 private:
     int m_code;
     QString m_message;

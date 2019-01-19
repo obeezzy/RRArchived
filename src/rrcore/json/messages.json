@@ -3,6 +3,8 @@
         "title": "No products in inventory",
         "short_description": "You have not set up any products for sale. Press the button below to get started!",
         "long_description": "Long description",
+        "icon_url": "qrc:/icons/truck.svg",
+        "breadcrumbs": ["stock/HomePage.qml", "stock/NewItemPage.qml"],
         "actions": [
             "view",
             "cancel"
@@ -14,6 +16,7 @@
         "short_description": "Hi customer! Thank you for choosing Record Rack. We are very happy to welcome you to this amazing community of people that are targeted at making you as profitable as possible. Please don't forget to rate your experience on our website. Also, feel free to contact our staff for help. Enjoy!",
         "long_description": "Long description",
         "image_url": "qrc:/images/images/logo.png",
+        "icon_url": "qrc:/icons/notifications.svg",
         "actions": [
             "view",
             "cancel"

@@ -25,6 +25,7 @@ RRUi.Page {
 
     contentItem: Item {
         HomeListView {
+            id: homeListView
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top
@@ -34,8 +35,8 @@ RRUi.Page {
 
         RRUi.FloatingActionButton {
             anchors {
-                right: parent.right
-                bottom: parent.bottom
+                right: homeListView.right
+                bottom: homeListView.bottom
                 margins: 24
             }
 
@@ -65,6 +66,7 @@ RRUi.Page {
     }
 
     FluidControls.Placeholder {
+        visible: homeListView.count == 0
         anchors.centerIn: parent
         icon.source: FluidControls.Utils.iconUrl("editor/bubble_chart")
         text: qsTr("No data available.")

@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDateTime>
 
 AbstractSqlManager::AbstractSqlManager(const QString &connectionName) :
     m_connectionName(connectionName)
@@ -87,11 +88,14 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
             else if (argument.value.type() == QVariant::Bool)
                 sqlArguments.append(argument.value.toBool() ? "1" : "0");
             else if (argument.value.type() == QVariant::String
-                     || argument.value.type() == QVariant::ByteArray
-                     || argument.value.type() == QVariant::DateTime
-                     || argument.value.type() == QVariant::Date
-                     || argument.value.type() == QVariant::Time)
+                     || argument.value.type() == QVariant::ByteArray)
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toString().replace("'", "\\'")));
+            else if (argument.value.type() == QVariant::DateTime)
+                sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toDateTime().toString("yyyy-MM-dd hh:mm:ss").replace("'", "\\'")));
+            else if (argument.value.type() == QVariant::Date)
+                sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toDateTime().toString("yyyy-MM-dd").replace("'", "\\'")));
+            else if (argument.value.type() == QVariant::Time)
+                sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toDateTime().toString("hh:mm:ss").replace("'", "\\'")));
             else
                 sqlArguments.append(argument.value.toString());
             break;
@@ -122,10 +126,16 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
 
     const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
     qInfo() << "Procedure syntax: " << storedProcedure;
-    if (!q.exec(storedProcedure))
-        throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
-                                q.lastError().text(),
-                                QStringLiteral("Procedure '%1' failed.").arg(procedure));
+    if (!q.exec(storedProcedure)) {
+        if (q.lastError().number() >= static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException))
+            throw DatabaseException(q.lastError().number(),
+                                    q.lastError().text(),
+                                    q.lastError().databaseText());
+        else
+            throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
+                                    q.lastError().text(),
+                                    QStringLiteral("Procedure '%1' failed.").arg(procedure));
+    }
 
     if (!selectStatementSuffixes.isEmpty()) {
         if (!q.exec(QStringLiteral("SELECT %1").arg(selectStatementSuffixes.join(", "))))

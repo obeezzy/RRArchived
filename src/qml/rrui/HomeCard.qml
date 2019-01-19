@@ -11,12 +11,13 @@ FluidControls.Card {
     property string subtitle: ""
     property string shortDescription: ""
     property url imageUrl: ""
-    property string primaryAction: ""
+    property url iconUrl: ""
+    property var breadcrumb: []
     property var model: null
     property bool dismissable: true
     default property alias content: dataColumn.data
 
-    signal viewRequested(string action)
+    signal viewRequested(var breadcrumbs)
     signal dismissRequested
 
     implicitWidth: 200
@@ -38,6 +39,18 @@ FluidControls.Card {
             }
             text: homeCard.cardTitle
             visible: text != ""
+
+            FluidControls.Icon {
+                anchors {
+                    margins: 2
+                    right: parent.right
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+
+                source: homeCard.iconUrl
+                width: height
+            }
         }
 
         Image {
@@ -89,7 +102,7 @@ FluidControls.Card {
         QQC2.Button {
             flat: true
             text: qsTr("View")
-            onClicked: homeCard.viewRequested(primaryAction);
+            onClicked: homeCard.viewRequested(homeCard.breadcrumb);
         }
     }
 }

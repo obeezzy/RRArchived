@@ -451,7 +451,7 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "preferred",
-                              params.value("preferred")
+                              params.value("preferred", true)
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,

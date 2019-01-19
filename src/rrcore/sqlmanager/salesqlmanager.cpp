@@ -796,7 +796,7 @@ void SaleSqlManager::viewSaleHome(const QueryRequest &request, QueryResult &resu
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
                                                                   "from_date_time",
-                                                                  params.value("from_date_time", QDateTime(QDate(currentYear, 0, 0), QTime(0, 0)))
+                                                                  params.value("from_date_time", QDateTime(QDate(currentYear, 1, 1), QTime(0, 0)))
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
@@ -805,7 +805,7 @@ void SaleSqlManager::viewSaleHome(const QueryRequest &request, QueryResult &resu
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
-                                                                  "to_date_time",
+                                                                  "limit",
                                                                   params.value("limit", params.value("limit", 5))
                                                               }
                                                           }));

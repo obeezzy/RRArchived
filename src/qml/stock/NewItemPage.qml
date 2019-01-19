@@ -155,7 +155,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
+                                        source: Qt.resolvedUrl("qrc:/icons/shape.svg")
                                     }
 
                                     Item { width: 12; height: 1 }
@@ -229,7 +229,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
+                                        source: Qt.resolvedUrl("qrc:/icons/shopping.svg")
                                     }
 
                                     RRUi.TextField {
@@ -244,7 +244,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
+                                        source: Qt.resolvedUrl("qrc:/icons/book-open-variant.svg")
                                     }
 
                                     RRUi.TextField {
@@ -268,7 +268,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        source: FluidControls.Utils.iconUrl("communication/vpn_key")
+                                        source: Qt.resolvedUrl("qrc:/icons/cube-outline.svg")
                                     }
 
                                     QQC2.SpinBox {
@@ -316,7 +316,7 @@ RRUi.Page {
 
                                     FluidControls.Icon {
                                         anchors.verticalCenter: parent.verticalCenter
-                                        source: FluidControls.Utils.iconUrl("editor/attach_money")
+                                        source: Qt.resolvedUrl("qrc:/icons/tag.svg")
                                     }
 
                                     QQC2.SpinBox {
@@ -379,7 +379,10 @@ RRUi.Page {
                         onError: {
                             switch (errorCode) {
                             case RRModels.StockItemPusher.InsertFailed:
-                                failureAlertDialogLoader.message = qsTr("Item could not be inserted into the database.");
+                                failureAlertDialogLoader.message = qsTr("Product could not be inserted into the database.");
+                                break;
+                            case RRModels.StockItemPusher.DuplicateEntryError:
+                                failureAlertDialogLoader.message = qsTr("A product of the same name already exists.");
                                 break;
                             default:
                                 failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");

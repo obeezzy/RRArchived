@@ -3,61 +3,61 @@ import QtQuick 2.12
 ListModel {
     ListElement {
         title: qsTr("Dashboard")
-        iconName: "action/home"
+        iconUrl: "qrc:/icons/home.svg"
         fileName: "common/DashboardPage.qml"
     }
 
     ListElement {
         title: qsTr("Stock")
-        iconName: "editor/pie_chart"
+        iconUrl: "qrc:/icons/truck.svg"
         fileName: "stock/HomePage.qml"
     }
 
     ListElement {
         title: qsTr("Sales")
-        iconName: ""
+        iconUrl: "qrc:/icons/coin.svg"
         fileName: "sales/HomePage.qml"
     }
 
     ListElement {
         title: qsTr("Purchases")
-        iconName: ""
+        iconUrl: "qrc:/icons/cart.svg"
         fileName: "common/DashboardPage.qml"
     }
 
     ListElement {
         title: qsTr("Income")
-        iconName: ""
+        iconUrl: "qrc:/icons/cash-multiple.svg"
         fileName: "common/DashboardPage.qml"
     }
 
     ListElement {
         title: qsTr("Expenses")
-        iconName: ""
+        iconUrl: "qrc:/icons/wallet.svg"
         fileName: "common/DashboardPage.qml"
     }
 
     ListElement {
         title: qsTr("Debtors")
-        iconName: ""
+        iconUrl: "qrc:/icons/account-star.svg"
         fileName: "people/debtor/HomePage.qml"
     }
 
     ListElement {
         title: qsTr("Creditors")
-        iconName: ""
+        iconUrl: "qrc:/icons/account-star-outline.svg"
         fileName: "common/DashboardPage.qml"
     }
 
     ListElement {
         title: qsTr("Upload")
-        iconName: ""
+        iconUrl: "qrc:/icons/cloud-upload.svg"
         fileName: "common/DashboardPage.qml"
     }
 
     ListElement {
         title: qsTr("Settings")
-        iconName: ""
+        iconUrl: "qrc:/icons/tune.svg"
         fileName: "common/DashboardPage.qml"
     }
 }

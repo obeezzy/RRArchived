@@ -150,7 +150,7 @@ CREATE TABLE debt_payment (
     balance DECIMAL(19,2) NOT NULL,
     currency VARCHAR(4) NOT NULL,
     due_date DATETIME NOT NULL,
-    note_id INT(11) NOT NULL,
+    note_id INT(11) DEFAULT NULL,
     archived TINYINT NOT NULL,
     created DATETIME NOT NULL,
     last_edited DATETIME NOT NULL,
@@ -300,7 +300,6 @@ CREATE TABLE item (
     last_edited DATETIME NOT NULL,
     user_id INT(11) NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY item (item),
     UNIQUE KEY barcode (barcode)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

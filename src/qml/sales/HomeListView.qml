@@ -5,12 +5,11 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../common"
 import "homecards"
+import "../rrui" as RRUi
 
-ListView {
+RRUi.HomeListViewBase {
     id: homeListView
 
-    implicitWidth: 600
-    implicitHeight: 600
     topMargin: 40
     bottomMargin: 40
     spacing: 16
