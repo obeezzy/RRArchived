@@ -16,33 +16,21 @@ RRUi.HomeListViewBase {
 
     model: RRModels.SaleHomeModel { }
     delegate: Loader {
-        readonly property var modelData: data_model
         width: ListView.view.width
         active: false
+        onLoaded: item.model = data_model;
 
-        sourceComponent: {
+        source: {
             switch (data_type) {
             case "total_revenue":
-                totalRevenueCard
+                Qt.resolvedUrl("homecards/TotalRevenueCard.qml")
                 break;
             case "most_sold_items":
-                mostSoldItemCard
+                Qt.resolvedUrl("homecards/MostSoldItemCard.qml")
                 break;
             default:
-                null
+                undefined
             }
         }
-    }
-
-    Component {
-        id: totalRevenueCard
-
-        TotalRevenueCard { model: parent.modelData }
-    }
-
-    Component {
-        id: mostSoldItemCard
-
-        MostSoldItemCard { model: parent.modelData }
     }
 }

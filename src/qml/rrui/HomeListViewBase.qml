@@ -1,7 +1,7 @@
 import QtQuick 2.12
 
 ListView {
-    id: listView
+    id: homeListViewBase
 
     signal viewRequested(var breadcrumbs, var properties)
 
