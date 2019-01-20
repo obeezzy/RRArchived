@@ -270,6 +270,9 @@ void QMLStockItemPusher::processResult(const QueryResult result)
         case static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException):
             emit error(DuplicateEntryError);
             break;
+        case static_cast<int>(DatabaseException::RRErrorCode::ImageTooLarge):
+            emit error(ImageTooLargeError);
+            break;
         default:
             emit error();
             break;

@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
+import QtQuick.Dialogs 1.3 as Dialogs
 import "../singletons"
 
 RRUi.Page {
@@ -11,7 +12,7 @@ RRUi.Page {
 
     property int itemId: -1
 
-    title: itemId == -1 ? qsTr("New stock item") : qsTr("Edit stock item")
+    title: itemId == -1 ? qsTr("New product") : qsTr("Edit product")
     padding: 10
 
     /*!
@@ -44,6 +45,8 @@ RRUi.Page {
 
         transitionComponent: Item {
             id: transitionItem
+
+            property url itemImageSource: ""
 
             Flickable {
                 anchors {
@@ -99,10 +102,12 @@ RRUi.Page {
                                 height: width
                                 font.pixelSize: 30
                                 name: itemTextField.text
+                                source: transitionItem.itemImageSource
+                                sourceSize: Qt.size(width, height)
 
                                 FluidControls.Icon {
                                     anchors.centerIn: parent
-                                    visible: itemImage.name === ""
+                                    visible: itemImage.name === "" && itemImage.status !== Image.Ready
                                     color: "white"
                                     source: FluidControls.Utils.iconUrl("image/photo_camera")
                                 }
@@ -121,6 +126,7 @@ RRUi.Page {
                                     id: selectPhotoButton
                                     icon.source: FluidControls.Utils.iconUrl("image/photo")
                                     text: qsTr("Select image")
+                                    onClicked: fileDialog.visible = true;
                                 }
 
                                 RRUi.ToolButton {
@@ -224,34 +230,16 @@ RRUi.Page {
                                     right: parent.right
                                 }
 
-                                Row {
-                                    spacing: 12
-
-                                    FluidControls.Icon {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        source: Qt.resolvedUrl("qrc:/icons/shopping.svg")
-                                    }
-
-                                    RRUi.TextField {
-                                        id: itemTextField
-                                        width: 200
-                                        placeholderText: qsTr("Product name");
-                                    }
+                                RRUi.IconTextField {
+                                    id: itemTextField
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/shopping.svg")
+                                    textField.placeholderText: qsTr("Product name");
                                 }
 
-                                Row {
-                                    spacing: 12
-
-                                    FluidControls.Icon {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        source: Qt.resolvedUrl("qrc:/icons/book-open-variant.svg")
-                                    }
-
-                                    RRUi.TextField {
-                                        id: descriptionTextField
-                                        width: 200
-                                        placeholderText: qsTr("Short description");
-                                    }
+                                RRUi.IconTextField {
+                                    id: descriptionTextField
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/book-open-variant.svg")
+                                    textField.placeholderText: qsTr("Short description");
                                 }
                             }
 
@@ -384,6 +372,9 @@ RRUi.Page {
                             case RRModels.StockItemPusher.DuplicateEntryError:
                                 failureAlertDialogLoader.message = qsTr("A product of the same name already exists.");
                                 break;
+                            case RRModels.StockItemPusher.ImageTooLargeError:
+                                failureAlertDialogLoader.message = qsTr("The image selected for the product is too large. Please choose an image less than 2 MB.");
+                                break;
                             default:
                                 failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");
                                 break;
@@ -399,6 +390,7 @@ RRUi.Page {
                         itemId: newItemPage.itemId
 
                         onSuccess: {
+                            transitionView.currentItem.itemImageSource = imageSource;
                             categoryComboBox.currentIndex = categoryComboBox.find(category);
                             itemTextField.text = item;
                             descriptionTextField.text = description;
@@ -502,11 +494,19 @@ RRUi.Page {
                     QQC2.Button {
                         id: addItemButton
                         Material.elevation: 1
-                        text: newItemPage.itemId == -1 ? qsTr("Add Item") : qsTr("Update Item")
+                        text: newItemPage.itemId == -1 ? qsTr("Add Product") : qsTr("Update Product")
                         onClicked: if (detailCard.validateUserInput()) stockItemPusher.push();
                     }
                 }
             }
         }
+    }
+
+    Dialogs.FileDialog {
+        id: fileDialog
+        title: qsTr("Please choose a file")
+        folder: shortcuts.home
+        nameFilters: [ "Image files (*.jpg *.png *.jpeg)"]
+        onAccepted:  transitionView.currentItem.itemImageSource = fileDialog.fileUrl;
     }
 }
