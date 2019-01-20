@@ -87,9 +87,10 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                 sqlArguments.append(QStringLiteral("NULL"));
             else if (argument.value.type() == QVariant::Bool)
                 sqlArguments.append(argument.value.toBool() ? "1" : "0");
-            else if (argument.value.type() == QVariant::String
-                     || argument.value.type() == QVariant::ByteArray)
+            else if (argument.value.type() == QVariant::String)
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toString().replace("'", "\\'")));
+            else if (argument.value.type() == QVariant::ByteArray)
+                sqlArguments.append(QStringLiteral("'%1'").arg(QString(argument.value.toByteArray().toHex())));
             else if (argument.value.type() == QVariant::DateTime)
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toDateTime().toString("yyyy-MM-dd hh:mm:ss").replace("'", "\\'")));
             else if (argument.value.type() == QVariant::Date)

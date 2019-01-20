@@ -3,6 +3,17 @@
 #include <QBuffer>
 #include <QImage>
 #include <QByteArray>
+#include <QUrl>
+#include <QFile>
+#include <QUuid>
+#include <QCryptographicHash>
+#include <QStandardPaths>
+
+#include "database/databaseexception.h"
+
+#include <QDebug>
+
+const int HASH_INPUT_LENGTH = 64;
 
 DatabaseUtils::DatabaseUtils(QObject *parent)
     : QObject(parent)
@@ -53,17 +64,21 @@ bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &pa
     return true;
 }
 
-QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource)
+QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource, qint64 maxSize)
 {
     if (imageSource.trimmed().isEmpty())
         return QByteArray();
 
-    QImage image(imageSource);
+    QImage image(QUrl{imageSource}.toLocalFile());
     QByteArray ba;
     QBuffer buffer(&ba);
     buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer);
+    image.save(&buffer, "PNG");
 
+    if (ba.size() > maxSize)
+        throw DatabaseException(DatabaseException::RRErrorCode::ImageTooLarge,
+                                QStringLiteral("Image too large (%1 bytes). Expected size should be less than %2").arg(ba.size()).arg(maxSize),
+                                QStringLiteral("Image too large (%1 bytes). Expected size should be less than %2").arg(ba.size()).arg(maxSize));
     return ba;
 }
 
@@ -72,7 +87,25 @@ QString DatabaseUtils::byteArrayToImage(const QByteArray &imageData)
     if (imageData.isNull())
         return QString();
 
-    QString imageSource;
+    const QString &imageSource = generateFileName(imageData);
+    QFile file(imageSource);
+    file.open(QIODevice::WriteOnly);
+    file.write(QByteArray::fromHex(imageData));
 
-    return imageSource;
+    return QUrl::fromLocalFile(imageSource).toString();
+}
+
+QString DatabaseUtils::generateFileName(const QByteArray &imageData)
+{
+    QByteArray ba;
+    if (imageData.size() < HASH_INPUT_LENGTH) {
+        for (int i = 0; i < imageData.size(); ++i)
+            ba.append(imageData.at(i));
+    } else {
+        for (int i = 0; i < HASH_INPUT_LENGTH; ++i)
+            ba.append(imageData.at(i));
+    }
+
+    return QString("%1/%2.png").arg(QStandardPaths::writableLocation(QStandardPaths::TempLocation),
+                                    QString(QCryptographicHash::hash(ba, QCryptographicHash::Md5).toHex()));
 }

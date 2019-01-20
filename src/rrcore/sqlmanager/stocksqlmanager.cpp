@@ -528,7 +528,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
                 itemRecord.insert("item", record.value("item"));
                 itemRecord.insert("description", record.value("description"));
                 itemRecord.insert("divisible", record.value("divisible"));
-                itemRecord.insert("image", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+                itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
                 itemRecord.insert("quantity", record.value("quantity"));
                 itemRecord.insert("unit", record.value("unit"));
                 itemRecord.insert("unit_id", record.value("unit_id"));
@@ -577,95 +577,18 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryRes
 
         const QList<QSqlRecord> records(callProcedure("ViewStockItemDetails", {
                                                           ProcedureArgument {
-                                                              ProcedureArgument::Type::InOut,
+                                                              ProcedureArgument::Type::In,
                                                               "item",
                                                               params.value("item_id")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "category_id",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "category",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "item",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "description",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "divisible",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "image",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "quantity",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "unit_id",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "unit",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "cost_price",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "retail_price",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "currency",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "created",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "last_edited",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "user_id",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "user",
-                                                              {}
                                                           }
                                                       }));
 
         QVariantMap itemInfo;
-        if (!records.isEmpty())
+        if (!records.isEmpty()) {
             itemInfo = recordToMap(records.first());
+            itemInfo.insert("image_source", DatabaseUtils::byteArrayToImage(itemInfo.value("image").toByteArray()));
+            itemInfo.remove("image");
+        }
         else
             throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemDetailsFailed,
                                     QString(),

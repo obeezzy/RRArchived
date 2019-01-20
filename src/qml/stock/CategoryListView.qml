@@ -93,6 +93,8 @@ ListView {
                         RRUi.LetterCircleImage {
                             QQLayouts.Layout.alignment: Qt.AlignVCenter
                             name: model.item
+                            source: model.image_source
+                            sourceSize: Qt.size(width, height)
                         }
 
                         FluidControls.SubheadingLabel {

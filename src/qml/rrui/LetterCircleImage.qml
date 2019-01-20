@@ -42,7 +42,7 @@ FluidControls.CircleImage {
         anchors.fill: parent
         radius: letterCircleImage.width / 2
         smooth: true
-        //visible: letterCircleImage.source === ""
+        visible: letterCircleImage.status != Image.Ready
 
         FluidControls.SubheadingLabel {
             id: label

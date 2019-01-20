@@ -50,7 +50,8 @@ public:
         ResultMismatch,
         ViewClientsFailure,
         ProcedureFailed,
-        EmptyResultSet
+        EmptyResultSet,
+        ImageTooLarge
     };
 
     enum class MySqlErrorCode {

@@ -11,6 +11,7 @@ Item {
     implicitHeight: row.height
 
     property alias icon: icon
+    property alias text: textField.text
     property alias textField: textField
 
     QQLayouts.RowLayout {

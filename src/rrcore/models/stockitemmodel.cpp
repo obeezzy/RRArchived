@@ -26,49 +26,34 @@ QVariant StockItemModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryIdRole:
         return m_records.at(index.row()).toMap().value("category_id").toInt();
-        break;
     case ItemIdRole:
         return m_records.at(index.row()).toMap().value("item_id").toString();
-        break;
     case ItemRole:
         return m_records.at(index.row()).toMap().value("item").toString();
-        break;
     case DescriptionRole:
         return m_records.at(index.row()).toMap().value("description").toString();
-        break;
     case DivisibleRole:
         return m_records.at(index.row()).toMap().value("divisible").toBool();
-        break;
-    case ImageRole:
-        return m_records.at(index.row()).toMap().value("image").toString();
-        break;
+    case ImageSourceRole:
+        return m_records.at(index.row()).toMap().value("image_source").toString();
     case QuantityRole:
         return m_records.at(index.row()).toMap().value("quantity").toDouble();
-        break;
     case UnitRole:
         return m_records.at(index.row()).toMap().value("unit").toString();
-        break;
     case UnitIdRole:
         return m_records.at(index.row()).toMap().value("unit_id").toInt();
-        break;
     case CostPriceRole:
         return m_records.at(index.row()).toMap().value("cost_price").toDouble();
-        break;
     case RetailPriceRole:
         return m_records.at(index.row()).toMap().value("retail_price").toDouble();
-        break;
     case CurrencyRole:
         return m_records.at(index.row()).toMap().value("currency").toString();
-        break;
     case CreatedRole:
         return m_records.at(index.row()).toMap().value("created").toDateTime();
-        break;
     case LastEditedRole:
         return m_records.at(index.row()).toMap().value("last_edited").toDateTime();
-        break;
     case UserRole:
         return m_records.at(index.row()).toMap().value("user").toString();
-        break;
     }
 
     return QVariant();
@@ -82,7 +67,7 @@ QHash<int, QByteArray> StockItemModel::roleNames() const
     roles.insert(ItemRole, "item");
     roles.insert(DescriptionRole, "description");
     roles.insert(DivisibleRole, "divisible");
-    roles.insert(ImageRole, "image");
+    roles.insert(ImageSourceRole, "image_source");
     roles.insert(QuantityRole, "quantity");
     roles.insert(UnitRole, "unit");
     roles.insert(UnitIdRole, "unit_id");

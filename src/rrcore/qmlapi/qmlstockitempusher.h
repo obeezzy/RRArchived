@@ -35,7 +35,8 @@ public:
 
     enum ErrorCode {
         UnknownError,
-        DuplicateEntryError
+        DuplicateEntryError,
+        ImageTooLargeError
     }; Q_ENUM(ErrorCode)
 
     int itemId() const;

@@ -19,7 +19,7 @@ DatabaseException::DatabaseException(int errorCode, const QString &message, cons
 
 }
 
-DatabaseException::~DatabaseException() throw ()
+DatabaseException::~DatabaseException()
 {
 
 }
@@ -39,7 +39,7 @@ QString DatabaseException::userMessage() const
     return m_userMessage;
 }
 
-const char *DatabaseException::what() const throw ()
+const char *DatabaseException::what() const noexcept
 {
-    return QObject::tr("Error %1: %2 [%3]").arg(QString::number((int) m_code), m_message, m_userMessage).toStdString().c_str();
+    return QObject::tr("Error %1: %2 [%3]").arg(QString::number(static_cast<int>(m_code)), m_message, m_userMessage).toStdString().c_str();
 }
