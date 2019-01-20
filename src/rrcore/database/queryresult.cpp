@@ -22,14 +22,14 @@ QueryResult::QueryResult(const QueryRequest &request) :
 {
 }
 
-QueryResult::QueryResult(const QueryResult &other)
+QueryResult::QueryResult(const QueryResult &other) :
+    m_request(other.request()),
+    m_successful(other.isSuccessful()),
+    m_errorCode(other.errorCode()),
+    m_errorMessage(other.errorMessage()),
+    m_errorUserMessage(other.errorUserMessage()),
+    m_outcome(other.outcome())
 {
-    setSuccessful(other.isSuccessful());
-    setErrorCode(other.errorCode());
-    setRequest(other.request());
-    setErrorMessage(other.errorMessage());
-    setErrorUserMessage(other.errorUserMessage());
-    setOutcome(other.outcome());
 }
 
 QueryResult &QueryResult::operator= (const QueryResult &other)

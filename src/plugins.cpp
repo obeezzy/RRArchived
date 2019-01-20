@@ -35,6 +35,7 @@ void Plugins::registerTypes()
     // Misc
     qmlRegisterType<QMLUserProfile>("com.gecko.rr", 1, 0, "UserProfile");
     qmlRegisterType<QMLDatabaseCreator>("com.gecko.rr", 1, 0, "DatabaseCreator");
+    qmlRegisterSingletonType<QMLNotifier>("com.gecko.rr", 1, 0, "Notifier", notifier_provider);
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");
@@ -56,13 +57,4 @@ void Plugins::registerTypes()
 
     // Widgets
     qmlRegisterSingletonType<Dialogs>("com.gecko.rr.widgets", 1, 0, "Dialogs", dialogs_provider);
-
-    // Singletons
-    qmlRegisterSingletonType<QMLNotifier>("com.gecko.rr.singletons", 1, 0, "Notifier", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-          Q_UNUSED(engine)
-          Q_UNUSED(scriptEngine)
-
-          QMLNotifier *notifier = new QMLNotifier();
-          return notifier;
-      });
 }

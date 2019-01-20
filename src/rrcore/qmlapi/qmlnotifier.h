@@ -39,11 +39,15 @@ public:
                           Urgency urgency = Urgency::NormalPriority, Duration duration = Duration::Short);
 private:
     void displayNotificationOnWindows(QMLNotifier::Category category, const QString &title,
-                                                   const QString &message, QMLNotifier::Urgency urgency,
-                                                   QMLNotifier::Duration duration, const QUrl &iconUrl, const QString &appName);
+                                      const QString &message, QMLNotifier::Urgency urgency,
+                                      QMLNotifier::Duration duration, const QUrl &iconUrl, const QString &appName);
     void displayNotificationOnLinux(Category category, const QString &title, const QString &message,
                                     Urgency urgency = Urgency::NormalPriority, Duration duration = Duration::Short,
                                     const QUrl &iconUrl = QUrl(), const QString &appName = QString());
 };
 
+static QObject *notifier_provider (QQmlEngine *, QJSEngine *) {
+    QMLNotifier *notifier = new QMLNotifier();
+    return notifier;
+}
 #endif // QMLNOTIFIER_H
