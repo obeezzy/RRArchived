@@ -6,10 +6,10 @@ QueryRequest::QueryRequest(QObject *receiver) :
     qRegisterMetaType<QueryRequest>("QueryRequest");
 }
 
-QueryRequest::QueryRequest(const QueryRequest &other)
+QueryRequest::QueryRequest(const QueryRequest &other) :
+    m_receiver(other.receiver())
 {
     setCommand(other.command(), other.params(), other.type());
-    setReceiver(other.receiver());
 }
 
 QueryRequest &QueryRequest::operator=(const QueryRequest &other)

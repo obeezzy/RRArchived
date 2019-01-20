@@ -2,9 +2,9 @@ TEMPLATE = subdirs
 
 CONFIG += ordered   # This tells Qt to compile the following SUBDIRS in order
 
-SUBDIRS += src/rrcore \
+SUBDIRS += 3rdparty/fluid \
+    src/rrcore \
     src \
-    3rdparty/fluid \
     tests
 
 PROJECT_NAME = RecordRackDesktop
