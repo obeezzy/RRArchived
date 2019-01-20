@@ -210,4 +210,4 @@ void AbstractSqlManager::updateNote(int noteId, const QString &note, const QStri
                                                           UserProfile::instance().userId()
                                                       }
                                                   }));
-};
+}
