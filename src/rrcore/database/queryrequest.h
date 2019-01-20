@@ -16,6 +16,7 @@ public:
         Dashboard,
         Stock,
         Sales,
+        Purchase,
         Debtor
     }; Q_ENUM(Type)
     explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The parent parameter is mandatory!
