@@ -92,5 +92,12 @@
         <file>user/BusinessDetailPage.qml</file>
         <file>rrui/HomeListViewBase.qml</file>
         <file>common/DashboardListView.qml</file>
+        <file>purchase/HomePage.qml</file>
+        <file>purchase/NewPurchasePage.qml</file>
+        <file>purchase/PurchaseTransactionPage.qml</file>
+        <file>purchase/HomeListView.qml</file>
+        <file>purchase/homecards/LastPurchasedItemCard.qml</file>
+        <file>purchase/CartItemEditorDialog.qml</file>
+        <file>purchase/CartListView.qml</file>
     </qresource>
 </RCC>

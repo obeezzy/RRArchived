@@ -58,7 +58,11 @@ SOURCES += \
     config/config.cpp \
     json/messagecenter.cpp \
     models/abstracthomemodel.cpp \
-    qmlapi/qmlnotifier.cpp
+    qmlapi/qmlnotifier.cpp \
+    qmlapi/qmlpurchasehomemodel.cpp \
+    sqlmanager/purchasesqlmanager.cpp \
+    qmlapi/qmlpurchasecartmodel.cpp \
+    models/purchasepaymentmodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -110,4 +114,8 @@ HEADERS += \
     config/config.h \
     json/messagecenter.h \
     models/abstracthomemodel.h \
-    qmlapi/qmlnotifier.h
+    qmlapi/qmlnotifier.h \
+    qmlapi/qmlpurchasehomemodel.h \
+    sqlmanager/purchasesqlmanager.h \
+    qmlapi/qmlpurchasecartmodel.h \
+    models/purchasepaymentmodel.h

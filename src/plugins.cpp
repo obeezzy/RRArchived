@@ -19,6 +19,8 @@
 #include "rrcore/qmlapi/qmldebttransactionmodel.h"
 #include "rrcore/qmlapi/qmldebtordetailrecord.h"
 #include "rrcore/qmlapi/qmlnotifier.h"
+#include "rrcore/qmlapi/qmlpurchasehomemodel.h"
+#include "rrcore/qmlapi/qmlpurchasecartmodel.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -51,6 +53,8 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLClientModel>("com.gecko.rr.models", 1, 0, "ClientModel");
     qmlRegisterType<QMLDebtTransactionModel>("com.gecko.rr.models", 1, 0, "DebtTransactionModel");
     qmlRegisterType<QMLDebtorDetailRecord>("com.gecko.rr.models", 1, 0, "DebtorDetailRecord");
+    qmlRegisterType<QMLPurchaseHomeModel>("com.gecko.rr.models", 1, 0, "PurchaseHomeModel");
+    qmlRegisterType<QMLPurchaseCartModel>("com.gecko.rr.models", 1, 0, "PurchaseCartModel");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

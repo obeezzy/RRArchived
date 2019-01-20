@@ -22,7 +22,7 @@ ListModel {
     ListElement {
         title: qsTr("Purchases")
         iconUrl: "qrc:/icons/cart.svg"
-        fileName: "common/DashboardPage.qml"
+        fileName: "purchase/HomePage.qml"
     }
 
     ListElement {

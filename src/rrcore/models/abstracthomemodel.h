@@ -16,7 +16,9 @@ public:
         IconUrlRole,
         ShortDescriptionRole,
         LongDescriptionRole,
-        BreadcrumbsRole
+        BreadcrumbsRole,
+        ChartTypeRole,
+        ChartModelRole
     };
     explicit AbstractHomeModel(QObject *parent = nullptr);
     explicit AbstractHomeModel(DatabaseThread &thread);
