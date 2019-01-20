@@ -26,11 +26,11 @@ ListView {
 
     function removeTransaction(transactionId) { saleTransactionListView.model.removeTransaction(transactionId); }
 
-    FluidControls.SubheadingLabel {
-        anchors.centerIn: parent
+    FluidControls.Placeholder {
         visible: saleTransactionListView.count == 0 && !saleTransactionListView.model.busy
+        anchors.centerIn: parent
+        icon.source: Qt.resolvedUrl("qrc:/icons/coin.svg")
         text: qsTr("No transactions took place on this day.")
-        color: "darkgray"
     }
 
     QQC2.BusyIndicator {

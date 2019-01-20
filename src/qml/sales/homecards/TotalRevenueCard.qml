@@ -61,7 +61,7 @@ RRUi.HomeCard {
 
         RRUi.ChartTableView {
             QQLayouts.Layout.fillWidth: true
-            anchors.verticalCenter: chartView.verticalCenter
+            QQLayouts.Layout.alignment: Qt.AlignVCenter
             height: contentHeight
             model: totalRevenueCard.model
             interactive: false
