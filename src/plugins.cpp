@@ -18,8 +18,12 @@
 #include "rrcore/qmlapi/qmlclientmodel.h"
 #include "rrcore/qmlapi/qmldebttransactionmodel.h"
 #include "rrcore/qmlapi/qmldebtordetailrecord.h"
+#include "rrcore/qmlapi/qmlnotifier.h"
 
 #include "rrcore/widgets/dialogs.h"
+
+class QQmlEngine;
+class QJSEngine;
 
 Plugins::Plugins()
 {
@@ -52,4 +56,13 @@ void Plugins::registerTypes()
 
     // Widgets
     qmlRegisterSingletonType<Dialogs>("com.gecko.rr.widgets", 1, 0, "Dialogs", dialogs_provider);
+
+    // Singletons
+    qmlRegisterSingletonType<QMLNotifier>("com.gecko.rr.singletons", 1, 0, "Notifier", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+          Q_UNUSED(engine)
+          Q_UNUSED(scriptEngine)
+
+          QMLNotifier *notifier = new QMLNotifier();
+          return notifier;
+      });
 }
