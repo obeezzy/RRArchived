@@ -57,7 +57,8 @@ SOURCES += \
     qmlapi/qmldatabasecreator.cpp \
     config/config.cpp \
     json/messagecenter.cpp \
-    models/abstracthomemodel.cpp
+    models/abstracthomemodel.cpp \
+    qmlapi/qmlnotifier.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -108,4 +109,5 @@ HEADERS += \
     qmlapi/qmldatabasecreator.h \
     config/config.h \
     json/messagecenter.h \
-    models/abstracthomemodel.h
+    models/abstracthomemodel.h \
+    qmlapi/qmlnotifier.h
