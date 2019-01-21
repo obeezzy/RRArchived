@@ -16,4 +16,6 @@ SUBDIRS += \
     QMLSaleTransactionModel \
     QMLStockCategoryModel \
     QMLPurchaseHomeModel \
-    QMLPurchaseCartModel
+    QMLPurchaseCartModel \
+    QMLIncomeHomeModel \
+    QMLIncomePusher

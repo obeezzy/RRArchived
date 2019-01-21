@@ -62,7 +62,9 @@ SOURCES += \
     qmlapi/qmlpurchasehomemodel.cpp \
     sqlmanager/purchasesqlmanager.cpp \
     qmlapi/qmlpurchasecartmodel.cpp \
-    models/purchasepaymentmodel.cpp
+    models/purchasepaymentmodel.cpp \
+    qmlapi/qmlincomehomemodel.cpp \
+    qmlapi/qmlincomepusher.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -118,4 +120,6 @@ HEADERS += \
     qmlapi/qmlpurchasehomemodel.h \
     sqlmanager/purchasesqlmanager.h \
     qmlapi/qmlpurchasecartmodel.h \
-    models/purchasepaymentmodel.h
+    models/purchasepaymentmodel.h \
+    qmlapi/qmlincomehomemodel.h \
+    qmlapi/qmlincomepusher.h

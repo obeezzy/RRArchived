@@ -12,6 +12,11 @@ AbstractHomeModel::AbstractHomeModel(DatabaseThread &thread) :
 
 }
 
+AbstractHomeModel::~AbstractHomeModel()
+{
+
+}
+
 QVariantList AbstractHomeModel::records() const
 {
     return m_records;

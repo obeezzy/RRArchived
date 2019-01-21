@@ -99,5 +99,10 @@
         <file>purchase/homecards/LastPurchasedItemCard.qml</file>
         <file>purchase/CartItemEditorDialog.qml</file>
         <file>purchase/CartListView.qml</file>
+        <file>income/HomePage.qml</file>
+        <file>income/HomeListView.qml</file>
+        <file>income/homecards/LastIncomeEntryCard.qml</file>
+        <file>income/NewIncomePage.qml</file>
+        <file>income/IncomeTransactionPage.qml</file>
     </qresource>
 </RCC>

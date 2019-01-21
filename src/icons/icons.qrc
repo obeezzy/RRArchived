@@ -20,5 +20,7 @@
         <file>tune.svg</file>
         <file>wallet.svg</file>
         <file>notifications.svg</file>
+        <file>cash-usd.svg</file>
+        <file>comment-question.svg</file>
     </qresource>
 </RCC>
