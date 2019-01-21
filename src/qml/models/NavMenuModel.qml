@@ -46,7 +46,7 @@ ListModel {
     ListElement {
         title: qsTr("Creditors")
         iconUrl: "qrc:/icons/account-star-outline.svg"
-        fileName: "common/DashboardPage.qml"
+        fileName: "people/creditor/HomePage.qml"
     }
 
     ListElement {

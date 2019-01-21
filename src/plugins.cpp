@@ -25,6 +25,7 @@
 #include "rrcore/qmlapi/qmlincomepusher.h"
 #include "rrcore/qmlapi/qmlexpensehomemodel.h"
 #include "rrcore/qmlapi/qmlexpensepusher.h"
+#include "rrcore/qmlapi/qmlcreditormodel.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -63,6 +64,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLIncomePusher>("com.gecko.rr.models", 1, 0, "IncomePusher");
     qmlRegisterType<QMLExpenseHomeModel>("com.gecko.rr.models", 1, 0, "ExpenseHomeModel");
     qmlRegisterType<QMLExpensePusher>("com.gecko.rr.models", 1, 0, "ExpensePusher");
+    qmlRegisterType<QMLCreditorModel>("com.gecko.rr.models", 1, 0, "CreditorModel");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

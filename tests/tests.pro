@@ -20,4 +20,5 @@ SUBDIRS += \
     QMLIncomeHomeModel \
     QMLIncomePusher \
     QMLExpensePusher \
-    QMLExpenseHomeModel
+    QMLExpenseHomeModel \
+    QMLCreditorModel
