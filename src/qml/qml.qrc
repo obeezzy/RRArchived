@@ -109,5 +109,7 @@
         <file>expense/HomeListView.qml</file>
         <file>expense/ExpenseTransactionPage.qml</file>
         <file>expense/NewExpensePage.qml</file>
+        <file>people/creditor/HomePage.qml</file>
+        <file>people/creditor/CreditorListView.qml</file>
     </qresource>
 </RCC>
