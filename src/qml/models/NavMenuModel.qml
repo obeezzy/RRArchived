@@ -50,12 +50,6 @@ ListModel {
     }
 
     ListElement {
-        title: qsTr("Upload")
-        iconUrl: "qrc:/icons/cloud-upload.svg"
-        fileName: "common/DashboardPage.qml"
-    }
-
-    ListElement {
         title: qsTr("Settings")
         iconUrl: "qrc:/icons/tune.svg"
         fileName: "common/DashboardPage.qml"
