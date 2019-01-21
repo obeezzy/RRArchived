@@ -22,6 +22,7 @@ public:
     };
     explicit AbstractHomeModel(QObject *parent = nullptr);
     explicit AbstractHomeModel(DatabaseThread &thread);
+    virtual ~AbstractHomeModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;

@@ -28,7 +28,7 @@ ListModel {
     ListElement {
         title: qsTr("Income")
         iconUrl: "qrc:/icons/cash-multiple.svg"
-        fileName: "common/DashboardPage.qml"
+        fileName: "income/HomePage.qml"
     }
 
     ListElement {
