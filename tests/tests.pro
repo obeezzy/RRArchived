@@ -18,4 +18,6 @@ SUBDIRS += \
     QMLPurchaseHomeModel \
     QMLPurchaseCartModel \
     QMLIncomeHomeModel \
-    QMLIncomePusher
+    QMLIncomePusher \
+    QMLExpensePusher \
+    QMLExpenseHomeModel
