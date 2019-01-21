@@ -104,5 +104,10 @@
         <file>income/homecards/LastIncomeEntryCard.qml</file>
         <file>income/NewIncomePage.qml</file>
         <file>income/IncomeTransactionPage.qml</file>
+        <file>expense/HomePage.qml</file>
+        <file>expense/homecards/LastExpenseEntryCard.qml</file>
+        <file>expense/HomeListView.qml</file>
+        <file>expense/ExpenseTransactionPage.qml</file>
+        <file>expense/NewExpensePage.qml</file>
     </qresource>
 </RCC>

@@ -64,7 +64,9 @@ SOURCES += \
     qmlapi/qmlpurchasecartmodel.cpp \
     models/purchasepaymentmodel.cpp \
     qmlapi/qmlincomehomemodel.cpp \
-    qmlapi/qmlincomepusher.cpp
+    qmlapi/qmlincomepusher.cpp \
+    qmlapi/qmlexpensepusher.cpp \
+    qmlapi/qmlexpensehomemodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -122,4 +124,6 @@ HEADERS += \
     qmlapi/qmlpurchasecartmodel.h \
     models/purchasepaymentmodel.h \
     qmlapi/qmlincomehomemodel.h \
-    qmlapi/qmlincomepusher.h
+    qmlapi/qmlincomepusher.h \
+    qmlapi/qmlexpensepusher.h \
+    qmlapi/qmlexpensehomemodel.h

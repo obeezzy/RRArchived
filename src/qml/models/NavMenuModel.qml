@@ -34,7 +34,7 @@ ListModel {
     ListElement {
         title: qsTr("Expenses")
         iconUrl: "qrc:/icons/wallet.svg"
-        fileName: "common/DashboardPage.qml"
+        fileName: "expense/HomePage.qml"
     }
 
     ListElement {
