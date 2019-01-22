@@ -238,19 +238,18 @@ RRUi.Page {
                         }
                     }
 
-                    FluidControls.BodyLabel {
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            left: parent.left
-                            right: parent.right
-                        }
+                    FluidControls.Placeholder {
+                        visible: categoryListView.count == 0 && categoryListView.model.filterText !== ""
+                        anchors.centerIn: parent
+                        icon.source: FluidControls.Utils.iconUrl("action/search")
+                        text: qsTr("There are no results for this search query.")
+                    }
 
-                        wrapMode: Text.WordWrap
-                        color: "#555555"
-                        horizontalAlignment: Qt.AlignHCenter
-                        visible: categoryListView.count == 0
-                        text: categoryListView.model.filterText ? qsTr("There are no results for this search query.")
-                                                                : qsTr("You have no items.");
+                    FluidControls.Placeholder {
+                        visible: categoryListView.count == 0 && categoryListView.model.filterText === ""
+                        anchors.centerIn: parent
+                        icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
+                        text: qsTr("No products available.")
                     }
                 }
             }

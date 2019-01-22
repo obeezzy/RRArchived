@@ -43,9 +43,9 @@ RRUi.Dialog {
         privateProperties.previouslySetCustomerName = cartModel.customerName;
         privateProperties.previouslySetCustomerPhoneNumber = cartModel.customerPhoneNumber;
 
-        stackView.push(Qt.resolvedUrl("paymentwizard/PaymentMethodPage.qml"),
-                                  { "canAcceptCash": paymentWizard.cartModel.canAcceptCash,
-                                  "canAcceptCard": paymentWizard.cartModel.canAcceptCard });
+        stackView.replace(null, Qt.resolvedUrl("paymentwizard/PaymentMethodPage.qml"),
+                          { "canAcceptCash": paymentWizard.cartModel.canAcceptCash,
+                              "canAcceptCard": paymentWizard.cartModel.canAcceptCard });
     }
 
     QQLayouts.ColumnLayout {

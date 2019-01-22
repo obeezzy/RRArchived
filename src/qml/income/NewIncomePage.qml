@@ -101,6 +101,34 @@ RRUi.Page {
                             }
 
                             RRUi.SectionFragment {
+                                id: paymentMethodFragment
+                                title: qsTr("Method of payment")
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
+
+                                RRUi.IconRadioButton {
+                                    id: cashRadioButton
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/cash-usd.svg")
+                                    text: qsTr("Cash")
+                                    checked: true
+                                }
+
+                                RRUi.IconRadioButton {
+                                    id: debitCardRadioButton
+                                    icon.source: FluidControls.Utils.iconUrl("action/credit_card")
+                                    text: qsTr("Debit card")
+                                }
+
+                                RRUi.IconRadioButton {
+                                    id: creditCardRadioButton
+                                    icon.source: FluidControls.Utils.iconUrl("action/credit_card")
+                                    text: qsTr("Credit card")
+                                }
+                            }
+
+                            RRUi.SectionFragment {
                                 id: transactionFragment
                                 title: qsTr("Transaction details")
                                 anchors {
@@ -110,7 +138,7 @@ RRUi.Page {
 
                                 RRUi.IconTextField {
                                     id: purposeTextField
-                                    icon.source: Qt.resolvedUrl("qrc:/icons/comment-question.svg")
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/file-document-box-outline.svg")
                                     textField.placeholderText: qsTr("Purpose");
                                 }
 
@@ -157,6 +185,9 @@ RRUi.Page {
                         clientName: clientTextField.text
                         purpose: purposeTextField.text
                         amountPaid: amountPaidSpinBox.value
+                        paymentMethod: creditCardRadioButton.checked ? RRModels.IncomePusher.CreditCard
+                                                                     : debitCardRadioButton.checked ? RRModels.IncomePusher.DebitCard
+                                                                                                    : RRModels.IncomePusher.Cash
 
                         onSuccess: {
                             switch (successCode) {
@@ -248,7 +279,7 @@ RRUi.Page {
                     QQC2.Button {
                         id: addItemButton
                         Material.elevation: 1
-                        text: qsTr("Add Income")
+                        text: qsTr("Submit")
                         onClicked: if (detailCard.validateUserInput()) incomePusher.push();
                     }
                 }

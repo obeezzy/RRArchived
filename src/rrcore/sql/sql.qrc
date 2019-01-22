@@ -8,5 +8,7 @@
         <file>procedures/sales.sql</file>
         <file>procedures/stock.sql</file>
         <file>procedures/user.sql</file>
+        <file>procedures/expense.sql</file>
+        <file>procedures/income.sql</file>
     </qresource>
 </RCC>

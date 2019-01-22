@@ -67,7 +67,9 @@ SOURCES += \
     qmlapi/qmlincomepusher.cpp \
     qmlapi/qmlexpensepusher.cpp \
     qmlapi/qmlexpensehomemodel.cpp \
-    qmlapi/qmlcreditormodel.cpp
+    qmlapi/qmlcreditormodel.cpp \
+    sqlmanager/incomesqlmanager.cpp \
+    sqlmanager/expensesqlmanager.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -128,4 +130,6 @@ HEADERS += \
     qmlapi/qmlincomepusher.h \
     qmlapi/qmlexpensepusher.h \
     qmlapi/qmlexpensehomemodel.h \
-    qmlapi/qmlcreditormodel.h
+    qmlapi/qmlcreditormodel.h \
+    sqlmanager/incomesqlmanager.h \
+    sqlmanager/expensesqlmanager.h

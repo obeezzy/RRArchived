@@ -13,6 +13,8 @@
 #include "sqlmanager/debtorsqlmanager.h"
 #include "sqlmanager/clientsqlmanager.h"
 #include "sqlmanager/purchasesqlmanager.h"
+#include "sqlmanager/incomesqlmanager.h"
+#include "sqlmanager/expensesqlmanager.h"
 
 const QString CONNECTION_NAME(QStringLiteral("db_thread"));
 
@@ -57,6 +59,12 @@ void Worker::execute(const QueryRequest request)
             break;
         case QueryRequest::Purchase:
             result = PurchaseSqlManager(CONNECTION_NAME).execute(request);
+            break;
+        case QueryRequest::Income:
+            result = IncomeSqlManager(CONNECTION_NAME).execute(request);
+            break;
+        case QueryRequest::Expense:
+            result = ExpenseSqlManager(CONNECTION_NAME).execute(request);
             break;
         case QueryRequest::Debtor:
             result = DebtorSqlManager(CONNECTION_NAME).execute(request);

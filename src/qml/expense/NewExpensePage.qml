@@ -101,6 +101,34 @@ RRUi.Page {
                             }
 
                             RRUi.SectionFragment {
+                                id: paymentMethodFragment
+                                title: qsTr("Method of payment")
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
+
+                                RRUi.IconRadioButton {
+                                    id: cashRadioButton
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/cash-usd.svg")
+                                    text: qsTr("Cash")
+                                    checked: true
+                                }
+
+                                RRUi.IconRadioButton {
+                                    id: debitCardRadioButton
+                                    icon.source: FluidControls.Utils.iconUrl("action/credit_card")
+                                    text: qsTr("Debit card")
+                                }
+
+                                RRUi.IconRadioButton {
+                                    id: creditCardRadioButton
+                                    icon.source: FluidControls.Utils.iconUrl("action/credit_card")
+                                    text: qsTr("Credit card")
+                                }
+                            }
+
+                            RRUi.SectionFragment {
                                 id: transactionFragment
                                 title: qsTr("Transaction details")
                                 anchors {
@@ -110,7 +138,7 @@ RRUi.Page {
 
                                 RRUi.IconTextField {
                                     id: purposeTextField
-                                    icon.source: Qt.resolvedUrl("qrc:/icons/comment-question.svg")
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/file-document-box-outline.svg")
                                     textField.placeholderText: qsTr("Purpose");
                                 }
 
@@ -157,14 +185,17 @@ RRUi.Page {
                         clientName: clientTextField.text
                         purpose: purposeTextField.text
                         amountPaid: amountPaidSpinBox.value
+                        paymentMethod: creditCardRadioButton.checked ? RRModels.ExpensePusher.CreditCard
+                                                                     : debitCardRadioButton.checked ? RRModels.ExpensePusher.DebitCard
+                                                                                                    : RRModels.ExpensePusher.Cash
 
                         onSuccess: {
                             switch (successCode) {
-                            case RRModels.expensePusher.AddExpenseSuccess:
+                            case RRModels.ExpensePusher.AddExpenseSuccess:
                                 newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully added!"));
                                 transitionView.trigger();
                                 break;
-                            case RRModels.expensePusher.UpdateExpenseSuccess:
+                            case RRModels.ExpensePusher.UpdateExpenseSuccess:
                                 newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully updated!"));
                                 newExpensePage.pop();
                                 break;
@@ -172,8 +203,8 @@ RRUi.Page {
                         }
                         onError: {
                             switch (errorCode) {
-                            case RRModels.expensePusher.AddExpenseError:
-                                failureAlertDialogLoader.message = qsTr("Failed to add income.");
+                            case RRModels.ExpensePusher.AddExpenseError:
+                                failureAlertDialogLoader.message = qsTr("Failed to add expense.");
                                 break;
                             default:
                                 failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");
@@ -248,7 +279,7 @@ RRUi.Page {
                     QQC2.Button {
                         id: addItemButton
                         Material.elevation: 1
-                        text: qsTr("Add Expense")
+                        text: qsTr("Submit")
                         onClicked: if (detailCard.validateUserInput()) expensePusher.push();
                     }
                 }
