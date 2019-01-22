@@ -138,13 +138,10 @@ ListView {
         }
     }
 
-    RRUi.PlaceholderLabel {
-        anchors {
-            verticalCenter: parent.verticalCenter
-            left: parent.left
-            right: parent.right
-        }
+    FluidControls.Placeholder {
+        anchors.centerIn: parent
         visible: cartListView.count == 0
+        icon.source: Qt.resolvedUrl("qrc:/icons/cart-outline.svg")
         text: qsTr("Your cart is empty.\nAdd items from the view in the left to get started.");
     }
 }

@@ -9,14 +9,21 @@ class QMLExpensePusher : public AbstractPusher
     Q_PROPERTY(QString clientName READ clientName WRITE setClientName NOTIFY clientNameChanged)
     Q_PROPERTY(QString purpose READ purpose WRITE setPurpose NOTIFY purposeChanged)
     Q_PROPERTY(qreal amountPaid READ amountPaid WRITE setAmountPaid NOTIFY amountPaidChanged)
+    Q_PROPERTY(PaymentMethod paymentMethod READ paymentMethod WRITE setPaymentMethod NOTIFY paymentMethodChanged)
 public:
+    enum class PaymentMethod {
+        Cash, DebitCard, CreditCard
+    }; Q_ENUM(PaymentMethod)
+
     enum class SuccessCode {
         AddExpenseSuccess,
         UpdateExpenseSuccess
-    };
+    }; Q_ENUM(SuccessCode)
+
     enum class ErrorCode {
         AddExpenseError
-    };
+    }; Q_ENUM(ErrorCode)
+
     explicit QMLExpensePusher(QObject *parent = nullptr);
     explicit QMLExpensePusher(DatabaseThread &thread);
 
@@ -28,10 +35,14 @@ public:
 
     qreal amountPaid() const;
     void setAmountPaid(qreal amountPaid);
+
+    PaymentMethod paymentMethod() const;
+    void setPaymentMethod(PaymentMethod paymentMethod);
 signals:
     void clientNameChanged();
     void purposeChanged();
     void amountPaidChanged();
+    void paymentMethodChanged();
 public slots:
     void push() override;
 protected:
@@ -40,6 +51,7 @@ private:
     QString m_clientName;
     QString m_purpose;
     qreal m_amountPaid;
+    PaymentMethod m_paymentMethod;
 };
 
 #endif // QMLEXPENSEPUSHER_H

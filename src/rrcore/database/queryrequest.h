@@ -17,6 +17,8 @@ public:
         Stock,
         Sales,
         Purchase,
+        Income,
+        Expense,
         Debtor
     }; Q_ENUM(Type)
     explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The parent parameter is mandatory!

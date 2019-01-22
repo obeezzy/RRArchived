@@ -22,5 +22,6 @@
         <file>notifications.svg</file>
         <file>cash-usd.svg</file>
         <file>comment-question.svg</file>
+        <file>cart-outline.svg</file>
     </qresource>
 </RCC>

@@ -187,40 +187,14 @@ CREATE TABLE debtor (
 -- Create expense table
 CREATE TABLE expense (
     id INT(11) NOT NULL AUTO_INCREMENT,
-    name VARCHAR(30) DEFAULT NULL,
-    client_id INT(11) DEFAULT 0,
+    name VARCHAR(30) NOT NULL,
+    client_id INT(11) DEFAULT NULL,
     purpose VARCHAR(100) NOT NULL,
-    total_amount DECIMAL(19,2) NOT NULL,
     amount_paid DECIMAL(19,2) NOT NULL,
-    balance DECIMAL(19,2) NOT NULL,
+    payment_method VARCHAR(20) NOT NULL,
     currency VARCHAR(4) NOT NULL,
     note_id INT(11) DEFAULT NULL,
     archived TINYINT NOT NULL DEFAULT 0,
-    created DATETIME NOT NULL,
-    last_edited DATETIME NOT NULL,
-    user_id INT(11) NOT NULL,
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Create expense payment table
-CREATE TABLE expense_payment (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    expense_id INT(11) NOT NULL,
-    amount INT(11) NOT NULL,
-    method VARCHAR(20) NOT NULL,
-    currency VARCHAR(4) NOT NULL,
-    note_id INT(11) DEFAULT NULL,
-    created DATETIME NOT NULL,
-    last_edited DATETIME NOT NULL,
-    user_id INT(11) NOT NULL,
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Create expense purpose table
-CREATE TABLE expense_purpose (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    purpose VARCHAR(100) NOT NULL,
-    note_id INT(11) DEFAULT NULL,
     created DATETIME NOT NULL,
     last_edited DATETIME NOT NULL,
     user_id INT(11) NOT NULL,
@@ -230,40 +204,14 @@ CREATE TABLE expense_purpose (
 -- Create income table
 CREATE TABLE income (
     id INT(11) NOT NULL AUTO_INCREMENT,
-    name VARCHAR(30) DEFAULT NULL,
-    client_id INT(11) DEFAULT 0,
+    name VARCHAR(30) NOT NULL,
+    client_id INT(11) DEFAULT NULL,
     purpose VARCHAR(100) NOT NULL,
-    total_amount DECIMAL(19,2) NOT NULL,
     amount_paid DECIMAL(19,2) NOT NULL,
-    balance DECIMAL(19,2) NOT NULL,
+    payment_method VARCHAR(20) NOT NULL,
     currency VARCHAR(4) NOT NULL,
     note_id INT(11) DEFAULT NULL,
     archived TINYINT NOT NULL DEFAULT 0,
-    created DATETIME NOT NULL,
-    last_edited DATETIME NOT NULL,
-    user_id INT(11) NOT NULL,
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Create income payment table
-CREATE TABLE income_payment (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    income_id INT(11) NOT NULL,
-    amount INT(11) NOT NULL,
-    method VARCHAR(20) NOT NULL,
-    currency VARCHAR(4) NOT NULL,
-    note_id INT(11) DEFAULT NULL,
-    created DATETIME NOT NULL,
-    last_edited DATETIME NOT NULL,
-    user_id INT(11) NOT NULL,
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Create income purpose table
-CREATE TABLE income_purpose (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    purpose VARCHAR(100) NOT NULL,
-    note_id INT(11) DEFAULT NULL,
     created DATETIME NOT NULL,
     last_edited DATETIME NOT NULL,
     user_id INT(11) NOT NULL,
