@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
+import Qt.labs.qmlmodels 1.0 as QQModels
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
@@ -70,60 +71,44 @@ TableView {
         }
     }
 
-    delegate: Item {
-        implicitWidth: label.visible ? label.implicitWidth : actionRow.width
-        implicitHeight: 40
-
-        FluidControls.SubheadingLabel {
-            id: label
-            anchors.fill: parent
-            horizontalAlignment: {
-                switch (column) {
-                case IncomeTransactionTableView.Columns.TransactionIdColumn:
-                    Qt.AlignRight
-                    break;
-                case IncomeTransactionTableView.Columns.ClientNameColumn:
-                    Qt.AlignLeft
-                    break;
-                case IncomeTransactionTableView.Columns.AmountColumn:
-                    Qt.AlignRight
-                    break;
-                default:
-                    undefined
-                }
-            }
-
-            verticalAlignment: Qt.AlignVCenter
-
-            visible: column !== IncomeTransactionTableView.Columns.ActionColumn
-            text: {
-                switch (column) {
-                case IncomeTransactionTableView.Columns.TransactionIdColumn:
-                    transaction_id
-                    break;
-                case IncomeTransactionTableView.Columns.ClientNameColumn:
-                    client_name
-                    break;
-                case IncomeTransactionTableView.Columns.AmountColumn:
-                    Number(amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-                    break;
-                default:
-                    ""
-                }
+    delegate: QQModels.DelegateChooser {
+        QQModels.DelegateChoice {
+            column: IncomeTransactionTableView.Columns.TransactionIdColumn
+            delegate: FluidControls.SubheadingLabel {
+                horizontalAlignment: Qt.AlignRight
+                verticalAlignment: Qt.AlignVCenter
+                text: transaction_id
             }
         }
 
-        Loader {
-            id: actionRow
-            visible: column === IncomeTransactionTableView.Columns.ActionColumn
-            anchors.centerIn: parent
-
-            readonly property var modelData: {
-                "client_id": model.client_id,
-                "transaction_id": model.transaction_id
+        QQModels.DelegateChoice {
+            column: IncomeTransactionTableView.Columns.ClientNameColumn
+            delegate: FluidControls.SubheadingLabel {
+                horizontalAlignment: Qt.AlignLeft
+                verticalAlignment: Qt.AlignVCenter
+                text: client_name
             }
+        }
 
-            sourceComponent: incomeTransactionTableView.buttonRow
+        QQModels.DelegateChoice {
+            column: IncomeTransactionTableView.Columns.AmountColumn
+            delegate: FluidControls.SubheadingLabel {
+                horizontalAlignment: Qt.AlignRight
+                verticalAlignment: Qt.AlignVCenter
+                text: Number(amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
+            }
+        }
+
+        QQModels.DelegateChoice {
+            column: IncomeTransactionTableView.Columns.ActionColumn
+            delegate: Loader {
+                readonly property var modelData: {
+                    "client_id": model.client_id,
+                    "transaction_id": model.transaction_id
+                }
+
+                sourceComponent: incomeTransactionTableView.buttonRow
+            }
         }
     }
 
