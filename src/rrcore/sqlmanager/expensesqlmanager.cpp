@@ -70,8 +70,8 @@ void ExpenseSqlManager::addNewExpenseTransaction(const QueryRequest &request)
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "amount_paid",
-                              params.value("amount_paid")
+                              "amount",
+                              params.value("amount")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,

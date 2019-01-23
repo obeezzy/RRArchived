@@ -1,10 +1,10 @@
 #ifndef ABSTRACTTRANSACTIONMODEL_H
 #define ABSTRACTTRANSACTIONMODEL_H
 
-#include "abstractvisuallistmodel.h"
+#include "abstractvisualtablemodel.h"
 #include <QDateTime>
 
-class AbstractTransactionModel : public AbstractVisualListModel
+class AbstractTransactionModel : public AbstractVisualTableModel
 {
     Q_OBJECT
     Q_PROPERTY(int keys READ keys WRITE setKeys NOTIFY keysChanged)
@@ -21,6 +21,7 @@ public:
 
     explicit AbstractTransactionModel(QObject *parent = nullptr);
     explicit AbstractTransactionModel(DatabaseThread &thread);
+    virtual ~AbstractTransactionModel() override;
 
     int keys() const;
     void setKeys(int keys);

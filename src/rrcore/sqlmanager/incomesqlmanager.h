@@ -11,6 +11,7 @@ public:
     QueryResult execute(const QueryRequest &request) override;
 private:
     void addNewIncomeTransaction(const QueryRequest &request); // throws DatabaseException
+    void viewIncomeTransactions(const QueryRequest &request, QueryResult &result); // throws DatabaseException
 };
 
 #endif // INCOMESQLMANAGER_H

@@ -42,18 +42,18 @@ void QMLExpensePusher::setPurpose(const QString &purpose)
     emit purposeChanged();
 }
 
-qreal QMLExpensePusher::amountPaid() const
+qreal QMLExpensePusher::amount() const
 {
-    return m_amountPaid;
+    return m_amount;
 }
 
-void QMLExpensePusher::setAmountPaid(qreal amountPaid)
+void QMLExpensePusher::setAmount(qreal amount)
 {
-    if (m_amountPaid == amountPaid)
+    if (m_amount == amount)
         return;
 
-    m_amountPaid = amountPaid;
-    emit amountPaidChanged();
+    m_amount = amount;
+    emit amountChanged();
 }
 
 QMLExpensePusher::PaymentMethod QMLExpensePusher::paymentMethod() const
@@ -90,7 +90,7 @@ void QMLExpensePusher::push()
     QVariantMap params {
         { "client_name", m_clientName },
         { "purpose", m_purpose },
-        { "amount_paid", m_amountPaid },
+        { "amount", m_amount },
         { "payment_method", paymentMethod }
     };
 

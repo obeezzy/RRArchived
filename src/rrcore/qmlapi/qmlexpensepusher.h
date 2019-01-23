@@ -8,7 +8,7 @@ class QMLExpensePusher : public AbstractPusher
     Q_OBJECT
     Q_PROPERTY(QString clientName READ clientName WRITE setClientName NOTIFY clientNameChanged)
     Q_PROPERTY(QString purpose READ purpose WRITE setPurpose NOTIFY purposeChanged)
-    Q_PROPERTY(qreal amountPaid READ amountPaid WRITE setAmountPaid NOTIFY amountPaidChanged)
+    Q_PROPERTY(qreal amount READ amount WRITE setAmount NOTIFY amountChanged)
     Q_PROPERTY(PaymentMethod paymentMethod READ paymentMethod WRITE setPaymentMethod NOTIFY paymentMethodChanged)
 public:
     enum class PaymentMethod {
@@ -33,15 +33,15 @@ public:
     QString purpose() const;
     void setPurpose(const QString &purpose);
 
-    qreal amountPaid() const;
-    void setAmountPaid(qreal amountPaid);
+    qreal amount() const;
+    void setAmount(qreal amount);
 
     PaymentMethod paymentMethod() const;
     void setPaymentMethod(PaymentMethod paymentMethod);
 signals:
     void clientNameChanged();
     void purposeChanged();
-    void amountPaidChanged();
+    void amountChanged();
     void paymentMethodChanged();
 public slots:
     void push() override;
@@ -50,7 +50,7 @@ protected:
 private:
     QString m_clientName;
     QString m_purpose;
-    qreal m_amountPaid;
+    qreal m_amount;
     PaymentMethod m_paymentMethod;
 };
 
