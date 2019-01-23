@@ -86,20 +86,20 @@ void QMLSaleTransactionModelTest::testViewSaleTransactions()
     QCOMPARE(successSpy.takeFirst().first().value<QMLSaleTransactionModel::SuccessCode>(),
              QMLSaleTransactionModel::ViewTransactionSuccess);
     QCOMPARE(errorSpy.count(), 0);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::TransactionIdRole).toInt(), 1);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::ClientIdRole).toInt(), 1);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::CustomerNameRole).toString(), QStringLiteral("Customer name"));
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::TotalCostRole).toDouble(), 1234.56);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::AmountPaidRole).toDouble(), 1000.56);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::BalanceRole).toDouble(), 234.00);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::DiscountRole).toDouble(), 1.89);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::NoteIdRole).toInt(), 1);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::SuspendedRole).toBool(), false);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::ArchivedRole).toBool(), false);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::CreatedRole).toDateTime(), currentDateTime);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::LastEditedRole).toDateTime(), currentDateTime);
-    QCOMPARE(m_saleTransactionModel->index(0).data(QMLSaleTransactionModel::UserIdRole).toInt(), 1);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::TransactionIdRole).toInt(), 1);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::ClientIdRole).toInt(), 1);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::CustomerNameRole).toString(), QStringLiteral("Customer name"));
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::TotalCostRole).toDouble(), 1234.56);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::AmountPaidRole).toDouble(), 1000.56);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::BalanceRole).toDouble(), 234.00);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::DiscountRole).toDouble(), 1.89);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::NoteIdRole).toInt(), 1);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::SuspendedRole).toBool(), false);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::ArchivedRole).toBool(), false);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::CreatedRole).toDateTime(), currentDateTime);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::LastEditedRole).toDateTime(), currentDateTime);
+    QCOMPARE(m_saleTransactionModel->index(0, 0).data(QMLSaleTransactionModel::UserIdRole).toInt(), 1);
 }
 
 QTEST_MAIN(QMLSaleTransactionModelTest)

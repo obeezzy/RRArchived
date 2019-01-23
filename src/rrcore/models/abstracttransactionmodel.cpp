@@ -5,7 +5,7 @@
 #include "database/queryresult.h"
 
 AbstractTransactionModel::AbstractTransactionModel(QObject *parent) :
-    AbstractVisualListModel(parent),
+    AbstractVisualTableModel(parent),
     m_transactionId(-1),
     m_keys(None)
 {
@@ -13,9 +13,14 @@ AbstractTransactionModel::AbstractTransactionModel(QObject *parent) :
 }
 
 AbstractTransactionModel::AbstractTransactionModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread),
+    AbstractVisualTableModel(thread),
     m_transactionId(-1),
     m_keys(None)
+{
+
+}
+
+AbstractTransactionModel::~AbstractTransactionModel()
 {
 
 }
@@ -65,7 +70,7 @@ void AbstractTransactionModel::setTo(const QDateTime &to)
 void AbstractTransactionModel::componentComplete()
 {
     toggleConnections();
-    AbstractVisualListModel::componentComplete();
+    AbstractVisualTableModel::componentComplete();
 }
 
 void AbstractTransactionModel::toggleConnections()

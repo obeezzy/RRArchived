@@ -152,7 +152,7 @@ RRUi.Page {
                                     }
 
                                     QQC2.SpinBox {
-                                        id: amountPaidSpinBox
+                                        id: amountSpinBox
                                         down.indicator: null
                                         up.indicator: null
                                         width: 50
@@ -163,12 +163,12 @@ RRUi.Page {
                                         property real realValue: value / 100
 
                                         validator: DoubleValidator {
-                                            bottom: Math.min(amountPaidSpinBox.from, amountPaidSpinBox.to)
-                                            top:  Math.max(amountPaidSpinBox.from, amountPaidSpinBox.to)
+                                            bottom: Math.min(amountSpinBox.from, amountSpinBox.to)
+                                            top:  Math.max(amountSpinBox.from, amountSpinBox.to)
                                         }
 
                                         textFromValue: function(value, locale) {
-                                            return "\u20a6 " + Number(value).toLocaleString(locale, 'f', amountPaidSpinBox.decimals)
+                                            return "\u20a6 " + Number(value).toLocaleString(locale, 'f', amountSpinBox.decimals)
                                         }
 
                                         valueFromText: function(text, locale) {
@@ -184,7 +184,7 @@ RRUi.Page {
                         id: incomePusher
                         clientName: clientTextField.text
                         purpose: purposeTextField.text
-                        amountPaid: amountPaidSpinBox.value
+                        amount: amountSpinBox.value
                         paymentMethod: creditCardRadioButton.checked ? RRModels.IncomePusher.CreditCard
                                                                      : debitCardRadioButton.checked ? RRModels.IncomePusher.DebitCard
                                                                                                     : RRModels.IncomePusher.Cash
@@ -232,8 +232,8 @@ RRUi.Page {
                             failureAlertDialogLoader.message = qsTr("Purpose field is empty.        "); // Force dialog to stretch
                             failureAlertDialogLoader.create();
                             return false;
-                        } else if (amountPaidSpinBox.value === 0) {
-                            failureAlertDialogLoader.message = qsTr("Amount paid field cannot be 0. "); // Force dialog to stretch
+                        } else if (amountSpinBox.value === 0) {
+                            failureAlertDialogLoader.message = qsTr("Amount field cannot be 0. "); // Force dialog to stretch
                             failureAlertDialogLoader.create();
                             return false;
                         }

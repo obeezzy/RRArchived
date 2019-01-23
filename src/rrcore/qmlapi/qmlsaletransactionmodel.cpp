@@ -5,6 +5,8 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
+#include "qmlsaletransactionmodel.h"
+
 QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
     AbstractTransactionModel(parent)
 {
@@ -63,6 +65,14 @@ int QMLSaleTransactionModel::rowCount(const QModelIndex &parent) const
         return 0;
 
     return m_records.count();
+}
+
+int QMLSaleTransactionModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return 1;
 }
 
 QHash<int, QByteArray> QMLSaleTransactionModel::roleNames() const
@@ -142,7 +152,7 @@ void QMLSaleTransactionModel::removeTransaction(int row)
     QueryRequest request(this);
     QVariantMap params;
     params.insert("can_undo", true);
-    params.insert("transaction_id", data(index(row), TransactionIdRole).toInt());
+    params.insert("transaction_id", data(index(row, 0), TransactionIdRole).toInt());
 
     request.setCommand("remove_transaction", params, QueryRequest::Sales);
     emit executeRequest(request);

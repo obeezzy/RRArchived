@@ -112,5 +112,6 @@
         <file>people/creditor/HomePage.qml</file>
         <file>people/creditor/CreditorListView.qml</file>
         <file>rrui/IconRadioButton.qml</file>
+        <file>income/IncomeTransactionTableView.qml</file>
     </qresource>
 </RCC>

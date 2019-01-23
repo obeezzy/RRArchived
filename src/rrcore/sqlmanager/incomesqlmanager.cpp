@@ -2,6 +2,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDateTime>
 
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
@@ -20,6 +21,8 @@ QueryResult IncomeSqlManager::execute(const QueryRequest &request)
     try {
         if (request.command() == "add_new_income_transaction")
             addNewIncomeTransaction(request);
+        else if (request.command() == "view_income_transactions")
+            viewIncomeTransactions(request, result);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -70,8 +73,8 @@ void IncomeSqlManager::addNewIncomeTransaction(const QueryRequest &request)
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "amount_paid",
-                              params.value("amount_paid")
+                              "amount",
+                              params.value("amount")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -94,6 +97,56 @@ void IncomeSqlManager::addNewIncomeTransaction(const QueryRequest &request)
                               UserProfile::instance().userId()
                           }
                       });
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+    } catch (DatabaseException &) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        throw;
+    }
+}
+
+void IncomeSqlManager::viewIncomeTransactions(const QueryRequest &request, QueryResult &result)
+{
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request.params();
+
+    QSqlQuery q(connection);
+
+    try {
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        // STEP: Insert income transaction
+        const QList<QSqlRecord> &records (callProcedure("ViewIncomeTransactions", {
+                                                            ProcedureArgument {
+                                                                ProcedureArgument::Type::In,
+                                                                "from",
+                                                                params.value("from", QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)))
+                                                            },
+                                                            ProcedureArgument {
+                                                                ProcedureArgument::Type::In,
+                                                                "to",
+                                                                params.value("to", QDateTime::currentDateTime())
+                                                            },
+                                                            ProcedureArgument {
+                                                                ProcedureArgument::Type::In,
+                                                                "archived",
+                                                                params.value("archived", false)
+                                                            }
+                                                        }));
+
+        QVariantList transactions;
+        for (const QSqlRecord &record : records) {
+            transactions.append(recordToMap(record));
+        }
+
+        result.setOutcome(QVariantMap {
+                              { "transactions", transactions },
+                              { "record_count", transactions.count() }
+                          });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
