@@ -52,6 +52,6 @@ ListModel {
     ListElement {
         title: qsTr("Settings")
         iconUrl: "qrc:/icons/tune.svg"
-        fileName: "common/DashboardPage.qml"
+        fileName: "settings/HomePage.qml"
     }
 }

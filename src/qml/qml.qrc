@@ -113,5 +113,11 @@
         <file>people/creditor/CreditorListView.qml</file>
         <file>rrui/IconRadioButton.qml</file>
         <file>income/IncomeTransactionTableView.qml</file>
+        <file>settings/HomePage.qml</file>
+        <file>settings/HomeListView.qml</file>
+        <file>settings/HomeModel.qml</file>
+        <file>settings/HomeCard.qml</file>
+        <file>settings/HomeRow.qml</file>
+        <file>rrui/Switch.qml</file>
     </qresource>
 </RCC>
