@@ -145,6 +145,8 @@ RRUi.SubView {
 
                         icon.source: FluidControls.Utils.iconUrl("action/lock")
                         textField.placeholderText: qsTr("Password")
+                        textField.echoMode: TextInput.Password
+                        textField.passwordCharacter: "\u26ab"
 
                         Connections {
                             target: passwordTextField.textField
@@ -160,6 +162,8 @@ RRUi.SubView {
                         }
 
                         textField.placeholderText: qsTr("Confirm password")
+                        textField.echoMode: TextInput.Password
+                        textField.passwordCharacter: "\u26ab"
 
                         Connections {
                             target: confirmPasswordTextField.textField

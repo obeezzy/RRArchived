@@ -71,6 +71,11 @@ QString UserPrivilegeModel::privilegeGroup() const
     return m_privilegeGroup;
 }
 
+QString UserPrivilegeModel::title() const
+{
+    return m_title;
+}
+
 QVariantList UserPrivilegeModel::privileges() const
 {
     return m_records;

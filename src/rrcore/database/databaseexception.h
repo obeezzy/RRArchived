@@ -52,11 +52,13 @@ public:
         ProcedureFailed,
         EmptyResultSet,
         ImageTooLarge,
-        InsufficientUserPrivileges
+        InsufficientUserPrivileges,
+        AddUserFailed
     };
 
     enum class MySqlErrorCode {
         DuplicateEntryError = 1062,
+        CreateUserError = 1396,
         UserDefinedException = 1644
     };
     explicit DatabaseException(int errorCode);

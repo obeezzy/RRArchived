@@ -6,6 +6,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDateTime>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 AbstractSqlManager::AbstractSqlManager(const QString &connectionName) :
     m_connectionName(connectionName)
@@ -97,6 +100,10 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toDateTime().toString("yyyy-MM-dd").replace("'", "\\'")));
             else if (argument.value.type() == QVariant::Time)
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toDateTime().toString("hh:mm:ss").replace("'", "\\'")));
+            else if (argument.value.type() == QVariant::Map)
+                sqlArguments.append(QStringLiteral("'%1'").arg(QString(QJsonDocument(QJsonObject::fromVariantMap(argument.value.toMap())).toJson())));
+            else if (argument.value.type() == QVariant::List)
+                sqlArguments.append(QStringLiteral("'%1'").arg(QString(QJsonDocument(QJsonArray::fromVariantList(argument.value.toList())).toJson())));
             else
                 sqlArguments.append(argument.value.toString());
             break;
@@ -133,7 +140,7 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                                     q.lastError().text(),
                                     q.lastError().databaseText());
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
+            throw DatabaseException(q.lastError().number(),
                                     q.lastError().text(),
                                     QStringLiteral("Procedure '%1' failed.").arg(procedure));
     }
