@@ -183,17 +183,17 @@ void QMLUserPrivilegeModel::setPrivilegeValue(int groupIndex, int privilegeIndex
 
 bool QMLUserPrivilegeModel::submit()
 {
-    if (m_userName.trimmed().isEmpty()) {
+    if (m_userName.trimmed().isEmpty() && m_userId == -1) {
         emit error(NoUserNameSetError);
-    } else if (m_firstName.trimmed().isEmpty()) {
+    } else if (m_firstName.trimmed().isEmpty() && m_userId == -1) {
         emit error(NoFirstNameSetError);
-    } else if (m_lastName.trimmed().isEmpty()) {
+    } else if (m_lastName.trimmed().isEmpty() && m_userId == -1) {
         emit error(NoLastNameSetError);
-    } else if (m_password.trimmed().isEmpty()) {
+    } else if (m_password.trimmed().isEmpty() && m_userId == -1) {
         emit error(NoPasswordSetError);
-    } else if (m_phoneNumber.trimmed().isEmpty()) {
+    } else if (m_phoneNumber.trimmed().isEmpty() && m_userId == -1) {
         emit error(NoPhoneNumberSetError);
-    } else if (m_emailAddress.trimmed().isEmpty()) {
+    } else if (m_emailAddress.trimmed().isEmpty() && m_userId == -1) {
         emit error(NoEmailAddressSetError);
     } else {
         QVariantMap groups;
@@ -207,19 +207,19 @@ bool QMLUserPrivilegeModel::submit()
 
         QueryRequest request(this);
         QVariantMap params;
-        params.insert("first_name", m_firstName);
-        params.insert("last_name", m_lastName);
-        params.insert("user_name", m_userName);
-        params.insert("image_url", m_imageUrl);
-        params.insert("password", m_password);
-        params.insert("phone_number", m_phoneNumber);
-        params.insert("email_address", m_emailAddress);
         params.insert("user_privileges", groups);
 
         if (m_userId > -1) {
             params.insert("user_id", m_userId);
-            request.setCommand("update_user", params, QueryRequest::User);
+            request.setCommand("update_user_privileges", params, QueryRequest::User);
         } else {
+            params.insert("first_name", m_firstName);
+            params.insert("last_name", m_lastName);
+            params.insert("user_name", m_userName);
+            params.insert("image_url", m_imageUrl);
+            params.insert("password", m_password);
+            params.insert("phone_number", m_phoneNumber);
+            params.insert("email_address", m_emailAddress);
             request.setCommand("add_user", params, QueryRequest::User);
         }
 
@@ -264,7 +264,7 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
             emit success();
         } else if (result.request().command() == "add_user") {
             emit success(AddUserSuccess);
-        } else if (result.request().command() == "update_user") {
+        } else if (result.request().command() == "update_user_privileges") {
             emit success(UpdateUserSuccess);
         }
     } else {

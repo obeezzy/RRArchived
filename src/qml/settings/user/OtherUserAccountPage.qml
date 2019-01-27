@@ -102,13 +102,17 @@ RRUi.Page {
                         spacing: 0
 
                         RRUi.ToolButton {
-                            id: viewButton
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View user details")
                         }
 
                         RRUi.ToolButton {
-                            id: deleteButton
+                            icon.source: FluidControls.Utils.iconUrl("image/edit")
+                            text: qsTr("Edit user privileges")
+                            onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"), { userId: parent.parent.modelData.user_id });
+                        }
+
+                        RRUi.ToolButton {
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Delete user")
                             onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
@@ -170,5 +174,10 @@ RRUi.Page {
         }
 
         //UserDetailDialog { id: userDetailDialog }
+    }
+
+    QQC2.StackView.onActivating: {
+        searchBar.clear();
+        userTableView.refresh();
     }
 }

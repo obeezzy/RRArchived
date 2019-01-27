@@ -1,12 +1,14 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import com.gecko.rr.models 1.0 as RRModels
 import com.gecko.rr.components 1.0 as RRComponents
 import "../../rrui" as RRUi
 
 RRUi.SubView {
     id: userDetailSubView
 
+    readonly property bool isExistingUser: userId > 0
     property int userId: -1
 
     property string imageUrl: ""
@@ -20,6 +22,8 @@ RRUi.SubView {
 
     implicitWidth: 800
     implicitHeight: 800
+
+    RRModels.UserDetailRecord { id: userDetailRecord; userId: userDetailSubView.userId }
 
     contentItem: FocusScope {
         QQC2.ScrollView {
@@ -97,8 +101,10 @@ RRUi.SubView {
                             right: parent.right
                         }
 
+                        enabled: !userDetailSubView.isExistingUser
                         icon.source: FluidControls.Utils.iconUrl("social/person")
                         textField.placeholderText: qsTr("User name")
+                        text: userDetailRecord.userName
 
                         Connections {
                             target: userNameTextField.textField
@@ -113,7 +119,9 @@ RRUi.SubView {
                             right: parent.right
                         }
 
+                        enabled: !userDetailSubView.isExistingUser
                         textField.placeholderText: qsTr("First name")
+                        text: userDetailRecord.firstName
 
                         Connections {
                             target: firstNameTextField.textField
@@ -128,7 +136,9 @@ RRUi.SubView {
                             right: parent.right
                         }
 
+                        enabled: !userDetailSubView.isExistingUser
                         textField.placeholderText: qsTr("Last name")
+                        text: userDetailRecord.lastName
 
                         Connections {
                             target: lastNameTextField.textField
@@ -143,6 +153,7 @@ RRUi.SubView {
                             right: parent.right
                         }
 
+                        visible: !userDetailSubView.isExistingUser
                         icon.source: FluidControls.Utils.iconUrl("action/lock")
                         textField.placeholderText: qsTr("Password")
                         textField.echoMode: TextInput.Password
@@ -160,6 +171,7 @@ RRUi.SubView {
                             left: parent.left
                             right: parent.right
                         }
+                        visible: !userDetailSubView.isExistingUser
 
                         textField.placeholderText: qsTr("Confirm password")
                         textField.echoMode: TextInput.Password
@@ -177,9 +189,11 @@ RRUi.SubView {
                             left: parent.left
                             right: parent.right
                         }
+                        enabled: !userDetailSubView.isExistingUser
 
                         icon.source: FluidControls.Utils.iconUrl("communication/phone")
                         textField.placeholderText: qsTr("Phone number")
+                        text: userDetailRecord.phoneNumber
 
                         Connections {
                             target: phoneNumberTextField.textField
@@ -193,9 +207,11 @@ RRUi.SubView {
                             left: parent.left
                             right: parent.right
                         }
+                        enabled: !userDetailSubView.isExistingUser
 
                         icon.source: FluidControls.Utils.iconUrl("communication/email")
                         textField.placeholderText: qsTr("Email address")
+                        text: userDetailRecord.emailAddress
 
                         Connections {
                             target: emailTextField.textField

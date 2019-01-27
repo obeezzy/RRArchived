@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QSettings>
 #include <QDateTime>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "database/queryrequest.h"
 #include "database/databaseexception.h"
@@ -39,6 +41,10 @@ QueryResult UserSqlManager::execute(const QueryRequest &request)
             addUser(request);
         else if (request.command() == "activate_user")
             activateUser(request);
+        else if (request.command() == "view_user_details")
+            viewUserDetails(request, result);
+        else if (request.command() == "update_user_privileges")
+            updateUserPrivileges(request);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -310,7 +316,8 @@ void UserSqlManager::viewUserPrivileges(const QueryRequest &request, QueryResult
 
         QVariantMap userPrivileges;
         if (!records.isEmpty()) {
-            userPrivileges = recordToMap(records.first());
+            userPrivileges = QJsonDocument::fromJson(recordToMap(records.first())
+                                                     .value("user_privileges").toString().toUtf8()).object().toVariantMap();
         } else {
             UserPrivilegeCenter userPrivilegeCenter;
             userPrivileges = userPrivilegeCenter.getPrivileges().toMap();
@@ -385,12 +392,12 @@ void UserSqlManager::addUser(const QueryRequest &request)
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_privileges",
-                                  params.value("user_privileges").toMap()
+                                  params.value("user_privileges")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  records.first().value("user_id").toInt()
+                                  records.first().value("user_id")
                               }
                           });
 
@@ -442,13 +449,13 @@ void UserSqlManager::activateUser(const QueryRequest &request)
         callProcedure("ActivateUser", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "active",
-                              params.value("active")
+                              "user_id",
+                              params.value("user_id")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
+                              "active",
+                              params.value("active")
                           }
                       });
 
@@ -458,6 +465,79 @@ void UserSqlManager::activateUser(const QueryRequest &request)
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
+        throw;
+    }
+}
+
+void UserSqlManager::updateUserPrivileges(const QueryRequest &request)
+{
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request.params();
+
+    QSqlQuery q(connection);
+
+    try {
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        callProcedure("UpdateUserPrivileges", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_privileges",
+                              params.value("user_privileges")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              params.value("user_id")
+                          }
+                      });
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+    } catch (DatabaseException &e) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::DuplicateEntryError))
+            throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
+        else if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::CreateUserError))
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateUserFailed, e.message(), e.userMessage());
+        else
+            throw;
+    }
+}
+
+void UserSqlManager::viewUserDetails(const QueryRequest &request, QueryResult &result)
+{
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> &records(callProcedure("ViewUserDetails", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "user_id",
+                                                               params.value("user_id", QVariant::Int)
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "user_id",
+                                                               params.value("archived", QVariant::Bool)
+                                                           }
+                                                       }));
+
+        QVariantMap userDetails;
+        if (!records.isEmpty()) {
+            userDetails = recordToMap(records.first());
+        }
+
+        result.setOutcome(QVariantMap {
+                              { "user", userDetails },
+                              { "record_count", records.count() }
+                          });
+
+    } catch (DatabaseException &) {
         throw;
     }
 }

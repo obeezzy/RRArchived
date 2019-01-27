@@ -15,7 +15,7 @@ TableView {
     property int keys: RRModels.UserModel.All
     property string filterText: ""
     property int filterColumn: -1
-    property var columnWidths: [ 40, width - 280, 100, 120 ]
+    property var columnWidths: [ 40, width - 420, 100, 100, 140 ]
 
     enum Columns {
         UserIdColumn,
@@ -52,6 +52,7 @@ TableView {
     }
 
     model: RRModels.UserModel {
+        id: userModel
         filterText: userTableView.filterText
         filterColumn: userTableView.filterColumn
         keys: userTableView.keys
@@ -70,7 +71,7 @@ TableView {
             delegate: FluidControls.SubheadingLabel {
                 horizontalAlignment: Qt.AlignRight
                 verticalAlignment: Qt.AlignVCenter
-                text: user_id
+                text: row + 1
             }
         }
 
@@ -85,10 +86,9 @@ TableView {
 
         QQModels.DelegateChoice {
             column: UserTableView.Columns.ActiveColumn
-            delegate: FluidControls.SubheadingLabel {
-                horizontalAlignment: Qt.AlignRight
-                verticalAlignment: Qt.AlignVCenter
-                text: active
+            delegate: RRUi.Switch {
+                checked: active
+                onToggled: userModel.activateUser(user_id, checked);
             }
         }
 
@@ -97,7 +97,7 @@ TableView {
             delegate: FluidControls.SubheadingLabel {
                 horizontalAlignment: Qt.AlignRight
                 verticalAlignment: Qt.AlignVCenter
-                text: rank
+                text: preset
             }
         }
 
@@ -105,8 +105,7 @@ TableView {
             column: UserTableView.Columns.ActionColumn
             delegate: Loader {
                 readonly property var modelData: {
-                    "client_id": model.client_id,
-                    "transaction_id": model.transaction_id
+                    "user_id": model.user_id
                 }
 
                 sourceComponent: userTableView.buttonRow
