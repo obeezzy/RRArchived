@@ -51,7 +51,8 @@ public:
         ViewClientsFailure,
         ProcedureFailed,
         EmptyResultSet,
-        ImageTooLarge
+        ImageTooLarge,
+        InsufficientUserPrivileges
     };
 
     enum class MySqlErrorCode {

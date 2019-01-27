@@ -405,14 +405,18 @@ CREATE TABLE unit_relation (
 -- Create user table
 CREATE TABLE user (
     id INT(11) NOT NULL AUTO_INCREMENT,
-    user VARCHAR(60) DEFAULT NULL,
+    user VARCHAR(60) NOT NULL,
+    first_name VARCHAR(60) NOT NULL,
+    last_name VARCHAR(60) NOT NULL,
     photo BLOB DEFAULT NULL,
     phone_number VARCHAR(20) DEFAULT NULL,
     email_address VARCHAR(30) DEFAULT NULL,
     active TINYINT DEFAULT 0,
-    pending TINYINT DEFAULT 0,
+    note_id INTEGER DEFAULT NULL,
+    archived TINYINT DEFAULT 0,
     created DATETIME NOT NULL,
     last_edited DATETIME NOT NULL,
+    user_id INT(11) NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -420,7 +424,9 @@ CREATE TABLE user (
 CREATE TABLE user_privilege (
     id INT(11) NOT NULL AUTO_INCREMENT,
     user_id INT(11) NOT NULL,
-    privileges VARCHAR(1000) NOT NULL,
+    privileges JSON NOT NULL,
+    created DATETIME NOT NULL,
+    last_edited DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -437,3 +443,7 @@ CREATE TABLE vendor (
     PRIMARY KEY (id),
     UNIQUE client_id (client_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Add admin user
+INSERT INTO user (user, first_name, last_name, active, created, last_edited, user_id)
+    VALUES ('root', 'Admin', 'Admin', TRUE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 1);

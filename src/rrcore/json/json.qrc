@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/json">
         <file>messages.json</file>
+        <file>privileges.json</file>
     </qresource>
 </RCC>

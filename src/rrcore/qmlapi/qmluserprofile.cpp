@@ -12,6 +12,8 @@ QMLUserProfile::QMLUserProfile(QObject *parent) :
 {
     connect(this, &QMLUserProfile::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
     connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
+
+    //connect(UserProfile::instance(), &UserProfile::adminChanged, this, &QMLUserProfile::adminChanged);
 }
 
 QMLUserProfile::QMLUserProfile(DatabaseThread &thread) :
@@ -38,6 +40,11 @@ void QMLUserProfile::setBusy(bool busy)
 bool QMLUserProfile::isFirstTime() const
 {
     return QSettings().value("is_first_time", true).toBool();
+}
+
+bool QMLUserProfile::isAdmin() const
+{
+    return UserProfile::instance().isAdmin();
 }
 
 void QMLUserProfile::signIn(const QString &userName, const QString &password)
@@ -79,18 +86,12 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
     }
 }
 
-void QMLUserProfile::removeUser(const QString &userName)
+bool QMLUserProfile::hasPrivilege(const QString &privilege)
 {
-    qInfo() << Q_FUNC_INFO << userName;
-    if (userName.trimmed().isEmpty()) {
-        emit error(NoUserNameProvided);
-    } else {
-        setBusy(true);
+    if (privilege.trimmed().isEmpty())
+        return false;
 
-        QueryRequest request(this);
-        request.setCommand("remove_user", { { "user_name", userName } }, QueryRequest::User);
-        emit executeRequest(request);
-    }
+    return UserProfile::instance().hasPrivilege(privilege);
 }
 
 void QMLUserProfile::processResult(const QueryResult &result)
@@ -102,8 +103,10 @@ void QMLUserProfile::processResult(const QueryResult &result)
 
     if (result.isSuccessful()) {
         if (!result.outcome().toMap().isEmpty())
-            UserProfile::instance().setUser(result.outcome().toMap().value("id").toInt(),
-                                            result.outcome().toMap().value("user_name").toString());
+            UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
+                                            result.outcome().toMap().value("user_name").toString(),
+                                            result.outcome().toMap().value("user_privileges")
+                                            );
 
         emit success();
     } else {
