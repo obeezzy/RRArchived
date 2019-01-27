@@ -58,8 +58,8 @@ QVariant QMLUserModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("user").toString();
     case ActiveRole:
         return m_records.at(index.row()).toMap().value("active").toBool();
-    case RankRole:
-        return m_records.at(index.row()).toMap().value("rank").toString();
+    case PresetRole:
+        return m_records.at(index.row()).toMap().value("preset").toString();
     }
 
     return QVariant();
@@ -72,7 +72,7 @@ QHash<int, QByteArray> QMLUserModel::roleNames() const
         { RowNumberRole, "row_number" },
         { UserRole, "user" },
         { ActiveRole, "active" },
-        { RankRole, "rank" }
+        { PresetRole, "preset" }
     };
 }
 

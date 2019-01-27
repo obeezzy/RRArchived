@@ -9,7 +9,7 @@ CREATE PROCEDURE AddSqlUser (
 BEGIN
     DECLARE _HOST CHAR(14) DEFAULT '@\'localhost\'';
     SET iUser := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\''),
-    iPassword := CONCAT('\'', REPLACE(iPassword, CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
+        iPassword := CONCAT('\'', REPLACE(iPassword, CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
     SET @sql := CONCAT('CREATE USER ', iUser, _HOST, ' IDENTIFIED BY ', iPassword);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
@@ -23,7 +23,7 @@ END;
 ---
 
 CREATE PROCEDURE AddRRUser (
-    IN iUserName VARCHAR(100),
+    IN iUser VARCHAR(100),
     IN iFirstName VARCHAR(100),
     IN iLastName VARCHAR(100),
     IN iPhoto BLOB,
@@ -35,6 +35,7 @@ CREATE PROCEDURE AddRRUser (
 BEGIN
     INSERT INTO user (user, first_name, last_name, photo, phone_number, email_address, note_id, created, last_edited, user_id)
         VALUES (iUser, iFirstName, iLastName, iPhoto, iPhoneNumber, iEmailAddress, iNoteId, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+    SELECT LAST_INSERT_ID() AS user_id;
 END;
 
 ---
@@ -54,7 +55,7 @@ CREATE PROCEDURE GetUserDetails (
 )
 BEGIN
 	SELECT user.id AS user_id, user.user AS user_name, user_privilege.privileges AS user_privileges FROM user
-		INNER JOIN user_privilege ON user.id = user_privilege.user_id
+		LEFT JOIN user_privilege ON user.id = user_privilege.user_id
         WHERE user = iUserName;
 END
 
@@ -82,10 +83,9 @@ CREATE PROCEDURE GrantPrivilege (
     IN iPrivilege VARCHAR(30)
 )
 BEGIN
-# "GRANT %1 ON * . * TO :username@'localhost'"
     DECLARE _HOST CHAR(14) DEFAULT '@\'localhost\'';
-    SET user := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\''),
-    SET @sql := CONCAT('GRANT ', iPrivilege, ' ON *.* TO ', user, _HOST);
+    SET @user := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
+    SET @sql := CONCAT('GRANT ', iPrivilege, ' ON *.* TO ', @user, _HOST);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
@@ -93,3 +93,12 @@ BEGIN
 END;
 
 ---
+
+CREATE PROCEDURE AddUserPrivileges (
+    IN iPrivileges JSON,
+    IN iUserId INTEGER
+)
+BEGIN
+    INSERT INTO user_privilege (user_id, privileges, created, last_edited)
+        VALUES (iUserId, iPrivileges, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+END;

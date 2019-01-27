@@ -412,23 +412,22 @@ CREATE TABLE user (
     phone_number VARCHAR(20) DEFAULT NULL,
     email_address VARCHAR(30) DEFAULT NULL,
     active TINYINT DEFAULT 0,
-    note_id INTEGER DEFAULT NULL,
+    note_id INT(11) DEFAULT NULL,
     archived TINYINT DEFAULT 0,
     created DATETIME NOT NULL,
     last_edited DATETIME NOT NULL,
     user_id INT(11) NOT NULL DEFAULT 0,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE user (user)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user privilege table
 CREATE TABLE user_privilege (
-    id INT(11) NOT NULL AUTO_INCREMENT,
     user_id INT(11) NOT NULL,
     privileges JSON NOT NULL,
     created DATETIME NOT NULL,
     last_edited DATETIME NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY user_id (user_id)
+    PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create vendor table

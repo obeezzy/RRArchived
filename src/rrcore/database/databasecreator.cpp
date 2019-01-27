@@ -138,7 +138,7 @@ bool DatabaseCreator::start()
 
         settings.setValue("is_first_time", false);
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.what();
+        qDebug() << "Exception caught:" << e.code() << e.message() << e.userMessage();
         return false;
     }
 

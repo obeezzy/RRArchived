@@ -309,11 +309,9 @@ void UserSqlManager::viewUserPrivileges(const QueryRequest &request, QueryResult
                                                        }));
 
         QVariantMap userPrivileges;
-        for (const QSqlRecord &record : records) {
-            userPrivileges = recordToMap(record);
-        }
-
-        if (userPrivileges.isEmpty()) {
+        if (!records.isEmpty()) {
+            userPrivileges = recordToMap(records.first());
+        } else {
             UserPrivilegeCenter userPrivilegeCenter;
             userPrivileges = userPrivilegeCenter.getPrivileges().toMap();
         }
@@ -339,6 +337,69 @@ void UserSqlManager::addUser(const QueryRequest &request)
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
+        const QList<QSqlRecord> &records(callProcedure("AddRRUser", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "first_name",
+                                                               params.value("first_name")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "last_name",
+                                                               params.value("last_name")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "user_name",
+                                                               params.value("user_name")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "photo",
+                                                               DatabaseUtils::imageToByteArray(params.value("image_url").toString())
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "phone_number",
+                                                               params.value("phone_number")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "email_address",
+                                                               params.value("email_address")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "note_id",
+                                                               params.value("note_id")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "user_id",
+                                                               UserProfile::instance().userId()
+                                                           }
+                                                       }));
+
+        if (!records.isEmpty()) {
+            callProcedure("AddUserPrivileges", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_privileges",
+                                  params.value("user_privileges").toMap()
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  records.first().value("user_id").toInt()
+                              }
+                          });
+
+        } else {
+            throw DatabaseException(DatabaseException::RRErrorCode::AddUserFailed,
+                                    "No user ID returned.");
+        }
+
+
         callProcedure("AddSqlUser", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -352,51 +413,18 @@ void UserSqlManager::addUser(const QueryRequest &request)
                           }
                       });
 
-        callProcedure("AddRRUser", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "first_name",
-                              params.value("first_name")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "last_name",
-                              params.value("last_name")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_name",
-                              params.value("user_name")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "photo",
-                              DatabaseUtils::imageToByteArray(params.value("image_url").toString())
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "phone_number",
-                              params.value("phone_number")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "email_address",
-                              params.value("email_address")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
-
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
-    } catch (DatabaseException &) {
+    } catch (DatabaseException &e) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
-        throw;
+        if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::DuplicateEntryError))
+            throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
+        else if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::CreateUserError))
+            throw DatabaseException(DatabaseException::RRErrorCode::CreateUserFailed, e.message(), e.userMessage());
+        else
+            throw;
     }
 }
 

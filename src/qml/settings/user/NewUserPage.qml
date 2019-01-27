@@ -188,7 +188,6 @@ RRUi.Page {
                 onError: {
                     switch (errorCode) {
                     case RRModels.UserPrivilegeModel.NoUserNameSetError:
-                        console.log("I'm emitting a signal...");
                         errorDialog.show(qsTr("The user's user name must be provided."), qsTr("Error"), errorCode);
                         break;
                     case RRModels.UserPrivilegeModel.NoFirstNameSetError:

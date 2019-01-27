@@ -23,6 +23,7 @@ public:
     void setPrivilegeValue(int row, bool value);
 
     QString privilegeGroup() const;
+    QString title() const;
     QVariantList privileges() const;
 protected:
     void tryQuery() override;

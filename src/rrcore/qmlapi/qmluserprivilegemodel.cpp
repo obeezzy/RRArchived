@@ -1,6 +1,7 @@
 #include "qmluserprivilegemodel.h"
 
 #include "models/userprivilegemodel.h"
+#include "database/databaseexception.h"
 
 QMLUserPrivilegeModel::QMLUserPrivilegeModel(QObject *parent) :
     AbstractVisualListModel (parent),
@@ -177,7 +178,6 @@ void QMLUserPrivilegeModel::setPrivilegeValue(int groupIndex, int privilegeIndex
         return;
     }
 
-    qDebug() << "Set Privilege value!" << groupIndex << privilegeIndex << value;
     model->setPrivilegeValue(privilegeIndex, value);
 }
 
@@ -196,10 +196,12 @@ bool QMLUserPrivilegeModel::submit()
     } else if (m_emailAddress.trimmed().isEmpty()) {
         emit error(NoEmailAddressSetError);
     } else {
-        QVariantList groups;
+        QVariantMap groups;
         for (auto model : m_privilegeModels) {
-            groups.append(QVariantMap {
-                              { model->privilegeGroup(), model->privileges() }
+            groups.insert(model->privilegeGroup(),
+                          QVariantMap {
+                              { "title", model->title() },
+                              { "privileges", model->privileges() },
                           });
         }
 
@@ -216,7 +218,7 @@ bool QMLUserPrivilegeModel::submit()
 
         if (m_userId > -1) {
             params.insert("user_id", m_userId);
-            request.setCommand("update_user_privileges", params, QueryRequest::User);
+            request.setCommand("update_user", params, QueryRequest::User);
         } else {
             request.setCommand("add_user", params, QueryRequest::User);
         }
@@ -241,28 +243,38 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
     if (this != result.request().receiver())
         return;
 
-    beginResetModel();
-    m_privilegeGroups.clear();
-    m_titles.clear();
-    qDeleteAll(m_privilegeModels);
-    m_privilegeModels.clear();
-
+    setBusy(false);
     if (result.isSuccessful()) {
-        QMapIterator<QString, QVariant> mapIter(result.outcome().toMap().value("user_privileges").toMap());
-        while (mapIter.hasNext()) {
-            auto pair = mapIter.next();
+        if (result.request().command() == "view_user_privileges") {
+            beginResetModel();
+            QMapIterator<QString, QVariant> mapIter(result.outcome().toMap().value("user_privileges").toMap());
+            while (mapIter.hasNext()) {
+                auto pair = mapIter.next();
 
-            UserPrivilegeModel *model = new UserPrivilegeModel(this);
-            QVariantMap privilegeDetails = pair.value().toMap();
-            model->setPrivileges(pair.key(), privilegeDetails.value("title").toString(), privilegeDetails.value("privileges").toList());
+                UserPrivilegeModel *model = new UserPrivilegeModel(this);
+                QVariantMap privilegeDetails = pair.value().toMap();
+                model->setPrivileges(pair.key(), privilegeDetails.value("title").toString(), privilegeDetails.value("privileges").toList());
 
-            m_titles.append(privilegeDetails.value("title").toString());
-            m_privilegeGroups.append(pair.key());
-            m_privilegeModels.append(model);
+                m_titles.append(privilegeDetails.value("title").toString());
+                m_privilegeGroups.append(pair.key());
+                m_privilegeModels.append(model);
+            }
+
+            endResetModel();
+            emit success();
+        } else if (result.request().command() == "add_user") {
+            emit success(AddUserSuccess);
+        } else if (result.request().command() == "update_user") {
+            emit success(UpdateUserSuccess);
         }
-        emit success();
     } else {
-        emit error();
+        switch (result.errorCode()) {
+        case static_cast<int>(DatabaseException::RRErrorCode::DuplicateEntryFailure):
+        case static_cast<int>(DatabaseException::RRErrorCode::CreateUserFailed):
+            emit error(UserAlreadyExistsError);
+            break;
+        default:
+            emit error();
+        }
     }
-    endResetModel();
 }
