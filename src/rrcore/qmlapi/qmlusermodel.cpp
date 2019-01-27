@@ -52,8 +52,6 @@ QVariant QMLUserModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case UserIdRole:
         return m_records.at(index.row()).toMap().value("user_id").toInt();
-    case RowNumberRole:
-        return m_records.at(index.row()).toMap().value("row_number").toInt();
     case UserRole:
         return m_records.at(index.row()).toMap().value("user").toString();
     case ActiveRole:
@@ -69,7 +67,6 @@ QHash<int, QByteArray> QMLUserModel::roleNames() const
 {
     return {
         { UserIdRole, "user_id" },
-        { RowNumberRole, "row_number" },
         { UserRole, "user" },
         { ActiveRole, "active" },
         { PresetRole, "preset" }
@@ -94,6 +91,24 @@ void QMLUserModel::processResult(const QueryResult result)
         return;
 
     setBusy(false);
+    if (result.isSuccessful()) {
+        if (result.request().command() == "activate_user") {
+            emit success(ActivateUserSuccess);
+        } else {
+            beginResetModel();
+            if (result.request().command() == "view_users") {
+                m_records = result.outcome().toMap().value("users").toList();
+                emit success(ViewUsersSuccess);
+            } else if (result.request().command() == "remove_user") {
+                emit success(RemoveUserSuccess);
+            } else if (result.request().command() == "undo_remove_user") {
+                emit success(UndoRemoveUserSuccess);
+            }
+            endResetModel();
+        }
+    } else {
+        emit error();
+    }
 }
 
 void QMLUserModel::removeUser(int userId)
@@ -103,5 +118,14 @@ void QMLUserModel::removeUser(int userId)
 
     QueryRequest request(this);
     request.setCommand("remove_user", { { "user_id", userId } }, QueryRequest::User);
+    emit executeRequest(request);
+}
+
+void QMLUserModel::activateUser(int userId, bool active)
+{
+    setBusy(true);
+
+    QueryRequest request(this);
+    request.setCommand("activate_user", { { "user_id", userId }, { "active", active } }, QueryRequest::User);
     emit executeRequest(request);
 }

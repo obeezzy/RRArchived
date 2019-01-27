@@ -29,6 +29,7 @@
 #include "rrcore/qmlapi/qmlincometransactionmodel.h"
 #include "rrcore/qmlapi/qmlusermodel.h"
 #include "rrcore/qmlapi/qmluserprivilegemodel.h"
+#include "rrcore/qmlapi/qmluserdetailrecord.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -71,6 +72,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLIncomeTransactionModel>("com.gecko.rr.models", 1, 0, "IncomeTransactionModel");
     qmlRegisterType<QMLUserModel>("com.gecko.rr.models", 1, 0, "UserModel");
     qmlRegisterType<QMLUserPrivilegeModel>("com.gecko.rr.models", 1, 0, "UserPrivilegeModel");
+    qmlRegisterType<QMLUserDetailRecord>("com.gecko.rr.models", 1, 0, "UserDetailRecord");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

@@ -111,7 +111,7 @@ void QMLUserProfile::processResult(const QueryResult &result)
         emit success();
     } else {
         switch (result.errorCode()) {
-        case int(DatabaseException::RRErrorCode::SignInFailure):
+        case static_cast<int>(DatabaseException::RRErrorCode::SignInFailure):
             emit error(IncorrectCredentials);
             break;
         default:

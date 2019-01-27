@@ -10,7 +10,6 @@ class QMLUserModel : public AbstractVisualTableModel
 public:
     enum Roles {
         UserIdRole = Qt::UserRole,
-        RowNumberRole,
         UserRole,
         ActiveRole,
         PresetRole
@@ -24,8 +23,10 @@ public:
     }; Q_ENUM(FilterKey)
 
     enum SuccessCode {
+        ViewUsersSuccess,
         RemoveUserSuccess,
-        UndoRemoveUserSuccess
+        UndoRemoveUserSuccess,
+        ActivateUserSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
@@ -44,6 +45,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void removeUser(int userId);
+    Q_INVOKABLE void activateUser(int userId, bool active);
 signals:
     void keysChanged();
 public slots:

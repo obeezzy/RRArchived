@@ -41,8 +41,8 @@ END;
 ---
 
 CREATE PROCEDURE ActivateUser (
-    IN iActive BOOLEAN,
-    IN iUserId INTEGER
+    IN iUserId INTEGER,
+    IN iActive BOOLEAN
 )
 BEGIN
     UPDATE user SET active = IFNULL(iActive, FALSE) WHERE id = iUserId;
@@ -65,7 +65,7 @@ CREATE PROCEDURE ViewUsers (
     iArchived BOOLEAN
 )
 BEGIN
-	SELECT id AS user_id, user, active FROM user WHERE archived = IFNULL(iArchived, FALSE);
+	SELECT id AS user_id, user, active FROM user WHERE archived = IFNULL(iArchived, FALSE) AND id > 1;
 END;
 
 ---
@@ -74,7 +74,7 @@ CREATE PROCEDURE ViewUserPrivileges (
 	IN iUserId INTEGER
 )
 BEGIN
-	SELECT privileges FROM user_privilege WHERE user_id = iUserId;
+	SELECT privileges AS user_privileges FROM user_privilege WHERE user_id = iUserId;
 END;
 
 ---
@@ -101,4 +101,27 @@ CREATE PROCEDURE AddUserPrivileges (
 BEGIN
     INSERT INTO user_privilege (user_id, privileges, created, last_edited)
         VALUES (iUserId, iPrivileges, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+END;
+
+---
+
+CREATE PROCEDURE UpdateUserPrivileges (
+    IN iPrivileges JSON,
+    IN iUserId INTEGER
+)
+BEGIN
+    UPDATE user_privilege SET privileges = iPrivileges WHERE user_id = iUserId;
+END;
+
+---
+
+CREATE PROCEDURE ViewUserDetails (
+    IN iUserId INTEGER,
+    IN iArchived BOOLEAN
+)
+BEGIN
+    SELECT first_name, last_name, user AS user_name, photo, phone_number, email_address, active, note
+        FROM user
+        LEFT JOIN note ON user.note_id = note.id
+        WHERE user.id = iUserId AND user.archived = IFNULL(iArchived, FALSE);
 END;

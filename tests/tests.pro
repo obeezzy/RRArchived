@@ -23,4 +23,5 @@ SUBDIRS += \
     QMLExpenseHomeModel \
     QMLCreditorModel \
     QMLUserModel \
-    QMLUserPrivilegeModel
+    QMLUserPrivilegeModel \
+    QMLUserDetailRecord

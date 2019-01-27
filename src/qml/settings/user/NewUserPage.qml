@@ -71,8 +71,8 @@ RRUi.Page {
                 }
                 currentIndex: swipeView.currentIndex
 
-                QQC2.TabButton { text: qsTr("Details") }
-                QQC2.TabButton { text: qsTr("Privileges") }
+                QQC2.TabButton { text: qsTr("User Details") }
+                QQC2.TabButton { text: qsTr("User Privileges") }
             }
 
             QQC2.SwipeView {

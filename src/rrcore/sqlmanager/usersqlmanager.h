@@ -22,6 +22,8 @@ private:
     void viewUserPrivileges(const QueryRequest &, QueryResult &result); // throws DatabaseException
     void addUser(const QueryRequest &); // throws DatabaseException
     void activateUser(const QueryRequest &); // throws DatabaseException
+    void updateUserPrivileges(const QueryRequest &); // throws DatabaseException
+    void viewUserDetails(const QueryRequest &, QueryResult &); // throws DatabaseException
 
     void grantPrivilege(const QString &privilege, const QString &userName, QSqlQuery &q); // throws DatabaseException!
     void createRRUser(const QString &userName, QSqlQuery &q); // throws DatabaseException!
