@@ -10,11 +10,6 @@ public:
     explicit MessageCenter(QObject *parent = nullptr);
 
     QVariant getMessage(const QString &key) const;
-signals:
-
-public slots:
-private:
-
 };
 
 #endif // MESSAGECENTER_H

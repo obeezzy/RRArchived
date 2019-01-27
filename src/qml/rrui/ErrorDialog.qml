@@ -8,7 +8,7 @@ FluidControls.AlertDialog {
     property int errorCode: 0
 
     function show(message, title, errorCode) {
-        if (text !== undefined)
+        if (message !== undefined)
             errorDialog.text = message;
         if (title !== undefined)
             errorDialog.title = title + "                                                                   ";

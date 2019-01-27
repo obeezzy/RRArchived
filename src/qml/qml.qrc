@@ -119,5 +119,13 @@
         <file>settings/HomeCard.qml</file>
         <file>settings/HomeRow.qml</file>
         <file>rrui/Switch.qml</file>
+        <file>settings/user/OtherUserAccountPage.qml</file>
+        <file>settings/UserTableView.qml</file>
+        <file>settings/user/NewUserPage.qml</file>
+        <file>settings/user/UserDetailSubView.qml</file>
+        <file>settings/user/UserPrivilegeSubView.qml</file>
+        <file>rrui/SubView.qml</file>
+        <file>rrui/ScrollBar.qml</file>
+        <file>settings/user/UserPrivilegeListView.qml</file>
     </qresource>
 </RCC>

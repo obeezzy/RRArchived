@@ -11,10 +11,11 @@ UserProfile::UserProfile(QObject *parent) :
 
 }
 
-void UserProfile::setUser(int userId, const QString &userName)
+void UserProfile::setUser(int userId, const QString &userName, const QVariant &privileges)
 {
     m_userId = userId;
     m_userName = userName;
+    m_privileges = privileges;
 }
 
 UserProfile &UserProfile::instance()
@@ -35,4 +36,19 @@ int UserProfile::userId() const
 QString UserProfile::userName() const
 {
     return m_userName;
+}
+
+bool UserProfile::isAdmin() const
+{
+    return false;
+}
+
+bool UserProfile::hasPrivilege(const QString &privilege) const
+{
+    if (isAdmin())
+        return true;
+    if (privilege.trimmed().isEmpty())
+        return false;
+
+    return true;
 }

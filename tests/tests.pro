@@ -21,4 +21,6 @@ SUBDIRS += \
     QMLIncomePusher \
     QMLExpensePusher \
     QMLExpenseHomeModel \
-    QMLCreditorModel
+    QMLCreditorModel \
+    QMLUserModel \
+    QMLUserPrivilegeModel

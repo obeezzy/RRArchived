@@ -17,6 +17,12 @@ RRUi.Page {
     leftPadding: 20
     rightPadding: 20
 
+    actions: FluidControls.Action {
+        icon.source: FluidControls.Utils.iconUrl("action/search")
+        text: qsTr("Search settings")
+        toolTip: text
+    }
+
     HomeListView {
         id: listView
         anchors {
@@ -24,5 +30,7 @@ RRUi.Page {
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
         }
+
+        onLinkActivated: homePage.push(link, properties);
     }
 }

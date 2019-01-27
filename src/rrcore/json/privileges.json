@@ -1,0 +1,97 @@
+{
+    "stock": {
+        "title": "Stock",
+        "privileges": [
+            {
+                "key": "can_add_stock_item",
+                "short_description": "User can add products",
+                "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
+                "value": false
+            },
+            {
+                "key": "can_update_stock_item",
+                "short_description": "User can update products",
+                "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
+                "value": false
+            },
+            {
+                "key": "can_view_stock_item",
+                "short_description": "User can view products",
+                "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
+                "value": false
+            },
+            {
+                "key": "can_delete_stock_item",
+                "short_description": "User can delete products",
+                "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
+                "value": false
+            },
+            {
+                "key": "can_view_deleted_stock_item",
+                "short_description": "User can view deleted products",
+                "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
+                "value": false
+            }
+        ]
+    },
+
+    "sales": {
+        "title": "Sales",
+        "privileges": [
+            {
+                "key": "can_add_sale_transaction",
+                "short_description": "User can add sale transaction",
+                "long_description": "Allows user to add sale transactions.",
+                "value": false
+            },
+            {
+                "key": "can_view_sale_transaction",
+                "short_description": "User can view sale transaction",
+                "long_description": "Allows user to view sale transactions.",
+                "value": false
+            },
+            {
+                "key": "can_update_sale_transaction",
+                "short_description": "User can update sale transactions",
+                "long_description": "Allows user to update sale transactions.",
+                "value": false
+            },
+            {
+                "key": "can_delete_sale_transaction",
+                "short_description": "User can delete sale transaction",
+                "long_description": "Allows user to delete sale transactions.",
+                "value": false
+            }
+        ]
+    },
+
+    "purchase": {
+        "title": "Purchases",
+        "privileges": [
+            {
+                "key": "can_add_purchase_transaction",
+                "short_description": "User can add purchase transaction",
+                "long_description": "Allows user to add purchase transactions.",
+                "value": false
+            },
+            {
+                "key": "can_view_purchase_transaction",
+                "short_description": "User can view purchase transaction",
+                "long_description": "Allows user to view purchase transactions.",
+                "value": false
+            },
+            {
+                "key": "can_update_purchase_transaction",
+                "short_description": "User can update purchase transactions",
+                "long_description": "Allows user to update purchase transactions.",
+                "value": false
+            },
+            {
+                "key": "can_delete_purchase_transaction",
+                "short_description": "User can delete purchase transaction",
+                "long_description": "Allows user to delete purchase transactions.",
+                "value": false
+            }
+        ]
+    }
+}

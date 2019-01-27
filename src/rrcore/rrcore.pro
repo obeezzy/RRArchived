@@ -71,7 +71,11 @@ SOURCES += \
     sqlmanager/incomesqlmanager.cpp \
     sqlmanager/expensesqlmanager.cpp \
     models/abstractvisualtablemodel.cpp \
-    qmlapi/qmlincometransactionmodel.cpp
+    qmlapi/qmlincometransactionmodel.cpp \
+    qmlapi/qmlusermodel.cpp \
+    qmlapi/qmluserprivilegemodel.cpp \
+    json/userprivilegecenter.cpp \
+    models/userprivilegemodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -136,4 +140,8 @@ HEADERS += \
     sqlmanager/incomesqlmanager.h \
     sqlmanager/expensesqlmanager.h \
     models/abstractvisualtablemodel.h \
-    qmlapi/qmlincometransactionmodel.h
+    qmlapi/qmlincometransactionmodel.h \
+    qmlapi/qmlusermodel.h \
+    qmlapi/qmluserprivilegemodel.h \
+    json/userprivilegecenter.h \
+    models/userprivilegemodel.h

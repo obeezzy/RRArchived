@@ -16,7 +16,7 @@ MessageCenter::MessageCenter(QObject *parent) :
 QVariant MessageCenter::getMessage(const QString &key) const
 {
     if (key.trimmed().isEmpty())
-        return QString();
+        return QVariant();
 
     QFile file(MESSAGE_FILE);
     if (!file.open(QFile::ReadOnly))

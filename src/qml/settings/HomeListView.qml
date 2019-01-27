@@ -7,6 +7,8 @@ import "../rrui" as RRUi
 Flickable {
     id: homeListView
 
+    signal linkActivated(var link, var properties)
+
     width: 800
     height: 800
     topMargin: 32
@@ -34,7 +36,7 @@ Flickable {
 
             HomeRow {
                 title: qsTr("Manage other accounts")
-                onClicked: console.log("Account clicked!");
+                onClicked: homeListView.linkActivated(Qt.resolvedUrl("user/OtherUserAccountPage.qml"), { });
             }
 
             HomeRow {

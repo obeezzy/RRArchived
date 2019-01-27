@@ -19,7 +19,6 @@ private Q_SLOTS:
 
     void testSignUp();
     void testSignIn();
-    void testRemoveUser();
     void testIncorrectCredentialsError();
     void testNoUserNameProvidedError();
     void testNoPasswordProvidedError();
@@ -75,22 +74,6 @@ void QMLUserProfileTest::testSignIn()
 
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral("marines"));
 
-    QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(errorSpy.count(), 0);
-}
-
-void QMLUserProfileTest::testRemoveUser()
-{
-    auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-    };
-    QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
-    QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
-
-    databaseWillReturnEmptyResult();
-
-    m_userProfile->removeUser(QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
 }

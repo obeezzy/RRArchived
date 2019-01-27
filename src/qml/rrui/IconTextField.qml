@@ -25,7 +25,6 @@ Item {
         FluidControls.Icon {
             id: icon
             QQLayouts.Layout.alignment: Qt.AlignVCenter
-            name: "action/bug_report"
         }
 
         RRUi.TextField {
