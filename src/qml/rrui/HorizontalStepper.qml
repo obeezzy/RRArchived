@@ -17,7 +17,7 @@ QQC2.Pane {
     implicitHeight: 64
     padding: 0
 
-    background: Rectangle { }
+    background: Rectangle { color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white" }
 
     Flickable {
         id: flickable

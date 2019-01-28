@@ -64,6 +64,14 @@ bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &pa
     return true;
 }
 
+QString DatabaseUtils::createPasswordHash(const QString &password)
+{
+    if (password.trimmed().isEmpty())
+        return QString();
+
+    return QString(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256).toHex());
+}
+
 QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource, qint64 maxSize)
 {
     if (imageSource.trimmed().isEmpty())

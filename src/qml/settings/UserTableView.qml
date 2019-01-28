@@ -88,7 +88,7 @@ TableView {
             column: UserTableView.Columns.ActiveColumn
             delegate: RRUi.Switch {
                 checked: active
-                onToggled: userModel.activateUser(user_id, checked);
+                onToggled: userModel.activateUser(user, checked);
             }
         }
 

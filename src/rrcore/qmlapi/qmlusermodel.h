@@ -45,7 +45,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void removeUser(int userId);
-    Q_INVOKABLE void activateUser(int userId, bool active);
+    Q_INVOKABLE void activateUser(const QString &userName, bool active);
 signals:
     void keysChanged();
 public slots:

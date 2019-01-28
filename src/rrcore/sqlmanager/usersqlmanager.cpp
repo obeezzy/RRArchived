@@ -45,6 +45,8 @@ QueryResult UserSqlManager::execute(const QueryRequest &request)
             viewUserDetails(request, result);
         else if (request.command() == "update_user_privileges")
             updateUserPrivileges(request);
+        else if (request.command() == "change_password")
+            changePassword(request);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -362,6 +364,11 @@ void UserSqlManager::addUser(const QueryRequest &request)
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
+                                                               "password",
+                                                               DatabaseUtils::createPasswordHash(params.value("password").toString())
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
                                                                "photo",
                                                                DatabaseUtils::imageToByteArray(params.value("image_url").toString())
                                                            },
@@ -449,8 +456,8 @@ void UserSqlManager::activateUser(const QueryRequest &request)
         callProcedure("ActivateUser", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "user_id",
-                              params.value("user_id")
+                              "user_name",
+                              params.value("user_name")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -539,6 +546,54 @@ void UserSqlManager::viewUserDetails(const QueryRequest &request, QueryResult &r
 
     } catch (DatabaseException &) {
         throw;
+    }
+}
+
+void UserSqlManager::changePassword(const QueryRequest &request)
+{
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request.params();
+
+    QSqlQuery q(connection);
+
+    try {
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        callProcedure("ChangePassword", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_name",
+                              UserProfile::instance().userName()
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "old_password",
+                              DatabaseUtils::createPasswordHash(params.value("old_password").toString())
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "new_password",
+                              params.value("new_password")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "new_password_hash",
+                              DatabaseUtils::createPasswordHash(params.value("new_password").toString())
+                          }
+                      });
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+    } catch (DatabaseException &e) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException)) {
+            throw DatabaseException(DatabaseException::RRErrorCode::OldPasswordWrong, e.message(), e.userMessage());
+        } else {
+            throw;
+        }
     }
 }
 

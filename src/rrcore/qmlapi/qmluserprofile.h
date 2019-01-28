@@ -22,7 +22,8 @@ public:
         NoUserNameProvided,
         NoPasswordProvided,
         InvalidUserName,
-        IncorrectCredentials
+        IncorrectCredentials,
+        OldPasswordWrongError
     }; Q_ENUM(ErrorCode)
 
     bool isBusy() const;
@@ -35,6 +36,7 @@ public:
     Q_INVOKABLE void signIn(const QString &userName, const QString &password);
     Q_INVOKABLE void signInOnline(const QString &emailAddress, const QString &password);
     Q_INVOKABLE void signUp(const QString &userName, const QString &password);
+    Q_INVOKABLE void changePassword(const QString &oldPassword, const QString &newPassword);
 
     Q_INVOKABLE bool hasPrivilege(const QString &privilege);
 signals:
