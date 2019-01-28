@@ -127,5 +127,6 @@
         <file>rrui/SubView.qml</file>
         <file>rrui/ScrollBar.qml</file>
         <file>settings/user/UserPrivilegeListView.qml</file>
+        <file>rrui/Card.qml</file>
     </qresource>
 </RCC>

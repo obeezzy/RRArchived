@@ -4,7 +4,7 @@ import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import "../singletons"
 
-FluidControls.SnackBar{
+FluidControls.SnackBar {
     id: snackBar
     parent: FluidControls.ApplicationWindow.contentItem
     duration: GlobalSettings.shortToastDuration

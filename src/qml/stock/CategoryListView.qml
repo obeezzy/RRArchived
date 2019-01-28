@@ -31,22 +31,15 @@ ListView {
         onError: categoryListView.error(errorCode);
     }
 
-    QQC2.ScrollBar.vertical: QQC2.ScrollBar {
+    QQC2.ScrollBar.vertical: RRUi.ScrollBar {
         policy: QQC2.ScrollBar.AlwaysOn
         visible: categoryListView.contentHeight > categoryListView.height
-        size: .3
-        width: 5
-        contentItem: Rectangle {
-            color: Material.color(Material.Grey)
-            radius: width / 2
-        }
     }
 
-    delegate: Item {
+    delegate: RRUi.Card {
         width: ListView.view.width
         height: column.height
-
-        Rectangle { anchors.fill: parent }
+        Material.elevation: 0
 
         Column {
             id: column

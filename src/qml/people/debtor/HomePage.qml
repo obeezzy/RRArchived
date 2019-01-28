@@ -37,7 +37,7 @@ RRUi.Page {
     QQC2.StackView.onActivating: debtorListView.refresh();
 
     contentItem: FocusScope {
-        FluidControls.Card {
+        RRUi.Card {
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top

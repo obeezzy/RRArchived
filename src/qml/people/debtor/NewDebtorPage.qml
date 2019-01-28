@@ -33,7 +33,7 @@ RRUi.Page {
             }
             width: 800
 
-            transitionComponent: FluidControls.Card {
+            transitionComponent: RRUi.Card {
                 id: transitionItem
                 padding: 0
                 bottomPadding: 0

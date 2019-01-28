@@ -168,7 +168,7 @@ ListView {
                 height: contentItem.childrenRect.height + topPadding + bottomPadding
                 model: payment_model
                 visible: debtTransactionListView.count > 0
-                delegate: FluidControls.Card {
+                delegate: RRUi.Card {
                     id: paymentDelegate
 
                     readonly property bool isFirstItem: index === 0
@@ -358,13 +358,14 @@ ListView {
         NumberAnimation { properties: "x,y"; duration: 300 }
     }
 
-    RRUi.PlaceholderLabel {
+    FluidControls.Placeholder {
         anchors {
             verticalCenter: parent.verticalCenter
             left: parent.left
             right: parent.right
         }
         visible: debtTransactionListView.count === 0 && !debtTransactionListView.model.busy
+        icon.source: FluidControls.Utils.iconUrl("action/credit_card")
         text: qsTr("No transactions have been made by this debtor.");
     }
 

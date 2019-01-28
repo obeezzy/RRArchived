@@ -76,7 +76,9 @@ SOURCES += \
     qmlapi/qmluserprivilegemodel.cpp \
     json/userprivilegecenter.cpp \
     models/userprivilegemodel.cpp \
-    qmlapi/qmluserdetailrecord.cpp
+    qmlapi/qmluserdetailrecord.cpp \
+    qmlapi/qmlsettings.cpp \
+    singletons/settings.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -146,4 +148,6 @@ HEADERS += \
     qmlapi/qmluserprivilegemodel.h \
     json/userprivilegecenter.h \
     models/userprivilegemodel.h \
-    qmlapi/qmluserdetailrecord.h
+    qmlapi/qmluserdetailrecord.h \
+    qmlapi/qmlsettings.h \
+    singletons/settings.h

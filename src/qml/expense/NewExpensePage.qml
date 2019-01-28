@@ -56,7 +56,7 @@ RRUi.Page {
                 contentHeight: detailCard.height
                 flickableDirection: Flickable.VerticalFlick
 
-                FluidControls.Card {
+                RRUi.Card {
                     id: detailCard
 
                     padding: 32
@@ -243,7 +243,7 @@ RRUi.Page {
                 }
             }
 
-            FluidControls.Card {
+            RRUi.Card {
                 id: buttonCard
                 anchors {
                     left: parent.left

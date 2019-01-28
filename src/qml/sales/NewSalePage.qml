@@ -171,7 +171,7 @@ RRUi.Page {
 
             function suspendTransaction(params) { cartListView.suspendTransaction(params); }
 
-            FluidControls.Card {
+            RRUi.Card {
                 id: stockItemCard
                 width: parent.width * .66 - 8
                 anchors {
@@ -283,7 +283,7 @@ RRUi.Page {
                 QQLayouts.ColumnLayout {
                     anchors.fill: parent
 
-                    FluidControls.Card {
+                    RRUi.Card {
                         id: customerInfoCard
 
                         QQLayouts.Layout.fillWidth: true
@@ -356,7 +356,7 @@ RRUi.Page {
                         }
                     }
 
-                    FluidControls.Card {
+                    RRUi.Card {
                         id: cartCard
 
                         QQLayouts.Layout.fillWidth: true
@@ -438,7 +438,7 @@ RRUi.Page {
                         }
                     }
 
-                    FluidControls.Card {
+                    RRUi.Card {
                         id: checkoutCard
 
                         QQLayouts.Layout.fillWidth: true
