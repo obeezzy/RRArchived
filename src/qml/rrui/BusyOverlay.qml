@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls.Material 2.3
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import "../rrui" as RRUi
 
 FluidControls.OverlayView {
     id: busyOverlay
@@ -10,7 +11,7 @@ FluidControls.OverlayView {
     modal: true
     parent: FluidControls.ApplicationWindow.contentItem
 
-    FluidControls.Card {
+    RRUi.Card {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         width: 200

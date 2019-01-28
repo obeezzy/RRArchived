@@ -47,7 +47,7 @@ FluidControls.CircleImage {
         FluidControls.SubheadingLabel {
             id: label
             anchors.centerIn: parent
-            color: "white"
+            color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white"
             font.capitalization: Font.AllUppercase
             text: {
                 var words = letterCircleImage.name.split(" ");

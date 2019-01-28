@@ -48,7 +48,7 @@ RRUi.Page {
 
         width: 800
 
-        transitionComponent: FluidControls.Card {
+        transitionComponent: RRUi.Card {
             id: transitionItem
 
             function validateInput() {

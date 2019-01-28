@@ -11,7 +11,7 @@ RRUi.Page {
     signal finished
 
     contentItem: FocusScope {
-        FluidControls.Card {
+        RRUi.Card {
             anchors.centerIn: parent
             width: 1024
             height: 960

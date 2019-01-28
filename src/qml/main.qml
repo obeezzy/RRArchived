@@ -10,10 +10,10 @@ import "models"
 
 RRUi.ApplicationWindow {
     id: mainWindow
+
     title: qsTr("Record Rack")
     visibility: FluidControls.ApplicationWindow.Maximized
     pageStack.anchors.leftMargin: sidebar.expanded ? sidebar.width : 0
-
     initialPage: userProfile.isFirstTime ? onboardingPage : loginPage
 
     RRUi.Sidebar {
@@ -23,6 +23,7 @@ RRUi.ApplicationWindow {
     }
 
     RR.UserProfile { id: userProfile }
+    RR.Settings { id: settings }
 
     Component {
         id: onboardingPage

@@ -18,6 +18,7 @@ QQC2.Control {
     implicitHeight: 20
 
     background: Rectangle {
+        color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white"
         radius: 2
         border {
             width: 2

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
+import "../rrui" as RRUi
 
 Item {
     id: homeCard
@@ -24,7 +25,7 @@ Item {
         text: homeCard.title
     }
 
-    FluidControls.Card {
+    RRUi.Card {
         id: card
         anchors {
             top: titleLabel.bottom

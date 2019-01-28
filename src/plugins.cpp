@@ -30,6 +30,7 @@
 #include "rrcore/qmlapi/qmlusermodel.h"
 #include "rrcore/qmlapi/qmluserprivilegemodel.h"
 #include "rrcore/qmlapi/qmluserdetailrecord.h"
+#include "rrcore/qmlapi/qmlsettings.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -47,6 +48,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLUserProfile>("com.gecko.rr", 1, 0, "UserProfile");
     qmlRegisterType<QMLDatabaseCreator>("com.gecko.rr", 1, 0, "DatabaseCreator");
     qmlRegisterSingletonType<QMLNotifier>("com.gecko.rr", 1, 0, "Notifier", notifier_provider);
+    qmlRegisterType<QMLSettings>("com.gecko.rr", 1, 0, "Settings");
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");

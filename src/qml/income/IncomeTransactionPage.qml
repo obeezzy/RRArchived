@@ -56,7 +56,7 @@ RRUi.Page {
     contentItem: FocusScope {
         focus: true
 
-        FluidControls.Card {
+        RRUi.Card {
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top

@@ -61,7 +61,7 @@ RRUi.Page {
                 contentHeight: detailCard.height
                 flickableDirection: Flickable.VerticalFlick
 
-                FluidControls.Card {
+                RRUi.Card {
                     id: detailCard
 
                     property bool userAddedCategory: false
@@ -108,7 +108,7 @@ RRUi.Page {
                                 FluidControls.Icon {
                                     anchors.centerIn: parent
                                     visible: itemImage.name === "" && itemImage.status !== Image.Ready
-                                    color: "white"
+                                    color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white"
                                     source: FluidControls.Utils.iconUrl("image/photo_camera")
                                 }
                             }
@@ -185,7 +185,7 @@ RRUi.Page {
                                         anchors.verticalCenter: parent.verticalCenter
                                         width: 200
                                         font.pixelSize: 17
-                                        color: detailCard.categoryText == "" ? Material.color(Material.Grey) : "black"
+                                        color: detailCard.categoryText == "" ? Material.color(Material.Grey) : Material.theme === Material.Dark ? "white" : "black"
                                         text: detailCard.defaultCategoryText
                                         visible: detailCard.userAddedCategory || !categoryComboBox.count
                                     }
@@ -458,7 +458,7 @@ RRUi.Page {
                 }
             }
 
-            FluidControls.Card {
+            RRUi.Card {
                 id: buttonCard
                 anchors {
                     left: parent.left

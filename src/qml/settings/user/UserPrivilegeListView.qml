@@ -44,7 +44,7 @@ ListView {
         onSuccess: userPrivilegeListView.success(successCode);
         onError: userPrivilegeListView.error(errorCode);
     }
-    delegate: FluidControls.Card {
+    delegate: RRUi.Card {
         id: card
         readonly property int groupIndex: index
 

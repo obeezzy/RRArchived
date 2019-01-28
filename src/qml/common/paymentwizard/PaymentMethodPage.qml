@@ -43,7 +43,7 @@ QQC2.Page {
                             size: FluidControls.Units.iconSizes.medium
                         }
 
-                        Text {
+                        FluidControls.BodyLabel {
                             anchors.verticalCenter: parent.verticalCenter
                             text: radioButton.text
                             font: radioButton.font

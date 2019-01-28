@@ -35,7 +35,7 @@ RRUi.Page {
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
 
-    FluidControls.Card {
+    RRUi.Card {
         width: 800
         anchors {
             horizontalCenter: parent.horizontalCenter

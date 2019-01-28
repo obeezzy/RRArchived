@@ -1,8 +1,8 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 
-RadioButton {
+QQC2.RadioButton {
     id: radioButton
 
     contentItem: Row {
@@ -15,7 +15,7 @@ RadioButton {
             size: FluidControls.Units.iconSizes.medium
         }
 
-        Text {
+        FluidControls.BodyLabel {
             anchors.verticalCenter: parent.verticalCenter
             text: radioButton.text
             font: radioButton.font

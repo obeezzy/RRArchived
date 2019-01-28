@@ -68,7 +68,7 @@ QQC2.Page {
                         checked: index === 0
                         QQC2.ButtonGroup.group: buttonGroup
 
-                        contentItem: Text {
+                        contentItem: FluidControls.BodyLabel {
                             text: radioButton.text
                             font: radioButton.font
                             horizontalAlignment: Text.AlignLeft
