@@ -84,9 +84,11 @@ RRUi.Page {
                         switch (successCode) {
                         case RRModels.UserModel.RemoveUserSuccess:
                             otherUserAccountPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("User deleted."), qsTr("Undo"));
+                            userTableView.refresh();
                             break;
                         case RRModels.UserModel.UndoRemoveUserSuccess:
                             otherUserAccountPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));
+                            userTableView.refresh();
                             break;
                         }
                     }
@@ -160,13 +162,13 @@ RRUi.Page {
             text: qsTr("Are you sure you want to remove this user?");
             standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
             onAccepted: {
-                userTableView.removeUser(modelData.user_id);
+                userTableView.removeUser(modelData.user);
                 deleteConfirmationDialog.modelData = null;
             }
 
             function show(modelData) {
-                if (Object(modelData).hasOwnProperty("user_id")) {
-                    text = qsTr("Are you sure you want to remove this user <b>%1</b> from the list?").arg(modelData.user_id);
+                if (Object(modelData).hasOwnProperty("user")) {
+                    text = qsTr("Are you sure you want to delete \"<b>%1</b>\" from the list?").arg(modelData.user);
                     deleteConfirmationDialog.modelData = modelData;
                     open();
                 }

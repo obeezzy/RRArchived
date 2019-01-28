@@ -273,6 +273,9 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
         case static_cast<int>(DatabaseException::RRErrorCode::CreateUserFailed):
             emit error(UserAlreadyExistsError);
             break;
+        case static_cast<int>(DatabaseException::RRErrorCode::UserPreviouslyArchived):
+            emit error(UserPreviouslyArchivedError);
+            break;
         default:
             emit error();
         }

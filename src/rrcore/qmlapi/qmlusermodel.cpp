@@ -100,6 +100,7 @@ void QMLUserModel::processResult(const QueryResult result)
                 m_records = result.outcome().toMap().value("users").toList();
                 emit success(ViewUsersSuccess);
             } else if (result.request().command() == "remove_user") {
+                removeUserFromModel(result.request().params().value("user_name").toString());
                 emit success(RemoveUserSuccess);
             } else if (result.request().command() == "undo_remove_user") {
                 emit success(UndoRemoveUserSuccess);
@@ -111,13 +112,25 @@ void QMLUserModel::processResult(const QueryResult result)
     }
 }
 
-void QMLUserModel::removeUser(int userId)
+void QMLUserModel::removeUserFromModel(const QString &userName)
 {
-    qInfo() << Q_FUNC_INFO << userId;
+    if (userName.trimmed().isEmpty())
+        return;
+
+    for (int i = 0; i < m_records.count(); ++i) {
+        if (userName == m_records.at(i).toMap().value("user_name").toString()) {
+            m_records.removeAt(i);
+            break;
+        }
+    }
+}
+
+void QMLUserModel::removeUser(const QString &userName)
+{
     setBusy(true);
 
     QueryRequest request(this);
-    request.setCommand("remove_user", { { "user_id", userId } }, QueryRequest::User);
+    request.setCommand("remove_user", { { "user_name", userName } }, QueryRequest::User);
     emit executeRequest(request);
 }
 

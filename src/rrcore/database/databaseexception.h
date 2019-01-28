@@ -54,13 +54,16 @@ public:
         ImageTooLarge,
         InsufficientUserPrivileges,
         AddUserFailed,
-        OldPasswordWrong
+        OldPasswordWrong,
+        UserAccountIsLocked,
+        UserPreviouslyArchived
     };
 
     enum class MySqlErrorCode {
         DuplicateEntryError = 1062,
         CreateUserError = 1396,
-        UserDefinedException = 1644
+        UserDefinedException = 1644,
+        UserAccountIsLockedError = 3118
     };
     explicit DatabaseException(int errorCode);
     explicit DatabaseException(RRErrorCode errorCode, const QString &message, const QString &userMessage = "");

@@ -211,6 +211,9 @@ RRUi.Page {
                     case RRModels.UserPrivilegeModel.ImageTooLargeError:
                         errorDialog.show(qsTr("The image provided is too large. The image must be less than 2 MB."));
                         break;
+                    case RRModels.UserPrivilegeModel.UserPreviouslyArchivedError:
+                        errorDialog.show(qsTr("A user with the same user name was previously archived. You must use a different user name or unarchive the user."));
+                        break;
                     default:
                         errorDialog.show();
                     }

@@ -112,6 +112,9 @@ RRUi.Page {
             case RR.UserProfile.IncorrectCredentials:
                 errorDialog.show(qsTr("Your user name or password is incorrect."), qsTr("Failed to sign in"), errorCode);
                 break;
+            case RR.UserProfile.UserAccountIsLockedError:
+                errorDialog.show(qsTr("This account has been locked. Please contact the administrator."), qsTr("Failed to sign in"), errorCode);
+                break;
             default:
                 errorDialog.show(qsTr("The cause of the error could not be determined."), qsTr("Failed to sign in"), errorCode);
                 break;

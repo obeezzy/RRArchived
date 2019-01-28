@@ -24,7 +24,7 @@ END;
 
 CREATE PROCEDURE AddRRUser (
     IN iUser VARCHAR(100),
-    IN iPassword VARCHAR(100),
+    IN iPasswordHash VARCHAR(256),
     IN iFirstName VARCHAR(100),
     IN iLastName VARCHAR(100),
     IN iPhoto BLOB,
@@ -34,15 +34,22 @@ CREATE PROCEDURE AddRRUser (
     IN iUserId INTEGER
 )
 BEGIN
+    SET @archived := NULL;
+    SELECT archived INTO @archived FROM user_ WHERE user = iUser AND archived = TRUE;
+    IF @archived IS NOT NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'This user was previously archived.';
+    END IF;
+
     INSERT INTO user_ (user, password, first_name, last_name, photo, phone_number, email_address, note_id, created, last_edited, user_id)
-        VALUES (iUser, iPassword, iFirstName, iLastName, iPhoto, iPhoneNumber, iEmailAddress, iNoteId, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
+        VALUES (iUser, iPasswordHash, iFirstName, iLastName, iPhoto, iPhoneNumber, iEmailAddress, iNoteId, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId);
     SELECT LAST_INSERT_ID() AS user_id;
 END;
 
 ---
 
 CREATE PROCEDURE ActivateUser (
-    IN iUser INTEGER,
+    IN iUser VARCHAR(50),
     IN iActive BOOLEAN
 )
 BEGIN
@@ -94,13 +101,30 @@ END;
 
 ---
 
-CREATE PROCEDURE GrantPrivilege (
+CREATE PROCEDURE GrantSqlPrivilege (
+    IN iUser VARCHAR(50),
     IN iPrivilege VARCHAR(30)
 )
 BEGIN
     DECLARE _HOST CHAR(14) DEFAULT '@\'localhost\'';
-    SET @user := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
-    SET @sql := CONCAT('GRANT ', iPrivilege, ' ON *.* TO ', @user, _HOST);
+    SET iUser := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
+    SET @sql := CONCAT('GRANT ', iPrivilege, ' ON *.* TO ', iUser, _HOST);
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+    FLUSH PRIVILEGES;
+END;
+
+---
+
+CREATE PROCEDURE RevokeSqlPrivilege (
+    IN iUser VARCHAR(50),
+    IN iPrivilege VARCHAR(30)
+)
+BEGIN
+    DECLARE _HOST CHAR(14) DEFAULT '@\'localhost\'';
+    SET iUser := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
+    SET @sql := CONCAT('REVOKE ', iPrivilege, ' ON *.* TO ', iUser, _HOST);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
@@ -137,8 +161,8 @@ CREATE PROCEDURE ViewUserDetails (
 BEGIN
     SELECT first_name, last_name, user AS user_name, photo, phone_number, email_address, active, note
         FROM user_
-        LEFT JOIN note ON user.note_id = note.id
-        WHERE user.id = iUserId AND user.archived = IFNULL(iArchived, FALSE);
+        LEFT JOIN note ON user_.note_id = note.id
+        WHERE user_.id = iUserId AND user_.archived = IFNULL(iArchived, FALSE);
 END;
 
 ---
@@ -164,6 +188,24 @@ BEGIN
 	SET iUser := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\''),
         iNewPasswordHash := CONCAT('\'', REPLACE(iNewPasswordHash, CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
     SET @sql := CONCAT('ALTER USER ', iUser, ' IDENTIFIED BY ', iNewPasswordHash);
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+    FLUSH PRIVILEGES;
+END;
+
+---
+
+CREATE PROCEDURE RemoveUser (
+    iUser VARCHAR(40)
+)
+BEGIN
+    DECLARE _HOST CHAR(14) DEFAULT '@\'localhost\'';
+
+    UPDATE user_ SET archived = TRUE WHERE user_.user = iUser;
+
+	SET iUser := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
+    SET @sql := CONCAT('DROP USER ', iUser, _HOST);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
