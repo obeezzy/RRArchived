@@ -23,7 +23,7 @@ Flickable {
         onSuccess: {
             switch (successCode) {
             case RR.UserProfile.SignOutSuccess:
-                signOutConfirmationDialog.show();
+                homeListView.signedOut();
                 break;
             }
         }
@@ -57,7 +57,7 @@ Flickable {
             HomeRow {
                 title: qsTr("Sign out")
                 subtitle: userProfile.userName
-                onClicked: userProfile.signOut();
+                onClicked: signOutConfirmationDialog.show();
             }
         }
 
@@ -165,6 +165,6 @@ Flickable {
         width: 300
         text: qsTr("Are you sure you want to sign out?");
         standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
-        onAccepted: homeListView.signedOut();
+        onAccepted: userProfile.signOut();
     }
 }
