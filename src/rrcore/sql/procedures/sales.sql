@@ -145,12 +145,12 @@ BEGIN
 	SELECT category.id as category_id, category.category, sale_item.item_id, item.item,
 		sale_item.unit_price, sale_item.quantity, sale_item.unit_id,
 		unit.unit, sale_item.cost, sale_item.discount, sale_item.currency, sale_item.note_id, note.note,
-        sale_item.archived, sale_item.created, sale_item.last_edited, sale_item.user_id, user.user FROM sale_item
+        sale_item.archived, sale_item.created, sale_item.last_edited, sale_item.user_id, user_.user FROM sale_item
         INNER JOIN item ON sale_item.item_id = item.id
         INNER JOIN category ON category.id = item.category_id
         INNER JOIN unit ON sale_item.unit_id = unit.id
         INNER JOIN sale_transaction ON sale_transaction.id = sale_item.sale_transaction_id
-		LEFT JOIN user ON sale_item.user_id = user.id
+		LEFT JOIN user_ ON sale_item.user_id = user_.id
         LEFT JOIN note ON sale_transaction.note_id = note.id
         WHERE sale_transaction_id = iTransactionId AND sale_transaction.suspended = iSuspended
         AND sale_transaction.archived = iArchived;

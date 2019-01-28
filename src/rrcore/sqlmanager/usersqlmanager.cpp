@@ -47,6 +47,8 @@ QueryResult UserSqlManager::execute(const QueryRequest &request)
             updateUserPrivileges(request);
         else if (request.command() == "change_password")
             changePassword(request);
+        else if (request.command() == "sign_out_user")
+            signOut(request);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -119,9 +121,14 @@ void UserSqlManager::signInUser(const QueryRequest &request, QueryResult &result
     connection.setPassword(password);
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
-    if (!connection.open() || !storeProfile(result, userName))
-        throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection.lastError().text(),
-                                QString("Failed to sign in as '%1'.").arg(userName));
+    if (!connection.open() || !storeProfile(result, userName)) {
+        if (connection.lastError().number() == static_cast<int>(DatabaseException::MySqlErrorCode::UserAccountIsLockedError))
+            throw DatabaseException(DatabaseException::RRErrorCode::UserAccountIsLocked, connection.lastError().text(),
+                                    QString("Failed to sign in as '%1'.").arg(userName));
+        else
+            throw DatabaseException(DatabaseException::RRErrorCode::SignInFailure, connection.lastError().text(),
+                                    QString("Failed to sign in as '%1'.").arg(userName));
+    }
 }
 
 void UserSqlManager::signUpUser(const QueryRequest &request)
@@ -243,30 +250,30 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
 
 void UserSqlManager::removeUser(const QueryRequest &request)
 {
-    QSqlDatabase connection;
-    const QString &userName = request.params().value("user_name").toString();
-
-    if (!QSqlDatabase::contains())
-        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
-    else
-        connection = QSqlDatabase::database(connectionName());
-
-    if (!connection.isOpen())
-        throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure,
-                                connection.lastError().text(), QString("Connection is closed."));
-
-    if (UserProfile::instance().userId() > 1)
-        throw DatabaseException(DatabaseException::RRErrorCode::InsufficientUserPrivileges,
-                                "You must be a super user to perform this action.");
-
+    const QVariantMap &params = request.params();
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
-    q.prepare("DROP USER :user_name@'localhost'");
-    q.bindValue(":user_name", userName);
 
-    if (!q.exec())
-        throw DatabaseException(DatabaseException::RRErrorCode::RemoveUserFailure,
-                                q.lastError().text(),
-                                QString("Failed to drop user '%1'.").arg(userName));
+    try {
+        if (!DatabaseUtils::beginTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+
+        callProcedure("RemoveUser", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_name",
+                              params.value("user_name")
+                          }
+                      });
+
+        if (!DatabaseUtils::commitTransaction(q))
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+    } catch (DatabaseException &) {
+        if (!DatabaseUtils::rollbackTransaction(q))
+            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+
+        throw;
+    }
 }
 
 void UserSqlManager::viewUsers(const QueryRequest &request, QueryResult &result)
@@ -349,16 +356,6 @@ void UserSqlManager::addUser(const QueryRequest &request)
         const QList<QSqlRecord> &records(callProcedure("AddRRUser", {
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
-                                                               "first_name",
-                                                               params.value("first_name")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "last_name",
-                                                               params.value("last_name")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
                                                                "user_name",
                                                                params.value("user_name")
                                                            },
@@ -366,6 +363,16 @@ void UserSqlManager::addUser(const QueryRequest &request)
                                                                ProcedureArgument::Type::In,
                                                                "password",
                                                                DatabaseUtils::createPasswordHash(params.value("password").toString())
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "first_name",
+                                                               params.value("first_name")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "last_name",
+                                                               params.value("last_name")
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
@@ -433,12 +440,16 @@ void UserSqlManager::addUser(const QueryRequest &request)
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
-        if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::DuplicateEntryError))
+        switch (e.code()) {
+        case static_cast<int>(DatabaseException::MySqlErrorCode::DuplicateEntryError):
             throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
-        else if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::CreateUserError))
+        case static_cast<int>(DatabaseException::MySqlErrorCode::CreateUserError):
             throw DatabaseException(DatabaseException::RRErrorCode::CreateUserFailed, e.message(), e.userMessage());
-        else
+        case static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException):
+            throw DatabaseException(DatabaseException::RRErrorCode::UserPreviouslyArchived, e.message(), e.userMessage());
+        default:
             throw;
+        }
     }
 }
 
@@ -595,6 +606,12 @@ void UserSqlManager::changePassword(const QueryRequest &request)
             throw;
         }
     }
+}
+
+void UserSqlManager::signOut(const QueryRequest &)
+{
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    connection.close();
 }
 
 void UserSqlManager::grantPrivilege(const QString &privilege, const QString &userName, QSqlQuery &q)

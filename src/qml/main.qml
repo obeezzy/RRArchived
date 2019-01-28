@@ -70,4 +70,15 @@ RRUi.ApplicationWindow {
             mainWindow.pageStack.replace(link, properties);
         }
     }
+
+    Connections {
+        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "settingsHomePage" ?
+                    mainWindow.pageStack.currentItem : null
+        onSignedOut: {
+            mainWindow.appBar.visible = false;
+            sidebar.expanded = false;
+            sidebar.currentIndex = 0;
+            mainWindow.pageStack.replace(null, loginPage);
+        }
+    }
 }

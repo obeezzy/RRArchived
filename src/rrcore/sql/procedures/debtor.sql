@@ -196,10 +196,10 @@ BEGIN
 		(SELECT debt_transaction.id FROM debt_transaction
 		WHERE debt_transaction.debtor_id = debtor.id AND debt_transaction.archived = 0)
 		AND debt_payment.archived = 0 ORDER BY debt_payment.last_edited DESC LIMIT 1) AS total_debt,
-		note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user.user
+		note.note AS note, debtor.created, debtor.last_edited, debtor.user_id, user_.user
 		FROM debtor
 		INNER JOIN client ON client.id = debtor.client_id
-		LEFT JOIN user ON user.id = debtor.user_id
+		LEFT JOIN user_ ON user_.id = debtor.user_id
 		LEFT JOIN note ON debtor.note_id = note.id
 		WHERE debtor.archived = 0 AND debtor.id = iDebtorId;
 END;

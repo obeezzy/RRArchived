@@ -9,6 +9,7 @@ Flickable {
     id: homeListView
 
     signal linkActivated(var link, var properties)
+    signal signedOut
 
     width: 800
     height: 800
@@ -16,6 +17,17 @@ Flickable {
     bottomMargin: 32
     contentWidth: column.width
     contentHeight: column.height
+
+    RR.UserProfile {
+        id: userProfile
+        onSuccess: {
+            switch (successCode) {
+            case RR.UserProfile.SignOutSuccess:
+                signOutConfirmationDialog.show();
+                break;
+            }
+        }
+    }
 
     RR.Settings { id: settings }
 
@@ -39,8 +51,13 @@ Flickable {
             }
 
             HomeRow {
+                title: qsTr("Change password")
+            }
+
+            HomeRow {
                 title: qsTr("Sign out")
-                subtitle: qsTr("Oluchi")
+                subtitle: userProfile.userName
+                onClicked: userProfile.signOut();
             }
         }
 
@@ -60,6 +77,11 @@ Flickable {
                     checked: settings.darkModeActive
                     onToggled: settings.darkModeActive = checked;
                 }
+            }
+
+            HomeRow {
+                title: qsTr("Customize receipt")
+                subtitle: qsTr("Edit the appearance of the receipts")
             }
         }
 
@@ -92,40 +114,57 @@ Flickable {
                 subtitle: qsTr("Allow users on the same local network to find you")
                 control: RRUi.Switch { checked: false }
             }
+
+            HomeRow {
+                title: qsTr("Device lock")
+                subtitle: qsTr("Allow this device to access the remote server.")
+                control: RRUi.Switch { checked: false }
+            }
         }
 
-//        populate: Transition {
-//            id: populateTransition
+        //        populate: Transition {
+        //            id: populateTransition
 
-//            SequentialAnimation {
-//                PropertyAction {
-//                    property: "y"
-//                    value: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
-//                }
+        //            SequentialAnimation {
+        //                PropertyAction {
+        //                    property: "y"
+        //                    value: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
+        //                }
 
-//                PropertyAction {
-//                    property: "opacity"
-//                    value: .1
-//                }
+        //                PropertyAction {
+        //                    property: "opacity"
+        //                    value: .1
+        //                }
 
-//                PauseAnimation { duration: 300 }
-//                ParallelAnimation {
-//                    YAnimator {
-//                        duration: 300
-//                        from: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
-//                        to: populateTransition.ViewTransition.destination.y
-//                        easing.type: Easing.OutCubic
-//                    }
+        //                PauseAnimation { duration: 300 }
+        //                ParallelAnimation {
+        //                    YAnimator {
+        //                        duration: 300
+        //                        from: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
+        //                        to: populateTransition.ViewTransition.destination.y
+        //                        easing.type: Easing.OutCubic
+        //                    }
 
-//                    NumberAnimation {
-//                        target: populateTransition.ViewTransition.item
-//                        property: "opacity"
-//                        duration: 300
-//                        to: 1
-//                        easing.type: Easing.OutCubic
-//                    }
-//                }
-//            }
-//        }
+        //                    NumberAnimation {
+        //                        target: populateTransition.ViewTransition.item
+        //                        property: "opacity"
+        //                        duration: 300
+        //                        to: 1
+        //                        easing.type: Easing.OutCubic
+        //                    }
+        //                }
+        //            }
+        //        }
+    }
+
+    RRUi.AlertDialog {
+        id: signOutConfirmationDialog
+
+        property var modelData: null
+
+        width: 300
+        text: qsTr("Are you sure you want to sign out?");
+        standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
+        onAccepted: homeListView.signedOut();
     }
 }

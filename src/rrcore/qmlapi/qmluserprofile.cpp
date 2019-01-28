@@ -47,6 +47,11 @@ bool QMLUserProfile::isAdmin() const
     return UserProfile::instance().isAdmin();
 }
 
+QString QMLUserProfile::userName() const
+{
+    return UserProfile::instance().userName();
+}
+
 void QMLUserProfile::signIn(const QString &userName, const QString &password)
 {
     qInfo() << Q_FUNC_INFO << userName << password;
@@ -86,6 +91,25 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
     }
 }
 
+void QMLUserProfile::signOut()
+{
+    QueryRequest request(this);
+    request.setCommand("sign_out_user", { }, QueryRequest::User);
+    emit executeRequest(request);
+}
+
+void QMLUserProfile::changePassword(const QString &oldPassword, const QString &newPassword)
+{
+    if (oldPassword.isEmpty() || newPassword.isEmpty()) {
+        emit error(IncorrectCredentials);
+        return;
+    }
+
+    QueryRequest request(this);
+    request.setCommand("change_password", { { "old_password", oldPassword }, { "new_password", newPassword } }, QueryRequest::User);
+    emit executeRequest(request);
+}
+
 bool QMLUserProfile::hasPrivilege(const QString &privilege)
 {
     if (privilege.trimmed().isEmpty())
@@ -102,20 +126,26 @@ void QMLUserProfile::processResult(const QueryResult &result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (!result.outcome().toMap().isEmpty())
+        if (result.request().command() == "sign_out_user") {
+            emit success(SignOutSuccess);
+        } else if (!result.outcome().toMap().isEmpty()) {
             UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
                                             result.outcome().toMap().value("user_name").toString(),
                                             result.outcome().toMap().value("user_privileges")
                                             );
 
-        emit success();
+            emit success(UnknownSuccess);
+        }
     } else {
         switch (result.errorCode()) {
+        case static_cast<int>(DatabaseException::RRErrorCode::UserAccountIsLocked):
+            emit error(UserAccountIsLockedError);
+            break;
         case static_cast<int>(DatabaseException::RRErrorCode::SignInFailure):
             emit error(IncorrectCredentials);
             break;
         default:
-            emit error(Unknown);
+            emit error(UnknownError);
             break;
         }
     }

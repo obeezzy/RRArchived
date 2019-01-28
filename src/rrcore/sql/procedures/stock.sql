@@ -30,7 +30,7 @@ BEGIN
         INNER JOIN category ON item.category_id = category.id
         INNER JOIN unit ON item.id = unit.item_id
         INNER JOIN current_quantity ON item.id = current_quantity.item_id
-        LEFT JOIN user ON item.user_id = user.id
+        LEFT JOIN user_ ON item.user_id = user_.id
         WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
         AND category.category LIKE (CASE
                                     WHEN LOWER(iFilterColumn) = 'category'
@@ -88,12 +88,12 @@ BEGIN
     SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description,
         item.divisible, item.image, current_quantity.quantity,
         unit.id as unit_id, unit.unit, unit.cost_price,
-        unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, 'user' AS user
+        unit.retail_price, unit.currency, item.created, item.last_edited, item.user_id, user_.user AS user
         FROM item
         INNER JOIN category ON item.category_id = category.id
         INNER JOIN unit ON item.id = unit.item_id
         INNER JOIN current_quantity ON item.id = current_quantity.item_id
-        LEFT JOIN user ON item.user_id = user.id
+        LEFT JOIN user_ ON item.user_id = user.id
         WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
         AND item.id = iItemId;
 END;
@@ -285,7 +285,7 @@ BEGIN
 		INNER JOIN category ON item.category_id = category.id
 		INNER JOIN unit ON item.id = unit.item_id
 		INNER JOIN current_quantity ON item.id = current_quantity.item_id
-		LEFT JOIN user ON item.user_id = iUserId
+		LEFT JOIN user_ ON item.user_id = iUserId
 		WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
 		AND item.id = iItemId;
 END;

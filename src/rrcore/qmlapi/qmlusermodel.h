@@ -44,7 +44,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    Q_INVOKABLE void removeUser(int userId);
+    Q_INVOKABLE void removeUser(const QString &userName);
     Q_INVOKABLE void activateUser(const QString &userName, bool active);
 signals:
     void keysChanged();
@@ -56,6 +56,8 @@ protected:
 private:
     QVariantList m_records;
     int m_keys;
+
+    void removeUserFromModel(const QString &userName);
 };
 
 #endif // QMLUSERMODEL_H

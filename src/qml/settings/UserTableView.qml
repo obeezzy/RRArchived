@@ -28,7 +28,7 @@ TableView {
     signal success(int successCode)
     signal error(int errorCode)
 
-    function removeUser(userId) { userTableView.model.removeUser(userId); }
+    function removeUser(userName) { userTableView.model.removeUser(userName); }
     function refresh() { userTableView.model.refresh(); }
     function undoLastCommit() { userTableView.model.undoLastCommit(); }
 
@@ -105,7 +105,8 @@ TableView {
             column: UserTableView.Columns.ActionColumn
             delegate: Loader {
                 readonly property var modelData: {
-                    "user_id": model.user_id
+                    "user_id": model.user_id,
+                    "user": model.user
                 }
 
                 sourceComponent: userTableView.buttonRow

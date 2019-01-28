@@ -10,6 +10,7 @@ RRUi.Page {
     objectName: "settingsHomePage"
 
     signal linkActivated(var link, var properties)
+    signal signedOut
 
     title: qsTr("Settings")
     topPadding: 0
@@ -32,5 +33,6 @@ RRUi.Page {
         }
 
         onLinkActivated: homePage.push(link, properties);
+        onSignedOut: homePage.signedOut();
     }
 }

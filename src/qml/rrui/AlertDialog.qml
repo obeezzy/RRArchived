@@ -5,4 +5,6 @@ import Fluid.Controls 1.0 as FluidControls
 
 FluidControls.AlertDialog {
     parent: QQC2.ApplicationWindow.contentItem
+
+    function show() { open(); }
 }

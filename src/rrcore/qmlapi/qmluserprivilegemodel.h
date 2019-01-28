@@ -37,7 +37,8 @@ public:
         NoPhoneNumberSetError,
         NoEmailAddressSetError,
         UserAlreadyExistsError,
-        ImageTooLargeError
+        ImageTooLargeError,
+        UserPreviouslyArchivedError
     }; Q_ENUM(ErrorCode)
 
     explicit QMLUserPrivilegeModel(QObject *parent = nullptr);
