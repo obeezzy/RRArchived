@@ -28,7 +28,19 @@ RRUi.ApplicationWindow {
     Component {
         id: onboardingPage
 
-        OnboardingPage { onFinished: mainWindow.pageStack.replace(loginPage); }
+        OnboardingPage { onFinished: mainWindow.pageStack.replace(null, loginPage); }
+    }
+
+    Component {
+        id: passwordChangePage
+
+        PasswordChangePage {
+            onAccepted: mainWindow.pageStack.replace(null, sidebar.model.get(0).fileName);
+            QQC2.StackView.onRemoved: {
+                mainWindow.appBar.visible = true;
+                sidebar.expanded = true;
+            }
+        }
     }
 
     Component {
@@ -36,10 +48,17 @@ RRUi.ApplicationWindow {
 
         LoginPage {
             QQC2.StackView.onRemoved: {
-                mainWindow.appBar.visible = true;
-                sidebar.expanded = true;
+                if (!userProfile.isFirstTime) {
+                    mainWindow.appBar.visible = true;
+                    sidebar.expanded = true;
+                }
             }
-            onLoggedIn: mainWindow.pageStack.replace(sidebar.model.get(0).fileName);
+            onLoggedIn: {
+                if (userProfile.isFirstTime)
+                    mainWindow.pageStack.replace(null, passwordChangePage);
+                else
+                    mainWindow.pageStack.replace(null, sidebar.model.get(0).fileName);
+            }
         }
     }
 

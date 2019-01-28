@@ -121,11 +121,11 @@ void QMLUserModel::removeUser(int userId)
     emit executeRequest(request);
 }
 
-void QMLUserModel::activateUser(int userId, bool active)
+void QMLUserModel::activateUser(const QString &userName, bool active)
 {
     setBusy(true);
 
     QueryRequest request(this);
-    request.setCommand("activate_user", { { "user_id", userId }, { "active", active } }, QueryRequest::User);
+    request.setCommand("activate_user", { { "user_name", userName }, { "active", active } }, QueryRequest::User);
     emit executeRequest(request);
 }

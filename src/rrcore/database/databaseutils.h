@@ -17,11 +17,13 @@ public:
     static QByteArray imageToByteArray(const QString &imageSource, qint64 maxSize = 2 * 1024 * 1000 /* 2MB limit */); // Throws DatabaseException
     static QString byteArrayToImage(const QByteArray &imageData);
 
-    static QString generateFileName(const QByteArray &imageData);
-
     static bool connectToDatabase(const QString &userName, const QString &password, const QString &databaseName, const QString &connectionName);
+
+    static QString createPasswordHash(const QString &password);
 private:
     explicit DatabaseUtils(QObject *parent = nullptr);
+
+    static QString generateFileName(const QByteArray &imageData);
 };
 
 #endif // DATABASEUTILS_H

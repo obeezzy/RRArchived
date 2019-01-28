@@ -403,9 +403,10 @@ CREATE TABLE unit_relation (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user table
-CREATE TABLE user (
+CREATE TABLE user_ (
     id INT(11) NOT NULL AUTO_INCREMENT,
     user VARCHAR(60) NOT NULL,
+    password VARCHAR(256) NOT NULL,
     first_name VARCHAR(60) NOT NULL,
     last_name VARCHAR(60) NOT NULL,
     photo BLOB DEFAULT NULL,
@@ -430,6 +431,16 @@ CREATE TABLE user_privilege (
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create user privilege preset table
+CREATE TABLE user_privilege_preset (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    preset JSON NOT NULL,
+    created DATETIME NOT NULL,
+    last_edited DATETIME NOT NULL,
+    user_id INT(11) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- Create vendor table
 CREATE TABLE vendor (
     id INT(11) NOT NULL AUTO_INCREMENT,
@@ -444,5 +455,6 @@ CREATE TABLE vendor (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Add admin user
-INSERT INTO user (user, first_name, last_name, active, created, last_edited, user_id)
-    VALUES ('root', 'Admin', 'Admin', TRUE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 1);
+INSERT INTO user_ (user, password, first_name, last_name, active, created, last_edited, user_id)
+    VALUES ('root', '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+            'Admin', 'Admin', TRUE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 1);

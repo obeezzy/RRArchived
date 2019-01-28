@@ -53,7 +53,8 @@ public:
         EmptyResultSet,
         ImageTooLarge,
         InsufficientUserPrivileges,
-        AddUserFailed
+        AddUserFailed,
+        OldPasswordWrong
     };
 
     enum class MySqlErrorCode {

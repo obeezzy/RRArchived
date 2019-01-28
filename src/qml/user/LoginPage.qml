@@ -97,10 +97,7 @@ RRUi.Page {
         }
     }
 
-    RRUi.FailureAlertDialogLoader {
-        id: failureAlertDialogLoader
-        title: qsTr("Failed to sign in")
-    }
+    RRUi.ErrorDialog { id: errorDialog }
 
     RRUi.BusyOverlay { visible: userProfile.busy }
 
@@ -110,17 +107,15 @@ RRUi.Page {
         onError: {
             switch (errorCode) {
             case RR.UserProfile.NoUserNameProvided:
-                failureAlertDialogLoader.message = qsTr("The user name field cannot be empty.");
+                errorDialog.show(qsTr("The user name field cannot be empty."), qsTr("Failed to sign in"), errorCode);
                 break;
             case RR.UserProfile.IncorrectCredentials:
-                failureAlertDialogLoader.message = qsTr("Your user name or password is incorrect.");
+                errorDialog.show(qsTr("Your user name or password is incorrect."), qsTr("Failed to sign in"), errorCode);
                 break;
             default:
-                failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");
+                errorDialog.show(qsTr("The cause of the error could not be determined."), qsTr("Failed to sign in"), errorCode);
                 break;
             }
-
-            failureAlertDialogLoader.create();
         }
     }
 }
