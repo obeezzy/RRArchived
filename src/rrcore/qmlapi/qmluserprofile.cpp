@@ -128,6 +128,9 @@ void QMLUserProfile::processResult(const QueryResult &result)
     if (result.isSuccessful()) {
         if (result.request().command() == "sign_out_user") {
             emit success(SignOutSuccess);
+        } else if (result.request().command() == "change_password") {
+            QSettings().setValue("is_first_time", false);
+            emit success(ChangePasswordSuccess);
         } else if (!result.outcome().toMap().isEmpty()) {
             UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
                                             result.outcome().toMap().value("user_name").toString(),

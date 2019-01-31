@@ -14,6 +14,8 @@ Item {
     property alias text: textField.text
     property alias textField: textField
 
+    function clear() { textField.clear(); }
+
     QQLayouts.RowLayout {
         id: row
         spacing: 12

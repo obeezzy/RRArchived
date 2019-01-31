@@ -7,6 +7,8 @@ import "../rrui" as RRUi
 FluidControls.OverlayView {
     id: busyOverlay
 
+    property string text: ""
+
     closePolicy: QQC2.Popup.NoAutoClose
     modal: true
     parent: FluidControls.ApplicationWindow.contentItem
@@ -14,12 +16,21 @@ FluidControls.OverlayView {
     RRUi.Card {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        width: 200
+        width: Math.max(200, row.width + 24)
         height: 100
 
-        QQC2.BusyIndicator {
+        Row {
+            id: row
             anchors.centerIn: parent
-            running: true
+            spacing: 8
+
+            QQC2.BusyIndicator { running: true }
+
+            FluidControls.SubheadingLabel {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: busyOverlay.text !== ""
+                text: busyOverlay.text
+            }
         }
     }
 }

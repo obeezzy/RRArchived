@@ -142,7 +142,7 @@ RRUi.Page {
                 }
 
                 RRUi.ErrorDialog {
-                    id: errorDialog;
+                    id: errorDialog
                     onAboutToHide: {
                         switch (errorCode) {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:

@@ -8,7 +8,7 @@ import "../rrui" as RRUi
 Flickable {
     id: homeListView
 
-    signal linkActivated(var link, var properties)
+    signal pushRequested(var page, var properties, int operation)
     signal signedOut
 
     width: 800
@@ -47,11 +47,15 @@ Flickable {
 
             HomeRow {
                 title: qsTr("Manage other accounts")
-                onClicked: homeListView.linkActivated(Qt.resolvedUrl("user/OtherUserAccountPage.qml"), { });
+                onClicked: homeListView.pushRequested(Qt.resolvedUrl("user/OtherUserAccountPage.qml"), { },
+                                                      QQC2.StackView.Transition);
             }
 
             HomeRow {
                 title: qsTr("Change password")
+                onClicked: homeListView.pushRequested(Qt.resolvedUrl("../user/PasswordChangePage.qml"),
+                                                      { isFirstTime: false },
+                                                      QQC2.StackView.Transition);
             }
 
             HomeRow {
@@ -122,6 +126,20 @@ Flickable {
             }
         }
 
+        HomeCard {
+            width: parent.width
+            title: qsTr("Help")
+
+            HomeRow {
+                title: qsTr("User manual")
+                subtitle: qsTr("Stuck? Click here")
+            }
+
+            HomeRow {
+                title: qsTr("About Record Rack")
+                subtitle: qsTr("Show information about Record Rack")
+            }
+        }
         //        populate: Transition {
         //            id: populateTransition
 

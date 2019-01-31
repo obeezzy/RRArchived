@@ -112,5 +112,5 @@ RRUi.Page {
         onSuccess: onboardingPage.finished();
     }
 
-    RRUi.BusyOverlay { visible: databaseCreator.busy }
+    RRUi.BusyOverlay { visible: databaseCreator.busy; text: qsTr("Building database...") }
 }
