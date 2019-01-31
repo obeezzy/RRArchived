@@ -20,6 +20,7 @@ public:
 
     enum SuccessCode {
         UnknownSuccess,
+        ChangePasswordSuccess,
         SignOutSuccess
     }; Q_ENUM(SuccessCode)
 

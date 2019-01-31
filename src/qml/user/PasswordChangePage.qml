@@ -8,7 +8,9 @@ import "../rrui" as RRUi
 
 RRUi.Page {
     id: passwordChangePage
+    objectName: "passwordChangePage"
 
+    property bool isFirstTime: true
     signal accepted
 
     function validateInput() {
@@ -31,6 +33,8 @@ RRUi.Page {
 
         return true;
     }
+
+    title: qsTr("Change password")
 
     contentItem: FocusScope {
         focus: true
@@ -61,7 +65,9 @@ RRUi.Page {
                             right: parent.right
                         }
 
-                        text: qsTr("To ensure the highest security, Record Rack advises that you change your administrator password immediately.")
+                        text: passwordChangePage.isFirstTime
+                              ? qsTr("To ensure the highest security, Record Rack advises that you change your administrator password immediately.")
+                              : qsTr("To ensure the highest security, Record Rack advises that you choose a strong password (one that has at least a capital letter and a number).")
                         wrapMode: Text.WordWrap
                     }
 

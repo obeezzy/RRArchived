@@ -84,7 +84,7 @@ RRUi.Page {
 
                 QQC2.Button {
                     Material.background: Material.accent
-                    Material.foreground: "white"
+                    Material.foreground: Material.theme === Material.Dark ? "black" : "white"
                     anchors {
                         top: textFieldColumn.bottom
                         margins: 24
