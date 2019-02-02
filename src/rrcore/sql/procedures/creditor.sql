@@ -3,7 +3,7 @@ USE ###DATABASENAME###;
 
 ---
 
-CREATE PROCEDURE AddCreditor(
+CREATE PROCEDURE AddCreditor (
 	IN iClientId INTEGER,
     IN iNoteId INTEGER,
     IN iUserId INTEGER
@@ -16,7 +16,7 @@ END;
 
 ---
 
-CREATE PROCEDURE AddCreditPayment(
+CREATE PROCEDURE AddCreditPayment (
 	IN iCreditTransactionId INTEGER,
     IN iTotalAmount DECIMAL(19,2),
     IN iAmountPaid DECIMAL(19,2),
@@ -35,7 +35,7 @@ END;
 
 ---
 
-CREATE PROCEDURE AddCreditTransaction(
+CREATE PROCEDURE AddCreditTransaction (
 	IN iCreditorId INTEGER,
     IN iTransactionTable VARCHAR(20),
     IN iTransactionId INTEGER,
@@ -51,12 +51,13 @@ END;
 
 ---
 
-CREATE PROCEDURE ArchiveCreditTransaction(
+CREATE PROCEDURE ArchiveCreditTransaction (
+	IN iArchived BOOLEAN,
 	IN iTransactionTable VARCHAR(40),
     IN iTransactionId INTEGER,
 	IN iUserId INTEGER
 )
 BEGIN
-	UPDATE credit_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
+	UPDATE credit_transaction SET archived = iArchived, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
 		WHERE transaction_table = iTransactionTable AND transaction_id = iTransactionId;
 END;

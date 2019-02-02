@@ -15,17 +15,12 @@ RRUi.Page {
     leftPadding: 10
     rightPadding: 10
 
-    /*!
-        \qmlsignal void goBack(var event)
-
-        This signal is emitted when the back action is triggered or back key is released.
-
-        By default, the page will be popped from the page stack. To change the default
-        behavior, for example to show a confirmation dialog, listen for this signal using
-        \c onGoBack and set \c event.accepted to \c true. To dismiss the page from your
-        dialog without triggering this signal and re-showing the dialog, call
-        \c page.forcePop().
-    */
+    onGoBack: {
+        if (transitionView.currentItem.isDirty) {
+            leaveConfirmationDialog.open();
+            event.accepted = true;
+        }
+    }
 
     QtObject {
         id: privateProperties
@@ -45,13 +40,9 @@ RRUi.Page {
             text: qsTr("Suspend transaction")
             onTriggered: {
                 if (transitionView.currentItem.itemCount === 0) {
-                    failureAlertDialogLoader.title = qsTr("Failed to suspend transaction");
-                    failureAlertDialogLoader.message = qsTr("There are no items in your cart.               ");
-                    failureAlertDialogLoader.create();
+                    errorDialog.show(qsTr("There are no items in your cart."), qsTr("Failed to suspend transaction"));
                 } else if (transitionView.currentItem.customerName === "") {
-                    failureAlertDialogLoader.title = qsTr("Failed to suspend transaction");
-                    failureAlertDialogLoader.message = qsTr("Customer name cannot be empty.               ");
-                    failureAlertDialogLoader.create();
+                    errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to suspend transaction"));
                 } else {
                     suspendTransactionDialog.open();
                 }
@@ -72,56 +63,24 @@ RRUi.Page {
         },
 
         FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("action/print")
+            toolTip: qsTr("Print last entry")
+            text: qsTr("Print last entry")
+        },
+
+        FluidControls.Action {
             icon.source: FluidControls.Utils.iconUrl("action/delete")
             toolTip: qsTr("Clear entry")
             text: qsTr("Clear entry")
-            onTriggered: if (!transitionView.currentItem.isCartEmpty) confirmationDialog.open();
+            onTriggered: if (!transitionView.currentItem.isCartEmpty) clearEntryConfirmationDialog.open();
         }
-
     ]
-
-    Connections {
-        target: newPurchasePage.RRUi.ApplicationWindow.window.snackBar !== undefined ? newPurchasePage.RRUi.ApplicationWindow.window.snackBar : null
-        onClicked: cartListView.undoLastTransaction();
-    }
-
-    SuspendTransactionDialog {
-        id: suspendTransactionDialog
-        transactionId: transitionView.currentItem.transactionId
-        note: transitionView.currentItem.note
-        onAccepted: transitionView.currentItem.suspendTransaction( { "note": note } );
-    }
-
-    RetrieveTransactionDialog {
-        id: retrieveTransactionDialog
-        onAccepted: privateProperties.transactionId = transactionId;
-    }
-
-    RRUi.AlertDialog {
-        id: confirmationDialog
-        text: qsTr("Clear entry?")
-        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
-        onAccepted: transitionView.currentItem.clearCart();
-
-        FluidControls.BodyLabel { text: qsTr("Are you sure you want to clear this entry?") }
-    }
-
-    RRUi.FailureAlertDialogLoader {
-        id: failureAlertDialogLoader
-        parent: QQC2.ApplicationWindow.contentItem
-        title: qsTr("Failed to complete transaction")
-    }
-
-    Stock.ItemDetailPopup {
-        id: itemDetailPopup
-        editButtonVisible: false
-    }
 
     contentItem: RRUi.TransitionView {
         id: transitionView
 
         transitionComponent: Item {
-            id: saleContentItem
+            id: purchaseContentItem
 
             readonly property int itemCount: cartListView.count
             readonly property string customerName: customerNameField.text
@@ -129,6 +88,7 @@ RRUi.Page {
             readonly property int transactionId: cartListView.transactionId
             readonly property string note: cartListView.note
             readonly property bool isCartEmpty: cartListView.count === 0
+            readonly property bool isDirty: !isCartEmpty
 
             function clearCart() {
                 cartListView.clearAll();
@@ -139,14 +99,10 @@ RRUi.Page {
 
             function validateUserInput() {
                 if (customerNameField.text.trim() === "") {
-                    failureAlertDialogLoader.title = qsTr("Failed to complete transaction");
-                    failureAlertDialogLoader.message = qsTr("Customer name cannot be empty.                     ");
-                    failureAlertDialogLoader.create();
+                    errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to complete transaction"));
                     return false;
                 } else if (cartListView.count == 0) {
-                    failureAlertDialogLoader.title = qsTr("Failed to complete transaction");
-                    failureAlertDialogLoader.message = qsTr("There are no items in your cart.                   ");
-                    failureAlertDialogLoader.create();
+                    errorDialog.show(qsTr("There are no items in your cart."), qsTr("Failed to complete transaction"));
                     return false;
                 }
 
@@ -293,23 +249,15 @@ RRUi.Page {
                                     right: parent.right
                                 }
 
-                                FluidControls.Icon {
-                                    QQLayouts.Layout.alignment: Qt.AlignVCenter
-                                    source: FluidControls.Utils.iconUrl("social/person")
-                                    size: 20
-                                    QQLayouts.Layout.preferredWidth: size
-                                    QQLayouts.Layout.preferredHeight: size
-                                }
-
-                                Item { QQLayouts.Layout.preferredWidth: 8; QQLayouts.Layout.fillHeight: true }
-
-                                RRUi.TextField {
+                                RRUi.IconTextField {
                                     id: customerNameField
-                                    focus: true
                                     QQLayouts.Layout.fillWidth: true
-                                    placeholderText: qsTr("Customer name")
+                                    focus: true
+                                    icon.source: FluidControls.Utils.iconUrl("social/person")
+                                    textField.placeholderText: qsTr("Customer name")
 
                                     Connections {
+                                        target: customerNameField.textField
                                         onTextEdited: cartListView.customerName = customerNameField.text;
                                     }
                                 }
@@ -321,21 +269,12 @@ RRUi.Page {
                                 }
                             }
 
-                            Row {
+                            RRUi.IconTextField {
+                                id: customerPhoneNumberField
                                 visible: false
-                                spacing: 12
-
-                                FluidControls.Icon {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    source: FluidControls.Utils.iconUrl("communication/phone")
-                                    size: 20
-                                }
-
-                                RRUi.TextField {
-                                    id: customerPhoneNumberField
-                                    width: 300
-                                    placeholderText: qsTr("Customer phone number")
-                                }
+                                width: 300
+                                icon.source: FluidControls.Utils.iconUrl("communication/phone")
+                                textField.placeholderText: qsTr("Customer phone number")
                             }
                         }
                     }
@@ -368,19 +307,22 @@ RRUi.Page {
                                 categoryListView.refresh();
 
                                 switch (successCode) {
-                                case RRModels.SaleCartModel.RetrieveTransactionSuccess:
+                                case RRModels.PurchaseCartModel.RetrieveTransactionSuccess:
                                     customerNameField.text = cartListView.customerName;
                                     newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction retrieved."));
                                     break;
-                                case RRModels.SaleCartModel.SuspendTransactionSuccess:
+                                case RRModels.PurchaseCartModel.SuspendTransactionSuccess:
                                     customerNameField.clear();
                                     privateProperties.transactionId = -1;
                                     newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction suspended."), qsTr("Undo"));
                                     break;
-                                case RRModels.SaleCartModel.SubmitTransactionSuccess:
+                                case RRModels.PurchaseCartModel.SubmitTransactionSuccess:
                                     customerNameField.clear();
                                     privateProperties.transactionId = -1;
                                     newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
+                                    break;
+                                case RRModels.PurchaseCartModel.UndoSubmitTransactionSuccess:
+                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successul."));
                                     break;
                                 }
                             }
@@ -412,11 +354,9 @@ RRUi.Page {
                                 } else {
                                     switch (errorCode) {
                                     default:
-                                        failureAlertDialogLoader.title = qsTr("Failed to save transaction");
-                                        failureAlertDialogLoader.message = qsTr("An unknown error has occurred.                      ");
+                                        errorDialog.show(qsTr("An unknown error has occurred."), qsTr("Failed to save transaction"), errorCode);
                                         break;
                                     }
-                                    failureAlertDialogLoader.create();
                                 }
                             }
                         }
@@ -448,7 +388,7 @@ RRUi.Page {
                                 id: checkoutButton
                                 anchors.right: parent.right
                                 text: qsTr("Proceed to Checkout")
-                                onClicked: if (saleContentItem.validateUserInput()) paymentWizard.open();
+                                onClicked: if (purchaseContentItem.validateUserInput()) paymentWizard.open();
                             }
                         }
                     }
@@ -458,6 +398,7 @@ RRUi.Page {
 
                 PaymentWizard {
                     id: paymentWizard
+                    reason: PaymentWizard.Purchase
                     cartModel: cartListView.model
                     onAccepted: cartListView.submitTransaction({ "due_date": paymentWizard.dueDate,
                                                                    "action": paymentWizard.action });
@@ -498,6 +439,49 @@ RRUi.Page {
                                                             "cost": cost });
                 }
             }
+
+            Connections {
+                target: newPurchasePage.RRUi.ApplicationWindow.window.snackBar !== undefined ?
+                            newPurchasePage.RRUi.ApplicationWindow.window.snackBar : null
+                onClicked: cartListView.undoLastTransaction();
+            }
         }
+    }
+
+    SuspendTransactionDialog {
+        id: suspendTransactionDialog
+        transactionId: transitionView.currentItem.transactionId
+        note: transitionView.currentItem.note
+        onAccepted: transitionView.currentItem.suspendTransaction( { "note": note } );
+    }
+
+    RetrieveTransactionDialog {
+        id: retrieveTransactionDialog
+        onAccepted: privateProperties.transactionId = transactionId;
+    }
+
+    RRUi.AlertDialog {
+        id: clearEntryConfirmationDialog
+        text: qsTr("Clear entry?")
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
+        onAccepted: transitionView.currentItem.clearCart();
+
+        FluidControls.BodyLabel { text: qsTr("Are you sure you want to clear this entry?") }
+    }
+
+    RRUi.AlertDialog {
+        id: leaveConfirmationDialog
+        text: qsTr("Leave?")
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
+        onAccepted: newPurchasePage.forcePop();
+
+        FluidControls.BodyLabel { text: qsTr("Are you sure you want to leave?") }
+    }
+
+    RRUi.ErrorDialog { id: errorDialog }
+
+    Stock.ItemDetailPopup {
+        id: itemDetailPopup
+        editButtonVisible: false
     }
 }

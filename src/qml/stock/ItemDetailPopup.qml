@@ -46,7 +46,7 @@ RRUi.Popup {
                         QQLayouts.Layout.preferredWidth: parent.width / 2
                         QQLayouts.Layout.fillHeight: true
                         text: title
-                        color: Qt.darker("darkgray")
+                        color: Material.theme === Material.Dark ? "darkgray" : Qt.darker("darkgray")
                         horizontalAlignment: Qt.AlignHCenter
                         verticalAlignment: Qt.AlignVCenter
                     }

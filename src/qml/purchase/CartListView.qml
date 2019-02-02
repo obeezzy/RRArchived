@@ -116,7 +116,7 @@ ListView {
         RRUi.QuantitySpinBox {
             id: quantitySpinBox
             quantity: model.quantity
-            maximumQuantity: model.available_quantity
+            maximumQuantity: 100000000
             unit: model.unit
             anchors {
                 bottomMargin: 4

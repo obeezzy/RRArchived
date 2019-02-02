@@ -53,7 +53,8 @@ public:
         UnknownSuccess,
         RetrieveTransactionSuccess,
         SuspendTransactionSuccess,
-        SubmitTransactionSuccess
+        SubmitTransactionSuccess,
+        UndoSubmitTransactionSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {

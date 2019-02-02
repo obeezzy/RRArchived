@@ -2,7 +2,7 @@ USE ###DATABASENAME###;
 
 ---
 
-CREATE PROCEDURE AddSaleItem(
+CREATE PROCEDURE AddSaleItem (
 	IN iSaleTransactionId INTEGER,
     IN iItemId INTEGER,
     IN iUnitId INTEGER,
@@ -21,7 +21,7 @@ END;
 
 ---
 
-CREATE PROCEDURE AddSalePayment(
+CREATE PROCEDURE AddSalePayment (
 	IN iSaleTransactionId INTEGER,
     IN iAmount DECIMAL(19,2),
     IN iMethod VARCHAR(15),
@@ -42,7 +42,7 @@ END;
 
 ---
 
-CREATE PROCEDURE AddSaleTransaction(
+CREATE PROCEDURE AddSaleTransaction (
 	IN iClientName VARCHAR(100),
     IN iClientId INTEGER,
     IN iBalance DECIMAL(19,2),
@@ -68,7 +68,7 @@ END;
 
 ---
 
-CREATE PROCEDURE ViewSaleTransactions(
+CREATE PROCEDURE ViewSaleTransactions (
 	IN iSuspended BOOLEAN,
     IN iArchived BOOLEAN,
     IN iFrom DATETIME,
@@ -87,7 +87,7 @@ END;
 
 ---
 
-CREATE PROCEDURE IsSaleTransactionSuspended(
+CREATE PROCEDURE IsSaleTransactionSuspended (
 	IN iTransactionId INTEGER
 )
 BEGIN
@@ -96,18 +96,19 @@ END;
 
 ---
 
-CREATE PROCEDURE ArchiveSaleTransaction(
+CREATE PROCEDURE ArchiveSaleTransaction (
+    IN iArchived BOOLEAN,
 	IN iSaleTransactionId INTEGER,
     IN iUserId INTEGER
 )
 BEGIN
-	UPDATE sale_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iSaleTransactionId;
-    UPDATE sale_item SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE sale_transaction_id = iSaleTransactionId;
+	UPDATE sale_transaction SET archived = iArchived, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE id = iSaleTransactionId;
+    UPDATE sale_item SET archived = iArchived, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId WHERE sale_transaction_id = iSaleTransactionId;
 END;
 
 ---
 
-CREATE PROCEDURE ViewSaleCart(
+CREATE PROCEDURE ViewSaleCart (
 	IN iTransactionId INTEGER,
     IN iSaleTransactionArchived BOOLEAN,
     IN iSaleItemArchived BOOLEAN
@@ -136,7 +137,7 @@ END;
 
 ---
 
-CREATE PROCEDURE ViewSaleTransactionItems(
+CREATE PROCEDURE ViewSaleTransactionItems (
 	IN iTransactionId INTEGER,
     IN iSuspended BOOLEAN,
     IN iArchived BOOLEAN
@@ -158,7 +159,7 @@ END;
 
 ---
 
-CREATE PROCEDURE `RevertSaleQuantityUpdate` (
+CREATE PROCEDURE RevertSaleQuantityUpdate (
 	IN iTransactionId INTEGER,
     IN iUserId INTEGER
 )

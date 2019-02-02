@@ -1,5 +1,5 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
@@ -9,7 +9,7 @@ RRUi.Page {
     id: dashboardPage
     objectName: "dashboardPage"
 
-    signal linkActivated(var link, var properties)
+    signal pushRequested(var page, var properties, int operation)
 
     title: qsTr("Dashboard")
     topPadding: 0
@@ -25,7 +25,7 @@ RRUi.Page {
             horizontalCenter: parent.horizontalCenter
         }
 
-        onViewRequested: dashboardPage.linkActivated(breadcrumbs, { });
+        onViewRequested: dashboardPage.pushRequested(breadcrumbs, { }, QQC2.StackView.Transition);
     }
 
     FluidControls.Placeholder {

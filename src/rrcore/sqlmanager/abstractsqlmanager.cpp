@@ -170,7 +170,7 @@ int AbstractSqlManager::addNote(const QString &note, const QString &tableName) {
     if (note.trimmed().isEmpty() || tableName.trimmed().isEmpty())
         return 0;
 
-    const QList<QSqlRecord> records(callProcedure("AddNote", {
+    const QList<QSqlRecord> &records(callProcedure("AddNote", {
                                                       ProcedureArgument {
                                                           ProcedureArgument::Type::In,
                                                           "note",
@@ -195,26 +195,26 @@ void AbstractSqlManager::updateNote(int noteId, const QString &note, const QStri
     if (noteId <= 0 || note.trimmed().isEmpty())
         throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments, "Missing arguments for updateNote().");
 
-    const QList<QSqlRecord> records(callProcedure("UpdateNote", {
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "note_id",
-                                                          noteId
-                                                      },
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "note",
-                                                          note
-                                                      },
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "table_name",
-                                                          tableName
-                                                      },
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "user_id",
-                                                          UserProfile::instance().userId()
-                                                      }
-                                                  }));
+    callProcedure("UpdateNote", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "note_id",
+                          noteId
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "note",
+                          note
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "table_name",
+                          tableName
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
 }

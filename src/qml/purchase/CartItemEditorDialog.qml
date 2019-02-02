@@ -12,7 +12,7 @@ RRUi.Dialog {
     property int itemId: -1
     property string item: ""
     property real quantity: 0
-    property real maximumQuantity: 10
+    readonly property real maximumQuantity: 10000000
     property string unit: ""
     property real unitPrice: 0
     property real cost: 0
@@ -30,8 +30,6 @@ RRUi.Dialog {
             cartItemEditorDialog.item = itemInfo.item;
         if (Object(itemInfo).hasOwnProperty("quantity"))
             cartItemEditorDialog.quantity = itemInfo.quantity;
-        if (Object(itemInfo).hasOwnProperty("available_quantity"))
-            cartItemEditorDialog.maximumQuantity = itemInfo.available_quantity;
         if (Object(itemInfo).hasOwnProperty("unit"))
             cartItemEditorDialog.unit = itemInfo.unit;
         if (Object(itemInfo).hasOwnProperty("unit_price"))
@@ -79,10 +77,6 @@ RRUi.Dialog {
                     onActiveFocusChanged: if (activeFocus) selectAll();
                     onTextChanged: cartItemEditorDialog.cost = cartItemEditorDialog.unitPrice * cartItemEditorDialog.quantity;
                     onTextEdited: cartItemEditorDialog.quantity = Number(text);
-
-                    QQC2.ToolTip.visible: activeFocus
-                    QQC2.ToolTip.delay: -1
-                    QQC2.ToolTip.text: qsTr("This product has %1 %2 left.").arg(cartItemEditorDialog.maximumQuantity).arg(cartItemEditorDialog.unit)
                 }
 
                 FluidControls.SubheadingLabel {
@@ -135,7 +129,7 @@ RRUi.Dialog {
                 id: costTextField
                 topPadding: 12
                 width: Math.min(150, implicitWidth)
-                text: cartItemEditorDialog.cost
+                text: Number(cartItemEditorDialog.cost).toFixed()
                 horizontalAlignment: Qt.AlignRight
                 onTextEdited: {
                     cartItemEditorDialog.cost = Number(text);

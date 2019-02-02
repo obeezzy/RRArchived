@@ -313,7 +313,7 @@ RRUi.Page {
                                         up.indicator: null
                                         width: 50
                                         editable: true
-                                        to: 10000
+                                        to: 10000000
 
                                         property int decimals: 2
                                         property real realValue: value / 100

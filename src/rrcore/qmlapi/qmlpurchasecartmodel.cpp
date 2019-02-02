@@ -482,6 +482,8 @@ void QMLPurchaseCartModel::processResult(const QueryResult result)
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
             emit success(SuspendTransactionSuccess);
+        } else if (result.request().command() == "undo_add_purchase_transaction") {
+            emit success(UndoSubmitTransactionSuccess);
         } else {
             emit success(UnknownSuccess);
         }
@@ -562,11 +564,9 @@ void QMLPurchaseCartModel::updateItem(int itemId, const QVariantMap &itemInfo)
     const int row = indexOfItem(itemId);
     QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
-    const double availableQuantity = record.value("available_quantity").toDouble();
-    const double quantity = itemInfo.value("quantity").toDouble();
+    const double newQuantity = itemInfo.value("quantity").toDouble();
     const double oldUnitPrice = record.value("unit_price").toDouble();
     const double oldCost = record.value("cost").toDouble();
-    const double newQuantity = qMin(quantity, availableQuantity);
     const double newUnitPrice = itemInfo.value("unit_price").toDouble();
     const double newCost = itemInfo.value("cost").toDouble();
 
@@ -592,15 +592,13 @@ void QMLPurchaseCartModel::setItemQuantity(int itemId, double quantity)
     const int row = indexOfItem(itemId);
     QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
-    const double availableQuantity = record.value("available_quantity").toDouble();
-    const double newQuantity = qMin(quantity, availableQuantity);
     const double unitPrice = record.value("unit_price").toDouble();
 
-    record.insert("quantity", newQuantity);
-    record.insert("cost", newQuantity * unitPrice);
+    record.insert("quantity", quantity);
+    record.insert("cost", quantity * unitPrice);
     m_records.replace(row, record);
 
-    if (oldQuantity != newQuantity) {
+    if (oldQuantity != quantity) {
         emit dataChanged(index(row), index(row));
         calculateTotal();
     }

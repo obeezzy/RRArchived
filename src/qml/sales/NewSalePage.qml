@@ -474,6 +474,7 @@ RRUi.Page {
 
                 PaymentWizard {
                     id: paymentWizard
+                    reason: PaymentWizard.Sales
                     cartModel: cartListView.model
                     onAccepted: cartListView.submitTransaction({ "due_date": paymentWizard.dueDate,
                                                                    "action": paymentWizard.action });

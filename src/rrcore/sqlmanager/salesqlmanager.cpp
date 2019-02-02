@@ -58,7 +58,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     QSqlQuery q(connection);
 
     try {
-//        AbstractSqlManager::enforceArguments( { "action" }, params);
+        //        AbstractSqlManager::enforceArguments( { "action" }, params);
 
         if (!skipSqlTransaction && !DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
@@ -84,7 +84,7 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                                               }
                                                           }));
 
-                clientId = records.first().value("id").toInt();
+            clientId = records.first().value("id").toInt();
         }
 
         // STEP: Insert note, if available.
@@ -279,22 +279,22 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
         // STEP: Insert debt or credit.
         if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() > 0.0) {
             QList<QSqlRecord> records(callProcedure("AddDebtor", {
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "client_id",
-                                                                  clientId
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "note",
-                                                                  {}
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "user_id",
-                                                                  UserProfile::instance().userId()
-                                                              }
-                                                          }));
+                                                        ProcedureArgument {
+                                                            ProcedureArgument::Type::In,
+                                                            "client_id",
+                                                            clientId
+                                                        },
+                                                        ProcedureArgument {
+                                                            ProcedureArgument::Type::In,
+                                                            "note",
+                                                            {}
+                                                        },
+                                                        ProcedureArgument {
+                                                            ProcedureArgument::Type::In,
+                                                            "user_id",
+                                                            UserProfile::instance().userId()
+                                                        }
+                                                    }));
             debtorId = records.first().value("id").toInt();
 
             records = callProcedure("AddDebtTransaction", {
@@ -371,22 +371,22 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                     });
         } else if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() < 0.0) {
             QList<QSqlRecord> records(callProcedure("AddCreditor", {
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "client_id",
-                                                                  clientId
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "note_id",
-                                                                  {}
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "user_id",
-                                                                  UserProfile::instance().userId()
-                                                              }
-                                                          }));
+                                                        ProcedureArgument {
+                                                            ProcedureArgument::Type::In,
+                                                            "client_id",
+                                                            clientId
+                                                        },
+                                                        ProcedureArgument {
+                                                            ProcedureArgument::Type::In,
+                                                            "note_id",
+                                                            {}
+                                                        },
+                                                        ProcedureArgument {
+                                                            ProcedureArgument::Type::In,
+                                                            "user_id",
+                                                            UserProfile::instance().userId()
+                                                        }
+                                                    }));
             creditorId = records.first().value("id").toInt();
 
             records = callProcedure("AddCreditTransaction", {
@@ -583,26 +583,18 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
     QSqlQuery q(connection);
 
     try {
+        enforceArguments({ "transaction_id" }, params);
+
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        if (params.value("client_id").toInt() > 0) {
-            callProcedure("ArchiveClient", {
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "client_id",
-                                  params.value("client_id")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "user_id",
-                                  UserProfile::instance().userId()
-                              }
-                          });
-        }
-
         if (params.value("transaction_id").toInt() > 0) {
             callProcedure("ArchiveSaleTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "archived",
+                                  false
+                              },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "transaction_id",
@@ -616,6 +608,11 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
                           });
 
             callProcedure("ArchiveDebtTransaction1", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "archived",
+                                  false
+                              },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "transaction_table",
@@ -636,6 +633,11 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
             callProcedure("ArchiveCreditTransaction", {
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
+                                  "archived",
+                                  false
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
                                   "transaction_table",
                                   QStringLiteral("sale_transaction")
                               },
@@ -650,20 +652,20 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
                                   UserProfile::instance().userId()
                               }
                           });
-        }
 
-        callProcedure("RevertSaleQuantityUpdate", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_id",
-                              params.value("transaction_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
+            callProcedure("RevertSaleQuantityUpdate", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_id",
+                                  params.value("transaction_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
+        }
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");

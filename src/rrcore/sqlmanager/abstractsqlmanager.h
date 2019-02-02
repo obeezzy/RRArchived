@@ -18,6 +18,10 @@ struct ProcedureArgument {
 class AbstractSqlManager
 {
 public:
+    enum class TransactionMode {
+        UseSqlTransaction,
+        SkipSqlTransaction
+    };
     explicit AbstractSqlManager(const QString &connectionName);
     virtual ~AbstractSqlManager();
 

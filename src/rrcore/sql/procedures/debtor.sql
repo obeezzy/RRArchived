@@ -51,12 +51,13 @@ END;
 ---
 
 CREATE PROCEDURE ArchiveDebtTransaction1 (
+	IN iArchived BOOLEAN,
 	IN iTransactionTable VARCHAR(40),
     IN iTransactionId INTEGER,
 	IN iUserId INTEGER
 )
 BEGIN
-	UPDATE debt_transaction SET archived = 1, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
+	UPDATE debt_transaction SET archived = iArchived, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
 		WHERE transaction_table = iTransactionTable AND transaction_id = iTransactionId;
 END;
 

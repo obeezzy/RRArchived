@@ -9,7 +9,7 @@ RRUi.Page {
     id: homePage
     objectName: "settingsHomePage"
 
-    signal linkActivated(var link, var properties)
+    signal pushRequested(var page, var properties, int operation)
     signal signedOut
 
     title: qsTr("Settings")
@@ -32,7 +32,7 @@ RRUi.Page {
             horizontalCenter: parent.horizontalCenter
         }
 
-        onLinkActivated: homePage.push(link, properties);
+        onPushRequested: homePage.push(page, properties, operation);
         onSignedOut: homePage.signedOut();
     }
 }

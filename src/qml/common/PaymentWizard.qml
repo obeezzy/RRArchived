@@ -13,6 +13,12 @@ RRUi.Dialog {
     property var cartModel: null
     property string action: ""
     property date dueDate: new Date()
+    property int reason: PaymentWizard.Sales
+
+    enum Reason {
+        Sales,
+        Purchase
+    }
 
     title: ""
     standardButtons: RRUi.Dialog.NoButton
@@ -140,7 +146,7 @@ RRUi.Dialog {
                         switch (stackView.currentItem.selectedOption) {
                         case "cash":
                             stackView.push(Qt.resolvedUrl("paymentwizard/PaymentByCashPage.qml"),
-                                           { "totalCost": paymentWizard.cartModel.balance });
+                                           { "totalCost": paymentWizard.cartModel.balance, "reason": paymentWizard.reason });
                             break;
                         case "card":
                             console.warn("TODO: Handle card payment!");
