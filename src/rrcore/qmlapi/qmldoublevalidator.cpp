@@ -1,15 +1,16 @@
 #include "qmldoublevalidator.h"
+#include <QDebug>
 
 QMLDoubleValidator::QMLDoubleValidator(QDoubleValidator *parent) :
     QDoubleValidator(parent)
 {
-
+    setNotation(QDoubleValidator::StandardNotation);
 }
 
 QMLDoubleValidator::QMLDoubleValidator(double bottom, double top, int decimals, QObject *parent) :
     QDoubleValidator(bottom, top, decimals, parent)
 {
-
+    setNotation(QDoubleValidator::StandardNotation);
 }
 
 QValidator::State QMLDoubleValidator::validate(QString &input, int &pos) const {

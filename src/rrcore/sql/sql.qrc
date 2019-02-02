@@ -10,5 +10,8 @@
         <file>procedures/user.sql</file>
         <file>procedures/expense.sql</file>
         <file>procedures/income.sql</file>
+        <file>procedures/purchase.sql</file>
+        <file>procedures/vendor.sql</file>
+        <file>procedures/customer.sql</file>
     </qresource>
 </RCC>

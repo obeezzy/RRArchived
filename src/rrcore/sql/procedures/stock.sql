@@ -15,7 +15,7 @@ END;
 
 ---
 
-CREATE PROCEDURE ViewStockItems(
+CREATE PROCEDURE ViewStockItems (
     IN iFilterColumn VARCHAR(20),
     IN iFilterText VARCHAR(100),
     IN iSortColumn VARCHAR(20),
@@ -53,7 +53,25 @@ END;
 
 ---
 
-CREATE PROCEDURE DeductStockQuantity(
+CREATE PROCEDURE AddStockQuantity (
+	IN iItemId INTEGER,
+	IN iQuantity DOUBLE,
+    IN iUnitId INTEGER,
+    IN iReason VARCHAR(200),
+    IN iUserId INTEGER
+)
+BEGIN
+    INSERT INTO initial_quantity (item_id, quantity, unit_id, reason, archived, created, last_edited, user_id)
+        SELECT iItemId, quantity, iUnitId, iReason, FALSE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), iUserId
+        FROM current_quantity WHERE item_id = iItemId;
+
+    UPDATE current_quantity SET quantity = quantity + iQuantity, last_edited = CURRENT_TIMESTAMP(), user_id = iUserId
+		WHERE item_id = iItemId;
+END;
+
+---
+
+CREATE PROCEDURE DeductStockQuantity (
 	IN iItemId INTEGER,
 	IN iQuantity DOUBLE,
     IN iUnitId INTEGER,
@@ -93,7 +111,7 @@ BEGIN
         INNER JOIN category ON item.category_id = category.id
         INNER JOIN unit ON item.id = unit.item_id
         INNER JOIN current_quantity ON item.id = current_quantity.item_id
-        LEFT JOIN user_ ON item.user_id = user.id
+        LEFT JOIN user_ ON item.user_id = user_.id
         WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
         AND item.id = iItemId;
 END;

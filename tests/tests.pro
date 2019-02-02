@@ -24,4 +24,6 @@ SUBDIRS += \
     QMLCreditorModel \
     QMLUserModel \
     QMLUserPrivilegeModel \
-    QMLUserDetailRecord
+    QMLUserDetailRecord \
+    QMLPurchaseTransactionModel \
+    QMLPurchaseTransactionItemModel

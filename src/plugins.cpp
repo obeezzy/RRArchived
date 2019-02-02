@@ -31,6 +31,8 @@
 #include "rrcore/qmlapi/qmluserprivilegemodel.h"
 #include "rrcore/qmlapi/qmluserdetailrecord.h"
 #include "rrcore/qmlapi/qmlsettings.h"
+#include "rrcore/qmlapi/qmlpurchasetransactionmodel.h"
+#include "rrcore/qmlapi/qmlpurchasetransactionitemmodel.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -75,6 +77,8 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLUserModel>("com.gecko.rr.models", 1, 0, "UserModel");
     qmlRegisterType<QMLUserPrivilegeModel>("com.gecko.rr.models", 1, 0, "UserPrivilegeModel");
     qmlRegisterType<QMLUserDetailRecord>("com.gecko.rr.models", 1, 0, "UserDetailRecord");
+    qmlRegisterType<QMLPurchaseTransactionModel>("com.gecko.rr.models", 1, 0, "PurchaseTransactionModel");
+    qmlRegisterType<QMLPurchaseTransactionItemModel>("com.gecko.rr.models", 1, 0, "PurchaseTransactionItemModel");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

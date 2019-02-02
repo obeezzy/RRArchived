@@ -78,7 +78,9 @@ SOURCES += \
     models/userprivilegemodel.cpp \
     qmlapi/qmluserdetailrecord.cpp \
     qmlapi/qmlsettings.cpp \
-    singletons/settings.cpp
+    singletons/settings.cpp \
+    qmlapi/qmlpurchasetransactionmodel.cpp \
+    qmlapi/qmlpurchasetransactionitemmodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -150,4 +152,6 @@ HEADERS += \
     models/userprivilegemodel.h \
     qmlapi/qmluserdetailrecord.h \
     qmlapi/qmlsettings.h \
-    singletons/settings.h
+    singletons/settings.h \
+    qmlapi/qmlpurchasetransactionmodel.h \
+    qmlapi/qmlpurchasetransactionitemmodel.h

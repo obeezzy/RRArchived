@@ -56,7 +56,7 @@ CREATE TABLE client (
 CREATE TABLE credit_payment (
     id INT(11) NOT NULL AUTO_INCREMENT,
     credit_transaction_id INT(11) NOT NULL,
-    total_debt DECIMAL(19,2) NOT NULL,
+    total_credit DECIMAL(19,2) NOT NULL,
     amount_paid DECIMAL(19,2) NOT NULL,
     balance DECIMAL(19,2) NOT NULL,
     currency VARCHAR(4) NOT NULL,
@@ -276,7 +276,9 @@ CREATE TABLE purchase_item (
     item_id INT(11) NOT NULL,
     unit_price DECIMAL(19,2) NOT NULL,
     quantity DOUBLE NOT NULL,
+    unit_id INT(11) NOT NULL,
     cost DOUBLE NOT NULL,
+    discount DECIMAL(19,2) DEFAULT '0.00',
     currency VARCHAR(4) NOT NULL,
     note_id INT(11) DEFAULT NULL,
     archived TINYINT NOT NULL DEFAULT 0,
@@ -305,9 +307,7 @@ CREATE TABLE purchase_transaction (
     id INT(11) NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     client_id INT(11) DEFAULT NULL,
-    total_cost DECIMAL(19,2) NOT NULL,
-    amount_paid DECIMAL(19,2) NOT NULL,
-    balance DECIMAL(19,2) NOT NULL,
+    balance DECIMAL(19,2) NOT NULL DEFAULT '0.00',
     discount DECIMAL(19,2) NOT NULL,
     suspended TINYINT NOT NULL,
     note_id INT(11) DEFAULT NULL,
@@ -455,6 +455,9 @@ CREATE TABLE vendor (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Add admin user
+DROP USER IF EXISTS 'admin'@'localhost';
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost';
 INSERT INTO user_ (user, password, first_name, last_name, active, created, last_edited, user_id)
-    VALUES ('root', '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+    VALUES ('admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
             'Admin', 'Admin', TRUE, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 1);

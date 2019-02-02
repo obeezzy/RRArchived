@@ -186,8 +186,8 @@ BEGIN
     UPDATE user_ SET password = iNewPasswordHash WHERE user = iUser AND password = iOldPasswordHash;
 
 	SET iUser := CONCAT('\'', REPLACE(TRIM(iUser), CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\''),
-        iNewPasswordHash := CONCAT('\'', REPLACE(iNewPasswordHash, CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
-    SET @sql := CONCAT('ALTER USER ', iUser, ' IDENTIFIED BY ', iNewPasswordHash);
+        iNewPassword := CONCAT('\'', REPLACE(iNewPassword, CHAR(39), CONCAT(CHAR(92), CHAR(39))), '\'');
+    SET @sql := CONCAT('ALTER USER ', iUser, _HOST, ' IDENTIFIED BY ', iNewPassword);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;

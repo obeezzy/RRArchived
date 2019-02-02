@@ -65,9 +65,18 @@ RRUi.ApplicationWindow {
     Connections {
         target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ?
                     mainWindow.pageStack.currentItem : null
-        onLinkActivated: {
+        onPushRequested: {
             sidebar.currentIndex = sidebar.findIndexFromFileName(Array.isArray(link) ? link[0] : link);
-            mainWindow.pageStack.replace(link, properties);
+            mainWindow.pageStack.replace(null, page, properties, operation);
+        }
+    }
+
+    Connections {
+        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "passwordChangePage" ?
+                    mainWindow.pageStack.currentItem : null
+        onAccepted: {
+            mainWindow.pageStack.pop();
+            mainWindow.snackBar.show(qsTr("Password change successful."));
         }
     }
 
