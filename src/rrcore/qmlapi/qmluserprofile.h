@@ -2,6 +2,7 @@
 #define QMLUSERPROFILE_H
 
 #include <QObject>
+#include <QLoggingCategory>
 
 class QueryRequest;
 class QueryResult;
@@ -67,5 +68,7 @@ private:
 
     void setAdmin(bool admin);
 };
+
+Q_DECLARE_LOGGING_CATEGORY(qmlUserProfile);
 
 #endif // QMLUSERPROFILE_H

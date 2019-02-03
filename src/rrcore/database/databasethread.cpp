@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QDebug>
+#include <QLoggingCategory>
 
 #include "databaseexception.h"
 #include "queryrequest.h"
@@ -18,6 +19,8 @@
 
 const QString CONNECTION_NAME(QStringLiteral("db_thread"));
 
+Q_LOGGING_CATEGORY(databaseThread, "rrcore.database.databasethread");
+
 Worker::Worker(QObject *parent) :
     QObject(parent)
 {
@@ -31,7 +34,7 @@ Worker::~Worker()
 
 void Worker::execute(const QueryRequest request)
 {
-    qInfo() << "Worker->" << request << ", receiver=" << request.receiver();
+    qCInfo(databaseThread) << "Worker->" << request << ", receiver=" << request.receiver();
     QueryResult result;
 
     QElapsedTimer timer;
@@ -80,7 +83,7 @@ void Worker::execute(const QueryRequest request)
         result.setErrorCode(e.code());
         result.setErrorMessage(e.message());
         result.setErrorUserMessage(e.userMessage());
-        qCritical() << "DatabaseException in Worker->" << e.code() << e.message() << e.userMessage();
+        qCCritical(databaseThread) << "DatabaseException in Worker->" << e.code() << e.message() << e.userMessage();
     }
 
     emit resultReady(result);

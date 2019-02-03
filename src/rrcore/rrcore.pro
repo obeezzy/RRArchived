@@ -82,7 +82,8 @@ SOURCES += \
     qmlapi/qmlpurchasetransactionmodel.cpp \
     qmlapi/qmlpurchasetransactionitemmodel.cpp \
     qmlapi/qmlreceiptprinter.cpp \
-    models/receiptcartmodel.cpp
+    models/receiptcartmodel.cpp \
+    singletons/logger.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -158,4 +159,7 @@ HEADERS += \
     qmlapi/qmlpurchasetransactionmodel.h \
     qmlapi/qmlpurchasetransactionitemmodel.h \
     qmlapi/qmlreceiptprinter.h \
-    models/receiptcartmodel.h
+    models/receiptcartmodel.h \
+    singletons/logger.h
+
+DISTFILES +=

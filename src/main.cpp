@@ -3,6 +3,7 @@
 #include <QQuickStyle>
 #include "plugins.h"
 #include "rrcore/database/databaseserver.h"
+#include "singletons/logger.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,8 @@ int main(int argc, char *argv[])
     //qputenv("QT_SCALE_FACTOR", "1.4");
     QApplication app(argc, argv);
 
+    Logger::instance().start();
+
     QApplication::setApplicationName("Record Rack");
     QGuiApplication::setApplicationVersion("0.0.1");
     QGuiApplication::setOrganizationName("Gecko");
@@ -19,7 +22,6 @@ int main(int argc, char *argv[])
 
     Plugins::registerFonts();
     Plugins::registerTypes();
-    Plugins::initLogging();
     QQuickStyle::setStyle("Material");
 
     QQmlApplicationEngine engine;
