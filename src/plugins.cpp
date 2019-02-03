@@ -2,8 +2,6 @@
 #include <QtQml>
 #include <QFontDatabase>
 #include <QDirIterator>
-#include <QLoggingCategory>
-#include <QDebug>
 
 #include "rrcore/qmlapi/qmluserprofile.h"
 #include "rrcore/qmlapi/qmldatabasecreator.h"
@@ -100,9 +98,4 @@ void Plugins::registerFonts()
         qDebug() << "Adding font..." << fontPath;
         QFontDatabase::addApplicationFont(fontPath);
     }
-}
-
-void Plugins::initLogging()
-{
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }

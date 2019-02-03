@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QSqlDatabase>
+#include <QLoggingCategory>
 #include "queryrequest.h"
 #include "queryresult.h"
 
@@ -37,5 +38,7 @@ signals:
 private:
     explicit DatabaseThread(QObject *parent = nullptr);
 };
+
+Q_DECLARE_LOGGING_CATEGORY(databaseThread);
 
 #endif // DATABASETHREAD_H

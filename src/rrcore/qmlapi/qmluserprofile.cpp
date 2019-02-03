@@ -6,6 +6,8 @@
 #include "database/databaseexception.h"
 #include "singletons/userprofile.h"
 
+Q_LOGGING_CATEGORY(qmlUserProfile, "rrcore.qmlapi.qmluserprofile");
+
 QMLUserProfile::QMLUserProfile(QObject *parent) :
     QObject(parent),
     m_busy(false)
@@ -54,7 +56,7 @@ QString QMLUserProfile::userName() const
 
 void QMLUserProfile::signIn(const QString &userName, const QString &password)
 {
-    qInfo() << Q_FUNC_INFO << userName << password;
+    qCInfo(qmlUserProfile) << "signIn" << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else if (password.isEmpty()) {
@@ -77,7 +79,7 @@ void QMLUserProfile::signInOnline(const QString &emailAddress, const QString &pa
 
 void QMLUserProfile::signUp(const QString &userName, const QString &password)
 {
-    qInfo() << Q_FUNC_INFO << userName << password;
+    qCInfo(qmlUserProfile) << "signUp" << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else if (password.isEmpty()) {
@@ -93,6 +95,7 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
 
 void QMLUserProfile::signOut()
 {
+    qCInfo(qmlUserProfile) << "signOut";
     QueryRequest request(this);
     request.setCommand("sign_out_user", { }, QueryRequest::User);
     emit executeRequest(request);
