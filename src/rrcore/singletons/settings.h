@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QSettings>
 
+#include <QUrl>
+
 class Settings : public QObject
 {
     Q_OBJECT
@@ -15,6 +17,8 @@ public:
 
     bool darkModeActive() const;
     void setDarkModeActive(bool darkModeActive);
+
+    static QUrl defaultReceiptTemplateUrl();
 signals:
     void darkModeActiveChanged();
 private:

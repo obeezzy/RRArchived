@@ -4,6 +4,9 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "models/purchasepaymentmodel.h"
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 const int CASH_PAYMENT_LIMIT = 1;
 const int CARD_PAYMENT_LIMIT = 2;
@@ -11,7 +14,7 @@ const int CARD_PAYMENT_LIMIT = 2;
 QMLPurchaseCartModel::QMLPurchaseCartModel(QObject *parent) :
     AbstractVisualListModel(parent),
     m_transactionId(-1),
-    m_customerName(QString()),
+    m_clientName(QString()),
     m_customerPhoneNumber(QString()),
     m_clientId(-1),
     m_note(QString()),
@@ -33,7 +36,7 @@ QMLPurchaseCartModel::QMLPurchaseCartModel(QObject *parent) :
 QMLPurchaseCartModel::QMLPurchaseCartModel(DatabaseThread &thread) :
     AbstractVisualListModel(thread),
     m_transactionId(-1),
-    m_customerName(QString()),
+    m_clientName(QString()),
     m_customerPhoneNumber(QString()),
     m_clientId(-1),
     m_note(QString()),
@@ -135,15 +138,15 @@ void QMLPurchaseCartModel::setTransactionId(qint64 transactionId)
 
 QString QMLPurchaseCartModel::customerName() const
 {
-    return m_customerName;
+    return m_clientName;
 }
 
 void QMLPurchaseCartModel::setCustomerName(const QString &customerName)
 {
-    if (m_customerName == customerName)
+    if (m_clientName == customerName)
         return;
 
-    m_customerName = customerName;
+    m_clientName = customerName;
     emit customerNameChanged();
 }
 
@@ -304,6 +307,17 @@ void QMLPurchaseCartModel::clearAll()
     endResetModel();
 }
 
+QString QMLPurchaseCartModel::toPrintableFormat() const
+{
+    QJsonObject rootObject;
+    rootObject.insert("name", m_clientName);
+    rootObject.insert("phone_number", m_customerPhoneNumber);
+    rootObject.insert("group", "sales");
+    rootObject.insert("records", QJsonArray::fromVariantList(m_records));
+
+    return QJsonDocument(rootObject).toJson();
+}
+
 void QMLPurchaseCartModel::addTransaction(const QVariantMap &transactionInfo)
 {
     qDebug() << Q_FUNC_INFO << "note? " << transactionInfo.value("note").toString();
@@ -311,7 +325,7 @@ void QMLPurchaseCartModel::addTransaction(const QVariantMap &transactionInfo)
     if (!m_records.isEmpty()) {
         QVariantMap params;
         params.insert("transaction_id", m_transactionId);
-        params.insert("customer_name", m_customerName);
+        params.insert("customer_name", m_clientName);
         params.insert("client_id", transactionInfo.value("client_id"));
         params.insert("customer_phone_number", m_customerPhoneNumber);
         params.insert("total_cost", m_totalCost);
@@ -379,7 +393,7 @@ void QMLPurchaseCartModel::updateSuspendedTransaction(const QVariantMap &transac
     if (!m_records.isEmpty()) {
         QVariantMap params;
         params.insert("transaction_id", m_transactionId);
-        params.insert("customer_name", m_customerName);
+        params.insert("customer_name", m_clientName);
         params.insert("client_id", m_clientId);
         params.insert("customer_phone_number", m_customerPhoneNumber);
         params.insert("total_cost", m_totalCost);

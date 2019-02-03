@@ -8,6 +8,8 @@ public:
     Plugins();
 
     static void registerTypes();
+    static void registerFonts();
+    static void initLogging();
 };
 
 #endif // PLUGINS_H

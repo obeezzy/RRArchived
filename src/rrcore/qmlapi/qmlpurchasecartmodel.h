@@ -102,6 +102,7 @@ public:
     Q_INVOKABLE void submitTransaction(const QVariantMap &transactionInfo = QVariantMap());
     Q_INVOKABLE void suspendTransaction(const QVariantMap &transactionInfo = QVariantMap());
     Q_INVOKABLE void clearAll();
+    Q_INVOKABLE QString toPrintableFormat() const;
 protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
@@ -125,7 +126,7 @@ public slots:
     void removeItem(int itemId);
 private:
     qint64 m_transactionId;
-    QString m_customerName;
+    QString m_clientName;
     QString m_customerPhoneNumber;
     int m_clientId;
     QString m_note;

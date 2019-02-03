@@ -13,6 +13,7 @@ QueryResult::QueryResult(QObject *parent) :
 }
 
 QueryResult::QueryResult(const QueryRequest &request) :
+    QObject(nullptr),
     m_request(request),
     m_successful(false),
     m_errorCode(-1),
@@ -23,6 +24,7 @@ QueryResult::QueryResult(const QueryRequest &request) :
 }
 
 QueryResult::QueryResult(const QueryResult &other) :
+    QObject(nullptr),
     m_request(other.request()),
     m_successful(other.isSuccessful()),
     m_errorCode(other.errorCode()),
