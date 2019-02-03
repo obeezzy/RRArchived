@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.3 as QQLayouts
 import "../rrui" as RRUi
 import com.gecko.rr.widgets 1.0 as RRWidgets
 import com.gecko.rr.models 1.0 as RRModels
+import com.gecko.rr 1.0 as RR
 import "paymentwizard"
 
 RRUi.Dialog {
@@ -289,7 +290,7 @@ RRUi.Dialog {
                                        });
                     } else if (stackView.currentObjectName == "paymentSummaryPage" || stackView.currentObjectName == "paymentChangePage") {
                         if (printCheckBox.checked)
-                            RRWidgets.Dialogs.showPrintDialog();
+                            receiptPrinter.print(cartModel.toPrintableFormat());
                         stackView.push(Qt.resolvedUrl("paymentwizard/PaymentFinishPage.qml"));
                         paymentWizard.accept();
                     } else if (stackView.currentObjectName == "paymentFinishPage") {
@@ -304,4 +305,6 @@ RRUi.Dialog {
             stackView.currentItem.errorMessage = message;
         }
     }
+
+    RR.ReceiptPrinter { id: receiptPrinter }
 }

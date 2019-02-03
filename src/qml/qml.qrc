@@ -131,5 +131,9 @@
         <file>user/PasswordChangePage.qml</file>
         <file>purchase/PurchaseTransactionListView.qml</file>
         <file>purchase/PurchaseTransactionItemDialog.qml</file>
+        <file>settings/receipt/ReceiptTemplate.qml</file>
+        <file>settings/receipt/ReceiptTypeA.qml</file>
+        <file>settings/receipt/ReceiptCartTableView.qml</file>
+        <file>settings/receipt/ReceiptText.qml</file>
     </qresource>
 </RCC>

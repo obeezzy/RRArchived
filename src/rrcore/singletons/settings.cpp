@@ -1,4 +1,5 @@
 #include "settings.h"
+#include <QFileInfo>
 #include <QDebug>
 
 Settings::Settings(QObject *parent) :
@@ -28,4 +29,9 @@ void Settings::setDarkModeActive(bool darkModeActive)
     m_settings.setValue("appearance/theme", darkModeActive ? "dark" : "light");
 
     emit darkModeActiveChanged();
+}
+
+QUrl Settings::defaultReceiptTemplateUrl()
+{
+    return QUrl("qrc:/settings/receipt/ReceiptTypeA.qml");
 }

@@ -80,7 +80,9 @@ SOURCES += \
     qmlapi/qmlsettings.cpp \
     singletons/settings.cpp \
     qmlapi/qmlpurchasetransactionmodel.cpp \
-    qmlapi/qmlpurchasetransactionitemmodel.cpp
+    qmlapi/qmlpurchasetransactionitemmodel.cpp \
+    qmlapi/qmlreceiptprinter.cpp \
+    models/receiptcartmodel.cpp
 
 HEADERS += \
     qmlapi/qmluserprofile.h \
@@ -154,4 +156,6 @@ HEADERS += \
     qmlapi/qmlsettings.h \
     singletons/settings.h \
     qmlapi/qmlpurchasetransactionmodel.h \
-    qmlapi/qmlpurchasetransactionitemmodel.h
+    qmlapi/qmlpurchasetransactionitemmodel.h \
+    qmlapi/qmlreceiptprinter.h \
+    models/receiptcartmodel.h

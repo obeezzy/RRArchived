@@ -1,5 +1,9 @@
 #include "plugins.h"
 #include <QtQml>
+#include <QFontDatabase>
+#include <QDirIterator>
+#include <QLoggingCategory>
+#include <QDebug>
 
 #include "rrcore/qmlapi/qmluserprofile.h"
 #include "rrcore/qmlapi/qmldatabasecreator.h"
@@ -33,11 +37,11 @@
 #include "rrcore/qmlapi/qmlsettings.h"
 #include "rrcore/qmlapi/qmlpurchasetransactionmodel.h"
 #include "rrcore/qmlapi/qmlpurchasetransactionitemmodel.h"
+#include "rrcore/qmlapi/qmlreceiptprinter.h"
 
 #include "rrcore/widgets/dialogs.h"
 
-class QQmlEngine;
-class QJSEngine;
+const QString FONT_DIR(":/fonts");
 
 Plugins::Plugins()
 {
@@ -51,6 +55,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLDatabaseCreator>("com.gecko.rr", 1, 0, "DatabaseCreator");
     qmlRegisterSingletonType<QMLNotifier>("com.gecko.rr", 1, 0, "Notifier", notifier_provider);
     qmlRegisterType<QMLSettings>("com.gecko.rr", 1, 0, "Settings");
+    qmlRegisterType<QMLReceiptPrinter>("com.gecko.rr", 1, 0, "ReceiptPrinter");
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");
@@ -85,4 +90,19 @@ void Plugins::registerTypes()
 
     // Widgets
     qmlRegisterSingletonType<Dialogs>("com.gecko.rr.widgets", 1, 0, "Dialogs", dialogs_provider);
+}
+
+void Plugins::registerFonts()
+{
+    QDirIterator iter(FONT_DIR);
+    while (iter.hasNext()) {
+        const QString &fontPath = iter.next();
+        qDebug() << "Adding font..." << fontPath;
+        QFontDatabase::addApplicationFont(fontPath);
+    }
+}
+
+void Plugins::initLogging()
+{
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }

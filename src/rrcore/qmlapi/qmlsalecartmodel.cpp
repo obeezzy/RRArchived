@@ -1,5 +1,8 @@
 #include "qmlsalecartmodel.h"
 #include <QSqlField>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
@@ -304,6 +307,17 @@ void QMLSaleCartModel::clearAll()
     setCustomerPhoneNumber(QString());
     m_records.clear();
     endResetModel();
+}
+
+QString QMLSaleCartModel::toPrintableFormat() const
+{
+    QJsonObject rootObject;
+    rootObject.insert("name", m_customerName);
+    rootObject.insert("phone_number", m_customerPhoneNumber);
+    rootObject.insert("group", "sales");
+    rootObject.insert("records", QJsonArray::fromVariantList(m_records));
+
+    return QJsonDocument(rootObject).toJson();
 }
 
 void QMLSaleCartModel::addTransaction(const QVariantMap &transactionInfo)

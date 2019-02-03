@@ -30,6 +30,8 @@ TableView {
     signal error(int errorCode)
 
     function removeTransaction(transactionId) { incomeTransactionTableView.model.removeTransaction(transactionId); }
+    function refresh() { incomeTransactionTableView.model.refresh(); }
+    function undoLastCommit() { incomeTransactionTableView.model.undoLastCommit(); }
 
     bottomMargin: 20
     clip: true
@@ -111,7 +113,4 @@ TableView {
             }
         }
     }
-
-    function refresh() { incomeTransactionTableView.model.refresh(); }
-    function undoLastCommit() { incomeTransactionTableView.model.undoLastCommit(); }
 }

@@ -7,6 +7,7 @@ QueryRequest::QueryRequest(QObject *receiver) :
 }
 
 QueryRequest::QueryRequest(const QueryRequest &other) :
+    QObject (nullptr),
     m_receiver(other.receiver())
 {
     setCommand(other.command(), other.params(), other.type());

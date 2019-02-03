@@ -15,4 +15,5 @@ HEADERS += plugins.h
 
 RESOURCES += qml/qml.qrc \
     icons/icons.qrc \
-    images.qrc
+    images.qrc \
+    fonts/fonts.qrc
