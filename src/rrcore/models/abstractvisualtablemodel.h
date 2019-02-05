@@ -42,6 +42,7 @@ public:
     void componentComplete() override;
 public slots:
     virtual void undoLastCommit();
+    virtual void refresh();
 protected:
     virtual void tryQuery() = 0;
     virtual void processResult(const QueryResult result) = 0;

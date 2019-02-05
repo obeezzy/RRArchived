@@ -154,11 +154,6 @@ void QMLStockCategoryItemModel::filter()
     emit executeRequest(request);
 }
 
-void QMLStockCategoryItemModel::refresh()
-{
-    tryQuery();
-}
-
 void QMLStockCategoryItemModel::removeItem(int itemId)
 {
     if (itemId <= 0)

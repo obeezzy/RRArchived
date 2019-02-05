@@ -48,7 +48,6 @@ protected:
     void processResult(const QueryResult result) override final;
     void filter() override final;
 public slots:
-    void refresh();
     void removeDebtor(int debtorId);
 private:
     QVariantList m_records;

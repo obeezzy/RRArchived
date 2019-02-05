@@ -80,11 +80,6 @@ void QMLUserModel::tryQuery()
     emit executeRequest(request);
 }
 
-void QMLUserModel::refresh()
-{
-    tryQuery();
-}
-
 void QMLUserModel::processResult(const QueryResult result)
 {
     if (this != result.request().receiver())

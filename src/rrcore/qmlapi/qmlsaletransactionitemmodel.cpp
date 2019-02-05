@@ -100,11 +100,6 @@ QHash<int, QByteArray> QMLSaleTransactionItemModel::roleNames() const
     return roles;
 }
 
-void QMLSaleTransactionItemModel::refresh()
-{
-    tryQuery();
-}
-
 void QMLSaleTransactionItemModel::tryQuery()
 {
     if (transactionId() <= -1)

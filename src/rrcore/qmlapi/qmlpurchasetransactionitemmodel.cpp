@@ -98,11 +98,6 @@ QHash<int, QByteArray> QMLPurchaseTransactionItemModel::roleNames() const
     };
 }
 
-void QMLPurchaseTransactionItemModel::refresh()
-{
-    tryQuery();
-}
-
 void QMLPurchaseTransactionItemModel::tryQuery()
 {
     if (transactionId() <= -1)

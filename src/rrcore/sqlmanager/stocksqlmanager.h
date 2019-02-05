@@ -17,6 +17,7 @@ private:
     void viewStockCategories(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
     void removeStockItem(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
     void undoRemoveStockItem(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
+    void viewStockReport(const QueryRequest &request, QueryResult &result); // NOTE: throws DatabaseException!
 };
 
 #endif // STOCKSQLMANAGER_H

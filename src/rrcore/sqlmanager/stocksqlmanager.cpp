@@ -39,6 +39,8 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
             removeStockItem(request, result);
         else if (request.command() == "undo_remove_stock_item")
             undoRemoveStockItem(request, result);
+        else if (request.command() == "view_stock_report")
+            viewStockReport(request, result);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -713,6 +715,103 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
+        throw;
+    }
+}
+
+void StockSqlManager::viewStockReport(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> &records(callProcedure("ViewStockReport", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "from",
+                                                               params.value("from")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "to",
+                                                               params.value("to")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_column",
+                                                               params.value("filter_column")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_column",
+                                                               params.value("sort_column", QStringLiteral("category"))
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order").toInt() == Qt::DescendingOrder
+                                                               ? "descending" : "ascending"
+                                                           }
+                                                       }));
+
+        QVariantList items;
+        for (const QSqlRecord &record : records) {
+            items.append(recordToMap(record));
+        }
+
+        result.setOutcome(QVariantMap { { "items", items },
+                                        { "record_count", items.count() },
+                          });
+//        QStringList categories;
+//        QVariantList itemGroups;
+//        int itemCount = 0;
+//        for (int i = 0; i < records.count(); ++i) {
+//            auto record = records[i];
+//            const auto categoryId = record.value("category_id").toInt();
+//            const auto &category = record.value("category").toString();
+
+//            QVariantList items;
+
+//            while ((i < records.count()) && categoryId == record.value("category_id").toInt()) {
+//                QVariantMap itemRecord;
+//                itemRecord.insert("item_id", record.value("item_id"));
+//                itemRecord.insert("category_id", categoryId);
+//                itemRecord.insert("category", category);
+//                itemRecord.insert("item", record.value("item"));
+//                itemRecord.insert("opening_stock_quantity", record.value("opening_stock_quantity"));
+//                itemRecord.insert("quantity_sold", record.value("quantity_sold"));
+//                itemRecord.insert("quantity_bought", record.value("quantity_bought"));
+//                itemRecord.insert("quantity_in_stock", record.value("quantity_in_stock"));
+//                itemRecord.insert("unit", record.value("unit"));
+
+//                items.append(itemRecord);
+//                itemCount++;
+
+//                if ((i + 1) < records.count() && categoryId == records.at(i + 1).value("category_id").toInt())
+//                    record = records[++i];
+//                else
+//                    break;
+//            }
+
+//            categories.append(category);
+//            itemGroups.append(QVariant(items));
+//        }
+
+//        if (categories.count() != itemGroups.count())
+//            throw DatabaseException(DatabaseException::RRErrorCode::ResultMismatch,
+//                                    QString("Category count (%1) and item group count (%2) are unequal.")
+//                                    .arg(categories.count()).arg(itemGroups.count()));
+
+//        result.setOutcome(QVariantMap { { "categories", categories },
+//                                        { "item_groups", itemGroups },
+//                                        { "record_count", itemCount },
+//                                        { "total_items", itemCount }
+//                          });
+    } catch (DatabaseException &) {
         throw;
     }
 }

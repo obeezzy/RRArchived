@@ -21,6 +21,7 @@ private:
     void viewSaleTransactions(const QueryRequest &request, QueryResult &result); // throws DatabaseException
     void viewSaleTransactionItems(const QueryRequest &request, QueryResult &result); // throws DatabaseException
     void viewSaleHome(const QueryRequest &request, QueryResult &result); // throws DatabaseException
+    void viewSaleReport(const QueryRequest &request, QueryResult &result); // throws DatabaseException
 };
 
 #endif // SALESQLMANAGER_H

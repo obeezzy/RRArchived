@@ -20,6 +20,7 @@ private:
     void viewPurchaseTransactionItems(const QueryRequest &request, QueryResult &result); // throws DatabaseException
     void removePurchaseTransaction(const QueryRequest &request, QueryResult &result); // throws DatabaseException
     void undoRemovePurchaseTransaction(const QueryRequest &request, QueryResult &result); // throws DatabaseException
+    void viewPurchaseReport(const QueryRequest &request, QueryResult &result); // throws DatabaseException
 };
 
 #endif // PURCHASESQLMANAGER_H

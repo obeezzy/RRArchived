@@ -170,3 +170,8 @@ QueryRequest AbstractVisualListModel::lastRequest() const
 {
     return m_lastRequest;
 }
+
+void AbstractVisualListModel::refresh()
+{
+    tryQuery();
+}

@@ -26,4 +26,9 @@ SUBDIRS += \
     QMLUserPrivilegeModel \
     QMLUserDetailRecord \
     QMLPurchaseTransactionModel \
-    QMLPurchaseTransactionItemModel
+    QMLPurchaseTransactionItemModel \
+    QMLStockReportModel \
+    QMLSaleReportModel \
+    QMLPurchaseReportModel \
+    QMLIncomeReportModel \
+    QMLExpenseReportModel

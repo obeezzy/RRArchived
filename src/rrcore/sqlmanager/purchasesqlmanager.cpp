@@ -36,6 +36,8 @@ QueryResult PurchaseSqlManager::execute(const QueryRequest &request)
             removePurchaseTransaction(request, result);
         else if (request.command() == "undo_remove_purchase_transaction")
             undoRemovePurchaseTransaction(request, result);
+        else if (request.command() == "view_purchase_report")
+            viewPurchaseReport(request, result);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -987,6 +989,58 @@ void PurchaseSqlManager::undoRemovePurchaseTransaction(const QueryRequest &reque
                       });
 
         result.setOutcome(QVariantMap { { "transaction_id", params.value("transaction_id").toInt() }, { "record_count", 1 } });
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
+
+void PurchaseSqlManager::viewPurchaseReport(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> &records(callProcedure("ViewPurchaseReport", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "from",
+                                                               params.value("from")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "to",
+                                                               params.value("to")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_column",
+                                                               params.value("filter_column")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_column",
+                                                               params.value("sort_column", QStringLiteral("category"))
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order").toInt() == Qt::DescendingOrder
+                                                               ? "descending" : "ascending"
+                                                           }
+                                                       }));
+
+        QVariantList items;
+        for (const QSqlRecord &record : records) {
+            items.append(recordToMap(record));
+        }
+
+        result.setOutcome(QVariantMap { { "items", items },
+                                        { "record_count", items.count() },
+                          });
     } catch (DatabaseException &) {
         throw;
     }

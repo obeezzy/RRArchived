@@ -8,6 +8,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("Reports")
+        iconUrl: "qrc:/icons/chart-areaspline.svg"
+        fileName: "reports/HomePage.qml"
+    }
+
+    ListElement {
         title: qsTr("Stock")
         iconUrl: "qrc:/icons/truck.svg"
         fileName: "stock/HomePage.qml"

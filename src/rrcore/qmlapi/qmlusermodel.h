@@ -48,8 +48,6 @@ public:
     Q_INVOKABLE void activateUser(const QString &userName, bool active);
 signals:
     void keysChanged();
-public slots:
-    void refresh();
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;

@@ -135,5 +135,21 @@
         <file>settings/receipt/ReceiptTypeA.qml</file>
         <file>settings/receipt/ReceiptCartTableView.qml</file>
         <file>settings/receipt/ReceiptText.qml</file>
+        <file>reports/HomePage.qml</file>
+        <file>reports/StockReportSubView.qml</file>
+        <file>reports/StockReportTableView.qml</file>
+        <file>reports/TotalReportSubView.qml</file>
+        <file>reports/SaleReportSubView.qml</file>
+        <file>reports/PurchaseReportSubView.qml</file>
+        <file>reports/IncomeReportSubView.qml</file>
+        <file>reports/ExpenseReportSubView.qml</file>
+        <file>reports/CustomerReportSubView.qml</file>
+        <file>reports/VendorReportSubView.qml</file>
+        <file>reports/DebtorReportSubView.qml</file>
+        <file>reports/CreditorReportSubView.qml</file>
+        <file>reports/SaleReportTableView.qml</file>
+        <file>reports/PurchaseReportTableView.qml</file>
+        <file>reports/IncomeReportTableView.qml</file>
+        <file>reports/ExpenseReportTableView.qml</file>
     </qresource>
 </RCC>

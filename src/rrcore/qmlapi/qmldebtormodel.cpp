@@ -130,11 +130,6 @@ void QMLDebtorModel::filter()
     emit executeRequest(request);
 }
 
-void QMLDebtorModel::refresh()
-{
-    tryQuery();
-}
-
 void QMLDebtorModel::removeDebtor(int debtorId)
 {
     if (debtorId <= 0) {

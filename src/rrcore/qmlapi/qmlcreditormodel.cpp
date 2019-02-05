@@ -44,8 +44,3 @@ void QMLCreditorModel::processResult(const QueryResult result)
     if (this != result.request().receiver())
         return;
 }
-
-void QMLCreditorModel::refresh()
-{
-
-}
