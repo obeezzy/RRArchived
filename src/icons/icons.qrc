@@ -24,5 +24,7 @@
         <file>comment-question.svg</file>
         <file>cart-outline.svg</file>
         <file>menu-right.svg</file>
+        <file>chart-areaspline.svg</file>
+        <file>icons.qrc</file>
     </qresource>
 </RCC>

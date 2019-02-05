@@ -23,6 +23,8 @@ QueryResult IncomeSqlManager::execute(const QueryRequest &request)
             addNewIncomeTransaction(request);
         else if (request.command() == "view_income_transactions")
             viewIncomeTransactions(request, result);
+        else if (request.command() == "view_income_report")
+            viewIncomeReport(request, result);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -154,6 +156,58 @@ void IncomeSqlManager::viewIncomeTransactions(const QueryRequest &request, Query
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 
+        throw;
+    }
+}
+
+void IncomeSqlManager::viewIncomeReport(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> &records(callProcedure("ViewIncomeReport", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "from",
+                                                               params.value("from")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "to",
+                                                               params.value("to")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_column",
+                                                               params.value("filter_column")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_column",
+                                                               params.value("sort_column", QStringLiteral("purchase"))
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order").toInt() == Qt::DescendingOrder
+                                                               ? "descending" : "ascending"
+                                                           }
+                                                       }));
+
+        QVariantList transactions;
+        for (const QSqlRecord &record : records) {
+            transactions.append(recordToMap(record));
+        }
+
+        result.setOutcome(QVariantMap { { "transactions", transactions },
+                                        { "record_count", transactions.count() },
+                          });
+    } catch (DatabaseException &) {
         throw;
     }
 }

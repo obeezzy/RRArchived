@@ -170,3 +170,8 @@ QueryRequest AbstractVisualTableModel::lastRequest() const
 {
     return m_lastRequest;
 }
+
+void AbstractVisualTableModel::refresh()
+{
+    tryQuery();
+}

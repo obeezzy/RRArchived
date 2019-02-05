@@ -44,8 +44,6 @@ public:
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
-public slots:
-    void refresh();
 };
 
 #endif // QMLCREDITORMODEL_H

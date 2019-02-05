@@ -204,3 +204,49 @@ BEGIN
 		ORDER BY SUM(sale_item.quantity) DESC
 		LIMIT iLimit;
 END;
+
+---
+
+CREATE PROCEDURE ViewSaleReport (
+    IN iFrom DATETIME,
+    IN iTo DATETIME,
+    IN iFilterColumn VARCHAR(20),
+    IN iFilterText VARCHAR(100),
+    IN iSortColumn VARCHAR(20),
+    IN iSortOrder VARCHAR(15)
+)
+BEGIN
+    SELECT i.id AS item_id, category.id AS category_id, category.category, i.item,
+        (SELECT IFNULL(SUM(quantity), 0) FROM sale_item
+            WHERE created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
+                                    AND IFNULL(iTo, CURRENT_TIMESTAMP())
+            AND sale_item.item_id = i.id) AS quantity_sold,
+        unit.id as unit_id, unit.unit,
+        (SELECT IFNULL(SUM(cost), 0) FROM sale_item
+            WHERE created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
+                                    AND IFNULL(iTo, CURRENT_TIMESTAMP())
+            AND sale_item.item_id = i.id) AS total_amount
+        FROM item i
+        INNER JOIN category ON i.category_id = category.id
+        INNER JOIN unit ON i.id = unit.item_id
+        INNER JOIN current_quantity ON i.id = current_quantity.item_id
+        LEFT JOIN user_ ON i.user_id = user_.id
+        WHERE i.archived = 0 AND unit.base_unit_equivalent = 1
+        AND category.category LIKE (CASE
+                                    WHEN LOWER(iFilterColumn) = 'category'
+                                    THEN CONCAT('%', iFilterText, '%')
+                                    ELSE '%'
+                                    END)
+        AND i.item LIKE (CASE
+                            WHEN LOWER(iFilterColumn) = 'item'
+                            THEN CONCAT('%', iFilterText, '%')
+                            ELSE '%'
+                            END)
+        ORDER BY (CASE
+                    WHEN LOWER(iSortOrder) = 'descending' AND LOWER(iSortColumn) = 'category'
+                    THEN LOWER(category.category) END) DESC,
+                 (CASE
+                    WHEN (iSortOrder IS NULL AND iSortColumn IS NULL) OR (LOWER(iSortOrder) <> 'descending' AND LOWER(iSortColumn) = 'category')
+                    THEN LOWER(category.category) END) ASC,
+        LOWER(i.item) ASC;
+END;

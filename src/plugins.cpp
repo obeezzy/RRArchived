@@ -36,6 +36,11 @@
 #include "rrcore/qmlapi/qmlpurchasetransactionmodel.h"
 #include "rrcore/qmlapi/qmlpurchasetransactionitemmodel.h"
 #include "rrcore/qmlapi/qmlreceiptprinter.h"
+#include "rrcore/qmlapi/qmlstockreportmodel.h"
+#include "rrcore/qmlapi/qmlsalereportmodel.h"
+#include "rrcore/qmlapi/qmlpurchasereportmodel.h"
+#include "rrcore/qmlapi/qmlincomereportmodel.h"
+#include "rrcore/qmlapi/qmlexpensereportmodel.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -82,6 +87,11 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLUserDetailRecord>("com.gecko.rr.models", 1, 0, "UserDetailRecord");
     qmlRegisterType<QMLPurchaseTransactionModel>("com.gecko.rr.models", 1, 0, "PurchaseTransactionModel");
     qmlRegisterType<QMLPurchaseTransactionItemModel>("com.gecko.rr.models", 1, 0, "PurchaseTransactionItemModel");
+    qmlRegisterType<QMLStockReportModel>("com.gecko.rr.models", 1, 0, "StockReportModel");
+    qmlRegisterType<QMLSaleReportModel>("com.gecko.rr.models", 1, 0, "SaleReportModel");
+    qmlRegisterType<QMLPurchaseReportModel>("com.gecko.rr.models", 1, 0, "PurchaseReportModel");
+    qmlRegisterType<QMLIncomeReportModel>("com.gecko.rr.models", 1, 0, "IncomeReportModel");
+    qmlRegisterType<QMLExpenseReportModel>("com.gecko.rr.models", 1, 0, "ExpenseReportModel");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

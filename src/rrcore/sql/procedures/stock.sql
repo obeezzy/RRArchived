@@ -2,9 +2,9 @@ USE ###DATABASENAME###;
 
 ---
 
-CREATE PROCEDURE ViewStockCategories(
+CREATE PROCEDURE ViewStockCategories (
     IN iSortOrder VARCHAR(4)
-    )
+)
 BEGIN
     IF LOWER(iSortOrder) = "descending" THEN
         SELECT id, category FROM category ORDER BY LOWER(category) DESC;
@@ -20,7 +20,7 @@ CREATE PROCEDURE ViewStockItems (
     IN iFilterText VARCHAR(100),
     IN iSortColumn VARCHAR(20),
     IN iSortOrder VARCHAR(15)
-    )
+)
 BEGIN
     SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description,
         item.divisible, item.image, current_quantity.quantity,
@@ -101,7 +101,7 @@ END;
 
 CREATE PROCEDURE ViewStockItemDetails (
     IN iItemId INTEGER
-    )
+)
 BEGIN
     SELECT item.id AS item_id, category.id AS category_id, category.category, item.item, item.description,
         item.divisible, item.image, current_quantity.quantity,
@@ -276,7 +276,7 @@ END;
 
 ---
 
-CREATE PROCEDURE ArchiveStockItem(
+CREATE PROCEDURE ArchiveStockItem (
 	IN iItemId INTEGER,
     IN iUserId INTEGER
 )
@@ -289,7 +289,7 @@ END;
 
 ---
 
-CREATE PROCEDURE UndoArchiveStockItem(
+CREATE PROCEDURE UndoArchiveStockItem (
 	IN iItemId INTEGER,
     IN iUserId INTEGER
 )
@@ -306,4 +306,56 @@ BEGIN
 		LEFT JOIN user_ ON item.user_id = iUserId
 		WHERE item.archived = 0 AND unit.base_unit_equivalent = 1
 		AND item.id = iItemId;
+END;
+
+---
+
+CREATE PROCEDURE ViewStockReport (
+    IN iFrom DATETIME,
+    IN iTo DATETIME,
+    IN iFilterColumn VARCHAR(20),
+    IN iFilterText VARCHAR(100),
+    IN iSortColumn VARCHAR(20),
+    IN iSortOrder VARCHAR(15)
+)
+BEGIN
+    SELECT i.id AS item_id, category.id AS category_id, category.category, i.item,
+        (SELECT IFNULL(quantity, 0) FROM initial_quantity
+            WHERE created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
+                                    AND IFNULL(iTo, CURRENT_TIMESTAMP())
+            AND initial_quantity.item_id = i.id
+            ORDER BY created ASC LIMIT 1) as opening_stock_quantity,
+        (SELECT IFNULL(SUM(quantity), 0) FROM sale_item
+            WHERE created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
+                                    AND IFNULL(iTo, CURRENT_TIMESTAMP())
+            AND sale_item.item_id = i.id) AS quantity_sold,
+        (SELECT IFNULL(SUM(quantity), 0) FROM purchase_item
+            WHERE created BETWEEN IFNULL(iFrom, '1970-01-01 00:00:00')
+                                    AND IFNULL(iTo, CURRENT_TIMESTAMP())
+            AND purchase_item.item_id = i.id) AS quantity_bought,
+        current_quantity.quantity AS quantity_in_stock,
+        unit.id as unit_id, unit.unit
+        FROM item i
+        INNER JOIN category ON i.category_id = category.id
+        INNER JOIN unit ON i.id = unit.item_id
+        INNER JOIN current_quantity ON i.id = current_quantity.item_id
+        LEFT JOIN user_ ON i.user_id = user_.id
+        WHERE i.archived = 0 AND unit.base_unit_equivalent = 1
+        AND category.category LIKE (CASE
+                                    WHEN LOWER(iFilterColumn) = 'category'
+                                    THEN CONCAT('%', iFilterText, '%')
+                                    ELSE '%'
+                                    END)
+        AND i.item LIKE (CASE
+                            WHEN LOWER(iFilterColumn) = 'item'
+                            THEN CONCAT('%', iFilterText, '%')
+                            ELSE '%'
+                            END)
+        ORDER BY (CASE
+                    WHEN LOWER(iSortOrder) = 'descending' AND LOWER(iSortColumn) = 'category'
+                    THEN LOWER(category.category) END) DESC,
+                 (CASE
+                    WHEN (iSortOrder IS NULL AND iSortColumn IS NULL) OR (LOWER(iSortOrder) <> 'descending' AND LOWER(iSortColumn) = 'category')
+                    THEN LOWER(category.category) END) ASC,
+        LOWER(i.item) ASC;
 END;

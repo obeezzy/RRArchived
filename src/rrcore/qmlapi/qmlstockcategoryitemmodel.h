@@ -50,7 +50,6 @@ protected:
     void processResult(const QueryResult result) override final;
     void filter() override final;
 public slots:
-    void refresh();
     void removeItem(int itemId);
 private:
     QList<StockItemModel *> m_stockItemModels;
