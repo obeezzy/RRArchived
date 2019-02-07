@@ -6,7 +6,7 @@
 
 QT       += core qml quick quickcontrols2 widgets sql testlib
 
-TARGET = tst_qmlstockitempusher
+TARGET = tst_qmlstockitempushertest
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -18,7 +18,7 @@ LIBS += -L$$OUT_PWD/../../src/rrcore -lrrcore
 TEMPLATE = app
 
 SOURCES += \
-    tst_qmlstockitempusher.cpp
+    tst_qmlstockitempushertest.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings

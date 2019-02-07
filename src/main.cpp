@@ -3,7 +3,7 @@
 #include <QQuickStyle>
 #include "plugins.h"
 #include "rrcore/database/databaseserver.h"
-#include "singletons/logger.h"
+#include "rrcore/singletons/logger.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     Logger::instance().start();
 
     QApplication::setApplicationName("Record Rack");
-    QGuiApplication::setApplicationVersion("0.0.1");
+    QGuiApplication::setApplicationVersion("0.1.0");
     QGuiApplication::setOrganizationName("Gecko");
     QGuiApplication::setOrganizationDomain("recordrack.io");
 
