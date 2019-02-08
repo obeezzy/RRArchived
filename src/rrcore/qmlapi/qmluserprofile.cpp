@@ -58,9 +58,9 @@ void QMLUserProfile::signIn(const QString &userName, const QString &password)
 {
     qCInfo(qmlUserProfile) << "signIn" << userName << password;
     if (userName.trimmed().isEmpty()) {
-        emit error(NoUserNameProvided);
+        emit error(NoUserNameProvidedError);
     } else if (password.isEmpty()) {
-        emit error(NoPasswordProvided);
+        emit error(NoPasswordProvidedError);
     } else {
         setBusy(true);
 
@@ -81,9 +81,9 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
 {
     qCInfo(qmlUserProfile) << "signUp" << userName << password;
     if (userName.trimmed().isEmpty()) {
-        emit error(NoUserNameProvided);
+        emit error(NoUserNameProvidedError);
     } else if (password.isEmpty()) {
-        emit error(NoPasswordProvided);
+        emit error(NoPasswordProvidedError);
     } else {
         setBusy(true);
 
@@ -104,7 +104,7 @@ void QMLUserProfile::signOut()
 void QMLUserProfile::changePassword(const QString &oldPassword, const QString &newPassword)
 {
     if (oldPassword.isEmpty() || newPassword.isEmpty()) {
-        emit error(IncorrectCredentials);
+        emit error(IncorrectCredentialsError);
         return;
     }
 
@@ -148,7 +148,7 @@ void QMLUserProfile::processResult(const QueryResult &result)
             emit error(UserAccountIsLockedError);
             break;
         case static_cast<int>(DatabaseException::RRErrorCode::SignInFailure):
-            emit error(IncorrectCredentials);
+            emit error(IncorrectCredentialsError);
             break;
         default:
             emit error(UnknownError);

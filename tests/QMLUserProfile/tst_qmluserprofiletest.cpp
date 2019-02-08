@@ -93,7 +93,7 @@ void QMLUserProfileTest::testIncorrectCredentialsError()
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<QMLUserProfile::ErrorCode>(), QMLUserProfile::IncorrectCredentials);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLUserProfile::ErrorCode>(), QMLUserProfile::IncorrectCredentialsError);
 }
 
 void QMLUserProfileTest::testNoUserNameProvidedError()
@@ -104,7 +104,7 @@ void QMLUserProfileTest::testNoUserNameProvidedError()
     m_userProfile->signIn(QStringLiteral(""), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<QMLUserProfile::ErrorCode>(), QMLUserProfile::NoUserNameProvided);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLUserProfile::ErrorCode>(), QMLUserProfile::NoUserNameProvidedError);
 }
 
 void QMLUserProfileTest::testNoPasswordProvidedError()
@@ -115,7 +115,7 @@ void QMLUserProfileTest::testNoPasswordProvidedError()
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral(""));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<QMLUserProfile::ErrorCode>(), QMLUserProfile::NoPasswordProvided);
+    QCOMPARE(errorSpy.takeFirst().first().value<QMLUserProfile::ErrorCode>(), QMLUserProfile::NoPasswordProvidedError);
 }
 
 QTEST_MAIN(QMLUserProfileTest)

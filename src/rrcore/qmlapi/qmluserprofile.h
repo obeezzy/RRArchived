@@ -27,10 +27,10 @@ public:
 
     enum ErrorCode {
         UnknownError,
-        NoUserNameProvided,
-        NoPasswordProvided,
-        InvalidUserName,
-        IncorrectCredentials,
+        NoUserNameProvidedError,
+        NoPasswordProvidedError,
+        InvalidUserNameError,
+        IncorrectCredentialsError,
         OldPasswordWrongError,
         UserAccountIsLockedError
     }; Q_ENUM(ErrorCode)

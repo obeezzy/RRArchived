@@ -66,7 +66,7 @@ RRUi.ApplicationWindow {
         target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ?
                     mainWindow.pageStack.currentItem : null
         onPushRequested: {
-            sidebar.currentIndex = sidebar.findIndexFromFileName(Array.isArray(link) ? link[0] : link);
+            sidebar.currentIndex = sidebar.findIndexFromFileName(Array.isArray(page) ? page[0] : page);
             mainWindow.pageStack.replace(null, page, properties, operation);
         }
     }

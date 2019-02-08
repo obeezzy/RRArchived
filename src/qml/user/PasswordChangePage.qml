@@ -128,7 +128,7 @@ RRUi.Page {
         onSuccess: passwordChangePage.accepted();
         onError: {
             switch (errorCode) {
-            case RR.UserProfile.IncorrectCredentials:
+            case RR.UserProfile.IncorrectCredentialsError:
                 errorDialog.show(qsTr("The user's user name must be provided."), qsTr("Error"), errorCode);
                 break;
             case RR.UserProfile.OldPasswordWrongError:

@@ -5,7 +5,7 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "." as RRUi
 
-Item {
+FocusScope {
     id: iconTextField
     implicitWidth: 300
     implicitHeight: row.height
@@ -31,6 +31,7 @@ Item {
 
         RRUi.TextField {
             id: textField
+            focus: true
             QQLayouts.Layout.fillWidth: true
         }
     }

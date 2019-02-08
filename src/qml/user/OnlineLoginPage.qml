@@ -33,10 +33,8 @@ RRUi.Page {
 
             RRUi.IconTextField {
                 id: emailAddressField
-                icon {
-                    source: FluidControls.Utils.iconUrl("communication/email")
-                    size: 20
-                }
+                focus: true
+                icon.source: FluidControls.Utils.iconUrl("communication/email")
 
                 textField {
                     focus: true

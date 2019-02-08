@@ -46,39 +46,21 @@ RRUi.Page {
                         horizontalCenter: parent.horizontalCenter
                     }
 
-                    Row {
-                        spacing: 12
-
-                        FluidControls.Icon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            source: FluidControls.Utils.iconUrl("social/person")
-                            size: 20
-                        }
-
-                        RRUi.TextField {
-                            id: userNameField
-                            focus: true
-                            width: 200
-                            placeholderText: qsTr("User name")
-                        }
+                    RRUi.IconTextField {
+                        id: userNameField
+                        icon.source: FluidControls.Utils.iconUrl("social/person")
+                        focus: true
+                        width: 200
+                        textField.placeholderText: qsTr("User name")
                     }
 
-                    Row {
-                        spacing: 12
-
-                        FluidControls.Icon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            source: FluidControls.Utils.iconUrl("action/lock")
-                            size: 20
-                        }
-
-                        RRUi.TextField {
-                            id: passwordField
-                            width: 200
-                            echoMode: TextInput.Password
-                            placeholderText: qsTr("Password")
-                            passwordCharacter: "\u26ab"
-                        }
+                    RRUi.IconTextField {
+                        id: passwordField
+                        icon.source: FluidControls.Utils.iconUrl("action/lock")
+                        width: 200
+                        textField.echoMode: TextInput.Password
+                        textField.placeholderText: qsTr("Password")
+                        textField.passwordCharacter: "\u26ab"
                     }
                 }
 
@@ -106,14 +88,15 @@ RRUi.Page {
         onSuccess: loginPage.loggedIn();
         onError: {
             switch (errorCode) {
-            case RR.UserProfile.NoUserNameProvided:
+            case RR.UserProfile.NoUserNameProvidedError:
                 errorDialog.show(qsTr("The user name field cannot be empty."), qsTr("Failed to sign in"), errorCode);
                 break;
-            case RR.UserProfile.IncorrectCredentials:
+            case RR.UserProfile.IncorrectCredentialsError:
                 errorDialog.show(qsTr("Your user name or password is incorrect."), qsTr("Failed to sign in"), errorCode);
                 break;
             case RR.UserProfile.UserAccountIsLockedError:
-                errorDialog.show(qsTr("This account has been locked. Please contact the administrator."), qsTr("Failed to sign in"), errorCode);
+                errorDialog.show(qsTr("This account has been locked. Please contact the administrator."),
+                                 qsTr("Failed to sign in"), errorCode);
                 break;
             default:
                 errorDialog.show(qsTr("The cause of the error could not be determined."), qsTr("Failed to sign in"), errorCode);

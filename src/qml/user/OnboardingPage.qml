@@ -11,8 +11,11 @@ RRUi.Page {
     signal finished
 
     contentItem: FocusScope {
+        focus: true
+
         RRUi.Card {
             anchors.centerIn: parent
+            focus: true
             width: 1024
             height: 960
 
@@ -24,7 +27,11 @@ RRUi.Page {
                     right: parent.right
                 }
 
-                model: [ qsTr("Link to online account"), qsTr("Choose business"), qsTr("Confirm business details") ]
+                model: [
+                    qsTr("Link to online account"),
+                    qsTr("Choose business"),
+                    qsTr("Confirm business details")
+                ]
                 currentIndex: {
                     switch (stackView.currentObjectName) {
                     case "onlineLoginPage":
@@ -52,6 +59,7 @@ RRUi.Page {
                 }
 
                 clip: true
+                focus: true
                 initialItem: Qt.resolvedUrl("OnlineLoginPage.qml")
             }
 
@@ -79,6 +87,7 @@ RRUi.Page {
 
                     text: qsTr("Back")
                     onClicked: stackView.pop();
+                    onVisibleChanged: if (!visible && activeFocus) nextItemInFocusChain(true).focus = true;
                 }
 
                 QQC2.Button {
