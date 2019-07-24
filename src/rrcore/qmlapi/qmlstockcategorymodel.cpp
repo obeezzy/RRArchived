@@ -2,16 +2,15 @@
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 #include <QDebug>
 
 QMLStockCategoryModel::QMLStockCategoryModel(QObject *parent) :
-    AbstractVisualListModel(parent)
-{
+    QMLStockCategoryModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLStockCategoryModel::QMLStockCategoryModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread)
+QMLStockCategoryModel::QMLStockCategoryModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent)
 {
 
 }

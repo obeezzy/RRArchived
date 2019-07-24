@@ -9,7 +9,7 @@ class QMLDashboardHomeModel : public AbstractHomeModel
     Q_OBJECT
 public:
     explicit QMLDashboardHomeModel(QObject *parent = nullptr);
-    explicit QMLDashboardHomeModel(DatabaseThread &thread);
+    explicit QMLDashboardHomeModel(DatabaseThread &thread, QObject *parent = nullptr);
 protected:
     void tryQuery() override;
 };

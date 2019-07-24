@@ -10,7 +10,6 @@ class QMLExpensePusherTest : public QObject
 
 public:
     QMLExpensePusherTest();
-    ~QMLExpensePusherTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLExpensePusherTest::QMLExpensePusherTest() :
     m_thread(&m_result)
 {
-    m_expensePusher = new QMLExpensePusher(m_thread);
-}
-
-QMLExpensePusherTest::~QMLExpensePusherTest()
-{
-    m_expensePusher->deleteLater();
+    m_expensePusher = new QMLExpensePusher(m_thread, this);
 }
 
 void QMLExpensePusherTest::init()

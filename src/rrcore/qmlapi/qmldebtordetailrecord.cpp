@@ -1,16 +1,13 @@
 #include "qmldebtordetailrecord.h"
+#include "database/databasethread.h"
 #include <QDateTime>
 
 QMLDebtorDetailRecord::QMLDebtorDetailRecord(QObject *parent) :
-    AbstractDetailRecord(parent),
-    m_debtorId(-1),
-    m_userId(-1)
-{
-    connect(this, &QMLDebtorDetailRecord::debtorIdChanged, this, &QMLDebtorDetailRecord::tryQuery);
-}
+    AbstractDetailRecord(DatabaseThread::instance(), parent)
+{}
 
-QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread &thread) :
-    AbstractDetailRecord(thread),
+QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread &thread, QObject *parent) :
+    AbstractDetailRecord(thread, parent),
     m_debtorId(-1),
     m_userId(-1)
 {

@@ -8,7 +8,7 @@ class QMLIncomeHomeModel : public AbstractHomeModel
     Q_OBJECT
 public:
     explicit QMLIncomeHomeModel(QObject *parent = nullptr);
-    explicit QMLIncomeHomeModel(DatabaseThread &thread);
+    explicit QMLIncomeHomeModel(DatabaseThread &thread, QObject *parent = nullptr);
 protected:
     void tryQuery() override;
 };

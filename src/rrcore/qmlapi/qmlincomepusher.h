@@ -25,7 +25,7 @@ public:
     }; Q_ENUM(ErrorCode)
 
     explicit QMLIncomePusher(QObject *parent = nullptr);
-    explicit QMLIncomePusher(DatabaseThread &thread);
+    explicit QMLIncomePusher(DatabaseThread &thread, QObject *parent = nullptr);
 
     QString clientName() const;
     void setClientName(const QString &clientName);

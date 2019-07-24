@@ -4,15 +4,12 @@
 #include "qmlapi/qmlpurchasecartmodel.h"
 #include "mockdatabasethread.h"
 
-// add necessary includes here
-
 class QMLPurchaseCartModelTest : public QObject
 {
     Q_OBJECT
 
 public:
     QMLPurchaseCartModelTest();
-    ~QMLPurchaseCartModelTest();
 private slots:
     void init();
     void cleanup();
@@ -26,12 +23,7 @@ private:
 QMLPurchaseCartModelTest::QMLPurchaseCartModelTest() :
     m_thread(&m_result)
 {
-    m_purchaseCartModel = new QMLPurchaseCartModel(m_thread);
-}
-
-QMLPurchaseCartModelTest::~QMLPurchaseCartModelTest()
-{
-
+    m_purchaseCartModel = new QMLPurchaseCartModel(m_thread, this);
 }
 
 void QMLPurchaseCartModelTest::init()

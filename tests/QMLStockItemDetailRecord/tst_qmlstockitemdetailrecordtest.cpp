@@ -32,12 +32,11 @@ QMLStockItemDetailRecordTest::QMLStockItemDetailRecordTest() :
 
 void QMLStockItemDetailRecordTest::init()
 {
-    m_stockItemDetailRecord = new QMLStockItemDetailRecord(m_thread);
+    m_stockItemDetailRecord = new QMLStockItemDetailRecord(m_thread, this);
 }
 
 void QMLStockItemDetailRecordTest::cleanup()
 {
-    m_stockItemDetailRecord->deleteLater();
 }
 
 void QMLStockItemDetailRecordTest::testViewStockItemDetails()

@@ -3,17 +3,14 @@
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 
 AbstractTransactionModel::AbstractTransactionModel(QObject *parent) :
-    AbstractVisualTableModel(parent),
-    m_transactionId(-1),
-    m_keys(None)
-{
+    AbstractTransactionModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-AbstractTransactionModel::AbstractTransactionModel(DatabaseThread &thread) :
-    AbstractVisualTableModel(thread),
+AbstractTransactionModel::AbstractTransactionModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualTableModel(thread, parent),
     m_transactionId(-1),
     m_keys(None)
 {

@@ -1,13 +1,12 @@
 #include "qmlclientmodel.h"
+#include "database/databasethread.h"
 
 QMLClientModel::QMLClientModel(QObject *parent) :
-    AbstractVisualListModel(parent)
-{
+    AbstractVisualListModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLClientModel::QMLClientModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread)
+QMLClientModel::QMLClientModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent)
 {
 
 }

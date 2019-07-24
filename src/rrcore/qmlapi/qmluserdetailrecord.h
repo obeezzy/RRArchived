@@ -16,7 +16,7 @@ class QMLUserDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(QUrl imageUrl READ imageUrl NOTIFY imageUrlChanged)
 public:
     explicit QMLUserDetailRecord(QObject *parent = nullptr);
-    explicit QMLUserDetailRecord(DatabaseThread &thread);
+    explicit QMLUserDetailRecord(DatabaseThread &thread, QObject *parent = nullptr);
 
     int userId() const;
     void setUserId(int userId);

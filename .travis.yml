@@ -1,0 +1,20 @@
+language: cpp
+compiler: clang
+sudo: required
+os: linux
+dist: trusty
+
+before_install:
+    - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+    - sudo apt-get update -qq
+    - sudo apt-get install qtbase5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev
+    - sudo apt-get install -y qt5-default qttools5-dev-tools # install necessary Qt files
+
+script:
+    - qmake -project
+    - qmake "CONFIG+=tests" RecordRack.pro # compile for unit test first
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../../src/rrcore/
+    - make check
+    - make install
+    - ./rr
+

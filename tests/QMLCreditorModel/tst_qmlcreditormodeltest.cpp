@@ -9,7 +9,6 @@ class QMLCreditorModelTest : public QObject
     Q_OBJECT
 public:
     QMLCreditorModelTest();
-    ~QMLCreditorModelTest();
 private slots:
     void init();
     void cleanup();
@@ -23,12 +22,7 @@ private:
 QMLCreditorModelTest::QMLCreditorModelTest() :
     m_thread(&m_result)
 {
-    m_creditorModel = new QMLCreditorModel(m_thread);
-}
-
-QMLCreditorModelTest::~QMLCreditorModelTest()
-{
-    m_creditorModel->deleteLater();
+    m_creditorModel = new QMLCreditorModel(m_thread, this);
 }
 
 void QMLCreditorModelTest::init()

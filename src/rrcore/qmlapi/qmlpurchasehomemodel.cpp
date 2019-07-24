@@ -1,13 +1,12 @@
 #include "qmlpurchasehomemodel.h"
+#include "database/databasethread.h"
 
 QMLPurchaseHomeModel::QMLPurchaseHomeModel(QObject *parent) :
-    AbstractHomeModel (parent)
-{
+    QMLPurchaseHomeModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLPurchaseHomeModel::QMLPurchaseHomeModel(DatabaseThread &thread) :
-    AbstractHomeModel (thread)
+QMLPurchaseHomeModel::QMLPurchaseHomeModel(DatabaseThread &thread, QObject *parent) :
+    AbstractHomeModel(thread, parent)
 {
 
 }

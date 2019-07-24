@@ -10,7 +10,6 @@ class QMLPurchaseTransactionModelTest : public QObject
 
 public:
     QMLPurchaseTransactionModelTest();
-    ~QMLPurchaseTransactionModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLPurchaseTransactionModelTest::QMLPurchaseTransactionModelTest() :
     m_thread(&m_result)
 {
-    m_purchaseTransactionModel = new QMLPurchaseTransactionModel(this);
-}
-
-QMLPurchaseTransactionModelTest::~QMLPurchaseTransactionModelTest()
-{
-    m_purchaseTransactionModel->deleteLater();
+    m_purchaseTransactionModel = new QMLPurchaseTransactionModel(m_thread, this);
 }
 
 void QMLPurchaseTransactionModelTest::init()

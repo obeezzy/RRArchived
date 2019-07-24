@@ -1,13 +1,12 @@
 #include "qmlexpensehomemodel.h"
+#include "database/databasethread.h"
 
 QMLExpenseHomeModel::QMLExpenseHomeModel(QObject *parent) :
-    AbstractHomeModel (parent)
-{
+    QMLExpenseHomeModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLExpenseHomeModel::QMLExpenseHomeModel(DatabaseThread &thread) :
-    AbstractHomeModel (thread)
+QMLExpenseHomeModel::QMLExpenseHomeModel(DatabaseThread &thread, QObject *parent) :
+    AbstractHomeModel(thread, parent)
 {
 
 }

@@ -7,7 +7,7 @@
 QT       += core qml quick quickcontrols2 widgets sql testlib
 
 TARGET = tst_qmlstockitempusher
-CONFIG   += console
+CONFIG   += console testcase
 CONFIG   -= app_bundle
 
 INCLUDEPATH += ../../src/rrcore \

@@ -17,7 +17,7 @@ public:
     }; Q_ENUM(SuccessCode)
 
     explicit QMLExpenseReportModel(QObject *parent = nullptr);
-    explicit QMLExpenseReportModel(DatabaseThread &thread);
+    explicit QMLExpenseReportModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &index = QModelIndex()) const override;
     int columnCount(const QModelIndex &index = QModelIndex()) const override;

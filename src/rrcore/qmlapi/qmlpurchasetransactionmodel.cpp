@@ -4,14 +4,14 @@
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 
 QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(QObject *parent) :
-    AbstractTransactionModel(parent)
-{
-}
+    QMLPurchaseTransactionModel(DatabaseThread::instance(), parent)
+{}
 
-QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(DatabaseThread &thread) :
-    AbstractTransactionModel(thread)
+QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(DatabaseThread &thread, QObject *parent) :
+    AbstractTransactionModel(thread, parent)
 {
 
 }

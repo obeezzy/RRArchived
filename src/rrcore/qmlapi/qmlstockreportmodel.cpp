@@ -1,17 +1,15 @@
 #include "qmlstockreportmodel.h"
+#include "database/databasethread.h"
 
 const int COLUMN_COUNT = 7;
 
 QMLStockReportModel::QMLStockReportModel(QObject *parent) :
-    AbstractVisualTableModel (parent)
+    QMLStockReportModel(DatabaseThread::instance(), parent)
+{}
+
+QMLStockReportModel::QMLStockReportModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualTableModel (thread, parent)
 {
-
-}
-
-QMLStockReportModel::QMLStockReportModel(DatabaseThread &thread) :
-    AbstractVisualTableModel (thread)
-{
-
 }
 
 int QMLStockReportModel::rowCount(const QModelIndex &parent) const

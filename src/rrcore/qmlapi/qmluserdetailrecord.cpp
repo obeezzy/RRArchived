@@ -1,14 +1,12 @@
 #include "qmluserdetailrecord.h"
+#include "database/databasethread.h"
 
 QMLUserDetailRecord::QMLUserDetailRecord(QObject *parent) :
-    AbstractDetailRecord (parent),
-    m_userId(-1)
-{
+    QMLUserDetailRecord(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread &thread) :
-    AbstractDetailRecord (thread),
+QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread &thread, QObject *parent) :
+    AbstractDetailRecord (thread, parent),
     m_userId(-1)
 {
 

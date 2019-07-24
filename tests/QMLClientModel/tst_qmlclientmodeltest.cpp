@@ -31,12 +31,11 @@ QMLClientModelTest::QMLClientModelTest() :
 
 void QMLClientModelTest::init()
 {
-    m_clientModel = new QMLClientModel(m_thread);
+    m_clientModel = new QMLClientModel(m_thread, this);
 }
 
 void QMLClientModelTest::cleanup()
 {
-    m_clientModel->deleteLater();
 }
 
 void QMLClientModelTest::testViewClients()

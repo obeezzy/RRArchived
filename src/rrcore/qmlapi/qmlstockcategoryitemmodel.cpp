@@ -7,13 +7,11 @@
 #include "models/stockitemmodel.h"
 
 QMLStockCategoryItemModel::QMLStockCategoryItemModel(QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_totalItems(0)
-{
-}
+    QMLStockCategoryItemModel(DatabaseThread::instance(), parent)
+{}
 
-QMLStockCategoryItemModel::QMLStockCategoryItemModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread),
+QMLStockCategoryItemModel::QMLStockCategoryItemModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent),
     m_totalItems(0)
 {
 }

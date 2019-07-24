@@ -14,7 +14,7 @@ class AbstractPusher : public QObject
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
 public:
     explicit AbstractPusher(QObject *parent = nullptr);
-    explicit AbstractPusher(DatabaseThread &thread);
+    explicit AbstractPusher(DatabaseThread &thread, QObject *parent = nullptr);
     virtual ~AbstractPusher();
 
     bool isBusy() const;

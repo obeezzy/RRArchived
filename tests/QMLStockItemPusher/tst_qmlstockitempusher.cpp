@@ -51,12 +51,11 @@ QMLStockItemPusherTest::QMLStockItemPusherTest() :
 
 void QMLStockItemPusherTest::init()
 {
-    m_stockItemPusher = new QMLStockItemPusher(m_thread);
+    m_stockItemPusher = new QMLStockItemPusher(m_thread, this);
 }
 
 void QMLStockItemPusherTest::cleanup()
 {
-    m_stockItemPusher->deleteLater();
 }
 
 void QMLStockItemPusherTest::testSetCategory()
@@ -290,7 +289,7 @@ void QMLStockItemPusherTest::testPushSameItem()
     auto databaseWillReturnDuplicateEntryError = [this]() {
         m_result.setSuccessful(false);
         m_result.setOutcome(QVariant());
-        m_result.setErrorCode(static_cast<int>(DatabaseException::RRErrorCode::DuplicateEntryFailure));
+        m_result.setErrorCode(static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException));
     };
     QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
     QSignalSpy errorSpy(m_stockItemPusher, &QMLStockItemPusher::error);

@@ -10,7 +10,6 @@ class QMLExpenseHomeModelTest : public QObject
 
 public:
     QMLExpenseHomeModelTest();
-    ~QMLExpenseHomeModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLExpenseHomeModelTest::QMLExpenseHomeModelTest() :
     m_thread(&m_result)
 {
-    m_expenseHomeModel = new QMLExpenseHomeModel(m_thread);
-}
-
-QMLExpenseHomeModelTest::~QMLExpenseHomeModelTest()
-{
-    m_expenseHomeModel->deleteLater();
+    m_expenseHomeModel = new QMLExpenseHomeModel(m_thread, this);
 }
 
 void QMLExpenseHomeModelTest::init()

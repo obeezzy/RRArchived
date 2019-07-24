@@ -33,7 +33,7 @@ QMLDebtorModelTest::QMLDebtorModelTest() :
 
 void QMLDebtorModelTest::init()
 {
-    m_debtorModel = new QMLDebtorModel(m_thread);
+    m_debtorModel = new QMLDebtorModel(m_thread, this);
 }
 
 void QMLDebtorModelTest::cleanup()

@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 
 #include "qmlapi/qmlpurchasehomemodel.h"
+#include "database/databasethread.h"
 #include "mockdatabasethread.h"
 
 class QMLPurchaseHomeModelTest : public QObject
@@ -10,7 +11,6 @@ class QMLPurchaseHomeModelTest : public QObject
 
 public:
     QMLPurchaseHomeModelTest();
-    ~QMLPurchaseHomeModelTest();
 private slots:
     void init();
     void cleanup();
@@ -27,19 +27,13 @@ QMLPurchaseHomeModelTest::QMLPurchaseHomeModelTest() :
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
-QMLPurchaseHomeModelTest::~QMLPurchaseHomeModelTest()
-{
-
-}
-
 void QMLPurchaseHomeModelTest::init()
 {
-    m_purchaseHomeModel = new QMLPurchaseHomeModel(m_thread);
+    m_purchaseHomeModel = new QMLPurchaseHomeModel(m_thread, this);
 }
 
 void QMLPurchaseHomeModelTest::cleanup()
 {
-    m_purchaseHomeModel->deleteLater();
 }
 
 void QMLPurchaseHomeModelTest::test_case1()

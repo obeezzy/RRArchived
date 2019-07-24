@@ -28,7 +28,7 @@ public:
     }; Q_ENUM(ErrorCode)
 
     explicit QMLClientModel(QObject *parent = nullptr);
-    explicit QMLClientModel(DatabaseThread &thread);
+    explicit QMLClientModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

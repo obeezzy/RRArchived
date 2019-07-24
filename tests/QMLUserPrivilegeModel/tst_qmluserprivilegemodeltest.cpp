@@ -9,7 +9,6 @@ class QMLUserPrivilegeModelTest : public QObject
     Q_OBJECT
 public:
     QMLUserPrivilegeModelTest();
-    ~QMLUserPrivilegeModelTest();
 private slots:
     void init();
     void cleanup();
@@ -23,12 +22,7 @@ private:
 QMLUserPrivilegeModelTest::QMLUserPrivilegeModelTest() :
     m_thread(&m_result)
 {
-    m_userPrivilegeModel = new QMLUserPrivilegeModel(this);
-}
-
-QMLUserPrivilegeModelTest::~QMLUserPrivilegeModelTest()
-{
-    m_userPrivilegeModel->deleteLater();
+    m_userPrivilegeModel = new QMLUserPrivilegeModel(m_thread, this);
 }
 
 void QMLUserPrivilegeModelTest::init()

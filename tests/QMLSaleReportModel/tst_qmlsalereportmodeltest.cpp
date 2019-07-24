@@ -10,7 +10,6 @@ class QMLSaleReportModelTest : public QObject
 
 public:
     QMLSaleReportModelTest();
-    ~QMLSaleReportModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLSaleReportModelTest::QMLSaleReportModelTest() :
     m_thread(&m_result)
 {
-    m_saleReportModel = new QMLSaleReportModel(m_thread);
-}
-
-QMLSaleReportModelTest::~QMLSaleReportModelTest()
-{
-    m_saleReportModel->deleteLater();
+    m_saleReportModel = new QMLSaleReportModel(m_thread, this);
 }
 
 void QMLSaleReportModelTest::init()

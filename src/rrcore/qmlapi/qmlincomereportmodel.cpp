@@ -1,15 +1,14 @@
 #include "qmlincomereportmodel.h"
+#include "database/databasethread.h"
 
 const int COLUMN_COUNT = 4;
 
 QMLIncomeReportModel::QMLIncomeReportModel(QObject *parent) :
-    AbstractVisualTableModel (parent)
-{
+    QMLIncomeReportModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLIncomeReportModel::QMLIncomeReportModel(DatabaseThread &thread) :
-    AbstractVisualTableModel (thread)
+QMLIncomeReportModel::QMLIncomeReportModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualTableModel(thread, parent)
 {
 
 }

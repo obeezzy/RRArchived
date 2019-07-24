@@ -1,14 +1,12 @@
 #include "qmlincomepusher.h"
+#include "database/databasethread.h"
 
 QMLIncomePusher::QMLIncomePusher(QObject *parent) :
-    AbstractPusher (parent),
-    m_paymentMethod(PaymentMethod::Cash)
-{
+    QMLIncomePusher(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLIncomePusher::QMLIncomePusher(DatabaseThread &thread) :
-    AbstractPusher (thread),
+QMLIncomePusher::QMLIncomePusher(DatabaseThread &thread, QObject *parent) :
+    AbstractPusher(thread, parent),
     m_paymentMethod(PaymentMethod::Cash)
 {
 

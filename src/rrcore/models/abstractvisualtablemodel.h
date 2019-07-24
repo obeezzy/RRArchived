@@ -22,7 +22,7 @@ class AbstractVisualTableModel : public QAbstractTableModel, public QQmlParserSt
     Q_PROPERTY(int filterColumn READ filterColumn WRITE setFilterColumn NOTIFY filterColumnChanged)
 public:
     explicit AbstractVisualTableModel(QObject *parent = nullptr);
-    explicit AbstractVisualTableModel(DatabaseThread &thread);
+    explicit AbstractVisualTableModel(DatabaseThread &thread, QObject *parent = nullptr);
     virtual ~AbstractVisualTableModel() override;
 
     bool autoQuery() const;

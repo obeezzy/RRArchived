@@ -10,7 +10,6 @@ class QMLUserDetailRecordTest : public QObject
 
 public:
     QMLUserDetailRecordTest();
-    ~QMLUserDetailRecordTest();
 private slots:
     void init();
     void cleanup();
@@ -24,11 +23,7 @@ private:
 QMLUserDetailRecordTest::QMLUserDetailRecordTest() :
     m_thread(&m_result)
 {
-    m_userDetailRecord = new QMLUserDetailRecord(m_thread);
-}
-
-QMLUserDetailRecordTest::~QMLUserDetailRecordTest()
-{
+    m_userDetailRecord = new QMLUserDetailRecord(m_thread, this);
 }
 
 void QMLUserDetailRecordTest::init()
@@ -38,7 +33,6 @@ void QMLUserDetailRecordTest::init()
 
 void QMLUserDetailRecordTest::cleanup()
 {
-    m_userDetailRecord->deleteLater();
 }
 
 void QMLUserDetailRecordTest::test_case1()

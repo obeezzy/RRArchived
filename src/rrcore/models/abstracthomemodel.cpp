@@ -1,13 +1,12 @@
 #include "abstracthomemodel.h"
+#include "database/databasethread.h"
 
 AbstractHomeModel::AbstractHomeModel(QObject *parent) :
-    AbstractVisualListModel(parent)
-{
+    AbstractHomeModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-AbstractHomeModel::AbstractHomeModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread)
+AbstractHomeModel::AbstractHomeModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent)
 {
 
 }

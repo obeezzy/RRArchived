@@ -10,7 +10,6 @@ class QMLDebtorDetailRecordTest : public QObject
 
 public:
     QMLDebtorDetailRecordTest();
-    ~QMLDebtorDetailRecordTest();
 
 private slots:
     void init();
@@ -29,19 +28,13 @@ QMLDebtorDetailRecordTest::QMLDebtorDetailRecordTest() :
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
-QMLDebtorDetailRecordTest::~QMLDebtorDetailRecordTest()
-{
-
-}
-
 void QMLDebtorDetailRecordTest::init()
 {
-    m_debtorDetailRecord = new QMLDebtorDetailRecord(m_thread);
+    m_debtorDetailRecord = new QMLDebtorDetailRecord(m_thread, this);
 }
 
 void QMLDebtorDetailRecordTest::cleanup()
 {
-    m_debtorDetailRecord->deleteLater();
 }
 
 void QMLDebtorDetailRecordTest::testViewDebtorDetails()

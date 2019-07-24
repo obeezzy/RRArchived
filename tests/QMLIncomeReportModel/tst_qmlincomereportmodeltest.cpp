@@ -10,7 +10,6 @@ class QMLIncomeReportModelTest : public QObject
 
 public:
     QMLIncomeReportModelTest();
-    ~QMLIncomeReportModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLIncomeReportModelTest::QMLIncomeReportModelTest() :
     m_thread(&m_result)
 {
-    m_incomeReportModel = new QMLIncomeReportModel(m_thread);
-}
-
-QMLIncomeReportModelTest::~QMLIncomeReportModelTest()
-{
-    m_incomeReportModel->deleteLater();
+    m_incomeReportModel = new QMLIncomeReportModel(m_thread, this);
 }
 
 void QMLIncomeReportModelTest::init()

@@ -3,7 +3,7 @@ QT       += core qml quick quickcontrols2 widgets sql testlib
 QT       -= gui
 
 TARGET = tst_qmlcreditormodeltest
-CONFIG   += console
+CONFIG   += console testcase
 CONFIG   -= app_bundle
 
 INCLUDEPATH += ../../src/rrcore \

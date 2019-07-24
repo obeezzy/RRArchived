@@ -5,16 +5,11 @@
 #include "database/queryresult.h"
 
 AbstractPusher::AbstractPusher(QObject *parent) :
+    AbstractPusher(DatabaseThread::instance(), parent)
+{}
+
+AbstractPusher::AbstractPusher(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
-    m_busy(false)
-{
-    connect(this, &AbstractPusher::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractPusher::processResult);
-
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractPusher::saveRequest);
-}
-
-AbstractPusher::AbstractPusher(DatabaseThread &thread) :
     m_busy(false)
 {
     connect(this, &AbstractPusher::executeRequest, &thread, &DatabaseThread::execute);

@@ -2,23 +2,11 @@
 #include "database/databasethread.h"
 
 AbstractVisualTableModel::AbstractVisualTableModel(QObject *parent) :
+    AbstractVisualTableModel(DatabaseThread::instance(), parent)
+{}
+
+AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObject *parent) :
     QAbstractTableModel(parent),
-    m_autoQuery(true),
-    m_busy(false),
-    m_filterText(QString()),
-    m_filterColumn(-1),
-    m_lastRequest(QueryRequest())
-{
-    connect(this, &AbstractVisualTableModel::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
-
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &AbstractVisualTableModel::saveRequest);
-
-    connect(this, &AbstractVisualTableModel::filterTextChanged, this, &AbstractVisualTableModel::filter);
-    connect(this, &AbstractVisualTableModel::filterColumnChanged, this, &AbstractVisualTableModel::filter);
-}
-
-AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread) :
     m_autoQuery(true),
     m_busy(false),
     m_filterText(QString()),

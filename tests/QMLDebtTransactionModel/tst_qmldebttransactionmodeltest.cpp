@@ -59,12 +59,11 @@ QMLDebtTransactionModelTest::QMLDebtTransactionModelTest() :
 
 void QMLDebtTransactionModelTest::init()
 {
-    m_debtTransactionModel = new QMLDebtTransactionModel(m_thread);
+    m_debtTransactionModel = new QMLDebtTransactionModel(m_thread, this);
 }
 
 void QMLDebtTransactionModelTest::cleanup()
 {
-    m_debtTransactionModel->deleteLater();
 }
 
 void QMLDebtTransactionModelTest::testSetImageSource()
