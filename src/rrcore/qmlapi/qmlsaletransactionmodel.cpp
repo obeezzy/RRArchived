@@ -4,16 +4,16 @@
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 
 #include "qmlsaletransactionmodel.h"
 
 QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
-    AbstractTransactionModel(parent)
-{
-}
+    QMLSaleTransactionModel(DatabaseThread::instance(), parent)
+{}
 
-QMLSaleTransactionModel::QMLSaleTransactionModel(DatabaseThread &thread) :
-    AbstractTransactionModel(thread)
+QMLSaleTransactionModel::QMLSaleTransactionModel(DatabaseThread &thread, QObject *parent) :
+    AbstractTransactionModel(thread, parent)
 {
 
 }

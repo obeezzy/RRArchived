@@ -1,13 +1,12 @@
 #include "qmlincomehomemodel.h"
+#include "database/databasethread.h"
 
 QMLIncomeHomeModel::QMLIncomeHomeModel(QObject *parent) :
-    AbstractHomeModel (parent)
-{
+    QMLIncomeHomeModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLIncomeHomeModel::QMLIncomeHomeModel(DatabaseThread &thread) :
-    AbstractHomeModel (thread)
+QMLIncomeHomeModel::QMLIncomeHomeModel(DatabaseThread &thread, QObject *parent) :
+    AbstractHomeModel(thread, parent)
 {
 
 }

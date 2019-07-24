@@ -25,7 +25,7 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(SalePaymentModel *paymentModel READ paymentModel NOTIFY paymentModelChanged)
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
-    explicit QMLSaleCartModel(DatabaseThread &thread);
+    explicit QMLSaleCartModel(DatabaseThread &thread, QObject *parent = nullptr);
     ~QMLSaleCartModel() override;
 
     enum Roles {

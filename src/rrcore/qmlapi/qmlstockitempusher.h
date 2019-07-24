@@ -25,7 +25,7 @@ class QMLStockItemPusher : public AbstractPusher
     Q_PROPERTY(double retailPrice READ retailPrice WRITE setRetailPrice NOTIFY retailPriceChanged)
 public:
     explicit QMLStockItemPusher(QObject *parent = nullptr);
-    explicit QMLStockItemPusher(DatabaseThread &thread); // For testing
+    explicit QMLStockItemPusher(DatabaseThread &thread, QObject *parent = nullptr); // For testing
 
     enum SuccessCode {
         UnknownSuccess,

@@ -58,12 +58,11 @@ QMLSaleCartModelTest::QMLSaleCartModelTest() :
 
 void QMLSaleCartModelTest::init()
 {
-    m_saleCartModel = new QMLSaleCartModel(m_thread);
+    m_saleCartModel = new QMLSaleCartModel(m_thread, this);
 }
 
 void QMLSaleCartModelTest::cleanup()
 {
-    m_saleCartModel->deleteLater();
 }
 
 void QMLSaleCartModelTest::testSetCustomerName()

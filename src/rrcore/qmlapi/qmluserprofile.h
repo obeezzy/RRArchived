@@ -17,10 +17,12 @@ class QMLUserProfile : public QObject
     Q_PROPERTY(QString userName READ userName NOTIFY userNameChanged)
 public:
     explicit QMLUserProfile(QObject *parent = nullptr);
-    explicit QMLUserProfile(DatabaseThread &);
+    explicit QMLUserProfile(DatabaseThread &, QObject *parent = nullptr);
 
     enum SuccessCode {
         UnknownSuccess,
+        SignInSuccess,
+        SignUpSuccess,
         ChangePasswordSuccess,
         SignOutSuccess
     }; Q_ENUM(SuccessCode)

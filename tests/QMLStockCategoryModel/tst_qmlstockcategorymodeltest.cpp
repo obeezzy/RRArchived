@@ -10,7 +10,6 @@ class QMLStockCategoryModelTest : public QObject
 
 public:
     QMLStockCategoryModelTest();
-    ~QMLStockCategoryModelTest();
 
 private slots:
     void init();
@@ -29,19 +28,13 @@ QMLStockCategoryModelTest::QMLStockCategoryModelTest() :
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
-QMLStockCategoryModelTest::~QMLStockCategoryModelTest()
-{
-
-}
-
 void QMLStockCategoryModelTest::init()
 {
-    m_stockCategoryModel = new QMLStockCategoryModel(m_thread);
+    m_stockCategoryModel = new QMLStockCategoryModel(m_thread, this);
 }
 
 void QMLStockCategoryModelTest::cleanup()
 {
-    m_stockCategoryModel->deleteLater();
 }
 
 void QMLStockCategoryModelTest::testViewStockCategories()

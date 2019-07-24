@@ -9,20 +9,17 @@
 Q_LOGGING_CATEGORY(qmlUserProfile, "rrcore.qmlapi.qmluserprofile");
 
 QMLUserProfile::QMLUserProfile(QObject *parent) :
+    QMLUserProfile(DatabaseThread::instance(), parent)
+{}
+
+QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
-    m_busy(false)
-{
-    connect(this, &QMLUserProfile::executeRequest, &DatabaseThread::instance(), &DatabaseThread::execute);
-    connect(&DatabaseThread::instance(), &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
-
-    //connect(UserProfile::instance(), &UserProfile::adminChanged, this, &QMLUserProfile::adminChanged);
-}
-
-QMLUserProfile::QMLUserProfile(DatabaseThread &thread) :
     m_busy(false)
 {
     connect(this, &QMLUserProfile::executeRequest, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
+
+    //connect(UserProfile::instance(), &UserProfile::adminChanged, this, &QMLUserProfile::adminChanged);
 }
 
 bool QMLUserProfile::isBusy() const
@@ -123,13 +120,18 @@ bool QMLUserProfile::hasPrivilege(const QString &privilege)
 
 void QMLUserProfile::processResult(const QueryResult &result)
 {
+    qDebug() << "Returned result!" << result;
     if (this != result.request().receiver())
         return;
 
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "sign_out_user") {
+        if (result.request().command() == "sign_in_user") {
+            emit success(SignInSuccess);
+        } else if (result.request().command() == "sign_up_user") {
+            emit success(SignUpSuccess);
+        } else if (result.request().command() == "sign_out_user") {
             emit success(SignOutSuccess);
         } else if (result.request().command() == "change_password") {
             QSettings().setValue("is_first_time", false);

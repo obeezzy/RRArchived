@@ -2,17 +2,14 @@
 
 #include "models/userprivilegemodel.h"
 #include "database/databaseexception.h"
+#include "database/databasethread.h"
 
 QMLUserPrivilegeModel::QMLUserPrivilegeModel(QObject *parent) :
-    AbstractVisualListModel (parent),
-    m_privilegeModels(QList<UserPrivilegeModel *>()),
-    m_userId(-1)
-{
+    AbstractVisualListModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLUserPrivilegeModel::QMLUserPrivilegeModel(DatabaseThread &thread) :
-    AbstractVisualListModel (thread),
+QMLUserPrivilegeModel::QMLUserPrivilegeModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel (thread, parent),
     m_privilegeModels(QList<UserPrivilegeModel *>()),
     m_userId(-1)
 {

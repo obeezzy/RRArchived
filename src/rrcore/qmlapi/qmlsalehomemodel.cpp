@@ -1,18 +1,17 @@
 #include "qmlsalehomemodel.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 
 #include "models/saletotalrevenuemodel.h"
 #include "models/salemostsolditemmodel.h"
 
 QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
-    AbstractVisualListModel(parent)
-{
+    QMLSaleHomeModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLSaleHomeModel::QMLSaleHomeModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread)
+QMLSaleHomeModel::QMLSaleHomeModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent)
 {
 
 }

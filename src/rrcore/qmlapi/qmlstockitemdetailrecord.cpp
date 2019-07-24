@@ -1,22 +1,13 @@
 #include "qmlstockitemdetailrecord.h"
+#include "database/databasethread.h"
 #include <QDateTime>
 
 QMLStockItemDetailRecord::QMLStockItemDetailRecord(QObject *parent) :
-    AbstractDetailRecord(parent),
-    m_itemId(-1),
-    m_categoryId(-1),
-    m_divisible(false),
-    m_quantity(0.0),
-    m_unitId(-1),
-    m_costPrice(0.0),
-    m_retailPrice(0.0),
-    m_userId(-1)
-{
-    connect(this, &QMLStockItemDetailRecord::itemIdChanged, this, &QMLStockItemDetailRecord::tryQuery);
-}
+    QMLStockItemDetailRecord(DatabaseThread::instance(), parent)
+{}
 
-QMLStockItemDetailRecord::QMLStockItemDetailRecord(DatabaseThread &thread) :
-    AbstractDetailRecord(thread),
+QMLStockItemDetailRecord::QMLStockItemDetailRecord(DatabaseThread &thread, QObject *parent) :
+    AbstractDetailRecord(thread, parent),
     m_itemId(-1),
     m_categoryId(-1),
     m_divisible(false),

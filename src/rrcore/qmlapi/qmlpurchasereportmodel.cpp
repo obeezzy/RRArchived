@@ -1,15 +1,14 @@
 #include "qmlpurchasereportmodel.h"
+#include "database/databasethread.h"
 
 const int COLUMN_COUNT = 5;
 
 QMLPurchaseReportModel::QMLPurchaseReportModel(QObject *parent) :
-    AbstractVisualTableModel (parent)
-{
+    QMLPurchaseReportModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLPurchaseReportModel::QMLPurchaseReportModel(DatabaseThread &thread) :
-    AbstractVisualTableModel (thread)
+QMLPurchaseReportModel::QMLPurchaseReportModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualTableModel(thread, parent)
 {
 
 }

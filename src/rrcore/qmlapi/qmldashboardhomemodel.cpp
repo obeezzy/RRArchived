@@ -5,12 +5,11 @@
 #include "database/databasethread.h"
 
 QMLDashboardHomeModel::QMLDashboardHomeModel(QObject *parent)
-    : AbstractHomeModel(parent)
-{
-}
+    : QMLDashboardHomeModel(DatabaseThread::instance(), parent)
+{}
 
-QMLDashboardHomeModel::QMLDashboardHomeModel(DatabaseThread &thread)
-    : AbstractHomeModel(thread)
+QMLDashboardHomeModel::QMLDashboardHomeModel(DatabaseThread &thread, QObject *parent)
+    : AbstractHomeModel(thread, parent)
 {
 }
 

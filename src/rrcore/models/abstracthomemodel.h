@@ -21,7 +21,7 @@ public:
         ChartModelRole
     };
     explicit AbstractHomeModel(QObject *parent = nullptr);
-    explicit AbstractHomeModel(DatabaseThread &thread);
+    explicit AbstractHomeModel(DatabaseThread &thread, QObject *parent = nullptr);
     virtual ~AbstractHomeModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;

@@ -37,12 +37,11 @@ QMLStockCategoryItemModelTest::QMLStockCategoryItemModelTest() :
 
 void QMLStockCategoryItemModelTest::init()
 {
-    m_stockCategoryItemModel = new QMLStockCategoryItemModel(m_thread);
+    m_stockCategoryItemModel = new QMLStockCategoryItemModel(m_thread, this);
 }
 
 void QMLStockCategoryItemModelTest::cleanup()
 {
-    m_stockCategoryItemModel->deleteLater();
 }
 
 void QMLStockCategoryItemModelTest::testViewStockItems()

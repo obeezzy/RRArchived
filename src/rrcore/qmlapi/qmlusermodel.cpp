@@ -1,15 +1,15 @@
 #include "qmlusermodel.h"
+#include "database/databasethread.h"
+#include "models/abstractvisualtablemodel.h"
 
 const int COLUMN_COUNT = 5;
 
 QMLUserModel::QMLUserModel(QObject *parent) :
-    AbstractVisualTableModel (parent)
-{
+    QMLUserModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLUserModel::QMLUserModel(DatabaseThread &thread) :
-    AbstractVisualTableModel (thread)
+QMLUserModel::QMLUserModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualTableModel(thread, parent)
 {
 
 }

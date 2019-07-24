@@ -10,7 +10,6 @@ class QMLExpenseReportModelTest : public QObject
 
 public:
     QMLExpenseReportModelTest();
-    ~QMLExpenseReportModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLExpenseReportModelTest::QMLExpenseReportModelTest() :
     m_thread(&m_result)
 {
-    m_expenseReportModel = new QMLExpenseReportModel(m_thread);
-}
-
-QMLExpenseReportModelTest::~QMLExpenseReportModelTest()
-{
-    m_expenseReportModel->deleteLater();
+    m_expenseReportModel = new QMLExpenseReportModel(m_thread, this);
 }
 
 void QMLExpenseReportModelTest::init()

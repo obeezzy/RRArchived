@@ -30,12 +30,11 @@ QMLDashboardHomeModelTest::QMLDashboardHomeModelTest() :
 
 void QMLDashboardHomeModelTest::init()
 {
-    m_dashboardHomeModel = new QMLDashboardHomeModel(m_thread);
+    m_dashboardHomeModel = new QMLDashboardHomeModel(m_thread, this);
 }
 
 void QMLDashboardHomeModelTest::cleanup()
 {
-    m_dashboardHomeModel->deleteLater();
 }
 
 void QMLDashboardHomeModelTest::test_case1()

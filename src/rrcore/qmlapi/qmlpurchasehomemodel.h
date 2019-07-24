@@ -9,7 +9,7 @@ class QMLPurchaseHomeModel : public AbstractHomeModel
 {
 public:
     explicit QMLPurchaseHomeModel(QObject *parent = nullptr);
-    explicit QMLPurchaseHomeModel(DatabaseThread &thread);
+    explicit QMLPurchaseHomeModel(DatabaseThread &thread, QObject *parent = nullptr);
 
 protected:
     void tryQuery() override;

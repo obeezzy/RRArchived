@@ -9,7 +9,7 @@ class AbstractTransactionItemModel : public AbstractVisualListModel
     Q_PROPERTY(int transactionId READ transactionId WRITE setTransactionId NOTIFY transactionIdChanged)
 public:
     explicit AbstractTransactionItemModel(QObject *parent = nullptr);
-    explicit AbstractTransactionItemModel(DatabaseThread &thread);
+    explicit AbstractTransactionItemModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int transactionId() const;
     void setTransactionId(int transactionId);

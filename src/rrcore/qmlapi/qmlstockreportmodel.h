@@ -28,7 +28,7 @@ public:
     }; Q_ENUM(Columns)
 
     explicit QMLStockReportModel(QObject *parent = nullptr);
-    explicit QMLStockReportModel(DatabaseThread &thread);
+    explicit QMLStockReportModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

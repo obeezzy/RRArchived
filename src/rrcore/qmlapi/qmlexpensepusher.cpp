@@ -1,14 +1,12 @@
 #include "qmlexpensepusher.h"
+#include "database/databasethread.h"
 
 QMLExpensePusher::QMLExpensePusher(QObject *parent) :
-    AbstractPusher (parent),
-    m_paymentMethod(PaymentMethod::Cash)
-{
+    QMLExpensePusher(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLExpensePusher::QMLExpensePusher(DatabaseThread &thread) :
-    AbstractPusher (thread),
+QMLExpensePusher::QMLExpensePusher(DatabaseThread &thread, QObject *parent) :
+    AbstractPusher(thread, parent),
     m_paymentMethod(PaymentMethod::Cash)
 {
 

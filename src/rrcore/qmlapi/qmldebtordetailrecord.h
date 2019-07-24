@@ -30,7 +30,7 @@ public:
     }; Q_ENUM(ErrorCode)
 
     explicit QMLDebtorDetailRecord(QObject *parent = nullptr);
-    explicit QMLDebtorDetailRecord(DatabaseThread &thread);
+    explicit QMLDebtorDetailRecord(DatabaseThread &thread, QObject *parent = nullptr);
 
     int debtorId() const;
     void setDebtorId(int debtorId);

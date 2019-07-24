@@ -10,7 +10,6 @@ class QMLUserModelTest : public QObject
 
 public:
     QMLUserModelTest();
-    ~QMLUserModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLUserModelTest::QMLUserModelTest() :
     m_thread(&m_result)
 {
-    m_userModel = new QMLUserModel(m_thread);
-}
-
-QMLUserModelTest::~QMLUserModelTest()
-{
-    m_userModel->deleteLater();
+    m_userModel = new QMLUserModel(m_thread, this);
 }
 
 void QMLUserModelTest::init()

@@ -16,7 +16,7 @@ public:
     }; Q_ENUM(SuccessCode)
 
     explicit QMLIncomeReportModel(QObject *parent = nullptr);
-    explicit QMLIncomeReportModel(DatabaseThread &thread);
+    explicit QMLIncomeReportModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &index = QModelIndex()) const override;
     int columnCount(const QModelIndex &index = QModelIndex()) const override;

@@ -1,14 +1,12 @@
 #include "abstracttransactionitemmodel.h"
+#include "database/databasethread.h"
 
 AbstractTransactionItemModel::AbstractTransactionItemModel(QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_transactionId(-1)
-{
-    connect(this, &AbstractTransactionItemModel::transactionIdChanged, &AbstractTransactionItemModel::tryQuery);
-}
+    AbstractTransactionItemModel(DatabaseThread::instance(), parent)
+{}
 
-AbstractTransactionItemModel::AbstractTransactionItemModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread),
+AbstractTransactionItemModel::AbstractTransactionItemModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent),
     m_transactionId(-1)
 {
     connect(this, &AbstractTransactionItemModel::transactionIdChanged, &AbstractTransactionItemModel::tryQuery);

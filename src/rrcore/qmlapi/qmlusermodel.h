@@ -34,7 +34,7 @@ public:
     }; Q_ENUM(ErrorCode)
 
     explicit QMLUserModel(QObject *parent = nullptr);
-    explicit QMLUserModel(DatabaseThread &thread);
+    explicit QMLUserModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int keys() const;
     void setKeys(int keys);

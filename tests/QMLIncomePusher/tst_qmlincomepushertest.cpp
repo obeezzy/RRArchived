@@ -9,7 +9,6 @@ class QMLIncomePusherTest : public QObject
     Q_OBJECT
 public:
     QMLIncomePusherTest();
-    ~QMLIncomePusherTest();
 private slots:
     void init();
     void cleanup();
@@ -23,12 +22,7 @@ private:
 QMLIncomePusherTest::QMLIncomePusherTest() :
     m_thread(&m_result)
 {
-    m_incomePusher = new QMLIncomePusher(m_thread);
-}
-
-QMLIncomePusherTest::~QMLIncomePusherTest()
-{
-    m_incomePusher->deleteLater();
+    m_incomePusher = new QMLIncomePusher(m_thread, this);
 }
 
 void QMLIncomePusherTest::init()

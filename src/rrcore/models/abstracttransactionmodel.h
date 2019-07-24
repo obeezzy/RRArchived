@@ -20,7 +20,7 @@ public:
     }; Q_ENUM(FilterKey)
 
     explicit AbstractTransactionModel(QObject *parent = nullptr);
-    explicit AbstractTransactionModel(DatabaseThread &thread);
+    explicit AbstractTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
     virtual ~AbstractTransactionModel() override;
 
     int keys() const;

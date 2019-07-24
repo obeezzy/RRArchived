@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
+#include <QIcon>
 #include "plugins.h"
 #include "rrcore/database/databaseserver.h"
 #include "singletons/logger.h"
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationVersion("0.0.1");
     QGuiApplication::setOrganizationName("Gecko");
     QGuiApplication::setOrganizationDomain("recordrack.io");
+    app.setWindowIcon(QIcon(":/images/rr_logo.png"));
 
     Plugins::registerFonts();
     Plugins::registerTypes();

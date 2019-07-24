@@ -51,7 +51,7 @@ public:
     };
 
     explicit QMLDebtTransactionModel(QObject *parent = nullptr);
-    explicit QMLDebtTransactionModel(DatabaseThread &thread);
+    explicit QMLDebtTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
     ~QMLDebtTransactionModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

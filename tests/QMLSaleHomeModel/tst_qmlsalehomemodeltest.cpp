@@ -10,7 +10,6 @@ class QMLSaleHomeModelTest : public QObject
 
 public:
     QMLSaleHomeModelTest();
-    ~QMLSaleHomeModelTest();
 
 private slots:
     void init();
@@ -29,19 +28,13 @@ QMLSaleHomeModelTest::QMLSaleHomeModelTest() :
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
-QMLSaleHomeModelTest::~QMLSaleHomeModelTest()
-{
-
-}
-
 void QMLSaleHomeModelTest::init()
 {
-    m_saleHomeModel = new QMLSaleHomeModel(m_thread);
+    m_saleHomeModel = new QMLSaleHomeModel(m_thread, this);
 }
 
 void QMLSaleHomeModelTest::cleanup()
 {
-    m_saleHomeModel->deleteLater();
 }
 
 void QMLSaleHomeModelTest::test_case1()

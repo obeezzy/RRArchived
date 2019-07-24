@@ -1,15 +1,14 @@
 #include "qmlexpensereportmodel.h"
+#include "database/databasethread.h"
 
 const int COLUMN_COUNT = 4;
 
 QMLExpenseReportModel::QMLExpenseReportModel(QObject *parent) :
-    AbstractVisualTableModel (parent)
-{
+    QMLExpenseReportModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLExpenseReportModel::QMLExpenseReportModel(DatabaseThread &thread) :
-    AbstractVisualTableModel (thread)
+QMLExpenseReportModel::QMLExpenseReportModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualTableModel(thread, parent)
 {
 
 }

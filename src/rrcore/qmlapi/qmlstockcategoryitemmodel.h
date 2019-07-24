@@ -15,7 +15,7 @@ class QMLStockCategoryItemModel : public AbstractVisualListModel
     Q_PROPERTY(int totalItems READ totalItems NOTIFY totalItemsChanged)
 public:
     explicit QMLStockCategoryItemModel(QObject *parent = nullptr);
-    explicit QMLStockCategoryItemModel(DatabaseThread &thread);
+    explicit QMLStockCategoryItemModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     enum FilterColumn {
         CategoryColumn, ItemColumn

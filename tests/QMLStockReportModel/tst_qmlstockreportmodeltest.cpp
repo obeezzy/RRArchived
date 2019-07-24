@@ -10,7 +10,6 @@ class QMLStockReportModelTest : public QObject
 
 public:
     QMLStockReportModelTest();
-    ~QMLStockReportModelTest();
 private slots:
     void init();
     void cleanup();
@@ -24,12 +23,7 @@ private:
 QMLStockReportModelTest::QMLStockReportModelTest() :
     m_thread(&m_result)
 {
-    m_stockReportModel = new QMLStockReportModel(m_thread);
-}
-
-QMLStockReportModelTest::~QMLStockReportModelTest()
-{
-    m_stockReportModel->deleteLater();
+    m_stockReportModel = new QMLStockReportModel(m_thread, this);
 }
 
 void QMLStockReportModelTest::init()

@@ -1,20 +1,16 @@
 ﻿#include "qmldebttransactionmodel.h"
 #include "models/debtpaymentmodel.h"
 #include "database/databaseexception.h"
+#include "database/databasethread.h"
 
 #include <QDateTime>
 
 QMLDebtTransactionModel::QMLDebtTransactionModel(QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_debtorId(-1),
-    m_clientId(-1),
-    m_dirty(false)
-{
-    connect(this, &QMLDebtTransactionModel::debtorIdChanged, this, &QMLDebtTransactionModel::tryQuery);
-}
+    QMLDebtTransactionModel(DatabaseThread::instance(), parent)
+{}
 
-QMLDebtTransactionModel::QMLDebtTransactionModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread),
+QMLDebtTransactionModel::QMLDebtTransactionModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent),
     m_debtorId(-1),
     m_clientId(-1),
     m_dirty(false)

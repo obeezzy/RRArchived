@@ -10,7 +10,6 @@ class QMLSaleTransactionModelTest : public QObject
 
 public:
     QMLSaleTransactionModelTest();
-    ~QMLSaleTransactionModelTest();
 
 private slots:
     void init();
@@ -29,18 +28,13 @@ QMLSaleTransactionModelTest::QMLSaleTransactionModelTest() :
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
 }
 
-QMLSaleTransactionModelTest::~QMLSaleTransactionModelTest()
-{
-}
-
 void QMLSaleTransactionModelTest::init()
 {
-    m_saleTransactionModel = new QMLSaleTransactionModel(m_thread);
+    m_saleTransactionModel = new QMLSaleTransactionModel(m_thread, this);
 }
 
 void QMLSaleTransactionModelTest::cleanup()
 {
-    m_saleTransactionModel->deleteLater();
 }
 
 void QMLSaleTransactionModelTest::testViewSaleTransactions()

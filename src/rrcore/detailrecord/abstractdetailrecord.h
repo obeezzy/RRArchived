@@ -16,7 +16,7 @@ class AbstractDetailRecord : public QObject, public QQmlParserStatus
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
 public:
     explicit AbstractDetailRecord(QObject *parent = nullptr);
-    explicit AbstractDetailRecord(DatabaseThread &thread); // For testing
+    explicit AbstractDetailRecord(DatabaseThread &thread, QObject *parent = nullptr); // For testing
     virtual ~AbstractDetailRecord() override;
 
     bool autoQuery() const;

@@ -1,17 +1,16 @@
 #include "qmlpurchasetransactionitemmodel.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 
 #include <QDateTime>
 
 QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(QObject *parent) :
-    AbstractTransactionItemModel (parent)
-{
+    QMLPurchaseTransactionItemModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(DatabaseThread &thread) :
-    AbstractTransactionItemModel (thread)
+QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(DatabaseThread &thread, QObject *parent) :
+    AbstractTransactionItemModel(thread, parent)
 {
 
 }

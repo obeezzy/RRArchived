@@ -1,13 +1,12 @@
 #include "qmlcreditormodel.h"
+#include "database/databasethread.h"
 
 QMLCreditorModel::QMLCreditorModel(QObject *parent) :
-    AbstractVisualListModel (parent)
-{
+    QMLCreditorModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLCreditorModel::QMLCreditorModel(DatabaseThread &thread) :
-    AbstractVisualListModel (thread)
+QMLCreditorModel::QMLCreditorModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent)
 {
 
 }

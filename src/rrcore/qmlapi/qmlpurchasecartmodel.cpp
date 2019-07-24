@@ -3,6 +3,7 @@
 
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/databasethread.h"
 #include "models/purchasepaymentmodel.h"
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -12,29 +13,11 @@ const int CASH_PAYMENT_LIMIT = 1;
 const int CARD_PAYMENT_LIMIT = 2;
 
 QMLPurchaseCartModel::QMLPurchaseCartModel(QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_transactionId(-1),
-    m_clientName(QString()),
-    m_customerPhoneNumber(QString()),
-    m_clientId(-1),
-    m_note(QString()),
-    m_totalCost(0.0),
-    m_amountPaid(0.0),
-    m_balance(0.0),
-    m_canAcceptCash(true),
-    m_canAcceptCard(false), // Toggle to disable, genius
-    m_records(QVariantList())
-{
-    m_paymentModel = new PurchasePaymentModel(this);
+    AbstractVisualListModel(DatabaseThread::instance(), parent)
+{}
 
-    connect (m_paymentModel, &PurchasePaymentModel::cashPaymentCountChanged, this, &QMLPurchaseCartModel::updateCanAcceptCash);
-    connect (m_paymentModel, &PurchasePaymentModel::cardPaymentCountChanged, this, &QMLPurchaseCartModel::updateCanAcceptCard);
-
-    connect(this, &QMLPurchaseCartModel::transactionIdChanged, this, &QMLPurchaseCartModel::tryQuery);
-}
-
-QMLPurchaseCartModel::QMLPurchaseCartModel(DatabaseThread &thread) :
-    AbstractVisualListModel(thread),
+QMLPurchaseCartModel::QMLPurchaseCartModel(DatabaseThread &thread, QObject *parent) :
+    AbstractVisualListModel(thread, parent),
     m_transactionId(-1),
     m_clientName(QString()),
     m_customerPhoneNumber(QString()),
