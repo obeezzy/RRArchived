@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+	<Name>Record Rack</Name>
+	<Version>0.0.1</Version>
+	<Title>Record Rack Installer</Title>
+	<Publisher>Gecko Solutions</Publisher>
+	<StartMenuDir>Record Rack</StartMenuDir>
+	<TargetDir>@HomeDir@/Gecko/Record Rack</TargetDir>
+</Installer>
