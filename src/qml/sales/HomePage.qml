@@ -23,46 +23,44 @@ RRUi.Page {
         }
     ]
 
-    contentItem: Item {
-        HomeListView {
-            id: homeListView
-            anchors {
-                horizontalCenter: parent.horizontalCenter
-                top: parent.top
-                bottom: parent.bottom
+    HomeListView {
+        id: homeListView
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            top: parent.top
+            bottom: parent.bottom
+        }
+    }
+
+    RRUi.FloatingActionButton {
+        anchors {
+            right: homeListView.right
+            bottom: homeListView.bottom
+            margins: 24
+        }
+
+        icon.source: FluidControls.Utils.iconUrl("content/add")
+        text: qsTr("New sale transaction")
+        onClicked: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
+    }
+
+    FluidControls.BottomSheetList {
+        id: bottomSheet
+        title: qsTr("What would you like to do?")
+
+        actions: [
+            FluidControls.Action {
+                icon.source: FluidControls.Utils.iconUrl("content/add")
+                text: qsTr("Add an entry.")
+                onTriggered: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
+            },
+
+            FluidControls.Action {
+                icon.source: FluidControls.Utils.iconUrl("image/edit")
+                text: qsTr("Manage sale transactions.")
+                onTriggered: homePage.push(Qt.resolvedUrl("SaleTransactionPage.qml"));
             }
-        }
-
-        RRUi.FloatingActionButton {
-            anchors {
-                right: homeListView.right
-                bottom: homeListView.bottom
-                margins: 24
-            }
-
-            icon.source: FluidControls.Utils.iconUrl("content/add")
-            text: qsTr("New sale transaction")
-            onClicked: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
-        }
-
-        FluidControls.BottomSheetList {
-            id: bottomSheet
-            title: qsTr("What would you like to do?")
-
-            actions: [
-                FluidControls.Action {
-                    icon.source: FluidControls.Utils.iconUrl("content/add")
-                    text: qsTr("Add an entry.")
-                    onTriggered: homePage.push(Qt.resolvedUrl("NewSalePage.qml"));
-                },
-
-                FluidControls.Action {
-                    icon.source: FluidControls.Utils.iconUrl("image/edit")
-                    text: qsTr("Manage sale transactions.")
-                    onTriggered: homePage.push(Qt.resolvedUrl("SaleTransactionPage.qml"));
-                }
-            ]
-        }
+        ]
     }
 
     FluidControls.Placeholder {

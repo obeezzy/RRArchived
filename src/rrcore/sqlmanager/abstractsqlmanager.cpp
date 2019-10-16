@@ -135,12 +135,12 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
     const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
     qInfo() << "Procedure syntax: " << storedProcedure;
     if (!q.exec(storedProcedure)) {
-        if (q.lastError().number() >= static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException))
-            throw DatabaseException(q.lastError().number(),
+        if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException))
+            throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
                                     q.lastError().text(),
                                     q.lastError().databaseText());
         else
-            throw DatabaseException(q.lastError().number(),
+            throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
                                     q.lastError().text(),
                                     QStringLiteral("Procedure '%1' failed.").arg(procedure));
     }
