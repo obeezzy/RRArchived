@@ -3,6 +3,7 @@
 #include <QQuickStyle>
 #include <QQmlContext>
 #include <QIcon>
+#include <QDir>
 #include "plugins.h"
 #include "rrcore/database/databaseserver.h"
 #include "singletons/logger.h"
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
 
     QQmlApplicationEngine engine;
+    engine.addImportPath(QDir::fromNativeSeparators(QCoreApplication::applicationDirPath())
+                         + "/../3rdparty/fluid/qml");
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
