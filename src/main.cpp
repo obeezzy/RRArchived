@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
+#include <QQmlContext>
 #include <QIcon>
 #include "plugins.h"
 #include "rrcore/database/databaseserver.h"
@@ -30,6 +31,8 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
+
+    engine.rootContext()->setContextProperty("MainWindow", engine.rootObjects().last());
 
     return app.exec();
 }

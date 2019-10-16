@@ -20,7 +20,7 @@ FluidControls.AlertDialog {
 
     title: qsTr("Error                                                                                ")
     text: qsTr("Unknown error occurred (%1).").arg(errorCode)
-    parent: ApplicationWindow.window ? ApplicationWindow.window.contentItem : null
+    parent: MainWindow !== undefined ? MainWindow.contentItem : null
     standardButtons: QQC2.Dialog.Ok
     closePolicy: QQC2.Popup.CloseOnEscape
     onClosed: {

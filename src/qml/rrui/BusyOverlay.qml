@@ -11,7 +11,7 @@ FluidControls.OverlayView {
 
     closePolicy: QQC2.Popup.NoAutoClose
     modal: true
-    parent: FluidControls.ApplicationWindow.contentItem
+    parent: MainWindow ? MainWindow.contentItem : null
 
     RRUi.Card {
         x: (parent.width - width) / 2

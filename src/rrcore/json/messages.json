@@ -15,7 +15,7 @@
         "title": "Welcome to Record Rack",
         "short_description": "Hi customer! Thank you for choosing Record Rack. We are very happy to welcome you to this amazing community of people that are targeted at making you as profitable as possible. Please don't forget to rate your experience on our website. Also, feel free to contact our staff for help. Enjoy!",
         "long_description": "Long description",
-        "image_url": "qrc:/images/images/logo.png",
+        "image_url": "qrc:/images/logo.png",
         "icon_url": "qrc:/icons/notifications.svg",
         "actions": [
             "view",

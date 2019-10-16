@@ -34,19 +34,6 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-#copyQml.commands = $(COPY_DIR) $$PWD/src/qml $$OUT_PWD/src
-#QMAKE_EXTRA_TARGETS += copyQml
-
-#win32 {
-#    PWD_WIN = $${PWD}
-#    PWD_WIN ~= s,/,\\,g
-
-#    QMAKE_POST_LINK += $$quote(mkdir DestFolder)
-#    QMAKE_POST_LINK += $$quote(xcopy $${PWD_WIN}\\TestData $${OUT_PWD_WIN}\\TestData /E)
-
-#    QMAKE_CLEAN += /s /f /q TestData && rd /s /q TestData
-#}
-
 unix {
     QMAKE_POST_LINK += $$quote(cp -rf $${PWD}/src/qml $${OUT_PWD}/src)
 
@@ -56,7 +43,7 @@ unix {
     build_package.target = package
     build_package.commands = cd $${OUT_PWD} $$escape_expand(\\n\\t)
     build_package.commands += rm -rf $${OUT_PWD}/deployment $$escape_expand(\\n\\t)
-    build_package.commands += cp -r $${PWD}/deployment/ $${OUT_PWD} $$escape_expand(\\n\\t)
+    build_package.commands += cp -r $${PWD}/deployment $${OUT_PWD} $$escape_expand(\\n\\t)
     build_package.commands += cd $${OUT_PWD}/deployment $$escape_expand(\\n\\t)
     build_package.commands += wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage $$escape_expand(\\n\\t)
     build_package.commands += chmod +x linuxdeploy-x86_64.AppImage $$escape_expand(\\n\\t)

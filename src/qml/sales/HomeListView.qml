@@ -17,7 +17,7 @@ RRUi.HomeListViewBase {
     model: RRModels.SaleHomeModel { }
     delegate: Loader {
         width: ListView.view.width
-        active: false
+        active: true
         onLoaded: item.model = data_model;
 
         source: {

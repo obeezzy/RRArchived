@@ -122,7 +122,7 @@ void UserSqlManager::signInUser(const QueryRequest &request, QueryResult &result
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection.open() || !storeProfile(result, userName)) {
-        if (connection.lastError().number() == static_cast<int>(DatabaseException::MySqlErrorCode::UserAccountIsLockedError))
+        if (connection.lastError().nativeErrorCode().toInt() == static_cast<int>(DatabaseException::MySqlErrorCode::UserAccountIsLockedError))
             throw DatabaseException(DatabaseException::RRErrorCode::UserAccountIsLocked, connection.lastError().text(),
                                     QString("Failed to sign in as '%1'.").arg(userName));
         else
