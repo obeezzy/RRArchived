@@ -6,6 +6,7 @@
 
 class QMLStockReportModel : public AbstractVisualTableModel
 {
+    Q_OBJECT
 public:
     enum Roles {
         CategoryRole = Qt::UserRole,
@@ -24,7 +25,12 @@ public:
     enum Columns {
         CategoryColumn,
         ItemColumn,
-        OpeningStockQuantityColumn
+        OpeningStockQuantityColumn,
+        QuantitySoldColumn,
+        QuantityBoughtColumn,
+        QuantityInStockColumn,
+        ActionColumn,
+        ColumnCount
     }; Q_ENUM(Columns)
 
     explicit QMLStockReportModel(QObject *parent = nullptr);
@@ -32,8 +38,10 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;

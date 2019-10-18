@@ -124,11 +124,8 @@ RRUi.Page {
                 }
             }
 
-            FluidControls.FloatingActionButton {
-                Material.background: Material.LightGreen
-                Material.foreground: "white"
+            RRUi.FloatingActionButton {
                 icon.source: FluidControls.Utils.iconUrl("content/add")
-
                 onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"));
 
                 anchors {
