@@ -1,8 +1,6 @@
 #include "qmlstockreportmodel.h"
 #include "database/databasethread.h"
 
-const int COLUMN_COUNT = 7;
-
 QMLStockReportModel::QMLStockReportModel(QObject *parent) :
     QMLStockReportModel(DatabaseThread::instance(), parent)
 {}
@@ -25,7 +23,7 @@ int QMLStockReportModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return COLUMN_COUNT;
+    return ColumnCount;
 }
 
 QVariant QMLStockReportModel::data(const QModelIndex &index, int role) const
@@ -64,6 +62,67 @@ QHash<int, QByteArray> QMLStockReportModel::roleNames() const
         { QuantityInStockRole, "quantity_in_stock" },
         { UnitRole, "unit" }
     };
+}
+
+QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    Q_UNUSED(role)
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case CategoryColumn:
+                return tr("Category");
+            case ItemColumn:
+                return tr("Item");
+            case OpeningStockQuantityColumn:
+                return tr("Opening stock qty");
+            case QuantitySoldColumn:
+                return tr("Qty sold");
+            case QuantityBoughtColumn:
+                return tr("Qty bought");
+            case QuantityInStockColumn:
+                return tr("Qty in stock");
+            case ActionColumn:
+                return tr("Action");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case CategoryColumn:
+                return Qt::AlignLeft;
+            case ItemColumn:
+                return Qt::AlignLeft;
+            case OpeningStockQuantityColumn:
+                return Qt::AlignRight;
+            case QuantitySoldColumn:
+                return Qt::AlignRight;
+            case QuantityBoughtColumn:
+                return Qt::AlignRight;
+            case QuantityInStockColumn:
+                return Qt::AlignRight;
+            case ActionColumn:
+                return Qt::AlignHCenter;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case CategoryColumn:
+                return 130;
+            case ItemColumn:
+                return 130;
+            case OpeningStockQuantityColumn:
+                return 130;
+            case QuantitySoldColumn:
+                return 130;
+            case QuantityBoughtColumn:
+                return 130;
+            case QuantityInStockColumn:
+                return 130;
+            case ActionColumn:
+                return 130;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 void QMLStockReportModel::tryQuery()

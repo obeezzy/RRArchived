@@ -151,5 +151,7 @@
         <file>reports/PurchaseReportTableView.qml</file>
         <file>reports/IncomeReportTableView.qml</file>
         <file>reports/ExpenseReportTableView.qml</file>
+        <file>rrui/DataTableView.qml</file>
+        <file>rrui/TableDelegate.qml</file>
     </qresource>
 </RCC>

@@ -33,7 +33,7 @@ RRUi.Page {
                 bottom: parent.bottom
             }
 
-            width: 800
+            width: 960
 
             contentItem: FocusScope {
                 focus: true
