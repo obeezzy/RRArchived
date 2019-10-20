@@ -11,6 +11,7 @@ RESOURCES += sql/sql.qrc \
 INCLUDEPATH += .
 
 SOURCES += \
+    qmlapi/qmlexpensetransactionmodel.cpp \
     qmlapi/qmluserprofile.cpp \
     sqlmanager/usersqlmanager.cpp \
     sqlmanager/abstractsqlmanager.cpp \
@@ -91,6 +92,7 @@ SOURCES += \
     qmlapi/qmlincomereportmodel.cpp
 
 HEADERS += \
+    qmlapi/qmlexpensetransactionmodel.h \
     qmlapi/qmluserprofile.h \
     sqlmanager/usersqlmanager.h \
     sqlmanager/abstractsqlmanager.h \

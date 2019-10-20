@@ -153,5 +153,6 @@
         <file>reports/ExpenseReportTableView.qml</file>
         <file>rrui/DataTableView.qml</file>
         <file>rrui/TableDelegate.qml</file>
+        <file>expense/ExpenseTransactionTableView.qml</file>
     </qresource>
 </RCC>

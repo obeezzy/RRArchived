@@ -22,19 +22,13 @@ RRUi.SubView {
 
     contentItem: FocusScope {
         RRUi.Card {
-            anchors {
-                horizontalCenter: parent.horizontalCenter
-                top: parent.top
-                bottom: parent.bottom
-            }
+            anchors.fill: parent
 
             Material.elevation: 0
             topPadding: 4
             bottomPadding: 0
             leftPadding: 4
             rightPadding: 4
-
-            width: 800
 
             contentItem: FocusScope {
                 focus: true
@@ -78,11 +72,17 @@ RRUi.SubView {
                         spacing: 0
 
                         RRUi.ToolButton {
-                            id: editButton
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View")
-                            onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"),
-                                                     { "debtorId": parent.parent.modelData.debtor_id });
+                        }
+
+                        RRUi.ToolButton {
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
+                            icon.source: FluidControls.Utils.iconUrl("image/edit")
+                            text: qsTr("Edit")
                         }
                     }
                 }
@@ -97,14 +97,14 @@ RRUi.SubView {
 
     /********************** ON-DEMAND ITEMS *****************************/
     FluidControls.Placeholder {
-        visible: saleReportTableView.rows == 0 && searchBar.text !== ""
+        visible: saleReportTableView.rows === 0 && searchBar.text !== ""
         anchors.centerIn: parent
         icon.source: FluidControls.Utils.iconUrl("action/search")
         text: qsTr("No results for this search query.")
     }
 
     FluidControls.Placeholder {
-        visible: saleReportTableView.rows == 0 && searchBar.text === ""
+        visible: saleReportTableView.rows === 0 && searchBar.text === ""
         anchors.centerIn: parent
         icon.source: Qt.resolvedUrl("qrc:/icons/coin.svg")
         text: qsTr("No transactions were made on this day.")

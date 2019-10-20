@@ -104,8 +104,6 @@ RRUi.Page {
                     }
 
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             id: editButton
                             icon.source: FluidControls.Utils.iconUrl("image/edit")

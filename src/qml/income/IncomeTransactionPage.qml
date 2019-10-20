@@ -109,7 +109,7 @@ RRUi.Page {
                     }
 
                     filterText: searchBar.text
-                    filterColumn: RRModels.SaleTransactionModel.CustomerNameColumn
+                    filterColumn: RRModels.IncomeTransactionModel.ClientNameColumn
 
                     from: new Date(incomeTransactionPage.selectedDate.getFullYear(),
                                    incomeTransactionPage.selectedDate.getMonth(),
@@ -120,20 +120,20 @@ RRUi.Page {
 
                     onSuccess: {
                         switch (successCode) {
-                        case RRModels.SaleTransactionModel.RemoveTransactionSuccess:
+                        case RRModels.IncomeTransactionModel.ViewIncomeTransactionsSuccess:
                             incomeTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
                             break;
-                        case RRModels.SaleTransactionModel.UndoRemoveTransactionSuccess:
+                        case RRModels.IncomeTransactionModel.UndoRemoveTransactionSuccess:
                             incomeTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));
                             break;
                         }
                     }
 
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             id: viewButton
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View transaction details")
                             //onClicked: incomeTransactionItemDialog.show(parent.parent.modelData);
@@ -141,6 +141,8 @@ RRUi.Page {
 
                         RRUi.ToolButton {
                             id: deleteButton
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Delete transaction")
                             onClicked: deleteConfirmationDialog.show(parent.parent.modelData);

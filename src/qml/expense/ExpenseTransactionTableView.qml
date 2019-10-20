@@ -9,21 +9,21 @@ import com.gecko.rr.models 1.0 as RRModels
 import "../singletons"
 
 RRUi.DataTableView {
-    id: incomeTransactionTableView
+    id: expenseTransactionTableView
 
     property Component buttonRow: null
     property string filterText: ""
     property int filterColumn: -1
-    property int keys: RRModels.IncomeTransactionModel.Completed
+    property int keys: RRModels.ExpenseTransactionModel.Completed
     property date from: new Date()
     property date to: new Date()
 
     signal success(int successCode)
     signal error(int errorCode)
 
-    function removeTransaction(transactionId) { incomeTransactionTableView.model.removeTransaction(transactionId); }
-    function refresh() { incomeTransactionTableView.model.refresh(); }
-    function undoLastCommit() { incomeTransactionTableView.model.undoLastCommit(); }
+    function removeTransaction(transactionId) { expenseTransactionTableView.model.removeTransaction(transactionId); }
+    function refresh() { expenseTransactionTableView.model.refresh(); }
+    function undoLastCommit() { expenseTransactionTableView.model.undoLastCommit(); }
 
     bottomMargin: 20
     clip: true
@@ -32,7 +32,7 @@ RRUi.DataTableView {
     columnSpacing: 8
 
     FluidControls.Placeholder {
-        visible: incomeTransactionTableView.rows === 0 && !incomeTransactionTableView.model.busy
+        visible: expenseTransactionTableView.rows === 0 && !expenseTransactionTableView.model.busy
         anchors.centerIn: parent
         icon.source: Qt.resolvedUrl("qrc:/icons/cash-multiple.svg")
         text: qsTr("No transactions took place on this day.")
@@ -40,22 +40,22 @@ RRUi.DataTableView {
 
     QQC2.BusyIndicator {
         anchors.centerIn: parent
-        visible: incomeTransactionTableView.model.busy
+        visible: expenseTransactionTableView.model.busy
     }
 
-    model: RRModels.IncomeTransactionModel {
-        filterText: incomeTransactionTableView.filterText
-        filterColumn: incomeTransactionTableView.filterColumn
-        keys: incomeTransactionTableView.keys
-        from: incomeTransactionTableView.from
-        to: incomeTransactionTableView.to
-        onSuccess: incomeTransactionTableView.success(successCode);
-        onError: incomeTransactionTableView.error(errorCode);
+    model: RRModels.ExpenseTransactionModel {
+        filterText: expenseTransactionTableView.filterText
+        filterColumn: expenseTransactionTableView.filterColumn
+        keys: expenseTransactionTableView.keys
+        from: expenseTransactionTableView.from
+        to: expenseTransactionTableView.to
+        onSuccess: expenseTransactionTableView.success(successCode);
+        onError: expenseTransactionTableView.error(errorCode);
     }
 
     QQC2.ScrollBar.vertical: QQC2.ScrollBar {
         policy: QQC2.ScrollBar.AlwaysOn
-        visible: incomeTransactionTableView.contentHeight > incomeTransactionTableView.height
+        visible: expenseTransactionTableView.contentHeight > expenseTransactionTableView.height
         size: .3
         width: 5
         contentItem: Rectangle {
@@ -66,10 +66,10 @@ RRUi.DataTableView {
 
     delegate: DelegateChooser {
         DelegateChoice {
-            column: RRModels.IncomeTransactionModel.TransactionIdColumn
+            column: RRModels.ExpenseTransactionModel.TransactionIdColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: incomeTransactionTableView.columnHeader.children[RRModels.IncomeTransactionModel.TransactionIdColumn].width
-                implicitHeight: incomeTransactionTableView.rowHeader.children[0].height
+                implicitWidth: expenseTransactionTableView.columnHeader.children[RRModels.ExpenseTransactionModel.TransactionIdColumn].width
+                implicitHeight: expenseTransactionTableView.rowHeader.children[0].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -87,10 +87,10 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.IncomeTransactionModel.ClientNameColumn
+            column: RRModels.ExpenseTransactionModel.ClientNameColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: incomeTransactionTableView.columnHeader.children[RRModels.IncomeTransactionModel.ClientNameColumn].width
-                implicitHeight: incomeTransactionTableView.rowHeader.children[0].height
+                implicitWidth: expenseTransactionTableView.columnHeader.children[RRModels.ExpenseTransactionModel.ClientNameColumn].width
+                implicitHeight: expenseTransactionTableView.rowHeader.children[0].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -108,10 +108,10 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.IncomeTransactionModel.AmountColumn
+            column: RRModels.ExpenseTransactionModel.AmountColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: incomeTransactionTableView.columnHeader.children[RRModels.IncomeTransactionModel.AmountColumn].width
-                implicitHeight: incomeTransactionTableView.rowHeader.children[0].height
+                implicitWidth: expenseTransactionTableView.columnHeader.children[RRModels.ExpenseTransactionModel.AmountColumn].width
+                implicitHeight: expenseTransactionTableView.rowHeader.children[0].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -129,10 +129,10 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.IncomeTransactionModel.ActionColumn
+            column: RRModels.ExpenseTransactionModel.ActionColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: incomeTransactionTableView.columnHeader.children[RRModels.IncomeTransactionModel.ActionColumn].width
-                implicitHeight: incomeTransactionTableView.rowHeader.children[0].height
+                implicitWidth: expenseTransactionTableView.columnHeader.children[RRModels.ExpenseTransactionModel.ActionColumn].width
+                implicitHeight: expenseTransactionTableView.rowHeader.children[0].height
 
                 Loader {
                     readonly property var modelData: {
@@ -141,7 +141,7 @@ RRUi.DataTableView {
                     }
 
                     anchors.centerIn: parent
-                    sourceComponent: incomeTransactionTableView.buttonRow
+                    sourceComponent: expenseTransactionTableView.buttonRow
                 }
             }
         }

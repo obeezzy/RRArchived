@@ -121,7 +121,6 @@ void ExpenseSqlManager::viewExpenseTransactions(const QueryRequest &request, Que
         if (!DatabaseUtils::beginTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
 
-        // STEP: Insert expense transaction
         const QList<QSqlRecord> &records (callProcedure("ViewExpenseTransactions", {
                                                             ProcedureArgument {
                                                                 ProcedureArgument::Type::In,
