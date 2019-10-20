@@ -140,30 +140,30 @@ void QMLStockCategoryItemModelTest::testViewStockItems()
             .value<StockItemModel *>();
     QVERIFY(model1 != nullptr);
     QCOMPARE(model1->rowCount(), 2);
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::ItemRole).toString(), QStringLiteral("Item1"));
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description1"));
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit1"));
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::CostPriceRole).toDouble(), 11.0);
-    QCOMPARE(model1->data(model1->index(0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
+    QCOMPARE(model1->data(model1->index(0, 0), StockItemModel::ItemRole).toString(), QStringLiteral("Item1"));
+    QCOMPARE(model1->data(model1->index(0, 0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description1"));
+    QCOMPARE(model1->data(model1->index(0, 0), StockItemModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(model1->data(model1->index(0, 0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit1"));
+    QCOMPARE(model1->data(model1->index(0, 0), StockItemModel::CostPriceRole).toDouble(), 11.0);
+    QCOMPARE(model1->data(model1->index(0, 0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
 
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::ItemRole).toString(), QStringLiteral("Item2"));
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description2"));
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::UnitRole).toString(), QStringLiteral("Unit2"));
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::CostPriceRole).toDouble(), 11.0);
-    QCOMPARE(model1->data(model1->index(1), StockItemModel::RetailPriceRole).toDouble(), 10.0);
+    QCOMPARE(model1->data(model1->index(1, 0), StockItemModel::ItemRole).toString(), QStringLiteral("Item2"));
+    QCOMPARE(model1->data(model1->index(1, 0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description2"));
+    QCOMPARE(model1->data(model1->index(1, 0), StockItemModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(model1->data(model1->index(1, 0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit2"));
+    QCOMPARE(model1->data(model1->index(1, 0), StockItemModel::CostPriceRole).toDouble(), 11.0);
+    QCOMPARE(model1->data(model1->index(1, 0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
 
     StockItemModel *model2 = m_stockCategoryItemModel->data(m_stockCategoryItemModel->index(1), QMLStockCategoryItemModel::ItemModelRole)
             .value<StockItemModel *>();
     QVERIFY(model2 != nullptr);
     QCOMPARE(model2->rowCount(), 1);
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::ItemRole).toString(), QStringLiteral("Item3"));
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description3"));
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit3"));
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::CostPriceRole).toDouble(), 11.0);
-    QCOMPARE(model2->data(model1->index(0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
+    QCOMPARE(model2->data(model1->index(0, 0), StockItemModel::ItemRole).toString(), QStringLiteral("Item3"));
+    QCOMPARE(model2->data(model1->index(0, 0), StockItemModel::DescriptionRole).toString(), QStringLiteral("Description3"));
+    QCOMPARE(model2->data(model1->index(0, 0), StockItemModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(model2->data(model1->index(0, 0), StockItemModel::UnitRole).toString(), QStringLiteral("Unit3"));
+    QCOMPARE(model2->data(model1->index(0, 0), StockItemModel::CostPriceRole).toDouble(), 11.0);
+    QCOMPARE(model2->data(model1->index(0, 0), StockItemModel::RetailPriceRole).toDouble(), 10.0);
 }
 
 void QMLStockCategoryItemModelTest::testRefresh()

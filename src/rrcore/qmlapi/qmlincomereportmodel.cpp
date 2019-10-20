@@ -107,7 +107,7 @@ void QMLIncomeReportModel::processResult(const QueryResult result)
             endResetModel();
             emit success(ViewIncomeReportSuccess);
         } else {
-            emit success();
+            emit error();
         }
     } else {
 

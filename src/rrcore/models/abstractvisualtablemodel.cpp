@@ -11,7 +11,8 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     m_busy(false),
     m_filterText(QString()),
     m_filterColumn(-1),
-    m_lastRequest(QueryRequest())
+    m_lastRequest(QueryRequest()),
+    m_tableViewWidth(0.0)
 {
     connect(this, &AbstractVisualTableModel::executeRequest, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
@@ -90,6 +91,20 @@ void AbstractVisualTableModel::setFilterColumn(int filterColumn)
 
     m_filterColumn = filterColumn;
     emit filterColumnChanged();
+}
+
+qreal AbstractVisualTableModel::tableViewWidth() const
+{
+    return m_tableViewWidth;
+}
+
+void AbstractVisualTableModel::setTableViewWidth(qreal tableViewWidth)
+{
+    if (m_tableViewWidth == tableViewWidth)
+        return;
+
+    m_tableViewWidth = tableViewWidth;
+    emit tableViewWidthChanged();
 }
 
 void AbstractVisualTableModel::classBegin()

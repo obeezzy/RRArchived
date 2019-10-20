@@ -20,6 +20,7 @@ class AbstractVisualTableModel : public QAbstractTableModel, public QQmlParserSt
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
     Q_PROPERTY(QString filterText READ filterText WRITE setFilterText NOTIFY filterTextChanged)
     Q_PROPERTY(int filterColumn READ filterColumn WRITE setFilterColumn NOTIFY filterColumnChanged)
+    Q_PROPERTY(qreal tableViewWidth READ tableViewWidth WRITE setTableViewWidth NOTIFY tableViewWidthChanged)
 public:
     explicit AbstractVisualTableModel(QObject *parent = nullptr);
     explicit AbstractVisualTableModel(DatabaseThread &thread, QObject *parent = nullptr);
@@ -35,6 +36,9 @@ public:
 
     int filterColumn() const;
     void setFilterColumn(int filterColumn);
+
+    qreal tableViewWidth() const;
+    void setTableViewWidth(qreal tableViewWidth);
 
     Q_INVOKABLE QVariant get(int row, int column) const;
 
@@ -59,6 +63,8 @@ signals:
     void filterTextChanged();
     void filterColumnChanged();
 
+    void tableViewWidthChanged();
+
     void success(int successCode = -1);
     void error(int errorCode = -1);
 private:
@@ -67,6 +73,7 @@ private:
     QString m_filterText;
     int m_filterColumn;
     QueryRequest m_lastRequest;
+    qreal m_tableViewWidth;
 
     void saveRequest(const QueryResult &result);
 };

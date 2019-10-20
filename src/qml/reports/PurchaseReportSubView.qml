@@ -70,8 +70,6 @@ RRUi.SubView {
                     autoQuery: purchaseReportSubView.QQC2.SwipeView.index === 0
 
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
@@ -82,7 +80,7 @@ RRUi.SubView {
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
-                            icon.source: FluidControls.Utils.iconUrl("image/edit")
+                            icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Edit")
                         }
                     }

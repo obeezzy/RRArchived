@@ -38,7 +38,7 @@ QVariant QMLStockCategoryItemModel::data(const QModelIndex &index, int role) con
     case CategoryIdRole:
     {
         StockItemModel *model = m_stockItemModels.at(index.row());
-        return model->data(model->index(0), StockItemModel::CategoryIdRole).toInt();
+        return model->data(model->index(0, 0), StockItemModel::CategoryIdRole).toInt();
     }
     case CategoryRole:
         return m_categories.at(index.row());

@@ -6,6 +6,7 @@ import Fluid.Core 1.0 as FluidCore
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../common"
+import "../sales"
 
 RRUi.SubView {
     id: saleReportSubView
@@ -69,20 +70,19 @@ RRUi.SubView {
 
                     autoQuery: saleReportSubView.QQC2.SwipeView.index === 0
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View")
+                            onClicked: saleTransactionItemDialog.show(modelData);
                         }
 
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
-                            icon.source: FluidControls.Utils.iconUrl("image/edit")
-                            text: qsTr("Edit")
+                            icon.source: FluidControls.Utils.iconUrl("action/delete")
+                            text: qsTr("Archive")
                         }
                     }
                 }
@@ -109,6 +109,8 @@ RRUi.SubView {
         icon.source: Qt.resolvedUrl("qrc:/icons/coin.svg")
         text: qsTr("No transactions were made on this day.")
     }
+
+    SaleTransactionItemDialog { id: saleTransactionItemDialog }
 
     Connections {
         target: saleReportSubView.QQC2.SwipeView.view

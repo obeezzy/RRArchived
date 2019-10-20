@@ -128,7 +128,7 @@ void QMLPurchaseReportModel::processResult(const QueryResult result)
             endResetModel();
             emit success(ViewPurchaseReportSuccess);
         } else {
-            emit success();
+            emit error();
         }
     } else {
 
