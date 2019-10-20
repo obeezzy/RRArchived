@@ -45,6 +45,10 @@ QVariant QMLSaleReportModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("unit").toString();
     case TotalAmountRole:
         return m_records.at(index.row()).toMap().value("total_amount").toDouble();
+    case TransactionIdRole:
+        return m_records.at(index.row()).toMap().value("transaction_id").toInt();
+    case ClientIdRole:
+        return m_records.at(index.row()).toMap().value("client_id").toInt();
     }
 
     return QVariant();
@@ -57,7 +61,9 @@ QHash<int, QByteArray> QMLSaleReportModel::roleNames() const
         { ItemRole, "item" },
         { QuantitySoldRole, "quantity_sold" },
         { UnitRole, "unit" },
-        { TotalAmountRole, "total_amount" }
+        { TotalAmountRole, "total_amount" },
+        { TransactionIdRole, "transaction_id" },
+        { ClientIdRole, "client_id" }
     };
 }
 
@@ -130,7 +136,7 @@ void QMLSaleReportModel::processResult(const QueryResult result)
             endResetModel();
             emit success(ViewSalesReportSuccess);
         } else {
-            emit success();
+            emit error();
         }
     } else {
 

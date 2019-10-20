@@ -82,7 +82,7 @@ RRUi.SubView {
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
-                            icon.source: FluidControls.Utils.iconUrl("image/edit")
+                            icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Edit")
                         }
                     }

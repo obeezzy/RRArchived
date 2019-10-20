@@ -71,8 +71,6 @@ RRUi.SubView {
 
                     autoQuery: stockReportSubView.QQC2.SwipeView.index === 0
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
@@ -83,8 +81,8 @@ RRUi.SubView {
                         RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
-                            icon.source: FluidControls.Utils.iconUrl("image/edit")
-                            text: qsTr("Edit")
+                            icon.source: FluidControls.Utils.iconUrl("action/delete")
+                            text: qsTr("Archive")
                         }
                     }
                 }
@@ -99,14 +97,14 @@ RRUi.SubView {
 
     /********************** ON-DEMAND ITEMS *****************************/
     FluidControls.Placeholder {
-        visible: stockReportTableView.rows == 0 && searchBar.text !== ""
+        visible: stockReportTableView.rows === 0 && searchBar.text !== ""
         anchors.centerIn: parent
         icon.source: FluidControls.Utils.iconUrl("action/search")
         text: qsTr("No results for this search query.")
     }
 
     FluidControls.Placeholder {
-        visible: stockReportTableView.rows == 0 && searchBar.text === ""
+        visible: stockReportTableView.rows === 0 && searchBar.text === ""
         anchors.centerIn: parent
         icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
         text: qsTr("No transactions were made on this day.")

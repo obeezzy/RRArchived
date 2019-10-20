@@ -107,7 +107,7 @@ void QMLExpenseReportModel::processResult(const QueryResult result)
             endResetModel();
             emit success(ViewExpenseReportSuccess);
         } else {
-            emit success();
+            emit error();
         }
     } else {
 

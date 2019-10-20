@@ -124,12 +124,12 @@ RRUi.DataTableView {
                 implicitHeight: saleReportTableView.rowHeader.children[0].height
 
                 Loader {
-                    anchors.centerIn: parent
                     readonly property var modelData: {
                         "client_id": model.client_id,
                         "transaction_id": model.transaction_id
                     }
 
+                    anchors.centerIn: parent
                     sourceComponent: saleReportTableView.buttonRow
                 }
             }

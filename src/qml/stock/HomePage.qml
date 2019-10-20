@@ -107,10 +107,10 @@ RRUi.Page {
             clip: true
 
             buttonRow: Row {
-                spacing: 0
-
                 RRUi.ToolButton {
                     id: viewButton
+                    width: FluidControls.Units.iconSizes.medium
+                    height: width
                     icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                     text: qsTr("View details")
                     onClicked: itemDetailPopup.show(modelData.item_id);
@@ -118,6 +118,8 @@ RRUi.Page {
 
                 RRUi.ToolButton {
                     id: editButton
+                    width: FluidControls.Units.iconSizes.medium
+                    height: width
                     icon.source: FluidControls.Utils.iconUrl("image/edit")
                     text: qsTr("Edit item")
                     onClicked: homePage.push(Qt.resolvedUrl("NewItemPage.qml"), { "itemId": modelData.item_id });
@@ -125,6 +127,8 @@ RRUi.Page {
 
                 RRUi.ToolButton {
                     id: deleteButton
+                    width: FluidControls.Units.iconSizes.medium
+                    height: width
                     icon.source: FluidControls.Utils.iconUrl("action/delete")
                     text: qsTr("Delete item")
                     onClicked: categoryListView.model.removeItem(modelData.item_id);

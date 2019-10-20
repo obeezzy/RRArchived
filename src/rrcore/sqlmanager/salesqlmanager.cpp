@@ -880,8 +880,9 @@ void SaleSqlManager::viewSaleReport(const QueryRequest &request, QueryResult &re
             items.append(recordToMap(record));
         }
 
-        result.setOutcome(QVariantMap { { "items", items },
-                                        { "record_count", items.count() },
+        result.setOutcome(QVariantMap {
+                              { "items", items },
+                              { "record_count", items.count() },
                           });
     } catch (DatabaseException &) {
         throw;

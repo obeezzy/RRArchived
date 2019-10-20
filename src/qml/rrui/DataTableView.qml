@@ -11,6 +11,7 @@ TableView {
 
     readonly property Row columnHeader: columnHeader
     readonly property Column rowHeader: rowHeader
+    property real rowHeight: 32
     property color headerColor: Material.backgroundColor
     property color headerTextColor: Material.foreground
 
@@ -67,7 +68,7 @@ TableView {
             model: dataTableView.rows > 0 ? dataTableView.rows : 1
 
             RRUi.TableDelegate {
-                implicitWidth: 32
+                implicitWidth: dataTableView.rowHeight
                 implicitHeight: dataTableView.rowHeightProvider ? dataTableView.rowHeightProvider(modelData) : rowLabel.implicitHeight
 
                 FluidControls.SubheadingLabel {

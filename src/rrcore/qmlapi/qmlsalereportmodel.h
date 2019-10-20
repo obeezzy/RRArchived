@@ -13,7 +13,9 @@ public:
         ItemRole,
         QuantitySoldRole,
         TotalAmountRole,
-        UnitRole
+        UnitRole,
+        TransactionIdRole,
+        ClientIdRole
     };
 
     enum Columns {

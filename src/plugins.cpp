@@ -43,6 +43,8 @@
 #include "rrcore/qmlapi/qmlexpensereportmodel.h"
 #include "rrcore/qmlapi/qmlexpensetransactionmodel.h"
 
+#include "rrcore/models/stockitemmodel.h"
+
 #include "rrcore/widgets/dialogs.h"
 
 const QString FONT_DIR(":/fonts");
@@ -94,6 +96,9 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLIncomeReportModel>("com.gecko.rr.models", 1, 0, "IncomeReportModel");
     qmlRegisterType<QMLExpenseReportModel>("com.gecko.rr.models", 1, 0, "ExpenseReportModel");
     qmlRegisterType<QMLExpenseTransactionModel>("com.gecko.rr.models", 1, 0, "ExpenseTransactionModel");
+
+    // Uncreatable models
+    qmlRegisterUncreatableType<StockItemModel>("com.gecko.rr.models", 1, 0, "StockItemModel", "This class is only exposed for enums.");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

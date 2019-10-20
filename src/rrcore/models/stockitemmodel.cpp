@@ -2,10 +2,8 @@
 #include <QDateTime>
 
 StockItemModel::StockItemModel(QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_category(QString()),
-    m_categoryId(-1),
-    m_records(QVariantList())
+    AbstractVisualTableModel(parent),
+    m_categoryId(-1)
 {
 
 }
@@ -16,6 +14,14 @@ int StockItemModel::rowCount(const QModelIndex &parent) const
         return 0;
 
     return m_records.count();
+}
+
+int StockItemModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return ColumnCount;
 }
 
 QVariant StockItemModel::data(const QModelIndex &index, int role) const
@@ -61,24 +67,71 @@ QVariant StockItemModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> StockItemModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(QAbstractListModel::roleNames());
-    roles.insert(CategoryIdRole, "category_id");
-    roles.insert(ItemIdRole, "item_id");
-    roles.insert(ItemRole, "item");
-    roles.insert(DescriptionRole, "description");
-    roles.insert(DivisibleRole, "divisible");
-    roles.insert(ImageSourceRole, "image_source");
-    roles.insert(QuantityRole, "quantity");
-    roles.insert(UnitRole, "unit");
-    roles.insert(UnitIdRole, "unit_id");
-    roles.insert(CostPriceRole, "cost_price");
-    roles.insert(RetailPriceRole, "retail_price");
-    roles.insert(CurrencyRole, "currency");
-    roles.insert(CreatedRole, "created");
-    roles.insert(LastEditedRole, "last_edited");
-    roles.insert(UserRole, "user");
+    return {
+        { CategoryIdRole, "category_id" },
+        { ItemIdRole, "item_id" },
+        { ItemRole, "item" },
+        { DescriptionRole, "description" },
+        { DivisibleRole, "divisible" },
+        { ImageSourceRole, "image_source" },
+        { QuantityRole, "quantity" },
+        { UnitRole, "unit" },
+        { UnitIdRole, "unit_id" },
+        { CostPriceRole, "cost_price" },
+        { RetailPriceRole, "retail_price" },
+        { CurrencyRole, "currency" },
+        { CreatedRole, "created" },
+        { LastEditedRole, "last_edited" },
+        { UserRole, "user" }
+    };
+}
 
-    return roles;
+QVariant StockItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case ImageColumn:
+                return tr("");
+            case ItemColumn:
+                return tr("Item");
+            case QuantityColumn:
+                return tr("Qty");
+            case CostPriceColumn:
+                return tr("Cost price");
+            case ActionColumn:
+                return tr("Action");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case ImageColumn:
+                return Qt::AlignHCenter;
+            case ItemColumn:
+                return Qt::AlignLeft;
+            case QuantityColumn:
+                return Qt::AlignRight;
+            case CostPriceColumn:
+                return Qt::AlignRight;
+            case ActionColumn:
+                return Qt::AlignHCenter;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case ImageColumn:
+                return 30;
+            case ItemColumn:
+                return 280;
+            case QuantityColumn:
+                return 140;
+            case CostPriceColumn:
+                return 140;
+            case ActionColumn:
+                return 130;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 QString StockItemModel::category() const
@@ -119,7 +172,7 @@ bool StockItemModel::addItem(int itemId, const QVariantMap &itemInfo, Qt::SortOr
     if (sortOrder == Qt::DescendingOrder) {
         qFatal("UNTESTED >> %s", Q_FUNC_INFO);
         for (int i = 0; i < rowCount(); ++i) {
-            if (itemInfo.value("item").toString().toLower() < data(index(i), ItemRole).toString().toLower() && sortOrder == Qt::DescendingOrder) {
+            if (itemInfo.value("item").toString().toLower() < data(index(i, 0), ItemRole).toString().toLower() && sortOrder == Qt::DescendingOrder) {
                 beginInsertRows(QModelIndex(), i, i);
                 m_records.insert(i, itemInfo);
                 endInsertRows();
@@ -129,7 +182,7 @@ bool StockItemModel::addItem(int itemId, const QVariantMap &itemInfo, Qt::SortOr
         }
     } else {
         for (int i = rowCount() - 1; i >= -1; --i) {
-            if (itemInfo.value("item").toString().toLower() > data(index(i), ItemRole).toString().toLower()) {
+            if (itemInfo.value("item").toString().toLower() > data(index(i, 0), ItemRole).toString().toLower()) {
                 beginInsertRows(QModelIndex(), i + 1, i + 1);
                 m_records.insert(i + 1, itemInfo);
                 endInsertRows();
@@ -148,7 +201,7 @@ bool StockItemModel::removeItem(int itemId)
         return false;
 
     for (int i = 0; i < rowCount(); ++i) {
-        if (itemId == data(index(i), ItemIdRole).toInt()) {
+        if (itemId == data(index(i, 0), ItemIdRole).toInt()) {
             beginRemoveRows(QModelIndex(), i, i);
             m_records.removeAt(i);
             endRemoveRows();

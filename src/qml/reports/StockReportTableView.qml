@@ -1,8 +1,8 @@
 import QtQuick 2.13
+import Qt.labs.qmlmodels 1.0
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
-import Qt.labs.qmlmodels 1.0 as QQModels
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../singletons"
@@ -33,8 +33,8 @@ RRUi.DataTableView {
     flickableDirection: TableView.VerticalFlick
     clip: true
 
-    delegate: QQModels.DelegateChooser {
-        QQModels.DelegateChoice {
+    delegate: DelegateChooser {
+        DelegateChoice {
             column: RRModels.StockReportModel.CategoryColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.CategoryColumn].width
@@ -54,7 +54,7 @@ RRUi.DataTableView {
             }
         }
 
-        QQModels.DelegateChoice {
+        DelegateChoice {
             column: RRModels.StockReportModel.ItemColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.ItemColumn].width
@@ -74,7 +74,7 @@ RRUi.DataTableView {
             }
         }
 
-        QQModels.DelegateChoice {
+        DelegateChoice {
             column: RRModels.StockReportModel.OpeningStockQuantityColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.OpeningStockQuantityColumn].width
@@ -94,7 +94,7 @@ RRUi.DataTableView {
             }
         }
 
-        QQModels.DelegateChoice {
+        DelegateChoice {
             column: RRModels.StockReportModel.QuantitySoldColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.QuantitySoldColumn].width
@@ -114,7 +114,7 @@ RRUi.DataTableView {
             }
         }
 
-        QQModels.DelegateChoice {
+        DelegateChoice {
             column: RRModels.StockReportModel.QuantityBoughtColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.QuantityBoughtColumn].width
@@ -134,7 +134,7 @@ RRUi.DataTableView {
             }
         }
 
-        QQModels.DelegateChoice {
+        DelegateChoice {
             column: RRModels.StockReportModel.QuantityInStockColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.QuantityInStockColumn].width
@@ -154,7 +154,7 @@ RRUi.DataTableView {
             }
         }
 
-        QQModels.DelegateChoice {
+        DelegateChoice {
             column: RRModels.StockReportModel.ActionColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.ActionColumn].width
