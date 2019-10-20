@@ -460,11 +460,22 @@ RRUi.Page {
                                 text: qsTr("Total cost: %1").arg(Number(cartListView.totalCost).toLocaleCurrencyString(Qt.locale("en_NG")))
                             }
 
-                            QQC2.Button {
-                                id: checkoutButton
+                            Row {
                                 anchors.right: parent.right
-                                text: qsTr("Proceed to Checkout")
-                                onClicked: if (saleContentItem.validateUserInput()) paymentWizard.open();
+                                spacing: 8
+
+                                QQC2.Button {
+                                    id: viewDetailsButton
+                                    text: qsTr("View totals")
+                                }
+
+                                QQC2.Button {
+                                    id: checkoutButton
+                                    Material.background: Material.accent
+                                    Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
+                                    text: qsTr("Proceed to Checkout")
+                                    onClicked: if (saleContentItem.validateUserInput()) paymentWizard.open();
+                                }
                             }
                         }
                     }

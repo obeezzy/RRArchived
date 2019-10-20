@@ -1,8 +1,6 @@
 #include "qmlpurchasereportmodel.h"
 #include "database/databasethread.h"
 
-const int COLUMN_COUNT = 5;
-
 QMLPurchaseReportModel::QMLPurchaseReportModel(QObject *parent) :
     QMLPurchaseReportModel(DatabaseThread::instance(), parent)
 {}
@@ -47,7 +45,7 @@ int QMLPurchaseReportModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return COLUMN_COUNT;
+    return ColumnCount;
 }
 
 QHash<int, QByteArray> QMLPurchaseReportModel::roleNames() const
@@ -59,6 +57,54 @@ QHash<int, QByteArray> QMLPurchaseReportModel::roleNames() const
         { TotalAmountRole, "total_amount" },
         { UnitRole, "unit" }
     };
+}
+
+QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case CategoryColumn:
+                return tr("Category");
+            case ItemColumn:
+                return tr("Item");
+            case QuantityBoughtColumn:
+                return tr("Qty bought");
+            case TotalAmountColumn:
+                return tr("Total amount");
+            case ActionColumn:
+                return tr("Action");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case CategoryColumn:
+                return Qt::AlignLeft;
+            case ItemColumn:
+                return Qt::AlignLeft;
+            case QuantityBoughtColumn:
+                return Qt::AlignRight;
+            case TotalAmountColumn:
+                return Qt::AlignRight;
+            case ActionColumn:
+                return Qt::AlignHCenter;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case CategoryColumn:
+                return 180;
+            case ItemColumn:
+                return 180;
+            case QuantityBoughtColumn:
+                return 180;
+            case TotalAmountColumn:
+                return 180;
+            case ActionColumn:
+                return 200;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 void QMLPurchaseReportModel::tryQuery()

@@ -1,12 +1,13 @@
 import QtQuick 2.13
 import QtQuick.Controls 2.5
+import QtQuick.Layouts 1.12
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Controls.Material 2.3
 import "../rrui" as RRUi
 import "../singletons"
 
 TableView {
-    id: tableView
+    id: dataTableView
 
     readonly property Row columnHeader: columnHeader
     readonly property Column rowHeader: rowHeader
@@ -15,42 +16,42 @@ TableView {
 
     topMargin: columnHeader.implicitHeight
     leftMargin: rowHeader.implicitWidth
-    columnWidthProvider: function (column) { return tableView.model.headerData(column, Qt.Horizontal, Qt.SizeHintRole); }
+    columnWidthProvider: function (column) { return dataTableView.model.headerData(column, Qt.Horizontal, Qt.SizeHintRole); }
 
     TableDelegate {
         x: -width
-        y: tableView.contentY
+        y: dataTableView.contentY
         width: rowHeader.width
-        height: 35
+        height: columnHeader.height
         z: 10000
-
-        Rectangle { anchors.fill: parent }
     }
 
     Row {
         id: columnHeader
-        y: tableView.contentY
+        y: dataTableView.contentY
         z: 2
+        spacing: dataTableView.columnSpacing
 
         Repeater {
-            model: tableView.columns > 0 ? tableView.columns : 1
+            model: dataTableView.columns > 0 ? dataTableView.columns : 1
 
             RRUi.TableDelegate {
-                implicitWidth: tableView.columnWidthProvider ? tableView.columnWidthProvider(modelData) : columnLabel.implicitWidth
-                implicitHeight: 35
+                implicitWidth: dataTableView.columnWidthProvider ? dataTableView.columnWidthProvider(modelData) : columnLabel.implicitWidth
+                implicitHeight: 40
 
                 FluidControls.SubheadingLabel {
                     id: columnLabel
                     anchors.fill: parent
-                    text: tableView.model.headerData(modelData, Qt.Horizontal)
-                    color: tableView.headerTextColor
-                    padding: 0
+                    text: dataTableView.model.headerData(modelData, Qt.Horizontal)
+                    color: dataTableView.headerTextColor
+                    topPadding: 10
+                    bottomPadding: 10
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: tableView.model.headerData(modelData, Qt.Horizontal, Qt.TextAlignmentRole)
+                    horizontalAlignment: dataTableView.model.headerData(modelData, Qt.Horizontal, Qt.TextAlignmentRole)
                     elide: Qt.ElideRight
                     font.bold: true
 
-                    background: Rectangle { color: tableView.headerColor }
+                    background: Item { }
                 }
             }
         }
@@ -58,26 +59,71 @@ TableView {
 
     Column {
         id: rowHeader
-        x: tableView.contentX
+        x: dataTableView.contentX
         z: 2
+        spacing: dataTableView.rowSpacing
 
         Repeater {
-            model: tableView.rows > 0 ? tableView.rows : 1
+            model: dataTableView.rows > 0 ? dataTableView.rows : 1
 
             RRUi.TableDelegate {
                 implicitWidth: 32
-                implicitHeight: tableView.rowHeightProvider ? tableView.rowHeightProvider(modelData) : rowLabel.implicitHeight
+                implicitHeight: dataTableView.rowHeightProvider ? dataTableView.rowHeightProvider(modelData) : rowLabel.implicitHeight
 
                 FluidControls.SubheadingLabel {
                     id: rowLabel
                     anchors.fill: parent
-                    text: tableView.model.headerData(modelData, Qt.Vertical)
-                    color: tableView.headerTextColor
+                    text: dataTableView.model.headerData(modelData, Qt.Vertical)
+                    color: dataTableView.headerTextColor
                     padding: 10
                     verticalAlignment: Text.AlignVCenter
 
-                    background: Rectangle { color: tableView.headerColor }
+                    background: Item { }
                 }
+            }
+        }
+    }
+
+    // Row delegates
+    ItemDelegate {
+        x: -dataTableView.leftMargin
+        y: dataTableView.contentY
+        width: parent.width + dataTableView.leftMargin
+        height: columnHeader.height
+
+        Rectangle {
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            color: Stylesheet.tableViewDivider
+            height: 1
+        }
+    }
+
+    ListView {
+        x: -dataTableView.leftMargin
+        width: dataTableView.width
+        height: dataTableView.height
+        spacing: dataTableView.rowSpacing
+        interactive: false
+        clip: true
+
+        model: dataTableView.rows >= 0 ? dataTableView.rows : 0
+
+        delegate: ItemDelegate {
+            width: ListView.view.width
+            height: columnHeader.height
+
+            Rectangle {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                color: Stylesheet.tableViewDivider
+                height: 1
             }
         }
     }

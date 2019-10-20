@@ -28,6 +28,7 @@ RRUi.SubView {
             bottomPadding: 0
             leftPadding: 4
             rightPadding: 4
+
             contentItem: FocusScope {
                 focus: true
 
@@ -71,13 +72,17 @@ RRUi.SubView {
                         spacing: 0
 
                         RRUi.ToolButton {
-                            id: editButton
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
+                            icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
+                            text: qsTr("View")
+                        }
+
+                        RRUi.ToolButton {
                             width: FluidControls.Units.iconSizes.medium
                             height: width
                             icon.source: FluidControls.Utils.iconUrl("image/edit")
-                            text: qsTr("Edit debtor")
-                            onClicked: homePage.push(Qt.resolvedUrl("NewDebtorPage.qml"),
-                                                     { "debtorId": parent.parent.modelData.debtor_id });
+                            text: qsTr("Edit")
                         }
                     }
                 }

@@ -1,27 +1,18 @@
 import QtQuick 2.12
+import Qt.labs.qmlmodels 1.0
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
-import Qt.labs.qmlmodels 1.0 as QQModels
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../singletons"
 
-TableView {
+RRUi.DataTableView {
     id: purchaseReportTableView
 
     property alias busy: purchaseReportModel.busy
     property alias autoQuery: purchaseReportModel.autoQuery
     property Component buttonRow: null
-
-    enum Columns {
-        RowIdColumn,
-        CategoryColumn,
-        ItemColumn,
-        QuantityBoughtColumn,
-        TotalAmountColumn,
-        ActionColumn
-    }
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -41,61 +32,106 @@ TableView {
         visible: purchaseReportTableView.contentHeight > purchaseReportTableView.height
     }
 
-    delegate: QQModels.DelegateChooser {
-        QQModels.DelegateChoice {
-            column: PurchaseReportTableView.RowIdColumn
-            delegate: FluidControls.SubheadingLabel {
-                horizontalAlignment: Qt.AlignRight
-                verticalAlignment: Qt.AlignVCenter
-                text: row + 1
-            }
-        }
+    delegate: DelegateChooser {
+        DelegateChoice {
+            column: RRModels.PurchaseReportModel.CategoryColumn
+            delegate: RRUi.TableDelegate {
+                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.CategoryColumn].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
 
-        QQModels.DelegateChoice {
-            column: PurchaseReportTableView.CategoryColumn
-            delegate: FluidControls.SubheadingLabel {
-                horizontalAlignment: Qt.AlignLeft
-                verticalAlignment: Qt.AlignVCenter
-                text: category
-            }
-        }
+                FluidControls.SubheadingLabel {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
 
-        QQModels.DelegateChoice {
-            column: PurchaseReportTableView.ItemColumn
-            delegate: FluidControls.SubheadingLabel {
-                horizontalAlignment: Qt.AlignLeft
-                verticalAlignment: Qt.AlignVCenter
-                text: item
-            }
-        }
-
-        QQModels.DelegateChoice {
-            column: PurchaseReportTableView.QuantityBoughtColumn
-            delegate: FluidControls.SubheadingLabel {
-                horizontalAlignment: Qt.AlignRight
-                verticalAlignment: Qt.AlignVCenter
-                text: quantity_bought + " " + unit
-            }
-        }
-
-        QQModels.DelegateChoice {
-            column: PurchaseReportTableView.TotalAmountColumn
-            delegate: FluidControls.SubheadingLabel {
-                horizontalAlignment: Qt.AlignRight
-                verticalAlignment: Qt.AlignVCenter
-                text: Number(total_amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-            }
-        }
-
-        QQModels.DelegateChoice {
-            column: PurchaseReportTableView.ActionColumn
-            delegate: Loader {
-                readonly property var modelData: {
-                    "client_id": model.client_id,
-                    "transaction_id": model.transaction_id
+                    elide: Text.ElideRight
+                    horizontalAlignment: Qt.AlignLeft
+                    verticalAlignment: Qt.AlignVCenter
+                    text: category
                 }
+            }
+        }
 
-                sourceComponent: purchaseReportTableView.buttonRow
+        DelegateChoice {
+            column: RRModels.PurchaseReportModel.ItemColumn
+            delegate: RRUi.TableDelegate {
+                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.ItemColumn].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+
+                FluidControls.SubheadingLabel {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    elide: Text.ElideRight
+                    horizontalAlignment: Qt.AlignLeft
+                    verticalAlignment: Qt.AlignVCenter
+                    text: item
+                }
+            }
+        }
+
+        DelegateChoice {
+            column: RRModels.PurchaseReportModel.QuantityBoughtColumn
+            delegate: RRUi.TableDelegate {
+                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.QuantityBoughtColumn].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+
+                FluidControls.SubheadingLabel {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    elide: Text.ElideRight
+                    horizontalAlignment: Qt.AlignRight
+                    verticalAlignment: Qt.AlignVCenter
+                    text: quantity_bought + " " + unit
+                }
+            }
+        }
+
+        DelegateChoice {
+            column: RRModels.PurchaseReportModel.TotalAmountColumn
+            delegate: RRUi.TableDelegate {
+                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.TotalAmountColumn].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+
+                FluidControls.SubheadingLabel {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    elide: Text.ElideRight
+                    horizontalAlignment: Qt.AlignRight
+                    verticalAlignment: Qt.AlignVCenter
+                    text: Number(total_amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
+                }
+            }
+        }
+
+        DelegateChoice {
+            column: RRModels.PurchaseReportModel.ActionColumn
+            delegate: RRUi.TableDelegate {
+                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.ActionColumn].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+
+                Loader {
+                    readonly property var modelData: {
+                        "client_id": model.client_id,
+                        "transaction_id": model.transaction_id
+                    }
+
+                    anchors.centerIn: parent
+                    sourceComponent: purchaseReportTableView.buttonRow
+                }
             }
         }
     }

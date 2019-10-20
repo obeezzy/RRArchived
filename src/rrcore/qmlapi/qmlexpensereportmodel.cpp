@@ -1,8 +1,6 @@
 #include "qmlexpensereportmodel.h"
 #include "database/databasethread.h"
 
-const int COLUMN_COUNT = 4;
-
 QMLExpenseReportModel::QMLExpenseReportModel(QObject *parent) :
     QMLExpenseReportModel(DatabaseThread::instance(), parent)
 {}
@@ -26,7 +24,7 @@ int QMLExpenseReportModel::columnCount(const QModelIndex &index) const
     if (index.isValid())
         return 0;
 
-    return COLUMN_COUNT;
+    return ColumnCount;
 }
 
 QVariant QMLExpenseReportModel::data(const QModelIndex &index, int role) const
@@ -50,6 +48,42 @@ QHash<int, QByteArray> QMLExpenseReportModel::roleNames() const
         { PurposeRole, "purpose" },
         { AmountRole, "amount" }
     };
+}
+
+QVariant QMLExpenseReportModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case PurposeColumn:
+                return tr("Purpose");
+            case AmountColumn:
+                return tr("Amount");
+            case ActionColumn:
+                return tr("Action");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case PurposeColumn:
+                return Qt::AlignLeft;
+            case AmountColumn:
+                return Qt::AlignRight;
+            case ActionColumn:
+                return Qt::AlignHCenter;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case PurposeColumn:
+                return 500;
+            case AmountColumn:
+                return 200;
+            case ActionColumn:
+                return 220;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 void QMLExpenseReportModel::tryQuery()

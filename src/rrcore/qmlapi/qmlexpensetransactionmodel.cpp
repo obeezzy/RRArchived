@@ -1,18 +1,18 @@
-#include "qmlincometransactionmodel.h"
+#include "qmlexpensetransactionmodel.h"
 
-QMLIncomeTransactionModel::QMLIncomeTransactionModel(QObject *parent) :
+QMLExpenseTransactionModel::QMLExpenseTransactionModel(QObject *parent) :
     AbstractTransactionModel (parent)
 {
 
 }
 
-QMLIncomeTransactionModel::QMLIncomeTransactionModel(DatabaseThread &thread) :
+QMLExpenseTransactionModel::QMLExpenseTransactionModel(DatabaseThread &thread) :
     AbstractTransactionModel (thread)
 {
 
 }
 
-int QMLIncomeTransactionModel::rowCount(const QModelIndex &parent) const
+int QMLExpenseTransactionModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -20,7 +20,7 @@ int QMLIncomeTransactionModel::rowCount(const QModelIndex &parent) const
     return m_records.count();
 }
 
-int QMLIncomeTransactionModel::columnCount(const QModelIndex &parent) const
+int QMLExpenseTransactionModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -28,7 +28,7 @@ int QMLIncomeTransactionModel::columnCount(const QModelIndex &parent) const
     return ColumnCount;
 }
 
-QVariant QMLIncomeTransactionModel::data(const QModelIndex &index, int role) const
+QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) const
 {
     Q_UNUSED(role)
     if (!index.isValid())
@@ -46,7 +46,7 @@ QVariant QMLIncomeTransactionModel::data(const QModelIndex &index, int role) con
     return QVariant();
 }
 
-QHash<int, QByteArray> QMLIncomeTransactionModel::roleNames() const
+QHash<int, QByteArray> QMLExpenseTransactionModel::roleNames() const
 {
     return {
         { TransactionIdRole, "transaction_id" },
@@ -55,7 +55,7 @@ QHash<int, QByteArray> QMLIncomeTransactionModel::roleNames() const
     };
 }
 
-QVariant QMLIncomeTransactionModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QMLExpenseTransactionModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
@@ -97,16 +97,16 @@ QVariant QMLIncomeTransactionModel::headerData(int section, Qt::Orientation orie
     return section + 1;
 }
 
-void QMLIncomeTransactionModel::tryQuery()
+void QMLExpenseTransactionModel::tryQuery()
 {
     setBusy(true);
 
     QueryRequest request(this);
-    request.setCommand("view_income_transactions", { { "archived", false } }, QueryRequest::Income);
+    request.setCommand("view_expense_transactions", { { "archived", false } }, QueryRequest::Expense);
     emit executeRequest(request);
 }
 
-void QMLIncomeTransactionModel::processResult(const QueryResult result)
+void QMLExpenseTransactionModel::processResult(const QueryResult result)
 {
     if (this != result.request().receiver())
         return;

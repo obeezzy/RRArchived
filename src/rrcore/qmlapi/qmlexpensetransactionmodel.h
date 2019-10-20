@@ -1,9 +1,9 @@
-#ifndef QMLINCOMETRANSACTIONMODEL_H
-#define QMLINCOMETRANSACTIONMODEL_H
+#ifndef QMLEXPENSETRANSACTIONMODEL_H
+#define QMLEXPENSETRANSACTIONMODEL_H
 
 #include "models/abstracttransactionmodel.h"
 
-class QMLIncomeTransactionModel : public AbstractTransactionModel
+class QMLExpenseTransactionModel : public AbstractTransactionModel
 {
     Q_OBJECT
 public:
@@ -15,7 +15,7 @@ public:
     };
 
     enum SuccessCode {
-        ViewIncomeTransactionsSuccess
+        ViewExpenseTransactionsSuccess
     }; Q_ENUM(SuccessCode)
 
     enum Columns {
@@ -26,8 +26,8 @@ public:
         ColumnCount
     }; Q_ENUM(Columns)
 
-    explicit QMLIncomeTransactionModel(QObject *parent = nullptr);
-    explicit QMLIncomeTransactionModel(DatabaseThread &thread);
+    explicit QMLExpenseTransactionModel(QObject *parent = nullptr);
+    explicit QMLExpenseTransactionModel(DatabaseThread &thread);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -41,4 +41,4 @@ private:
     QVariantList m_records;
 };
 
-#endif // QMLINCOMETRANSACTIONMODEL_H
+#endif // QMLEXPENSETRANSACTIONMODEL_H

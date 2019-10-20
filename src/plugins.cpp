@@ -41,6 +41,7 @@
 #include "rrcore/qmlapi/qmlpurchasereportmodel.h"
 #include "rrcore/qmlapi/qmlincomereportmodel.h"
 #include "rrcore/qmlapi/qmlexpensereportmodel.h"
+#include "rrcore/qmlapi/qmlexpensetransactionmodel.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -92,6 +93,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLPurchaseReportModel>("com.gecko.rr.models", 1, 0, "PurchaseReportModel");
     qmlRegisterType<QMLIncomeReportModel>("com.gecko.rr.models", 1, 0, "IncomeReportModel");
     qmlRegisterType<QMLExpenseReportModel>("com.gecko.rr.models", 1, 0, "ExpenseReportModel");
+    qmlRegisterType<QMLExpenseTransactionModel>("com.gecko.rr.models", 1, 0, "ExpenseTransactionModel");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");
