@@ -13,7 +13,7 @@ Loader {
     y: (parent.height - height) / 2
 
     sourceComponent: FluidControls.AlertDialog {
-        parent: failureAlertDialogLoader.parent
+        parent: MainWindow.contentItem
         text: failureAlertDialogLoader.title
         standardButtons: QQC2.Dialog.Ok
         closePolicy: QQC2.Popup.CloseOnEscape

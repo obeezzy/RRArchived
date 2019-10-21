@@ -13,6 +13,7 @@ class QMLStockCategoryItemModel : public AbstractVisualListModel
 {
     Q_OBJECT
     Q_PROPERTY(int totalItems READ totalItems NOTIFY totalItemsChanged)
+    Q_PROPERTY(qreal tableViewWidth READ tableViewWidth WRITE setTableViewWidth NOTIFY tableViewWidthChanged)
 public:
     explicit QMLStockCategoryItemModel(QObject *parent = nullptr);
     explicit QMLStockCategoryItemModel(DatabaseThread &thread, QObject *parent = nullptr);
@@ -40,11 +41,15 @@ public:
 
     int totalItems() const;
 
+    qreal tableViewWidth() const;
+    void setTableViewWidth(qreal tableViewWidth);
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 signals:
     void totalItemsChanged();
+    void tableViewWidthChanged();
 protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
@@ -57,6 +62,7 @@ private:
     QVariantList m_itemGroups;
     QHash<int, QString> m_categoryIdToCategoryHash;
     int m_totalItems;
+    qreal m_tableViewWidth;
 
     void setTotalItems(int totalItems);
     void removeItemFromModel(int categoryId, int itemId);

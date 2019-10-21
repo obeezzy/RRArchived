@@ -120,11 +120,11 @@ QVariant StockItemModel::headerData(int section, Qt::Orientation orientation, in
             case ImageColumn:
                 return 30;
             case ItemColumn:
-                return 280;
+                return qMax(280.0, tableViewWidth() - 30 - 120 - 120 - 130 - 40);
             case QuantityColumn:
-                return 140;
+                return 120;
             case CostPriceColumn:
-                return 140;
+                return 120;
             case ActionColumn:
                 return 130;
             }

@@ -161,7 +161,7 @@ RRUi.Page {
     }
 
     Connections {
-        target: homePage.RRUi.ApplicationWindow.window.snackBar !== undefined ? homePage.RRUi.ApplicationWindow.window.snackBar : null
+        target: MainWindow.snackBar !== undefined ? MainWindow.snackBar : null
         onClicked: categoryListView.undoLastCommit();
     }
 

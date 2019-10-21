@@ -12,13 +12,31 @@ QMLStockCategoryItemModel::QMLStockCategoryItemModel(QObject *parent) :
 
 QMLStockCategoryItemModel::QMLStockCategoryItemModel(DatabaseThread &thread, QObject *parent) :
     AbstractVisualListModel(thread, parent),
-    m_totalItems(0)
+    m_totalItems(0),
+    m_tableViewWidth(0.0)
 {
 }
 
 int QMLStockCategoryItemModel::totalItems() const
 {
     return m_totalItems;
+}
+
+qreal QMLStockCategoryItemModel::tableViewWidth() const
+{
+    return m_tableViewWidth;
+}
+
+void QMLStockCategoryItemModel::setTableViewWidth(qreal tableViewWidth)
+{
+    if (m_tableViewWidth == tableViewWidth)
+        return;
+
+    m_tableViewWidth = tableViewWidth;
+    for (auto model : m_stockItemModels)
+        model->setTableViewWidth(m_tableViewWidth);
+
+    emit tableViewWidthChanged();
 }
 
 int QMLStockCategoryItemModel::rowCount(const QModelIndex &parent) const
@@ -93,6 +111,7 @@ void QMLStockCategoryItemModel::processResult(const QueryResult result)
 
                 StockItemModel *model = new StockItemModel(this);
                 if (!items.isEmpty()) {
+                    model->setTableViewWidth(m_tableViewWidth);
                     model->setCategory(items.first().toMap().value("category").toString());
                     model->setCategoryId(items.first().toMap().value("category_id").toInt());
                     m_categoryIdToCategoryHash.insert(model->categoryId(), model->category());
