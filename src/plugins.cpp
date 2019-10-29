@@ -7,7 +7,6 @@
 #include "rrcore/qmlapi/qmldatabasecreator.h"
 
 #include "rrcore/qmlapi/qmldashboardhomemodel.h"
-#include "rrcore/qmlapi/qmlstockcategoryitemmodel.h"
 #include "rrcore/qmlapi/qmlstockitempusher.h"
 #include "rrcore/qmlapi/qmlsalecartmodel.h"
 #include "rrcore/qmlapi/qmlsaletransactionmodel.h"
@@ -42,8 +41,8 @@
 #include "rrcore/qmlapi/qmlincomereportmodel.h"
 #include "rrcore/qmlapi/qmlexpensereportmodel.h"
 #include "rrcore/qmlapi/qmlexpensetransactionmodel.h"
-
-#include "rrcore/models/stockitemmodel.h"
+#include "rrcore/qmlapi/qmlstockitemmodel.h"
+#include "rrcore/qmlapi/qmlstockitemcountrecord.h"
 
 #include "rrcore/widgets/dialogs.h"
 
@@ -65,7 +64,6 @@ void Plugins::registerTypes()
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");
-    qmlRegisterType<QMLStockCategoryItemModel>("com.gecko.rr.models", 1, 0, "StockCategoryItemModel");
     qmlRegisterType<QMLStockItemPusher>("com.gecko.rr.models", 1, 0, "StockItemPusher");
     qmlRegisterType<QMLSaleCartModel>("com.gecko.rr.models", 1, 0, "SaleCartModel");
     qmlRegisterType<QMLSaleTransactionModel>("com.gecko.rr.models", 1, 0, "SaleTransactionModel");
@@ -96,9 +94,8 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLIncomeReportModel>("com.gecko.rr.models", 1, 0, "IncomeReportModel");
     qmlRegisterType<QMLExpenseReportModel>("com.gecko.rr.models", 1, 0, "ExpenseReportModel");
     qmlRegisterType<QMLExpenseTransactionModel>("com.gecko.rr.models", 1, 0, "ExpenseTransactionModel");
-
-    // Uncreatable models
-    qmlRegisterUncreatableType<StockItemModel>("com.gecko.rr.models", 1, 0, "StockItemModel", "This class is only exposed for enums.");
+    qmlRegisterType<QMLStockItemModel>("com.gecko.rr.models", 1, 0, "StockItemModel");
+    qmlRegisterType<QMLStockItemCountRecord>("com.gecko.rr.models", 1, 0, "StockItemCountRecord");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

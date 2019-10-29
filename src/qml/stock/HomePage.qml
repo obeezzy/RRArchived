@@ -31,8 +31,14 @@ RRUi.Page {
 
         property int filterIndex: 0
         property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
+        property var filterModel: ["Filter by item", "Filter by category"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
+    }
+
+    RRModels.StockItemCountRecord {
+        id: stockItemCountRecord
+        filterText: categoryListView.filterText
+        filterColumn: categoryListView.filterColumn
     }
 
     RRUi.Card {
@@ -87,7 +93,7 @@ RRUi.Page {
                 margins: 8
             }
             //visible: searchBar.text.trim() != ""
-            text: qsTr("%1 result%2 found.").arg(categoryListView.model.totalItems).arg(categoryListView.model.totalItems === 1 ? "" : "s")
+            text: qsTr("%1 result%2 found.").arg(stockItemCountRecord.itemCount).arg(stockItemCountRecord.itemCount === 1 ? "" : "s")
             font.bold: true
         }
 
@@ -102,7 +108,8 @@ RRUi.Page {
             }
 
             filterText: searchBar.text
-            filterColumn: RRModels.StockCategoryItemModel.ItemColumn
+            filterColumn: RRModels.StockItemModel.ItemColumn
+            sortColumn: RRModels.StockItemModel.ItemColumn
             bottomMargin: 100
             clip: true
 
@@ -131,17 +138,17 @@ RRUi.Page {
                     height: width
                     icon.source: FluidControls.Utils.iconUrl("action/delete")
                     text: qsTr("Delete item")
-                    onClicked: categoryListView.model.removeItem(modelData.item_id);
+                    onClicked: modelData.itemTableView.removeItem(modelData.row);
                 }
             }
 
             onSuccess: {
                 switch (successCode) {
-                case RRModels.StockCategoryItemModel.RemoveItemSuccess:
-                    homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
+                case RRModels.StockItemModel.RemoveItemSuccess:
+                    MainWindow.snackBar.show(qsTr("Item removed successfully."), qsTr("Undo"));
                     break;
-                case RRModels.StockCategoryItemModel.UndoRemoveItemSuccess:
-                    homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful."));
+                case RRModels.StockItemModel.UndoRemoveItemSuccess:
+                    MainWindow.snackBar.show(qsTr("Undo successful."));
                     break;
                 }
             }
@@ -161,13 +168,13 @@ RRUi.Page {
     }
 
     Connections {
-        target: MainWindow.snackBar !== undefined ? MainWindow.snackBar : null
+        target: MainWindow.snackBar
         onClicked: categoryListView.undoLastCommit();
     }
 
     QQC2.BusyIndicator {
         anchors.centerIn: parent
-        visible: categoryListView.model.busy
+        visible: categoryListView.busy
     }
 
     ItemDetailPopup {

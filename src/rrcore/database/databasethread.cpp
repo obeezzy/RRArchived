@@ -34,7 +34,7 @@ Worker::~Worker()
 
 void Worker::execute(const QueryRequest request)
 {
-    qCInfo(databaseThread) << "Worker->" << request << ", receiver=" << request.receiver();
+    qCInfo(databaseThread) << "Worker->" << request; //<< ", receiver=" << request.receiver();
     QueryResult result;
 
     QElapsedTimer timer;

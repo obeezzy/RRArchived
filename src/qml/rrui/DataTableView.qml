@@ -11,7 +11,6 @@ TableView {
 
     readonly property Row columnHeader: columnHeader
     readonly property Column rowHeader: rowHeader
-    property real rowHeight: 32
     property color headerColor: Material.backgroundColor
     property color headerTextColor: Material.foreground
 
@@ -32,13 +31,14 @@ TableView {
         y: dataTableView.contentY
         z: 2
         spacing: dataTableView.columnSpacing
+        visible: dataTableView.rows > 0
 
         Repeater {
             model: dataTableView.columns > 0 ? dataTableView.columns : 1
 
             RRUi.TableDelegate {
                 implicitWidth: dataTableView.columnWidthProvider ? dataTableView.columnWidthProvider(modelData) : columnLabel.implicitWidth
-                implicitHeight: 40
+                implicitHeight: dataTableView.rows > 1 ? rowHeader.height / dataTableView.rows : 44
 
                 FluidControls.SubheadingLabel {
                     id: columnLabel
@@ -63,12 +63,13 @@ TableView {
         x: dataTableView.contentX
         z: 2
         spacing: dataTableView.rowSpacing
+        visible: dataTableView.rows > 0
 
         Repeater {
             model: dataTableView.rows > 0 ? dataTableView.rows : 1
 
             RRUi.TableDelegate {
-                implicitWidth: dataTableView.rowHeight
+                implicitWidth: 32
                 implicitHeight: dataTableView.rowHeightProvider ? dataTableView.rowHeightProvider(modelData) : rowLabel.implicitHeight
 
                 FluidControls.SubheadingLabel {
@@ -91,6 +92,7 @@ TableView {
         y: dataTableView.contentY
         width: parent.width + dataTableView.leftMargin
         height: columnHeader.height
+        visible: dataTableView.rows > 0
 
         Rectangle {
             anchors {
@@ -110,6 +112,7 @@ TableView {
         spacing: dataTableView.rowSpacing
         interactive: false
         clip: true
+        visible: dataTableView.rows > 0
 
         model: dataTableView.rows >= 0 ? dataTableView.rows : 0
 

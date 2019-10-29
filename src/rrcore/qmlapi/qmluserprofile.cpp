@@ -120,7 +120,6 @@ bool QMLUserProfile::hasPrivilege(const QString &privilege)
 
 void QMLUserProfile::processResult(const QueryResult &result)
 {
-    qDebug() << "Returned result!" << result;
     if (this != result.request().receiver())
         return;
 
@@ -139,8 +138,7 @@ void QMLUserProfile::processResult(const QueryResult &result)
         } else if (!result.outcome().toMap().isEmpty()) {
             UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
                                             result.outcome().toMap().value("user_name").toString(),
-                                            result.outcome().toMap().value("user_privileges")
-                                            );
+                                            result.outcome().toMap().value("user_privileges"));
 
             emit success(UnknownSuccess);
         }

@@ -20,7 +20,9 @@ class AbstractVisualTableModel : public QAbstractTableModel, public QQmlParserSt
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
     Q_PROPERTY(QString filterText READ filterText WRITE setFilterText NOTIFY filterTextChanged)
     Q_PROPERTY(int filterColumn READ filterColumn WRITE setFilterColumn NOTIFY filterColumnChanged)
-    Q_PROPERTY(qreal tableViewWidth READ tableViewWidth WRITE setTableViewWidth NOTIFY tableViewWidthChanged)
+    Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder NOTIFY sortOrderChanged)
+    Q_PROPERTY(int sortColumn READ sortColumn WRITE setSortColumn NOTIFY sortColumnChanged)
+    Q_PROPERTY(qreal tableViewWidth READ tableViewWidth WRITE setTableViewWidth) // NOTE: Can only be set once!
 public:
     explicit AbstractVisualTableModel(QObject *parent = nullptr);
     explicit AbstractVisualTableModel(DatabaseThread &thread, QObject *parent = nullptr);
@@ -37,6 +39,12 @@ public:
     int filterColumn() const;
     void setFilterColumn(int filterColumn);
 
+    Qt::SortOrder sortOrder() const;
+    void setSortOrder(Qt::SortOrder sortOrder);
+
+    int sortColumn() const;
+    void setSortColumn(int sortColumn);
+
     qreal tableViewWidth() const;
     void setTableViewWidth(qreal tableViewWidth);
 
@@ -50,6 +58,7 @@ public slots:
 protected:
     virtual void tryQuery() = 0;
     virtual void processResult(const QueryResult result) = 0;
+    virtual QString columnName(int column) const;
     virtual void filter();
     void setBusy(bool);
 
@@ -63,6 +72,9 @@ signals:
     void filterTextChanged();
     void filterColumnChanged();
 
+    void sortOrderChanged();
+    void sortColumnChanged();
+
     void tableViewWidthChanged();
 
     void success(int successCode = -1);
@@ -72,6 +84,8 @@ private:
     bool m_busy;
     QString m_filterText;
     int m_filterColumn;
+    Qt::SortOrder m_sortOrder;
+    int m_sortColumn;
     QueryRequest m_lastRequest;
     qreal m_tableViewWidth;
 

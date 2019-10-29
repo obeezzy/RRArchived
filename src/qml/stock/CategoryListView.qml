@@ -10,27 +10,49 @@ import com.gecko.rr.models 1.0 as RRModels
 ListView {
     id: categoryListView
 
+    enum FilterColumn {
+        Category,
+        Item
+    }
+
     property Component buttonRow: null
     property string filterText: ""
     property int filterColumn: -1
+    property int sortColumn: -1
+    property alias busy: stockCategoryModel.busy
 
     signal success(int successCode)
     signal error(int errorCode)
 
     function refresh() { categoryListView.model.refresh(); }
-    function undoLastCommit() { categoryListView.model.undoLastCommit(); }
+    function undoLastCommit() { stockCategoryModel.unarchiveItem(privateProperties.lastRemovedItemId); }
+
+    QtObject {
+        id: privateProperties
+
+        property int lastRemovedItemId: -1
+    }
 
     topMargin: 20
     bottomMargin: 20
     clip: true
     visible: !model.busy
 
-    model: RRModels.StockCategoryItemModel {
-        tableViewWidth: categoryListView.width
-        filterText: categoryListView.filterText
-        filterColumn: categoryListView.filterColumn
-        onSuccess: categoryListView.success(successCode);
-        onError: categoryListView.error(errorCode);
+    model: RRModels.StockCategoryModel {
+        id: stockCategoryModel
+        filterText: categoryListView.filterColumn === -1 ? categoryListView.filterText : ""
+        itemFilterText: categoryListView.filterColumn === RRModels.StockItemModel.ItemColumn ? categoryListView.filterText : ""
+        onSuccess: {
+            switch (successCode) {
+            case RRModels.StockCategoryModel.RemoveStockCategorySuccess:
+                categoryListView.success(RRModels.StockItemModel.RemoveStockItemSuccess);
+                break;
+            case RRModels.StockCategoryModel.UnarchiveItemSuccess:
+                privateProperties.lastRemovedItemId = -1;
+                categoryListView.success(RRModels.StockItemModel.UndoRemoveStockItemSuccess);
+                break;
+            }
+        }
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
@@ -39,9 +61,18 @@ ListView {
     }
 
     delegate: RRUi.Card {
+        id: categoryCard
+
+        readonly property int row: index
+
         width: ListView.view.width
         height: column.height
         Material.elevation: 0
+
+        Connections {
+            target: stockCategoryModel
+            onDataChanged: if (topLeft.row === categoryCard.row) itemTableView.refresh();
+        }
 
         Column {
             id: column
@@ -52,7 +83,7 @@ ListView {
             }
 
             Item {
-                visible: index !== 0
+                visible: categoryCard.row !== 0
                 width: 1
                 height: 24
             }
@@ -63,32 +94,49 @@ ListView {
             }
 
             ItemTableView {
+                id: itemTableView
                 anchors {
                     left: parent.left
                     right: parent.right
                     topMargin: 20
                     bottomMargin: 20
                 }
-                model: item_model
+
+                categoryId: category_id
+                filterText: categoryListView.filterText
+                filterColumn: categoryListView.filterColumn
+                sortColumn: categoryListView.sortColumn
+                buttonRow: categoryListView.buttonRow
+                onItemRemoved: privateProperties.lastRemovedItemId = itemId;
+                onSuccess: {
+                    switch (successCode) {
+                    case RRModels.StockItemModel.RemoveItemSuccess:
+                        if (itemTableView.rows === 1)
+                            stockCategoryModel.removeCategory(categoryCard.row);
+                    }
+
+                    categoryListView.success(successCode);
+                }
+                onError: categoryListView.error(errorCode);
             }
         }
     }
 
-    add: Transition {
-        NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
-        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
-    }
+//    add: Transition {
+//        NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
+//        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+//    }
 
-    displaced: Transition {
-        SequentialAnimation {
-            PauseAnimation { duration: 125 }
-            NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
-        }
-    }
-    remove: Transition {
-        SequentialAnimation {
-            PauseAnimation { duration: 125 }
-            NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
-        }
-    }
+//    displaced: Transition {
+//        SequentialAnimation {
+//            PauseAnimation { duration: 125 }
+//            NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
+//        }
+//    }
+//    remove: Transition {
+//        SequentialAnimation {
+//            PauseAnimation { duration: 125 }
+//            NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
+//        }
+//    }
 }

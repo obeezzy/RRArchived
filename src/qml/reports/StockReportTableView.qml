@@ -37,8 +37,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.CategoryColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.CategoryColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -57,8 +57,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.ItemColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.ItemColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -77,8 +77,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.OpeningStockQuantityColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.OpeningStockQuantityColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -97,8 +97,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.QuantitySoldColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.QuantitySoldColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -117,8 +117,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.QuantityBoughtColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.QuantityBoughtColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -137,8 +137,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.QuantityInStockColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.QuantityInStockColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -157,8 +157,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockReportModel.ActionColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[RRModels.StockReportModel.ActionColumn].width
-                implicitHeight: stockReportTableView.rowHeader.children[0].height
+                implicitWidth: stockReportTableView.columnHeader.children[column].width
+                implicitHeight: stockReportTableView.rowHeader.children[row].height
 
                 Loader {
                     readonly property var modelData: {

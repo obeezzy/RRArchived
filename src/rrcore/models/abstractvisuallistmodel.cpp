@@ -9,9 +9,9 @@ AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread, QObject
     QAbstractListModel(parent),
     m_autoQuery(true),
     m_busy(false),
-    m_filterText(QString()),
     m_filterColumn(-1),
-    m_lastRequest(QueryRequest())
+    m_sortOrder(Qt::AscendingOrder),
+    m_sortColumn(-1)
 {
     connect(this, &AbstractVisualListModel::executeRequest, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::processResult);
@@ -20,6 +20,8 @@ AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread, QObject
 
     connect(this, &AbstractVisualListModel::filterTextChanged, this, &AbstractVisualListModel::filter);
     connect(this, &AbstractVisualListModel::filterColumnChanged, this, &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::sortOrderChanged, this, &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::sortColumnChanged, this, &AbstractVisualListModel::filter);
 }
 
 AbstractVisualListModel::~AbstractVisualListModel()
@@ -92,6 +94,34 @@ void AbstractVisualListModel::setFilterColumn(int filterColumn)
     emit filterColumnChanged();
 }
 
+Qt::SortOrder AbstractVisualListModel::sortOrder() const
+{
+    return m_sortOrder;
+}
+
+void AbstractVisualListModel::setSortOrder(Qt::SortOrder sortOrder)
+{
+    if (m_sortOrder == sortOrder)
+        return;
+
+    m_sortOrder = sortOrder;
+    emit sortOrderChanged();
+}
+
+int AbstractVisualListModel::sortColumn() const
+{
+    return m_sortColumn;
+}
+
+void AbstractVisualListModel::setSortColumn(int sortColumn)
+{
+    if (m_sortColumn == sortColumn)
+        return;
+
+    m_sortColumn = sortColumn;
+    emit sortColumnChanged();
+}
+
 void AbstractVisualListModel::classBegin()
 {
 
@@ -105,6 +135,7 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
+    qDebug() << m_lastRequest;
     if (!m_lastRequest.command().isEmpty() && m_lastRequest.receiver()) {
         setBusy(true);
         QueryRequest request(m_lastRequest);

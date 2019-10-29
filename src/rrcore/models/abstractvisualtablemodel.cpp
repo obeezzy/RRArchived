@@ -9,9 +9,9 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     QAbstractTableModel(parent),
     m_autoQuery(true),
     m_busy(false),
-    m_filterText(QString()),
     m_filterColumn(-1),
-    m_lastRequest(QueryRequest()),
+    m_sortOrder(Qt::AscendingOrder),
+    m_sortColumn(-1),
     m_tableViewWidth(0.0)
 {
     connect(this, &AbstractVisualTableModel::executeRequest, &thread, &DatabaseThread::execute);
@@ -21,6 +21,8 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
 
     connect(this, &AbstractVisualTableModel::filterTextChanged, this, &AbstractVisualTableModel::filter);
     connect(this, &AbstractVisualTableModel::filterColumnChanged, this, &AbstractVisualTableModel::filter);
+    connect(this, &AbstractVisualTableModel::sortOrderChanged, this, &AbstractVisualTableModel::filter);
+    connect(this, &AbstractVisualTableModel::sortColumnChanged, this, &AbstractVisualTableModel::filter);
 }
 
 AbstractVisualTableModel::~AbstractVisualTableModel()
@@ -93,6 +95,34 @@ void AbstractVisualTableModel::setFilterColumn(int filterColumn)
     emit filterColumnChanged();
 }
 
+Qt::SortOrder AbstractVisualTableModel::sortOrder() const
+{
+    return m_sortOrder;
+}
+
+void AbstractVisualTableModel::setSortOrder(Qt::SortOrder sortOrder)
+{
+    if (m_sortOrder == sortOrder)
+        return;
+
+    m_sortOrder = sortOrder;
+    emit sortOrderChanged();
+}
+
+int AbstractVisualTableModel::sortColumn() const
+{
+    return m_sortColumn;
+}
+
+void AbstractVisualTableModel::setSortColumn(int sortColumn)
+{
+    if (m_sortColumn == sortColumn)
+        return;
+
+    m_sortColumn = sortColumn;
+    emit sortColumnChanged();
+}
+
 qreal AbstractVisualTableModel::tableViewWidth() const
 {
     return m_tableViewWidth;
@@ -100,7 +130,7 @@ qreal AbstractVisualTableModel::tableViewWidth() const
 
 void AbstractVisualTableModel::setTableViewWidth(qreal tableViewWidth)
 {
-    if (m_tableViewWidth == tableViewWidth)
+    if (m_tableViewWidth > 0.0)
         return;
 
     m_tableViewWidth = tableViewWidth;
@@ -177,4 +207,10 @@ QueryRequest AbstractVisualTableModel::lastRequest() const
 void AbstractVisualTableModel::refresh()
 {
     tryQuery();
+}
+
+QString AbstractVisualTableModel::columnName(int column) const
+{
+    Q_UNUSED(column)
+    return QString();
 }

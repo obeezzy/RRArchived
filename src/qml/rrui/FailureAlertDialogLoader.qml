@@ -9,8 +9,8 @@ Loader {
     property string message: ""
 
     active: false
-    x: (parent.width - width) / 2
-    y: (parent.height - height) / 2
+    x: (MainWindow.width - width) / 2
+    y: (MainWindow.height - height) / 2
 
     sourceComponent: FluidControls.AlertDialog {
         parent: MainWindow.contentItem

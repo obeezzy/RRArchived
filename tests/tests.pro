@@ -1,8 +1,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    QMLStockItemModel \
     QMLStockItemPusher \
-    QMLStockCategoryItemModel \
     QMLDebtorModel \
     QMLSaleCartModel \
     QMLUserProfile \
