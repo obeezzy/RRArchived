@@ -31,7 +31,7 @@ RRUi.Page {
 
         property int filterIndex: 0
         property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
+        property var filterModel: ["Filter by item", "Filter by category"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
 
@@ -174,7 +174,7 @@ RRUi.Page {
 
     QQC2.BusyIndicator {
         anchors.centerIn: parent
-        visible: categoryListView.model.busy
+        visible: categoryListView.busy
     }
 
     ItemDetailPopup {

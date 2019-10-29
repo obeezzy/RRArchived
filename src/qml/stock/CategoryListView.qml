@@ -19,15 +19,13 @@ ListView {
     property string filterText: ""
     property int filterColumn: -1
     property int sortColumn: -1
+    property alias busy: stockCategoryModel.busy
 
     signal success(int successCode)
     signal error(int errorCode)
 
     function refresh() { categoryListView.model.refresh(); }
-    function undoLastCommit() {
-        if (privateProperties.lastRemovedItemId > -1)
-            stockCategoryModel.unarchiveItem(privateProperties.lastRemovedItemId);
-    }
+    function undoLastCommit() { stockCategoryModel.unarchiveItem(privateProperties.lastRemovedItemId); }
 
     QtObject {
         id: privateProperties
