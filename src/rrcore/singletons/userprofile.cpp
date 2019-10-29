@@ -22,12 +22,8 @@ void UserProfile::setUser(int userId, const QString &userName, const QVariant &p
 
 UserProfile &UserProfile::instance()
 {
-    if (m_instance == nullptr) {
-        m_instance = new UserProfile;
-        connect(qApp, &QCoreApplication::aboutToQuit, m_instance, &UserProfile::deleteLater);
-    }
-
-    return *m_instance;
+    static UserProfile userProfile;
+    return userProfile;
 }
 
 int UserProfile::userId() const

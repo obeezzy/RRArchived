@@ -92,7 +92,7 @@ RRUi.SubView {
 
     QQC2.BusyIndicator {
         anchors.centerIn: parent
-        visible: stockReportTableView.model.busy
+        visible: stockReportTableView.busy
     }
 
     /********************** ON-DEMAND ITEMS *****************************/

@@ -36,6 +36,7 @@ public:
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
+    QString columnName(int column) const override final;
 private:
     QVariantList m_records;
 }; //Q_DECLARE_METATYPE(ReceiptCartModel);

@@ -172,7 +172,7 @@ RRUi.Page {
                         }
 
                         filterText: searchBar.text
-                        filterColumn: RRModels.StockCategoryItemModel.ItemColumn
+                        filterColumn: RRModels.StockItemModel.ItemColumn
 
                         buttonRow: Row {
                             spacing: 0

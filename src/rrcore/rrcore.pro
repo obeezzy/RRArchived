@@ -12,6 +12,8 @@ INCLUDEPATH += .
 
 SOURCES += \
     qmlapi/qmlexpensetransactionmodel.cpp \
+    qmlapi/qmlstockitemcountrecord.cpp \
+    qmlapi/qmlstockitemmodel.cpp \
     qmlapi/qmluserprofile.cpp \
     sqlmanager/usersqlmanager.cpp \
     sqlmanager/abstractsqlmanager.cpp \
@@ -29,7 +31,6 @@ SOURCES += \
     sqlmanager/stocksqlmanager.cpp \
     singletons/userprofile.cpp \
     database/databaseutils.cpp \
-    models/stockitemmodel.cpp \
     models/abstractvisuallistmodel.cpp \
     pusher/abstractpusher.cpp \
     qmlapi/qmlsalecartmodel.cpp \
@@ -37,7 +38,6 @@ SOURCES += \
     qmlapi/qmlsaletransactionmodel.cpp \
     qmlapi/qmldoublevalidator.cpp \
     qmlapi/qmlsaletransactionitemmodel.cpp \
-    qmlapi/qmlstockcategoryitemmodel.cpp \
     qmlapi/qmlstockcategorymodel.cpp \
     qmlapi/qmldebtormodel.cpp \
     sqlmanager/debtorsqlmanager.cpp \
@@ -93,6 +93,8 @@ SOURCES += \
 
 HEADERS += \
     qmlapi/qmlexpensetransactionmodel.h \
+    qmlapi/qmlstockitemcountrecord.h \
+    qmlapi/qmlstockitemmodel.h \
     qmlapi/qmluserprofile.h \
     sqlmanager/usersqlmanager.h \
     sqlmanager/abstractsqlmanager.h \
@@ -110,7 +112,6 @@ HEADERS += \
     sqlmanager/stocksqlmanager.h \
     singletons/userprofile.h \
     database/databaseutils.h \
-    models/stockitemmodel.h \
     models/abstractvisuallistmodel.h \
     pusher/abstractpusher.h \
     qmlapi/qmlsalecartmodel.h \
@@ -118,7 +119,6 @@ HEADERS += \
     qmlapi/qmlsaletransactionmodel.h \
     qmlapi/qmldoublevalidator.h \
     qmlapi/qmlsaletransactionitemmodel.h \
-    qmlapi/qmlstockcategoryitemmodel.h \
     qmlapi/qmlstockcategorymodel.h \
     qmlapi/qmldebtormodel.h \
     sqlmanager/debtorsqlmanager.h \

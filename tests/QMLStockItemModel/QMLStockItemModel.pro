@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-04-09T22:43:00
+# Project created by QtCreator 2018-07-06T04:46:31
 #
 #-------------------------------------------------
 
@@ -8,7 +8,7 @@ QT       += core qml quick quickcontrols2 widgets sql testlib
 
 QT       -= gui
 
-TARGET = tst_qmlstockcategoryitemmodeltest
+TARGET = tst_qmlstockitemmodeltest
 CONFIG   += console testcase
 CONFIG   -= app_bundle
 
@@ -32,7 +32,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        tst_qmlstockcategoryitemmodeltest.cpp 
+        tst_qmlstockitemmodeltest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

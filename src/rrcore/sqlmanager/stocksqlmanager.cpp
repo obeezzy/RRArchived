@@ -27,6 +27,8 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
     try {
         if (request.command() == "add_new_stock_item")
             addNewStockItem(request);
+        else if (request.command() == "move_item_to_stock_category")
+            moveItemToStockCategory(request);
         else if (request.command() == "update_stock_item")
             updateStockItem(request);
         else if (request.command() == "view_stock_items")
@@ -36,11 +38,21 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_stock_categories")
             viewStockCategories(request, result);
         else if (request.command() == "remove_stock_item")
-            removeStockItem(request, result);
+            removeStockItem(request);
         else if (request.command() == "undo_remove_stock_item")
             undoRemoveStockItem(request, result);
         else if (request.command() == "view_stock_report")
             viewStockReport(request, result);
+        else if (request.command() == "view_stock_item_count")
+            viewStockItemCount(request, result);
+        else if (request.command() == "filter_stock_items")
+            filterStockItems(request, result);
+        else if (request.command() == "filter_stock_item_count")
+            filterStockItemCount(request, result);
+        else if (request.command() == "filter_stock_categories")
+            filterStockCategories(request, result);
+        else if (request.command() == "filter_stock_categories_by_item")
+            filterStockCategoriesByItem(request, result);
         else
             throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
@@ -314,6 +326,29 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
     }
 }
 
+void StockSqlManager::moveItemToStockCategory(const QueryRequest &request)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        callProcedure("MoveItemToStockCategory", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "category_id",
+                              params.value("category_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item_id",
+                              params.value("item_id")
+                          }
+                      });
+
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
+
 void StockSqlManager::updateStockItem(const QueryRequest &request)
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
@@ -487,82 +522,77 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
     const QVariantMap &params = request.params();
 
     try {
-        const QList<QSqlRecord> records(callProcedure("ViewStockItems", {
+        const QList<QSqlRecord> &records(callProcedure("ViewStockItems", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "category_id",
+                                                               params.value("category_id")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order").toInt() == Qt::DescendingOrder
+                                                               ? "descending" : "ascending"
+                                                           }
+                                                       }));
+
+        QVariantList items;
+        for (const auto &record : records) {
+            QVariantMap itemRecord;
+            itemRecord.insert("item_id", record.value("item_id"));
+            itemRecord.insert("category_id", record.value("category_id").toInt());
+            itemRecord.insert("category", record.value("category").toString());
+            itemRecord.insert("item", record.value("item"));
+            itemRecord.insert("description", record.value("description"));
+            itemRecord.insert("divisible", record.value("divisible"));
+            itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+            itemRecord.insert("quantity", record.value("quantity"));
+            itemRecord.insert("unit", record.value("unit"));
+            itemRecord.insert("unit_id", record.value("unit_id"));
+            itemRecord.insert("cost_price", record.value("cost_price"));
+            itemRecord.insert("retail_price", record.value("retail_price"));
+            itemRecord.insert("currency", record.value("currency"));
+            itemRecord.insert("created", record.value("created"));
+            itemRecord.insert("last_edited", record.value("last_edited"));
+            itemRecord.insert("user", record.value("user"));
+
+            items.append(itemRecord);
+        }
+
+        result.setOutcome(QVariantMap {
+                              { "items", items },
+                              { "record_count", items.count() }
+                          });
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
+
+void StockSqlManager::viewStockItemCount(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> records(callProcedure("ViewStockItemCount", {
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
-                                                              "filter_column",
-                                                              params.value("filter_column")
+                                                              "category_id",
+                                                              params.value("category_id")
                                                           },
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
-                                                              "filter_text",
-                                                              params.value("filter_text")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "sort_column",
-                                                              params.value("sort_column", QStringLiteral("category"))
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "sort_order",
-                                                              params.value("sort_order").toInt() == Qt::DescendingOrder
-                                                              ? "descending" : "ascending"
+                                                              "archived",
+                                                              params.value("archived")
                                                           }
                                                       }));
 
-
-        QStringList categories;
-        QVariantList itemGroups;
         int itemCount = 0;
-        for (int i = 0; i < records.count(); ++i) {
-            auto record = records[i];
-            const auto categoryId = record.value("category_id").toInt();
-            const auto &category = record.value("category").toString();
+        if (!records.isEmpty())
+            itemCount = records.first().value("item_count").toInt();
 
-            QVariantList items;
-
-            while ((i < records.count()) && categoryId == record.value("category_id").toInt()) {
-                QVariantMap itemRecord;
-                itemRecord.insert("item_id", record.value("item_id"));
-                itemRecord.insert("category_id", categoryId);
-                itemRecord.insert("category", category);
-                itemRecord.insert("item", record.value("item"));
-                itemRecord.insert("description", record.value("description"));
-                itemRecord.insert("divisible", record.value("divisible"));
-                itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
-                itemRecord.insert("quantity", record.value("quantity"));
-                itemRecord.insert("unit", record.value("unit"));
-                itemRecord.insert("unit_id", record.value("unit_id"));
-                itemRecord.insert("cost_price", record.value("cost_price"));
-                itemRecord.insert("retail_price", record.value("retail_price"));
-                itemRecord.insert("currency", record.value("currency"));
-                itemRecord.insert("created", record.value("created"));
-                itemRecord.insert("last_edited", record.value("last_edited"));
-                itemRecord.insert("user", record.value("user"));
-
-                items.append(itemRecord);
-                itemCount++;
-
-                if ((i + 1) < records.count() && categoryId == records.at(i + 1).value("category_id").toInt())
-                    record = records[++i];
-                else
-                    break;
-            }
-
-            categories.append(category);
-            itemGroups.append(QVariant(items));
-        }
-
-        if (categories.count() != itemGroups.count())
-            throw DatabaseException(DatabaseException::RRErrorCode::ResultMismatch,
-                                    QString("Category count (%1) and item group count (%2) are unequal.")
-                                    .arg(categories.count()).arg(itemGroups.count()));
-
-        result.setOutcome(QVariantMap { { "categories", categories },
-                                        { "item_groups", itemGroups },
-                                        { "record_count", itemCount },
-                                        { "total_items", itemCount }
+        result.setOutcome(QVariantMap {
+                              { "item_count", itemCount },
+                              { "record_count", 1 }
                           });
     } catch (DatabaseException &) {
         throw;
@@ -577,13 +607,13 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryRes
     try {
         enforceArguments({ "item_id" }, params);
 
-        const QList<QSqlRecord> records(callProcedure("ViewStockItemDetails", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "item",
-                                                              params.value("item_id")
-                                                          }
-                                                      }));
+        const QList<QSqlRecord> &records(callProcedure("ViewStockItemDetails", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "item",
+                                                               params.value("item_id")
+                                                           }
+                                                       }));
 
         QVariantMap itemInfo;
         if (!records.isEmpty()) {
@@ -596,7 +626,10 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryRes
                                     QString(),
                                     QString("Item details do not exists for item '%1'.").arg(params.value("item_id").toString()));
 
-        result.setOutcome(QVariantMap { { "item", itemInfo }, { "record_count", 1 } });
+        result.setOutcome(QVariantMap {
+                              { "item", itemInfo },
+                              { "record_count", 1 }
+                          });
     } catch (DatabaseException &) {
         throw;
     }
@@ -607,26 +640,34 @@ void StockSqlManager::viewStockCategories(const QueryRequest &request, QueryResu
     const QVariantMap &params(request.params());
 
     try {
-        QList<QSqlRecord> records(callProcedure("ViewStockCategories", {
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "sort_order",
-                                                        params.value("sort_order")
-                                                    }
-                                                }));
+        const QList<QSqlRecord> &records(callProcedure("ViewStockCategories", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order", "ascending")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "archived",
+                                                               params.value("archived", false)
+                                                           }
+                                                       }));
 
         QVariantList categories;
         for (const auto &record : records) {
             categories.append(recordToMap(record));
         }
 
-        result.setOutcome(QVariantMap { { "categories", categories }, { "record_count", categories.count() } });
+        result.setOutcome(QVariantMap {
+                              { "categories", categories },
+                              { "record_count", categories.count() }
+                          });
     } catch (DatabaseException &) {
         throw;
     }
 }
 
-void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &result)
+void StockSqlManager::removeStockItem(const QueryRequest &request)
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap params = request.params();
@@ -638,32 +679,27 @@ void StockSqlManager::removeStockItem(const QueryRequest &request, QueryResult &
         enforceArguments({ "item_id" }, params);
 
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
+                                    q.lastError().text(),
+                                    "Failed to start transation.");
 
-        const QList<QSqlRecord> records(callProcedure("ArchiveStockItem", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "item_id",
-                                                              params.value("item_id")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "user_id",
-                                                              UserProfile::instance().userId()
-                                                          }
-                                                      }));
-
-        if (records.isEmpty())
-            throw DatabaseException(DatabaseException::RRErrorCode::EmptyResultSet, QString(), "No results returned.");
-
-        QVariantMap outcome;
-        outcome.insert("category_id", records.first().value("category_id"));
-        outcome.insert("item_id", records.first().value("item_id"));
-
-        result.setOutcome(outcome);
+        callProcedure("ArchiveStockItem", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "item_id",
+                              params.value("item_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed,
+                                    q.lastError().text(),
+                                    "Failed to commit.");
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
@@ -684,33 +720,41 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
         enforceArguments({ "item_id" }, params);
 
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
+                                    q.lastError().text(),
+                                    "Failed to start transation.");
 
-        const QList<QSqlRecord> records(callProcedure("UndoArchiveStockItem", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "item_id",
-                                                              params.value("item_id")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "user_id",
-                                                              UserProfile::instance().userId()
-                                                          }
-                                                      }));
+        const QList<QSqlRecord> &records(callProcedure("UndoArchiveStockItem", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "item_id",
+                                                               params.value("item_id")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "user_id",
+                                                               UserProfile::instance().userId()
+                                                           }
+                                                       }));
 
         if (records.isEmpty())
-            throw DatabaseException(DatabaseException::RRErrorCode::EmptyResultSet, QString(), "No results returned.");
+            throw DatabaseException(DatabaseException::RRErrorCode::EmptyResultSet,
+                                    QString(),
+                                    "No results returned.");
 
         QVariantMap outcome;
-        outcome.insert("category_id", records.first().value("category_id"));
-        outcome.insert("item_id", records.first().value("item_id"));
-        outcome.insert("item_info", recordToMap(records.first()));
-
-        result.setOutcome(outcome);
+        result.setOutcome(QVariantMap {
+                              { "category_id", records.first().value("category_id").toInt() },
+                              { "category", records.first().value("category").toString() },
+                              { "item_id", records.first().value("item_id").toInt() },
+                              { "item_info", recordToMap(records.first()) },
+                              { "item_row", params.value("item_row").toInt() }
+                          });
 
         if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed,
+                                    q.lastError().text(),
+                                    "Failed to commit.");
     } catch (DatabaseException &) {
         if (!DatabaseUtils::rollbackTransaction(q))
             qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
@@ -766,51 +810,179 @@ void StockSqlManager::viewStockReport(const QueryRequest &request, QueryResult &
         result.setOutcome(QVariantMap { { "items", items },
                                         { "record_count", items.count() },
                           });
-//        QStringList categories;
-//        QVariantList itemGroups;
-//        int itemCount = 0;
-//        for (int i = 0; i < records.count(); ++i) {
-//            auto record = records[i];
-//            const auto categoryId = record.value("category_id").toInt();
-//            const auto &category = record.value("category").toString();
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
 
-//            QVariantList items;
+void StockSqlManager::filterStockCategories(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params(request.params());
 
-//            while ((i < records.count()) && categoryId == record.value("category_id").toInt()) {
-//                QVariantMap itemRecord;
-//                itemRecord.insert("item_id", record.value("item_id"));
-//                itemRecord.insert("category_id", categoryId);
-//                itemRecord.insert("category", category);
-//                itemRecord.insert("item", record.value("item"));
-//                itemRecord.insert("opening_stock_quantity", record.value("opening_stock_quantity"));
-//                itemRecord.insert("quantity_sold", record.value("quantity_sold"));
-//                itemRecord.insert("quantity_bought", record.value("quantity_bought"));
-//                itemRecord.insert("quantity_in_stock", record.value("quantity_in_stock"));
-//                itemRecord.insert("unit", record.value("unit"));
+    try {
+        const QList<QSqlRecord> &records(callProcedure("FilterStockCategories", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order")
+                                                           }
+                                                       }));
 
-//                items.append(itemRecord);
-//                itemCount++;
+        QVector<int> categoryIds;
+        QVariantList categories;
+        for (const auto &record : records) {
+            if (!categoryIds.contains(record.value("category_id").toInt())) {
+                categories.append(recordToMap(record));
+                categoryIds.append(record.value("category_id").toInt());
+            }
+        }
 
-//                if ((i + 1) < records.count() && categoryId == records.at(i + 1).value("category_id").toInt())
-//                    record = records[++i];
-//                else
-//                    break;
-//            }
+        result.setOutcome(QVariantMap {
+                              { "categories", categories },
+                              { "record_count", categories.count() }
+                          });
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
 
-//            categories.append(category);
-//            itemGroups.append(QVariant(items));
-//        }
+void StockSqlManager::filterStockCategoriesByItem(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params(request.params());
 
-//        if (categories.count() != itemGroups.count())
-//            throw DatabaseException(DatabaseException::RRErrorCode::ResultMismatch,
-//                                    QString("Category count (%1) and item group count (%2) are unequal.")
-//                                    .arg(categories.count()).arg(itemGroups.count()));
+    try {
+        const QList<QSqlRecord> &records(callProcedure("FilterStockCategoriesByItem", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order")
+                                                           }
+                                                       }));
 
-//        result.setOutcome(QVariantMap { { "categories", categories },
-//                                        { "item_groups", itemGroups },
-//                                        { "record_count", itemCount },
-//                                        { "total_items", itemCount }
-//                          });
+        QVector<int> categoryIds;
+        QVariantList categories;
+        for (const auto &record : records) {
+            if (!categoryIds.contains(record.value("category_id").toInt())) {
+                categories.append(recordToMap(record));
+                categoryIds.append(record.value("category_id").toInt());
+            }
+        }
+
+        result.setOutcome(QVariantMap {
+                              { "categories", categories },
+                              { "record_count", categories.count() }
+                          });
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
+
+void StockSqlManager::filterStockItems(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> &records(callProcedure("FilterStockItems", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "category_id",
+                                                               params.value("category_id")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_column",
+                                                               params.value("filter_column")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_column",
+                                                               params.value("sort_column")
+                                                           }
+                                                       }));
+
+        QVariantList items;
+        for (const auto &record : records) {
+            QVariantMap itemRecord;
+            itemRecord.insert("item_id", record.value("item_id"));
+            itemRecord.insert("category_id", record.value("category_id").toInt());
+            itemRecord.insert("category", record.value("category").toString());
+            itemRecord.insert("item", record.value("item"));
+            itemRecord.insert("description", record.value("description"));
+            itemRecord.insert("divisible", record.value("divisible"));
+            itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+            itemRecord.insert("quantity", record.value("quantity"));
+            itemRecord.insert("unit", record.value("unit"));
+            itemRecord.insert("unit_id", record.value("unit_id"));
+            itemRecord.insert("cost_price", record.value("cost_price"));
+            itemRecord.insert("retail_price", record.value("retail_price"));
+            itemRecord.insert("currency", record.value("currency"));
+            itemRecord.insert("created", record.value("created"));
+            itemRecord.insert("last_edited", record.value("last_edited"));
+            itemRecord.insert("user", record.value("user"));
+
+            items.append(itemRecord);
+        }
+
+        result.setOutcome(QVariantMap {
+                              { "items", items },
+                              { "record_count", items.count() }
+                          });
+    } catch (DatabaseException &) {
+        throw;
+    }
+}
+
+void StockSqlManager::filterStockItemCount(const QueryRequest &request, QueryResult &result)
+{
+    const QVariantMap &params = request.params();
+
+    try {
+        const QList<QSqlRecord> &records(callProcedure("FilterStockItemCount", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_column",
+                                                               params.value("filter_column")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "archived",
+                                                               params.value("archived")
+                                                           }
+                                                       }));
+
+        int itemCount = 0;
+        if (!records.isEmpty())
+            itemCount = records.first().value("item_count").toInt();
+
+        result.setOutcome(QVariantMap {
+                              { "item_count", itemCount },
+                              { "record_count", 1 }
+                          });
     } catch (DatabaseException &) {
         throw;
     }

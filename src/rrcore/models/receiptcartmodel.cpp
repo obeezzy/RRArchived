@@ -85,3 +85,19 @@ void ReceiptCartModel::processResult(const QueryResult result)
 {
     Q_UNUSED(result)
 }
+
+QString ReceiptCartModel::columnName(int column) const
+{
+    switch (static_cast<Columns>(column)) {
+    case Columns::QuantityColumn:
+        return "quantity";
+    case Columns::ItemColumn:
+        return "item";
+    case Columns::PriceColumn:
+        return "price";
+    case Columns::TotalColumn:
+        return "total";
+    }
+
+    return QString();
+}

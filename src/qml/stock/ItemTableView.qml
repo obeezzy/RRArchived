@@ -5,24 +5,46 @@ import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 
 RRUi.DataTableView {
-    id: stockItemTableView
+    id: itemTableView
+
+    property int categoryId: -1
+    property int filterColumn: -1
+    property string filterText: ""
+    property int sortColumn: -1
+    property Component buttonRow: null
+    signal success(int successCode)
+    signal error(int errorCode)
+    signal itemRemoved(int itemId)
+
+    function removeItem(row) { stockItemModel.removeItem(row); }
+    function refresh() { stockItemModel.refresh(); }
+
     height: contentHeight + topMargin + bottomMargin
     columnSpacing: 8
     flickableDirection: TableView.VerticalFlick
     interactive: false
 
+    model: RRModels.StockItemModel {
+        id: stockItemModel
+        tableViewWidth: itemTableView.contentItem.width - itemTableView.leftMargin * 2
+        categoryId: itemTableView.categoryId
+        filterText: itemTableView.filterText
+        filterColumn: itemTableView.filterColumn
+        sortColumn: itemTableView.sortColumn
+        onItemRemoved: itemTableView.itemRemoved(itemId);
+        onSuccess: itemTableView.success(successCode);
+        onError: itemTableView.error(errorCode);
+    }
+
     delegate: DelegateChooser {
         DelegateChoice {
             column: RRModels.StockItemModel.ImageColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockItemTableView.columnHeader.children[RRModels.StockItemModel.ImageColumn].width
-                implicitHeight: stockItemTableView.rowHeader.children[0].height
+                implicitWidth: itemTableView.columnHeader.children[column].width
+                implicitHeight: itemTableView.rowHeader.children[row].height
 
                 RRUi.LetterCircleImage {
-                    anchors {
-                        centerIn: parent
-                        verticalCenterOffset: -4
-                    }
+                    anchors.centerIn: parent
                     name: model.item
                     source: model.image_source
                     sourceSize: Qt.size(width, height)
@@ -33,8 +55,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockItemModel.ItemColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockItemTableView.columnHeader.children[RRModels.StockItemModel.ItemColumn].width
-                implicitHeight: stockItemTableView.rowHeader.children[0].height
+                implicitWidth: itemTableView.columnHeader.children[column].width
+                implicitHeight: itemTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -53,8 +75,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockItemModel.QuantityColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockItemTableView.columnHeader.children[RRModels.StockItemModel.QuantityColumn].width
-                implicitHeight: stockItemTableView.rowHeader.children[0].height
+                implicitWidth: itemTableView.columnHeader.children[column].width
+                implicitHeight: itemTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -73,8 +95,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockItemModel.CostPriceColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockItemTableView.columnHeader.children[RRModels.StockItemModel.CostPriceColumn].width
-                implicitHeight: stockItemTableView.rowHeader.children[0].height
+                implicitWidth: itemTableView.columnHeader.children[column].width
+                implicitHeight: itemTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -93,8 +115,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.StockItemModel.ActionColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockItemTableView.columnHeader.children[RRModels.StockItemModel.ActionColumn].width
-                implicitHeight: stockItemTableView.rowHeader.children[0].height
+                implicitWidth: itemTableView.columnHeader.children[column].width
+                implicitHeight: itemTableView.rowHeader.children[row].height
 
                 Loader {
                     readonly property var modelData: {
@@ -106,43 +128,45 @@ RRUi.DataTableView {
                         "unit": model.unit,
                         "quantity": model.quantity,
                         "retail_price": model.retail_price,
-                        "cost_price": model.cost_price
+                        "cost_price": model.cost_price,
+                        "row": row,
+                        "itemTableView": itemTableView
                     }
 
                     anchors.centerIn: parent
-                    sourceComponent: categoryListView.buttonRow
+                    sourceComponent: itemTableView.buttonRow
                 }
             }
         }
     }
 
-//                add: Transition {
-//                    PropertyAction { property: "height"; value: 0 }
-//                    PropertyAction { property: "opacity"; value: 0 }
+    //                add: Transition {
+    //                    PropertyAction { property: "height"; value: 0 }
+    //                    PropertyAction { property: "opacity"; value: 0 }
 
-//                    SequentialAnimation {
-//                        NumberAnimation { property: "height"; to: 40; duration: 300; easing.type: Easing.InOutQuad }
-//                        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
-//                    }
-//                }
+    //                    SequentialAnimation {
+    //                        NumberAnimation { property: "height"; to: 40; duration: 300; easing.type: Easing.InOutQuad }
+    //                        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+    //                    }
+    //                }
 
-//                displaced: Transition {
-//                    SequentialAnimation {
-//                        PauseAnimation { duration: 125 }
-//                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
-//                    }
-//                }
-//                remove: Transition {
-//                    SequentialAnimation {
-//                        PauseAnimation { duration: 125 }
-//                        NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
-//                    }
-//                }
+    //                displaced: Transition {
+    //                    SequentialAnimation {
+    //                        PauseAnimation { duration: 125 }
+    //                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
+    //                    }
+    //                }
+    //                remove: Transition {
+    //                    SequentialAnimation {
+    //                        PauseAnimation { duration: 125 }
+    //                        NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
+    //                    }
+    //                }
 
-//                Behavior on height {
-//                    SequentialAnimation {
-//                        PauseAnimation { duration: 125 }
-//                        NumberAnimation { }
-//                    }
-//                }
+    //                Behavior on height {
+    //                    SequentialAnimation {
+    //                        PauseAnimation { duration: 125 }
+    //                        NumberAnimation { }
+    //                    }
+    //                }
 }

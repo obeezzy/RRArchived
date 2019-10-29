@@ -81,7 +81,7 @@ RRUi.Page {
     ]
 
     Connections {
-        target: newSalePage.RRUi.ApplicationWindow.window.snackBar !== undefined ? newSalePage.RRUi.ApplicationWindow.window.snackBar : null
+        target: MainWindow.snackBar
         onClicked: cartListView.undoLastTransaction();
     }
 
@@ -232,37 +232,39 @@ RRUi.Page {
                         }
 
                         filterText: searchBar.text
-                        filterColumn: RRModels.StockCategoryItemModel.ItemColumn
+                        filterColumn: RRModels.StockItemModel.ItemColumn
 
                         buttonRow: Row {
-                            spacing: 0
-
                             RRUi.ToolButton {
                                 id: addToCartButton
+                                width: FluidControls.Units.iconSizes.medium
+                                height: width
                                 icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
                                 text: qsTr("Add to cart")
-                                visible: parent.parent.modelData.quantity > 0
-                                onClicked: cartListView.addItem(parent.parent.modelData);
+                                visible: modelData.quantity > 0
+                                onClicked: cartListView.addItem(modelData);
                             }
 
                             RRUi.ToolButton {
                                 id: viewButton
+                                width: FluidControls.Units.iconSizes.medium
+                                height: width
                                 icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                                 text: qsTr("View details")
-                                onClicked: itemDetailPopup.show(parent.parent.modelData.item_id);
+                                onClicked: itemDetailPopup.show(modelData.item_id);
                             }
                         }
                     }
 
                     FluidControls.Placeholder {
-                        visible: categoryListView.count == 0 && categoryListView.model.filterText !== ""
+                        visible: categoryListView.count === 0 && categoryListView.model.filterText !== ""
                         anchors.centerIn: parent
                         icon.source: FluidControls.Utils.iconUrl("action/search")
                         text: qsTr("There are no results for this search query.")
                     }
 
                     FluidControls.Placeholder {
-                        visible: categoryListView.count == 0
+                        visible: categoryListView.count === 0
                         anchors.centerIn: parent
                         icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
                         text: qsTr("No products available.")
