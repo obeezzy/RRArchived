@@ -50,7 +50,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
-    Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     int categoryId() const;
     void setCategoryId(int categoryId);

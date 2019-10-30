@@ -1,44 +1,45 @@
-import QtQuick 2.13
+import QtQuick 2.12
 import Qt.labs.qmlmodels 1.0
 import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../singletons"
 
 RRUi.DataTableView {
-    id: stockReportTableView
+    id: saleTransactionDetailTableView
 
-    property alias busy: stockReportModel.busy
-    property alias autoQuery: stockReportModel.autoQuery
+    property int transactionId: -1
+
+    property alias busy: saleTransactionItemModel.busy
+    property alias autoQuery: saleTransactionItemModel.autoQuery
 
     signal success(int successCode)
     signal error(int errorCode)
 
-    function refresh() { stockReportModel.refresh(); }
+    function refresh() { saleTransactionItemModel.refresh(); }
 
-    model: RRModels.StockReportModel {
-        id: stockReportModel
-        tableViewWidth: stockReportTableView.widthWithoutMargins
-        onSuccess: stockReportTableView.success(successCode);
-        onError: stockReportTableView.error(errorCode);
-    }
+    flickableDirection: TableView.VerticalFlick
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
         policy: QQC2.ScrollBar.AlwaysOn
-        visible: stockReportTableView.contentHeight > stockReportTableView.height
+        visible: saleTransactionDetailTableView.contentHeight > saleTransactionDetailTableView.height
     }
 
-    flickableDirection: TableView.VerticalFlick
-    clip: true
+    model: RRModels.SaleTransactionItemModel {
+        id: saleTransactionItemModel
+        tableViewWidth: saleTransactionDetailTableView.widthWithoutMargins
+        transactionId: saleTransactionDetailTableView.transactionId
+        onSuccess: saleTransactionDetailTableView.success(successCode);
+        onError: saleTransactionDetailTableView.error(errorCode);
+    }
 
     delegate: DelegateChooser {
         DelegateChoice {
-            column: RRModels.StockReportModel.CategoryColumn
+            column: RRModels.SaleTransactionItemModel.CategoryColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[column].width
-                implicitHeight: stockReportTableView.rowHeader.children[row].height
+                implicitWidth: saleTransactionDetailTableView.columnHeader.children[column].width
+                implicitHeight: saleTransactionDetailTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -47,6 +48,7 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
+                    elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: category
@@ -55,10 +57,10 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.StockReportModel.ItemColumn
+            column: RRModels.SaleTransactionItemModel.ItemColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[column].width
-                implicitHeight: stockReportTableView.rowHeader.children[row].height
+                implicitWidth: saleTransactionDetailTableView.columnHeader.children[column].width
+                implicitHeight: saleTransactionDetailTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -67,6 +69,7 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
+                    elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: item
@@ -75,10 +78,10 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.StockReportModel.OpeningStockQuantityColumn
+            column: RRModels.SaleTransactionItemModel.QuantityColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[column].width
-                implicitHeight: stockReportTableView.rowHeader.children[row].height
+                implicitWidth: saleTransactionDetailTableView.columnHeader.children[column].width
+                implicitHeight: saleTransactionDetailTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -87,18 +90,19 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
+                    elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
-                    text: opening_stock_quantity + " " + unit
+                    text: quantity + " " + unit
                 }
             }
         }
 
         DelegateChoice {
-            column: RRModels.StockReportModel.QuantitySoldColumn
+            column: RRModels.SaleTransactionItemModel.UnitPriceColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[column].width
-                implicitHeight: stockReportTableView.rowHeader.children[row].height
+                implicitWidth: saleTransactionDetailTableView.columnHeader.children[column].width
+                implicitHeight: saleTransactionDetailTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -107,18 +111,19 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
+                    elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
-                    text: quantity_sold + " " + unit
+                    text: Number(unit_price).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
                 }
             }
         }
 
         DelegateChoice {
-            column: RRModels.StockReportModel.QuantityBoughtColumn
+            column: RRModels.SaleTransactionItemModel.CostColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[column].width
-                implicitHeight: stockReportTableView.rowHeader.children[row].height
+                implicitWidth: saleTransactionDetailTableView.columnHeader.children[column].width
+                implicitHeight: saleTransactionDetailTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -127,29 +132,10 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
+                    elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
-                    text: quantity_bought + " " + unit
-                }
-            }
-        }
-
-        DelegateChoice {
-            column: RRModels.StockReportModel.QuantityInStockColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: stockReportTableView.columnHeader.children[column].width
-                implicitHeight: stockReportTableView.rowHeader.children[row].height
-
-                FluidControls.SubheadingLabel {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        verticalCenter: parent.verticalCenter
-                    }
-
-                    horizontalAlignment: Qt.AlignRight
-                    verticalAlignment: Qt.AlignVCenter
-                    text: quantity_in_stock + " " + unit
+                    text: Number(cost).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
                 }
             }
         }

@@ -29,7 +29,6 @@ public:
         QuantitySoldColumn,
         QuantityBoughtColumn,
         QuantityInStockColumn,
-        ActionColumn,
         ColumnCount
     }; Q_ENUM(Columns)
 
@@ -41,7 +40,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;

@@ -24,7 +24,6 @@ public:
         ItemColumn,
         QuantityBoughtColumn,
         TotalAmountColumn,
-        ActionColumn,
         ColumnCount
     }; Q_ENUM(Columns)
 
@@ -36,7 +35,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;

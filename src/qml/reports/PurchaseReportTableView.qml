@@ -12,7 +12,6 @@ RRUi.DataTableView {
 
     property alias busy: purchaseReportModel.busy
     property alias autoQuery: purchaseReportModel.autoQuery
-    property Component buttonRow: null
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -23,6 +22,7 @@ RRUi.DataTableView {
 
     model: RRModels.PurchaseReportModel {
         id: purchaseReportModel
+        tableViewWidth: purchaseReportTableView.widthWithoutMargins
         onSuccess: purchaseReportTableView.success(successCode);
         onError: purchaseReportTableView.error(errorCode);
     }
@@ -36,8 +36,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.PurchaseReportModel.CategoryColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.CategoryColumn].width
-                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+                implicitWidth: purchaseReportTableView.columnHeader.children[column].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -57,8 +57,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.PurchaseReportModel.ItemColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.ItemColumn].width
-                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+                implicitWidth: purchaseReportTableView.columnHeader.children[column].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -78,8 +78,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.PurchaseReportModel.QuantityBoughtColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.QuantityBoughtColumn].width
-                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+                implicitWidth: purchaseReportTableView.columnHeader.children[column].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -99,8 +99,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.PurchaseReportModel.TotalAmountColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.TotalAmountColumn].width
-                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
+                implicitWidth: purchaseReportTableView.columnHeader.children[column].width
+                implicitHeight: purchaseReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -113,24 +113,6 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(total_amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-                }
-            }
-        }
-
-        DelegateChoice {
-            column: RRModels.PurchaseReportModel.ActionColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: purchaseReportTableView.columnHeader.children[RRModels.PurchaseReportModel.ActionColumn].width
-                implicitHeight: purchaseReportTableView.rowHeader.children[0].height
-
-                Loader {
-                    readonly property var modelData: {
-                        "client_id": model.client_id,
-                        "transaction_id": model.transaction_id
-                    }
-
-                    anchors.centerIn: parent
-                    sourceComponent: purchaseReportTableView.buttonRow
                 }
             }
         }

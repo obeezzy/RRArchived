@@ -19,7 +19,6 @@ public:
     enum Columns {
         PurposeColumn,
         AmountColumn,
-        ActionColumn,
         ColumnCount
     }; Q_ENUM(Columns)
 

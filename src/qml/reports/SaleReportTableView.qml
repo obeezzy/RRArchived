@@ -12,7 +12,6 @@ RRUi.DataTableView {
 
     property alias busy: saleReportModel.busy
     property alias autoQuery: saleReportModel.autoQuery
-    property Component buttonRow: null
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -23,6 +22,7 @@ RRUi.DataTableView {
 
     model: RRModels.SaleReportModel {
         id: saleReportModel
+        tableViewWidth: saleReportTableView.widthWithoutMargins
         onSuccess: saleReportTableView.success(successCode);
         onError: saleReportTableView.error(errorCode);
     }
@@ -36,8 +36,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.SaleReportModel.CategoryColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: saleReportTableView.columnHeader.children[RRModels.SaleReportModel.CategoryColumn].width
-                implicitHeight: saleReportTableView.rowHeader.children[0].height
+                implicitWidth: saleReportTableView.columnHeader.children[column].width
+                implicitHeight: saleReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -57,8 +57,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.SaleReportModel.ItemColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: saleReportTableView.columnHeader.children[RRModels.SaleReportModel.ItemColumn].width
-                implicitHeight: saleReportTableView.rowHeader.children[0].height
+                implicitWidth: saleReportTableView.columnHeader.children[column].width
+                implicitHeight: saleReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -78,8 +78,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.SaleReportModel.QuantitySoldColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: saleReportTableView.columnHeader.children[RRModels.SaleReportModel.QuantitySoldColumn].width
-                implicitHeight: saleReportTableView.rowHeader.children[0].height
+                implicitWidth: saleReportTableView.columnHeader.children[column].width
+                implicitHeight: saleReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -99,8 +99,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.SaleReportModel.TotalAmountColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: saleReportTableView.columnHeader.children[RRModels.SaleReportModel.TotalAmountColumn].width
-                implicitHeight: saleReportTableView.rowHeader.children[0].height
+                implicitWidth: saleReportTableView.columnHeader.children[column].width
+                implicitHeight: saleReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -113,24 +113,6 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(total_amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-                }
-            }
-        }
-
-        DelegateChoice {
-            column: RRModels.SaleReportModel.ActionColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: saleReportTableView.columnHeader.children[RRModels.SaleReportModel.ActionColumn].width
-                implicitHeight: saleReportTableView.rowHeader.children[0].height
-
-                Loader {
-                    readonly property var modelData: {
-                        "client_id": model.client_id,
-                        "transaction_id": model.transaction_id
-                    }
-
-                    anchors.centerIn: parent
-                    sourceComponent: saleReportTableView.buttonRow
                 }
             }
         }

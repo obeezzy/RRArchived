@@ -11,13 +11,18 @@ RRUi.SubView {
     id: incomeReportSubView
     objectName: "reports/incomeReportSubView"
 
-    QtObject {
-        id: privateProperties
+    RRUi.ViewPreferences {
+        id: viewPreferences
 
-        property int filterIndex: 0
-        property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
-        property var sortModel: ["Sort in ascending order", "Sort in descending order"]
+        filterModel: [
+            "Filter by purpose",
+            "Filter by amount"
+        ]
+
+        sortColumnModel: [
+            "Sort by purpose",
+            "Sort by amount"
+        ]
     }
 
     contentItem: FocusScope {
@@ -52,10 +57,7 @@ RRUi.SubView {
                         right: parent.right
                     }
 
-                    model: [
-                        privateProperties.filterModel[privateProperties.filterIndex],
-                        privateProperties.sortModel[privateProperties.sortIndex]
-                    ]
+                    model: viewPreferences.model
                 }
 
                 IncomeReportTableView {
@@ -68,24 +70,6 @@ RRUi.SubView {
                     }
 
                     autoQuery: incomeReportSubView.QQC2.SwipeView.index === 0
-
-                    buttonRow: Row {
-                        spacing: 0
-
-                        RRUi.ToolButton {
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
-                            text: qsTr("View")
-                        }
-
-                        RRUi.ToolButton {
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            icon.source: FluidControls.Utils.iconUrl("action/delete")
-                            text: qsTr("Edit")
-                        }
-                    }
                 }
             }
         }
@@ -98,14 +82,14 @@ RRUi.SubView {
 
     /********************** ON-DEMAND ITEMS *****************************/
     FluidControls.Placeholder {
-        visible: incomeReportTableView.rows == 0 && searchBar.text !== ""
+        visible: incomeReportTableView.rows === 0 && searchBar.text !== ""
         anchors.centerIn: parent
         icon.source: FluidControls.Utils.iconUrl("action/search")
         text: qsTr("No results for this search query.")
     }
 
     FluidControls.Placeholder {
-        visible: incomeReportTableView.rows == 0 && searchBar.text === ""
+        visible: incomeReportTableView.rows === 0 && searchBar.text === ""
         anchors.centerIn: parent
         icon.source: Qt.resolvedUrl("qrc:/icons/cash-multiple.svg")
         text: qsTr("No transactions were made on this day.")

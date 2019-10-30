@@ -6,7 +6,7 @@ AbstractTransactionItemModel::AbstractTransactionItemModel(QObject *parent) :
 {}
 
 AbstractTransactionItemModel::AbstractTransactionItemModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent),
+    AbstractVisualTableModel(thread, parent),
     m_transactionId(-1)
 {
     connect(this, &AbstractTransactionItemModel::transactionIdChanged, &AbstractTransactionItemModel::tryQuery);

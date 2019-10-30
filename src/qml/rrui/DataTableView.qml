@@ -11,6 +11,7 @@ TableView {
 
     readonly property Row columnHeader: columnHeader
     readonly property Column rowHeader: rowHeader
+    readonly property real widthWithoutMargins: width - leftMargin
     property color headerColor: Material.backgroundColor
     property color headerTextColor: Material.foreground
 

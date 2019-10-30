@@ -11,13 +11,18 @@ RRUi.SubView {
     id: stockReportSubView
     objectName: "reports/StockReportSubView"
 
-    QtObject {
-        id: privateProperties
+    RRUi.ViewPreferences {
+        id: viewPreferences
 
-        property int filterIndex: 0
-        property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
-        property var sortModel: ["Sort in ascending order", "Sort in descending order"]
+        filterModel: [
+            "Filter by item",
+            "Filter by category"
+        ]
+
+        sortColumnModel: [
+            "Sort by item",
+            "Sort by category"
+        ]
     }
 
     QQC2.StackView.onActivating: stockReportTableView.refresh();
@@ -54,10 +59,7 @@ RRUi.SubView {
                         right: parent.right
                     }
 
-                    model: [
-                        privateProperties.filterModel[privateProperties.filterIndex],
-                        privateProperties.sortModel[privateProperties.sortIndex]
-                    ]
+                    model: viewPreferences.model
                 }
 
                 StockReportTableView {
@@ -70,21 +72,6 @@ RRUi.SubView {
                     }
 
                     autoQuery: stockReportSubView.QQC2.SwipeView.index === 0
-                    buttonRow: Row {
-                        RRUi.ToolButton {
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
-                            text: qsTr("View")
-                        }
-
-                        RRUi.ToolButton {
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            icon.source: FluidControls.Utils.iconUrl("action/delete")
-                            text: qsTr("Archive")
-                        }
-                    }
                 }
             }
         }

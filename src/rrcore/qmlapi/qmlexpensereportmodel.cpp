@@ -59,8 +59,6 @@ QVariant QMLExpenseReportModel::headerData(int section, Qt::Orientation orientat
                 return tr("Purpose");
             case AmountColumn:
                 return tr("Amount");
-            case ActionColumn:
-                return tr("Action");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
@@ -68,17 +66,13 @@ QVariant QMLExpenseReportModel::headerData(int section, Qt::Orientation orientat
                 return Qt::AlignLeft;
             case AmountColumn:
                 return Qt::AlignRight;
-            case ActionColumn:
-                return Qt::AlignHCenter;
             }
         } else if (role == Qt::SizeHintRole) {
             switch (section) {
             case PurposeColumn:
-                return 500;
+                return tableViewWidth() - 200;
             case AmountColumn:
                 return 200;
-            case ActionColumn:
-                return 220;
             }
         }
     }

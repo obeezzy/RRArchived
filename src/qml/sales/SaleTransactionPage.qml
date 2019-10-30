@@ -16,23 +16,23 @@ RRUi.Page {
     function goToNextDay() {
         if (selectedDate < todaysDate) {
             searchBar.clear();
-            saleTransactionListView.model.autoQuery = false;
+            saleTransactionTableView.model.autoQuery = false;
             selectedDate = new Date(saleTransactionPage.selectedDate.getFullYear(),
                                     saleTransactionPage.selectedDate.getMonth(),
                                     saleTransactionPage.selectedDate.getDate() + 1);
             singleDateDialog.selectedDate = selectedDate;
-            saleTransactionListView.model.autoQuery = true;
+            saleTransactionTableView.model.autoQuery = true;
         }
     }
 
     function goToPreviousDay() {
         searchBar.clear();
-        saleTransactionListView.model.autoQuery = false;
+        saleTransactionTableView.model.autoQuery = false;
         selectedDate = new Date(saleTransactionPage.selectedDate.getFullYear(),
                                 saleTransactionPage.selectedDate.getMonth(),
                                 saleTransactionPage.selectedDate.getDate() - 1);
         singleDateDialog.selectedDate = selectedDate;
-        saleTransactionListView.model.autoQuery = true;
+        saleTransactionTableView.model.autoQuery = true;
     }
 
     title: qsTr("Sale transactions made on %1").arg(Qt.formatDate(selectedDate, "dddd, MMMM d, yyyy"))
@@ -44,13 +44,17 @@ RRUi.Page {
         toolTip: text
     }
 
-    QtObject {
-        id: privateProperties
+    RRUi.ViewPreferences {
+        id: viewPreferences
 
-        property int filterIndex: 0
-        property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
-        property var sortModel: ["Sort in ascending order", "Sort in descending order"]
+        filterModel: [
+            "Filter by item",
+            "Filter by category"
+        ]
+        sortColumnModel: [
+            "Sort by item",
+            "Sort by category"
+        ]
     }
 
     contentItem: FocusScope {
@@ -92,14 +96,11 @@ RRUi.Page {
                         right: parent.right
                     }
 
-                    model: [
-                        privateProperties.filterModel[privateProperties.filterIndex],
-                        privateProperties.sortModel[privateProperties.sortIndex]
-                    ]
+                    model: viewPreferences.model
                 }
 
-                SaleTransactionListView {
-                    id: saleTransactionListView
+                SaleTransactionTableView {
+                    id: saleTransactionTableView
                     anchors {
                         top: filterChipListView.bottom
                         left: parent.left
@@ -121,29 +122,31 @@ RRUi.Page {
                     onSuccess: {
                         switch (successCode) {
                         case RRModels.SaleTransactionModel.RemoveTransactionSuccess:
-                            saleTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
+                            MainWindow.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
                             break;
                         case RRModels.SaleTransactionModel.UndoRemoveTransactionSuccess:
-                            saleTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));
+                            MainWindow.snackBar.show(qsTr("Undo successful"));
                             break;
                         }
                     }
 
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             id: viewButton
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View transaction details")
-                            onClicked: saleTransactionItemDialog.show(parent.parent.modelData);
+                            onClicked: saleTransactionDetailDialog.show(modelData);
                         }
 
                         RRUi.ToolButton {
                             id: deleteButton
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Delete transaction")
-                            onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
+                            onClicked: deleteConfirmationDialog.show(modelData);
                         }
                     }
                 }
@@ -197,7 +200,7 @@ RRUi.Page {
             text: qsTr("Are you sure you want to remove this transaction?");
             standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
             onAccepted: {
-                saleTransactionListView.removeTransaction(modelData.transaction_id);
+                saleTransactionTableView.removeTransaction(modelData.transaction_id);
                 deleteConfirmationDialog.modelData = null;
             }
 
@@ -210,7 +213,7 @@ RRUi.Page {
             }
         }
 
-        SaleTransactionItemDialog { id: saleTransactionItemDialog }
+        SaleTransactionDetailDialog { id: saleTransactionDetailDialog }
 
         FluidControls.DatePickerDialog {
             id: singleDateDialog
@@ -218,9 +221,9 @@ RRUi.Page {
             selectedDate: saleTransactionPage.selectedDate
             standardButtons: QQC2.Dialog.Ok | QQC2.Dialog.Cancel
             onAccepted: {
-                saleTransactionListView.model.autoQuery = false;
+                saleTransactionTableView.model.autoQuery = false;
                 saleTransactionPage.selectedDate = selectedDate;
-                saleTransactionListView.model.autoQuery = true;
+                saleTransactionTableView.model.autoQuery = true;
             }
         }
     }

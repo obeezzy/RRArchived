@@ -72,28 +72,68 @@ int QMLSaleTransactionModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return 1;
+    return ColumnCount;
 }
 
 QHash<int, QByteArray> QMLSaleTransactionModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractTransactionModel::roleNames());
-    roles.insert(TransactionIdRole, "transaction_id");
-    roles.insert(ClientIdRole, "client_id");
-    roles.insert(CustomerNameRole, "customer_name");
-    roles.insert(TotalCostRole, "total_cost");
-    roles.insert(AmountPaidRole, "amount_paid");
-    roles.insert(BalanceRole, "balance");
-    roles.insert(DiscountRole, "discount");
-    roles.insert(NoteIdRole, "note_id");
-    roles.insert(NoteRole, "note");
-    roles.insert(SuspendedRole, "suspended");
-    roles.insert(ArchivedRole, "archived");
-    roles.insert(CreatedRole, "created");
-    roles.insert(LastEditedRole, "last_edited");
-    roles.insert(UserIdRole, "user_id");
+    return {
+        { TransactionIdRole, "transaction_id" },
+        { ClientIdRole, "client_id" },
+        { CustomerNameRole, "customer_name" },
+        { TotalCostRole, "total_cost" },
+        { AmountPaidRole, "amount_paid" },
+        { BalanceRole, "balance" },
+        { DiscountRole, "discount" },
+        { NoteIdRole, "note_id" },
+        { NoteRole, "note" },
+        { SuspendedRole, "suspended" },
+        { ArchivedRole, "archived" },
+        { CreatedRole, "created" },
+        { LastEditedRole, "last_edited" },
+        { UserIdRole, "user_id" }
+    };
+}
 
-    return roles;
+QVariant QMLSaleTransactionModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case TransactionIdColumn:
+                return tr("ID");
+            case CustomerNameColumn:
+                return tr("Customer name");
+            case TotalCostColumn:
+                return tr("Total cost");
+            case ActionColumn:
+                return tr("Action");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case CustomerNameColumn:
+                return Qt::AlignLeft;
+            case TransactionIdColumn:
+            case TotalCostColumn:
+                return Qt::AlignRight;
+            case ActionColumn:
+                return Qt::AlignHCenter;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case TransactionIdColumn:
+                return 120;
+            case CustomerNameColumn:
+                return tableViewWidth() - 120 - 120 - 130;
+            case TotalCostColumn:
+                return 120;
+            case ActionColumn:
+                return 130;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 void QMLSaleTransactionModel::tryQuery()
@@ -149,11 +189,11 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
 void QMLSaleTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-    QueryRequest request(this);
-    QVariantMap params;
-    params.insert("can_undo", true);
-    params.insert("transaction_id", data(index(row, 0), TransactionIdRole).toInt());
 
-    request.setCommand("remove_transaction", params, QueryRequest::Sales);
+    QueryRequest request(this);
+    request.setCommand("remove_transaction", {
+                           { "can_undo", true },
+                           { "transaction_id", data(index(row, 0), TransactionIdRole).toInt() }
+                       }, QueryRequest::Sales);
     emit executeRequest(request);
 }

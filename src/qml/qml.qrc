@@ -59,8 +59,8 @@
         <file>sales/CartItemEditorDialog.qml</file>
         <file>rrui/Dialog.qml</file>
         <file>sales/SaleTransactionPage.qml</file>
-        <file>sales/SaleTransactionListView.qml</file>
-        <file>sales/SaleTransactionItemDialog.qml</file>
+        <file>sales/SaleTransactionTableView.qml</file>
+        <file>sales/SaleTransactionDetailDialog.qml</file>
         <file>common/paymentwizard/PaymentOptionModel.qml</file>
         <file>rrui/DropdownField.qml</file>
         <file>rrui/IconTextField.qml</file>
@@ -129,8 +129,8 @@
         <file>settings/user/UserPrivilegeListView.qml</file>
         <file>rrui/Card.qml</file>
         <file>user/PasswordChangePage.qml</file>
-        <file>purchase/PurchaseTransactionListView.qml</file>
-        <file>purchase/PurchaseTransactionItemDialog.qml</file>
+        <file>purchase/PurchaseTransactionTableView.qml</file>
+        <file>purchase/PurchaseTransactionDetailDialog.qml</file>
         <file>settings/receipt/ReceiptTemplate.qml</file>
         <file>settings/receipt/ReceiptTypeA.qml</file>
         <file>settings/receipt/ReceiptCartTableView.qml</file>
@@ -155,5 +155,8 @@
         <file>rrui/TableDelegate.qml</file>
         <file>expense/ExpenseTransactionTableView.qml</file>
         <file>stock/ItemTableView.qml</file>
+        <file>rrui/ViewPreferences.qml</file>
+        <file>sales/SaleTransactionDetailTableView.qml</file>
+        <file>purchase/PurchaseTransactionDetailTableView.qml</file>
     </qresource>
 </RCC>

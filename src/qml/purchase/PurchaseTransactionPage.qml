@@ -16,23 +16,23 @@ RRUi.Page {
     function goToNextDay() {
         if (selectedDate < todaysDate) {
             searchBar.clear();
-            purchaseTransactionListView.model.autoQuery = false;
+            purchaseTransactionTableView.model.autoQuery = false;
             selectedDate = new Date(purchaseTransactionPage.selectedDate.getFullYear(),
                                     purchaseTransactionPage.selectedDate.getMonth(),
                                     purchaseTransactionPage.selectedDate.getDate() + 1);
             singleDateDialog.selectedDate = selectedDate;
-            purchaseTransactionListView.model.autoQuery = true;
+            purchaseTransactionTableView.model.autoQuery = true;
         }
     }
 
     function goToPreviousDay() {
         searchBar.clear();
-        purchaseTransactionListView.model.autoQuery = false;
+        purchaseTransactionTableView.model.autoQuery = false;
         selectedDate = new Date(purchaseTransactionPage.selectedDate.getFullYear(),
                                 purchaseTransactionPage.selectedDate.getMonth(),
                                 purchaseTransactionPage.selectedDate.getDate() - 1);
         singleDateDialog.selectedDate = selectedDate;
-        purchaseTransactionListView.model.autoQuery = true;
+        purchaseTransactionTableView.model.autoQuery = true;
     }
 
     title: qsTr("Purchase transactions made on %1").arg(Qt.formatDate(selectedDate, "dddd, MMMM d, yyyy"))
@@ -44,13 +44,21 @@ RRUi.Page {
         toolTip: text
     }
 
-    QtObject {
-        id: privateProperties
+    RRUi.ViewPreferences {
+        id: viewPreferences
 
-        property int filterIndex: 0
-        property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
-        property var sortModel: ["Sort in ascending order", "Sort in descending order"]
+        filterModel: [
+            "Filter by item",
+            "Filter by category"
+        ]
+        sortColumnModel: [
+            "Sort by item",
+            "Sort by category"
+        ]
+        sortOrderModel: [
+            "Sort in ascending order",
+            "Sort in descending order"
+        ]
     }
 
     contentItem: FocusScope {
@@ -92,14 +100,11 @@ RRUi.Page {
                         right: parent.right
                     }
 
-                    model: [
-                        privateProperties.filterModel[privateProperties.filterIndex],
-                        privateProperties.sortModel[privateProperties.sortIndex]
-                    ]
+                    model: viewPreferences.model
                 }
 
-                PurchaseTransactionListView {
-                    id: purchaseTransactionListView
+                PurchaseTransactionTableView {
+                    id: purchaseTransactionTableView
                     anchors {
                         top: filterChipListView.bottom
                         left: parent.left
@@ -121,10 +126,10 @@ RRUi.Page {
                     onSuccess: {
                         switch (successCode) {
                         case RRModels.PurchaseTransactionModel.RemoveTransactionSuccess:
-                            purchaseTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
+                            MainWindow.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
                             break;
                         case RRModels.PurchaseTransactionModel.UndoRemoveTransactionSuccess:
-                            purchaseTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));
+                            MainWindow.snackBar.show(qsTr("Undo successful"));
                             break;
                         }
                     }
@@ -138,20 +143,18 @@ RRUi.Page {
                     }
 
                     buttonRow: Row {
-                        spacing: 0
-
                         RRUi.ToolButton {
                             id: viewButton
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View transaction details")
-                            onClicked: purchaseTransactionItemDialog.show(parent.parent.modelData);
+                            onClicked: purchaseTransactionDetailDialog.show(modelData);
                         }
 
                         RRUi.ToolButton {
                             id: deleteButton
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Delete transaction")
-                            onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
+                            onClicked: deleteConfirmationDialog.show(modelData);
                         }
                     }
                 }
@@ -205,7 +208,7 @@ RRUi.Page {
             text: qsTr("Are you sure you want to remove this transaction?");
             standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
             onAccepted: {
-                purchaseTransactionListView.removeTransaction(modelData.row);
+                purchaseTransactionTableView.removeTransaction(modelData.row);
                 deleteConfirmationDialog.modelData = null;
             }
 
@@ -220,7 +223,7 @@ RRUi.Page {
 
         RRUi.ErrorDialog { id: errorDialog }
 
-        PurchaseTransactionItemDialog { id: purchaseTransactionItemDialog }
+        PurchaseTransactionDetailDialog { id: purchaseTransactionDetailDialog }
 
         FluidControls.DatePickerDialog {
             id: singleDateDialog
@@ -228,16 +231,15 @@ RRUi.Page {
             selectedDate: purchaseTransactionPage.selectedDate
             standardButtons: QQC2.Dialog.Ok | QQC2.Dialog.Cancel
             onAccepted: {
-                purchaseTransactionListView.model.autoQuery = false;
+                purchaseTransactionTableView.model.autoQuery = false;
                 purchaseTransactionPage.selectedDate = selectedDate;
-                purchaseTransactionListView.model.autoQuery = true;
+                purchaseTransactionTableView.model.autoQuery = true;
             }
         }
     }
 
     Connections {
-        target: purchaseTransactionPage.RRUi.ApplicationWindow.window.snackBar !== undefined
-                ? purchaseTransactionPage.RRUi.ApplicationWindow.window.snackBar : null
-        onClicked: purchaseTransactionListView.undoLastCommit();
+        target: MainWindow.snackBar
+        onClicked: purchaseTransactionTableView.undoLastCommit();
     }
 }
