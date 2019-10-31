@@ -1,7 +1,7 @@
 #ifndef QMLCREDITORMODEL_H
 #define QMLCREDITORMODEL_H
 
-#include "models/abstracttransactionitemmodel.h"
+#include "models/abstractvisuallistmodel.h"
 
 class QMLCreditorModel : public AbstractVisualListModel
 {

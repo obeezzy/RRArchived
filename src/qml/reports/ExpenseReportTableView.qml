@@ -12,7 +12,6 @@ RRUi.DataTableView {
 
     property alias busy: expenseReportModel.busy
     property alias autoQuery: expenseReportModel.autoQuery
-    property Component buttonRow: null
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -23,6 +22,7 @@ RRUi.DataTableView {
 
     model: RRModels.ExpenseReportModel {
         id: expenseReportModel
+        tableViewWidth: expenseReportTableView.widthWithoutMargins
         onSuccess: expenseReportTableView.success(successCode);
         onError: expenseReportTableView.error(errorCode);
     }
@@ -36,8 +36,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.ExpenseReportModel.PurposeColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: expenseReportTableView.columnHeader.children[RRModels.ExpenseReportModel.PurposeColumn].width
-                implicitHeight: expenseReportTableView.rowHeader.children[0].height
+                implicitWidth: expenseReportTableView.columnHeader.children[column].width
+                implicitHeight: expenseReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -57,8 +57,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.ExpenseReportModel.AmountColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: expenseReportTableView.columnHeader.children[RRModels.ExpenseReportModel.AmountColumn].width
-                implicitHeight: expenseReportTableView.rowHeader.children[0].height
+                implicitWidth: expenseReportTableView.columnHeader.children[column].width
+                implicitHeight: expenseReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -71,24 +71,6 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-                }
-            }
-        }
-
-        DelegateChoice {
-            column: RRModels.ExpenseReportModel.ActionColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: expenseReportTableView.columnHeader.children[RRModels.ExpenseReportModel.ActionColumn].width
-                implicitHeight: expenseReportTableView.rowHeader.children[0].height
-
-                Loader {
-                    readonly property var modelData: {
-                        "client_id": model.client_id,
-                        "transaction_id": model.transaction_id
-                    }
-
-                    anchors.centerIn: parent
-                    sourceComponent: expenseReportTableView.buttonRow
                 }
             }
         }

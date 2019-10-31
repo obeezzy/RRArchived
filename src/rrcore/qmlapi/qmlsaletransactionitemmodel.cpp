@@ -24,6 +24,14 @@ int QMLSaleTransactionItemModel::rowCount(const QModelIndex &parent) const
     return m_records.count();
 }
 
+int QMLSaleTransactionItemModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return ColumnCount;
+}
+
 QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -75,29 +83,73 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
 
 QHash<int, QByteArray> QMLSaleTransactionItemModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractTransactionItemModel::roleNames());
-    roles.insert(TransactionItemIdRole, "transaction_item_id");
-    roles.insert(CategoryIdRole, "category_id");
-    roles.insert(CategoryRole, "category");
-    roles.insert(ItemIdRole, "item_id");
-    roles.insert(ItemRole, "item");
-    roles.insert(UnitPriceRole, "unit_price");
-    roles.insert(QuantityRole, "quantity");
-    roles.insert(UnitIdRole, "unit_id");
-    roles.insert(UnitRole, "unit");
-    roles.insert(CostRole, "cost");
-    roles.insert(DiscountRole, "discount");
-    roles.insert(CurrencyRole, "currency");
-    roles.insert(NoteIdRole, "note_id");
-    roles.insert(NoteRole, "note");
-    roles.insert(SuspendedRole, "suspended");
-    roles.insert(ArchivedRole, "archived");
-    roles.insert(CreatedRole, "created");
-    roles.insert(LastEditedRole, "last_edited");
-    roles.insert(UserIdRole, "user_id");
-    roles.insert(UserRole, "user");
+    return {
+        { TransactionItemIdRole, "transaction_item_id" },
+        { CategoryIdRole, "category_id" },
+        { CategoryRole, "category" },
+        { ItemIdRole, "item_id" },
+        { ItemRole, "item" },
+        { UnitPriceRole, "unit_price" },
+        { QuantityRole, "quantity" },
+        { UnitIdRole, "unit_id" },
+        { UnitRole, "unit" },
+        { CostRole, "cost" },
+        { DiscountRole, "discount" },
+        { CurrencyRole, "currency" },
+        { NoteIdRole, "note_id" },
+        { NoteRole, "note" },
+        { SuspendedRole, "suspended" },
+        { ArchivedRole, "archived" },
+        { CreatedRole, "created" },
+        { LastEditedRole, "last_edited" },
+        { UserIdRole, "user_id" },
+        { UserRole, "user" }
+    };
+}
 
-    return roles;
+QVariant QMLSaleTransactionItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case CategoryColumn:
+                return tr("Category");
+            case ItemColumn:
+                return tr("Item");
+            case QuantityColumn:
+                return tr("Qty");
+            case UnitPriceColumn:
+                return tr("Unit price");
+            case CostColumn:
+                return tr("Cost");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case CategoryColumn:
+            case ItemColumn:
+                return Qt::AlignLeft;
+            case QuantityColumn:
+            case UnitPriceColumn:
+            case CostColumn:
+                return Qt::AlignRight;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case CategoryColumn:
+                return 120;
+            case ItemColumn:
+                return tableViewWidth() - 120 - 120 - 120 - 120;
+            case QuantityColumn:
+                return 120;
+            case UnitPriceColumn:
+                return 120;
+            case CostColumn:
+                return 120;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 void QMLSaleTransactionItemModel::tryQuery()
@@ -131,15 +183,34 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
     }
 }
 
+QString QMLSaleTransactionItemModel::columnName(int column) const
+{
+    switch (column) {
+    case CategoryColumn:
+        return "category";
+    case ItemColumn:
+        return "item";
+    case QuantityColumn:
+        return "quantity";
+    case UnitPriceColumn:
+        return "unit_price";
+    case CostColumn:
+        return "cost";
+    }
+
+    return QString();
+}
+
 void QMLSaleTransactionItemModel::removeTransactionItem(int row)
 {
     setBusy(true);
-    QueryRequest request(this);
-    QVariantMap params;
-    params.insert("can_undo", true);
-    params.insert("transaction_id", transactionId());
-    params.insert("transaction_item_id", data(index(row), TransactionItemIdRole).toInt());
 
-    request.setCommand("remove_sale_transaction_item", params, QueryRequest::Sales);
+    QueryRequest request(this);
+    request.setCommand("remove_sale_transaction_item", {
+                           { "can_undo", true },
+                           { "transaction_id", transactionId() },
+                           { "transaction_item_id", data(index(row, 0), TransactionItemIdRole).toInt() }
+                       }, QueryRequest::Sales);
+
     emit executeRequest(request);
 }

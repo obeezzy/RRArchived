@@ -23,6 +23,14 @@ int QMLPurchaseTransactionItemModel::rowCount(const QModelIndex &parent) const
     return m_records.count();
 }
 
+int QMLPurchaseTransactionItemModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return ColumnCount;
+}
+
 QVariant QMLPurchaseTransactionItemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -97,6 +105,51 @@ QHash<int, QByteArray> QMLPurchaseTransactionItemModel::roleNames() const
     };
 }
 
+QVariant QMLPurchaseTransactionItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case CategoryColumn:
+                return tr("Category");
+            case ItemColumn:
+                return tr("Item");
+            case QuantityColumn:
+                return tr("Qty");
+            case UnitPriceColumn:
+                return tr("Unit price");
+            case CostColumn:
+                return tr("Cost");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case CategoryColumn:
+            case ItemColumn:
+                return Qt::AlignLeft;
+            case QuantityColumn:
+            case UnitPriceColumn:
+            case CostColumn:
+                return Qt::AlignRight;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case CategoryColumn:
+                return 120;
+            case ItemColumn:
+                return tableViewWidth() - 120 - 120 - 120 - 120;
+            case QuantityColumn:
+                return 120;
+            case UnitPriceColumn:
+                return 120;
+            case CostColumn:
+                return 120;
+            }
+        }
+    }
+
+    return section + 1;
+}
+
 void QMLPurchaseTransactionItemModel::tryQuery()
 {
     if (transactionId() <= -1)
@@ -128,16 +181,34 @@ void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
     }
 }
 
+QString QMLPurchaseTransactionItemModel::columnName(int column) const
+{
+    switch (column) {
+    case CategoryColumn:
+        return "category";
+    case ItemColumn:
+        return "item";
+    case QuantityColumn:
+        return "quantity";
+    case UnitPriceColumn:
+        return "unit_price";
+    case CostColumn:
+        return "cost";
+    }
+
+    return QString();
+}
+
 void QMLPurchaseTransactionItemModel::removeTransactionItem(int row)
 {
     setBusy(true);
-    QueryRequest request(this);
-    QVariantMap params;
-    params.insert("can_undo", true);
-    params.insert("transaction_id", transactionId());
-    params.insert("transaction_item_id", data(index(row), TransactionItemIdRole).toInt());
 
-    request.setCommand("remove_purchase_transaction_item", params, QueryRequest::Purchase);
+    QueryRequest request(this);
+    request.setCommand("remove_purchase_transaction_item", {
+                           { "can_undo", true },
+                           { "transaction_id", transactionId() },
+                           { "transaction_item_id", data(index(row, 0), TransactionItemIdRole).toInt() }
+                       }, QueryRequest::Purchase);
     emit executeRequest(request);
 }
 

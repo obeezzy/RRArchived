@@ -1,9 +1,9 @@
 #ifndef ABSTRACTTRANSACTIONITEMMODEL_H
 #define ABSTRACTTRANSACTIONITEMMODEL_H
 
-#include "abstractvisuallistmodel.h"
+#include "abstractvisualtablemodel.h"
 
-class AbstractTransactionItemModel : public AbstractVisualListModel
+class AbstractTransactionItemModel : public AbstractVisualTableModel
 {
     Q_OBJECT
     Q_PROPERTY(int transactionId READ transactionId WRITE setTransactionId NOTIFY transactionIdChanged)

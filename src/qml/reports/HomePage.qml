@@ -55,6 +55,7 @@ RRUi.Page {
                     QQC2.TabButton { text: qsTr("Income"); width: 120 }
                     QQC2.TabButton { text: qsTr("Expenses"); width: 120 }
                     QQC2.TabButton { text: qsTr("Debtor"); width: 120 }
+                    QQC2.TabButton { text: qsTr("Creditor"); width: 120 }
                 }
 
                 QQC2.SwipeView {
@@ -79,6 +80,8 @@ RRUi.Page {
                     PurchaseReportSubView { id: purchaseReportSubView }
                     IncomeReportSubView { id: incomeReportSubView }
                     ExpenseReportSubView { id: expenseReportSubView }
+                    DebtorReportSubView { id: debtorReportSubView }
+                    CreditorReportSubView { id: creditReportSubView }
                 }
             }
         }

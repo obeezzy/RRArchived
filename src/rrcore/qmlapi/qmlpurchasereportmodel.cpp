@@ -72,34 +72,26 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
                 return tr("Qty bought");
             case TotalAmountColumn:
                 return tr("Total amount");
-            case ActionColumn:
-                return tr("Action");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-                return Qt::AlignLeft;
             case ItemColumn:
                 return Qt::AlignLeft;
             case QuantityBoughtColumn:
-                return Qt::AlignRight;
             case TotalAmountColumn:
                 return Qt::AlignRight;
-            case ActionColumn:
-                return Qt::AlignHCenter;
             }
         } else if (role == Qt::SizeHintRole) {
             switch (section) {
             case CategoryColumn:
                 return 180;
             case ItemColumn:
-                return 180;
+                return tableViewWidth() - 180 - 180 - 180;
             case QuantityBoughtColumn:
                 return 180;
             case TotalAmountColumn:
                 return 180;
-            case ActionColumn:
-                return 200;
             }
         }
     }

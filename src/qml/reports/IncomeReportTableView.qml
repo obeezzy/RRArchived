@@ -12,7 +12,6 @@ RRUi.DataTableView {
 
     property alias busy: incomeReportModel.busy
     property alias autoQuery: incomeReportModel.autoQuery
-    property Component buttonRow: null
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -23,6 +22,7 @@ RRUi.DataTableView {
 
     model: RRModels.IncomeReportModel {
         id: incomeReportModel
+        tableViewWidth: incomeReportTableView.widthWithoutMargins
         onSuccess: incomeReportTableView.success(successCode);
         onError: incomeReportTableView.error(errorCode);
     }
@@ -36,8 +36,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.IncomeReportModel.PurposeColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: incomeReportTableView.columnHeader.children[RRModels.IncomeReportModel.PurposeColumn].width
-                implicitHeight: incomeReportTableView.rowHeader.children[0].height
+                implicitWidth: incomeReportTableView.columnHeader.children[column].width
+                implicitHeight: incomeReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -57,8 +57,8 @@ RRUi.DataTableView {
         DelegateChoice {
             column: RRModels.IncomeReportModel.AmountColumn
             delegate: RRUi.TableDelegate {
-                implicitWidth: incomeReportTableView.columnHeader.children[RRModels.IncomeReportModel.AmountColumn].width
-                implicitHeight: incomeReportTableView.rowHeader.children[0].height
+                implicitWidth: incomeReportTableView.columnHeader.children[column].width
+                implicitHeight: incomeReportTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
                     anchors {
@@ -71,24 +71,6 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-                }
-            }
-        }
-
-        DelegateChoice {
-            column: RRModels.IncomeReportModel.ActionColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: incomeReportTableView.columnHeader.children[RRModels.IncomeReportModel.ActionColumn].width
-                implicitHeight: incomeReportTableView.rowHeader.children[0].height
-
-                Loader {
-                    readonly property var modelData: {
-                        "client_id": model.client_id,
-                        "transaction_id": model.transaction_id
-                    }
-
-                    anchors.centerIn: parent
-                    sourceComponent: incomeReportTableView.buttonRow
                 }
             }
         }

@@ -13,9 +13,7 @@ public:
         ItemRole,
         QuantitySoldRole,
         TotalAmountRole,
-        UnitRole,
-        TransactionIdRole,
-        ClientIdRole
+        UnitRole
     };
 
     enum Columns {
@@ -23,7 +21,7 @@ public:
         ItemColumn,
         QuantitySoldColumn,
         TotalAmountColumn,
-        ActionColumn
+        ColumnCount
     }; Q_ENUM(Columns)
 
     enum SuccessCode {

@@ -82,32 +82,24 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
                 return tr("Qty bought");
             case QuantityInStockColumn:
                 return tr("Qty in stock");
-            case ActionColumn:
-                return tr("Action");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-                return Qt::AlignLeft;
             case ItemColumn:
                 return Qt::AlignLeft;
             case OpeningStockQuantityColumn:
-                return Qt::AlignRight;
             case QuantitySoldColumn:
-                return Qt::AlignRight;
             case QuantityBoughtColumn:
-                return Qt::AlignRight;
             case QuantityInStockColumn:
                 return Qt::AlignRight;
-            case ActionColumn:
-                return Qt::AlignHCenter;
             }
         } else if (role == Qt::SizeHintRole) {
             switch (section) {
             case CategoryColumn:
                 return 130;
             case ItemColumn:
-                return 130;
+                return tableViewWidth() - 130 -130 -130 - 130 - 130;
             case OpeningStockQuantityColumn:
                 return 130;
             case QuantitySoldColumn:
@@ -115,8 +107,6 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
             case QuantityBoughtColumn:
                 return 130;
             case QuantityInStockColumn:
-                return 130;
-            case ActionColumn:
                 return 130;
             }
         }

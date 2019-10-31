@@ -16,7 +16,7 @@ RRUi.Dialog {
 
     implicitWidth: 840
     implicitHeight: 640
-    title: qsTr("View transaction details")
+    title: qsTr("Transaction details")
     standardButtons: RRUi.Dialog.Ok
 
     function show(transactionInfo) {
@@ -28,7 +28,7 @@ RRUi.Dialog {
         open();
     }
 
-    onAboutToShow: tableView.model.refresh();
+    onAboutToShow: tableView.refresh();
 
     contentItem: FocusScope {
         focus: true
@@ -108,7 +108,7 @@ RRUi.Dialog {
             }
         }
 
-        RRUi.TableView {
+        SaleTransactionDetailTableView {
             id: tableView
             anchors {
                 top: dialogHeader.bottom
@@ -117,88 +117,7 @@ RRUi.Dialog {
                 bottom: parent.bottom
                 topMargin: 24
             }
-
-            headerPositioning: ListView.OverlayHeader
-
-            model: RRModels.SaleTransactionItemModel {
-                transactionId: saleTransactionItemDialog.transactionId
-            }
-
-            headerDelegate: FluidControls.SubheadingLabel {
-                text: headerData.title
-                height: 40
-                verticalAlignment: Qt.AlignVCenter
-            }
-
-            cellDelegate: FluidControls.SubheadingLabel {
-                text: {
-                    if (cellData.modelData === undefined)
-                        return "";
-
-                    switch (cellData.textRole) {
-                    case "unit_price":
-                    case "cost":
-                        return GlobalSettings.toCurrencyString(cellData.modelData);
-                    default:
-                        return cellData.modelData;
-                    }
-                }
-                height: 40
-                elide: Text.ElideRight
-                verticalAlignment: Qt.AlignVCenter
-
-                MouseArea {
-                    id: area
-                    anchors.fill: parent
-                    enabled: parent.truncated
-                    hoverEnabled: parent.truncated
-                    propagateComposedEvents: true
-                }
-
-                QQC2.ToolTip {
-                    visible: area.containsMouse
-                    delay: parent.text === "" ? 1500 : 300
-                    text: parent.text
-                }
-            }
-
-            columns: [
-                RRUi.TableViewColumn {
-                    title: qsTr("Category")
-                    width: tableView.width / tableView.columns.length
-                    role: "category"
-                },
-
-                RRUi.TableViewColumn {
-                    title: qsTr("Item")
-                    width: tableView.width / tableView.columns.length
-                    role: "item"
-                },
-
-                RRUi.TableViewColumn {
-                    title: qsTr("Quantity")
-                    width: tableView.width / tableView.columns.length
-                    role: "quantity"
-                },
-
-                RRUi.TableViewColumn {
-                    title: qsTr("Unit")
-                    width: tableView.width / tableView.columns.length
-                    role: "unit"
-                },
-
-                RRUi.TableViewColumn {
-                    title: qsTr("Unit Price")
-                    width: tableView.width / tableView.columns.length
-                    role: "unit_price"
-                },
-
-                RRUi.TableViewColumn {
-                    title: qsTr("Cost")
-                    width: tableView.width / tableView.columns.length
-                    role: "cost"
-                }
-            ]
+            transactionId: saleTransactionItemDialog.transactionId
         }
     }
 }

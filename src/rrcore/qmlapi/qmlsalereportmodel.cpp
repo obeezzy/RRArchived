@@ -1,8 +1,6 @@
 #include "qmlsalereportmodel.h"
 #include "database/databasethread.h"
 
-const int COLUMN_COUNT = 5;
-
 QMLSaleReportModel::QMLSaleReportModel(QObject *parent) :
     QMLSaleReportModel(DatabaseThread::instance(), parent)
 {}
@@ -26,7 +24,7 @@ int QMLSaleReportModel::columnCount(const QModelIndex &index) const
     if (index.isValid())
         return 0;
 
-    return COLUMN_COUNT;
+    return ColumnCount;
 }
 
 QVariant QMLSaleReportModel::data(const QModelIndex &index, int role) const
@@ -45,10 +43,6 @@ QVariant QMLSaleReportModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("unit").toString();
     case TotalAmountRole:
         return m_records.at(index.row()).toMap().value("total_amount").toDouble();
-    case TransactionIdRole:
-        return m_records.at(index.row()).toMap().value("transaction_id").toInt();
-    case ClientIdRole:
-        return m_records.at(index.row()).toMap().value("client_id").toInt();
     }
 
     return QVariant();
@@ -61,9 +55,7 @@ QHash<int, QByteArray> QMLSaleReportModel::roleNames() const
         { ItemRole, "item" },
         { QuantitySoldRole, "quantity_sold" },
         { UnitRole, "unit" },
-        { TotalAmountRole, "total_amount" },
-        { TransactionIdRole, "transaction_id" },
-        { ClientIdRole, "client_id" }
+        { TotalAmountRole, "total_amount" }
     };
 }
 
@@ -80,34 +72,26 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
                 return tr("Qty sold");
             case TotalAmountColumn:
                 return tr("Total amount");
-            case ActionColumn:
-                return tr("Action");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-                return Qt::AlignLeft;
             case ItemColumn:
                 return Qt::AlignLeft;
             case QuantitySoldColumn:
-                return Qt::AlignRight;
             case TotalAmountColumn:
                 return Qt::AlignRight;
-            case ActionColumn:
-                return Qt::AlignHCenter;
             }
         } else if (role == Qt::SizeHintRole) {
             switch (section) {
             case CategoryColumn:
                 return 180;
             case ItemColumn:
-                return 180;
+                return tableViewWidth() - 180 - 180 - 180;
             case QuantitySoldColumn:
                 return 180;
             case TotalAmountColumn:
                 return 180;
-            case ActionColumn:
-                return 200;
             }
         }
     }
