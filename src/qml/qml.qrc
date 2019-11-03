@@ -120,7 +120,6 @@
         <file>settings/HomeRow.qml</file>
         <file>rrui/Switch.qml</file>
         <file>settings/user/OtherUserAccountPage.qml</file>
-        <file>settings/UserTableView.qml</file>
         <file>settings/user/NewUserPage.qml</file>
         <file>settings/user/UserDetailSubView.qml</file>
         <file>settings/user/UserPrivilegeSubView.qml</file>
@@ -158,5 +157,6 @@
         <file>rrui/ViewPreferences.qml</file>
         <file>sales/SaleTransactionDetailTableView.qml</file>
         <file>purchase/PurchaseTransactionDetailTableView.qml</file>
+        <file>settings/user/UserTableView.qml</file>
     </qresource>
 </RCC>

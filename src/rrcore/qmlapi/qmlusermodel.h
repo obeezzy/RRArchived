@@ -15,6 +15,14 @@ public:
         PresetRole
     };
 
+    enum Columns {
+        UserColumn,
+        ActiveColumn,
+        PresetColumn,
+        ActionColumn,
+        ColumnCount
+    }; Q_ENUM(Columns)
+
     enum FilterKey {
         None,
         Active,
@@ -43,6 +51,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     Q_INVOKABLE void removeUser(const QString &userName);
     Q_INVOKABLE void activateUser(const QString &userName, bool active);

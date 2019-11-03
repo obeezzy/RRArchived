@@ -24,9 +24,12 @@ ListView {
     function submit() { return userPrivilegeModel.submit(); }
 
     clip: true
-    spacing: 84
+    spacing: 24
+    topMargin: 24
+    bottomMargin: 24
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
+        visible: userPrivilegeListView.count > 0
         policy: QQC2.ScrollBar.AlwaysOn
     }
 
@@ -62,7 +65,7 @@ ListView {
             }
             spacing: 24
 
-            FluidControls.CaptionLabel {
+            FluidControls.HeadlineLabel {
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -128,7 +131,7 @@ ListView {
                             id: valueSwitch
                             QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                             checked: value
-                            onToggled: userPrivilegeModel.setPrivilegeValue(card.groupIndex, index, checked);
+                            onToggled: value = checked;
                         }
                     }
                 }

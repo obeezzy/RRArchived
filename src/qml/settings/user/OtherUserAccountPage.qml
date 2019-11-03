@@ -13,13 +13,16 @@ RRUi.Page {
 
     title: qsTr("Manage other user accounts")
 
-    QtObject {
-        id: privateProperties
+    RRUi.ViewPreferences {
+        id: viewPreferences
 
-        property int filterIndex: 0
-        property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
-        property var sortModel: ["Sort in ascending order", "Sort in descending order"]
+        filterModel: [
+            "Search by user name"
+        ]
+
+        sortColumnModel: [
+            "Sort by user name"
+        ]
     }
 
     contentItem: FocusScope {
@@ -61,10 +64,7 @@ RRUi.Page {
                         right: parent.right
                     }
 
-                    model: [
-                        privateProperties.filterModel[privateProperties.filterIndex],
-                        privateProperties.sortModel[privateProperties.sortIndex]
-                    ]
+                    model: viewPreferences.model
                 }
 
                 UserTableView {
@@ -78,16 +78,16 @@ RRUi.Page {
                     }
 
                     filterText: searchBar.text
-                    filterColumn: RRModels.SaleTransactionModel.CustomerNameColumn
+                    filterColumn: RRModels.UserModel.UserColumn
 
                     onSuccess: {
                         switch (successCode) {
                         case RRModels.UserModel.RemoveUserSuccess:
-                            otherUserAccountPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("User deleted."), qsTr("Undo"));
+                            MainWindow.snackBar.show(qsTr("User deleted."), qsTr("Undo"));
                             userTableView.refresh();
                             break;
                         case RRModels.UserModel.UndoRemoveUserSuccess:
-                            otherUserAccountPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));
+                            MainWindow.snackBar.show(qsTr("Undo successful"));
                             userTableView.refresh();
                             break;
                         }
@@ -104,20 +104,27 @@ RRUi.Page {
                         spacing: 0
 
                         RRUi.ToolButton {
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                             text: qsTr("View user details")
                         }
 
                         RRUi.ToolButton {
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("image/edit")
                             text: qsTr("Edit user privileges")
-                            onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"), { userId: parent.parent.modelData.user_id });
+                            onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"),
+                                                                 { userId: modelData.user_id });
                         }
 
                         RRUi.ToolButton {
+                            width: FluidControls.Units.iconSizes.medium
+                            height: width
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Delete user")
-                            onClicked: deleteConfirmationDialog.show(parent.parent.modelData);
+                            onClicked: deleteConfirmationDialog.show(modelData);
                         }
                     }
                 }

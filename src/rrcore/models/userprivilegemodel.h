@@ -18,6 +18,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     void setPrivileges(const QString &privilegeGroup, const QString &title, const QVariantList &privileges);
     void setPrivilegeValue(int row, bool value);
