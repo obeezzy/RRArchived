@@ -2,8 +2,6 @@
 #include "database/databasethread.h"
 #include "models/abstractvisualtablemodel.h"
 
-const int COLUMN_COUNT = 5;
-
 QMLUserModel::QMLUserModel(QObject *parent) :
     QMLUserModel(DatabaseThread::instance(), parent)
 {}
@@ -41,7 +39,7 @@ int QMLUserModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return COLUMN_COUNT;
+    return ColumnCount;
 }
 
 QVariant QMLUserModel::data(const QModelIndex &index, int role) const
@@ -71,6 +69,46 @@ QHash<int, QByteArray> QMLUserModel::roleNames() const
         { ActiveRole, "active" },
         { PresetRole, "preset" }
     };
+}
+
+QVariant QMLUserModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case UserColumn:
+                return tr("User");
+            case ActiveColumn:
+                return tr("Active");
+            case PresetColumn:
+                return tr("Preset");
+            case ActionColumn:
+                return tr("Action");
+            }
+        } else if (role == Qt::TextAlignmentRole) {
+            switch (section) {
+            case UserColumn:
+            case ActiveColumn:
+            case PresetColumn:
+                return Qt::AlignLeft;
+            case ActionColumn:
+                return Qt::AlignHCenter;
+            }
+        } else if (role == Qt::SizeHintRole) {
+            switch (section) {
+            case UserColumn:
+                return tableViewWidth() - 100 - 100 - 130;
+            case ActiveColumn:
+                return 100;
+            case PresetColumn:
+                return 100;
+            case ActionColumn:
+                return 130;
+            }
+        }
+    }
+
+    return section + 1;
 }
 
 void QMLUserModel::tryQuery()
@@ -134,6 +172,9 @@ void QMLUserModel::activateUser(const QString &userName, bool active)
     setBusy(true);
 
     QueryRequest request(this);
-    request.setCommand("activate_user", { { "user_name", userName }, { "active", active } }, QueryRequest::User);
+    request.setCommand("activate_user", {
+                           { "user_name", userName },
+                           { "active", active }
+                       }, QueryRequest::User);
     emit executeRequest(request);
 }

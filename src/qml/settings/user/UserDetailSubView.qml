@@ -2,7 +2,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import com.gecko.rr.components 1.0 as RRComponents
 import "../../rrui" as RRUi
 
 RRUi.SubView {

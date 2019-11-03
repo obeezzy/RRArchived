@@ -49,6 +49,23 @@ QHash<int, QByteArray> UserPrivilegeModel::roleNames() const
     };
 }
 
+bool UserPrivilegeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid())
+        return false;
+
+    switch (role) {
+    case ValueRole:
+        QVariantMap privilege = m_records.at(index.row()).toMap();
+        privilege.insert("value", value);
+        m_records.replace(index.row(), privilege);
+        emit dataChanged(index, index);
+        break;
+    }
+
+    return true;
+}
+
 void UserPrivilegeModel::setPrivileges(const QString &privilegeGroup, const QString &title, const QVariantList &privileges)
 {
     m_privilegeGroup = privilegeGroup;
