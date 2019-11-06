@@ -1,5 +1,8 @@
 #include "queryresult.h"
 
+#include <QJsonObject>
+#include <QJsonDocument>
+
 QueryResult::QueryResult(QObject *parent) :
     QObject(parent),
     m_request(QueryRequest()),
@@ -104,4 +107,17 @@ void QueryResult::setOutcome(const QVariant &outcome)
 QVariant QueryResult::outcome() const
 {
     return m_outcome;
+}
+
+QueryResult QueryResult::fromJson(const QByteArray &json)
+{
+    QJsonObject jsonObject = QJsonDocument::fromJson(json).object();
+    QJsonObject requestJsonObject = jsonObject.value("request").toObject();
+    QueryRequest request = QueryRequest::fromJson(QJsonDocument(requestJsonObject).toJson());
+    QueryResult result(request);
+    result.setSuccessful(requestJsonObject.value("successful").toBool());
+    result.setOutcome(requestJsonObject.value("outcome").toVariant().toMap());
+    result.setErrorMessage(requestJsonObject.value("error").toObject().value("message").toString());
+
+    return result;
 }

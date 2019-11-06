@@ -34,6 +34,8 @@ public:
     void setOutcome(const QVariant &outcome);
     QVariant outcome() const;
 
+    static QueryResult fromJson(const QByteArray &json);
+
     friend QDebug operator<<(QDebug debug, const QueryResult &result)
     {
         debug.nospace() << "QueryResult(command=" << result.request().command()

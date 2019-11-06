@@ -36,6 +36,9 @@ public:
     QString command() const;
     QVariantMap params() const;
     Type type() const;
+    QByteArray toJson() const;
+
+    static QueryRequest fromJson(const QByteArray &json);
 
     friend QDebug operator<<(QDebug debug, const QueryRequest &request)
     {
@@ -50,6 +53,9 @@ private:
     QString m_command;
     QVariantMap m_params;
     Type m_type;
+
+    static Type typeStringToEnum(const QString &typeString);
+    static QString typeEnumToString(Type typeEnum);
 };
 
 #endif // QUERYREQUEST_H
