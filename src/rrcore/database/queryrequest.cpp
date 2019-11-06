@@ -1,4 +1,7 @@
 #include "queryrequest.h"
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 QueryRequest::QueryRequest(QObject *receiver) :
     m_receiver(receiver)
@@ -44,6 +47,83 @@ QVariantMap QueryRequest::params() const
 QueryRequest::Type QueryRequest::type() const
 {
     return m_type;
+}
+
+QByteArray QueryRequest::toJson() const
+{
+    QJsonObject jsonObject {
+        { "command", m_command },
+        { "params", QJsonObject::fromVariantMap(m_params) },
+        { "type", typeEnumToString(m_type) }
+    };
+
+    return QJsonDocument(jsonObject).toJson();
+}
+
+QueryRequest QueryRequest::fromJson(const QByteArray &json)
+{
+    if (json.isEmpty())
+        return QueryRequest();
+
+    const QJsonObject &object = QJsonDocument::fromJson(json).object();
+    QueryRequest request;
+    request.setCommand(object.value("command").toString(),
+                       object.value("params").toVariant().toMap(),
+                       typeStringToEnum(object.value("type").toString()));
+
+    return request;
+}
+
+QueryRequest::Type QueryRequest::typeStringToEnum(const QString &typeString)
+{
+    if (typeString == "stock")
+        return Stock;
+    else if (typeString == "sales")
+        return Sales;
+    else if (typeString == "purchase")
+        return Purchase;
+    else if (typeString == "income")
+        return Income;
+    else if (typeString == "expense")
+        return Expense;
+    else if (typeString == "debtor")
+        return Debtor;
+    else if (typeString == "user")
+        return User;
+    else if (typeString == "client")
+        return Client;
+    else if (typeString == "dashboard")
+        return Dashboard;
+
+    return Unknown;
+}
+
+QString QueryRequest::typeEnumToString(QueryRequest::Type typeEnum)
+{
+    switch (typeEnum) {
+    case Stock:
+        return "stock";
+    case Sales:
+        return "sales";
+    case Purchase:
+        return "purchase";
+    case Income:
+        return "income";
+    case Expense:
+        return "expense";
+    case Debtor:
+        return "debotr";
+    case User:
+        return "user";
+    case Client:
+        return "client";
+    case Dashboard:
+        return "dashboard";
+    case Unknown:
+        return QString();
+    }
+
+    return QString();
 }
 
 void QueryRequest::setCommand(const QString &command, const QVariantMap &params, const Type type)

@@ -2,7 +2,7 @@ TEMPLATE = lib
 
 QT += core qml quick quickcontrols2 sql svg printsupport
 
-CONFIG += c++14
+CONFIG += c++17
 
 RESOURCES += sql/sql.qrc \
     config/config.qrc \
@@ -11,6 +11,10 @@ RESOURCES += sql/sql.qrc \
 INCLUDEPATH += .
 
 SOURCES += \
+    network/networkexception.cpp \
+    network/networkthread.cpp \
+    network/serverrequest.cpp \
+    network/serverresponse.cpp \
     qmlapi/qmlexpensetransactionmodel.cpp \
     qmlapi/qmlstockitemcountrecord.cpp \
     qmlapi/qmlstockitemmodel.cpp \
@@ -21,7 +25,7 @@ SOURCES += \
     database/databaseserver.cpp \
     database/databasecreator.cpp \
     backup/backupthread.cpp \
-    backup/jsonlogger.cpp \
+    network/jsonlogger.cpp \
     database/databaseexception.cpp \
     database/queryrequest.cpp \
     database/queryresult.cpp \
@@ -92,6 +96,10 @@ SOURCES += \
     qmlapi/qmlincomereportmodel.cpp
 
 HEADERS += \
+    network/networkexception.h \
+    network/networkthread.h \
+    network/serverrequest.h \
+    network/serverresponse.h \
     qmlapi/qmlexpensetransactionmodel.h \
     qmlapi/qmlstockitemcountrecord.h \
     qmlapi/qmlstockitemmodel.h \
@@ -102,7 +110,7 @@ HEADERS += \
     database/databaseserver.h \
     database/databasecreator.h \
     backup/backupthread.h \
-    backup/jsonlogger.h \
+    network/jsonlogger.h \
     database/databaseexception.h \
     database/queryrequest.h \
     database/queryresult.h \

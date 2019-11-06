@@ -16,25 +16,26 @@
 #include "sqlmanager/purchasesqlmanager.h"
 #include "sqlmanager/incomesqlmanager.h"
 #include "sqlmanager/expensesqlmanager.h"
+#include "network/networkthread.h"
 
 const QString CONNECTION_NAME(QStringLiteral("db_thread"));
 
 Q_LOGGING_CATEGORY(databaseThread, "rrcore.database.databasethread");
 
-Worker::Worker(QObject *parent) :
+DatabaseWorker::DatabaseWorker(QObject *parent) :
     QObject(parent)
 {
 }
 
-Worker::~Worker()
+DatabaseWorker::~DatabaseWorker()
 {
     QSqlDatabase connection = QSqlDatabase::database(CONNECTION_NAME);
     connection.close();
 }
 
-void Worker::execute(const QueryRequest request)
+void DatabaseWorker::execute(const QueryRequest request)
 {
-    qCInfo(databaseThread) << "Worker->" << request; //<< ", receiver=" << request.receiver();
+    qCInfo(databaseThread) << "DatabaseWorker->" << request;
     QueryResult result;
 
     QElapsedTimer timer;
@@ -87,18 +88,20 @@ void Worker::execute(const QueryRequest request)
     }
 
     emit resultReady(result);
-    qInfo() << "Worker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
+    qInfo() << "DatabaseWorker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :
     QThread(parent)
 {
     if (!isRunning()) {
-        Worker *worker = new Worker;
+        DatabaseWorker *worker = new DatabaseWorker;
 
-        connect(worker, &Worker::resultReady, this, &DatabaseThread::resultReady);
-        connect(this, &DatabaseThread::execute, worker, &Worker::execute);
-        connect(this, &DatabaseThread::finished, worker, &Worker::deleteLater);
+        connect(worker, &DatabaseWorker::resultReady, this, &DatabaseThread::resultReady);
+        connect(this, &DatabaseThread::execute, worker, &DatabaseWorker::execute);
+        connect(this, &DatabaseThread::finished, worker, &DatabaseWorker::deleteLater);
+
+        connect(this, &DatabaseThread::resultReady, &NetworkThread::instance(), &NetworkThread::syncWithServer);
 
         worker->moveToThread(this);
         start();
