@@ -1,4 +1,4 @@
-#include "queryrequest.h"
+﻿#include "queryrequest.h"
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -47,6 +47,22 @@ QVariantMap QueryRequest::params() const
 QueryRequest::Type QueryRequest::type() const
 {
     return m_type;
+}
+
+QueryRequest::CommandVerb QueryRequest::commandVerb() const
+{
+    if (m_command.startsWith("view")
+             || m_command.startsWith("filter"))
+        return CommandVerb::Read;
+    else if (m_command.startsWith("update")
+             || m_command.startsWith("change")
+             || m_command.startsWith("deduct"))
+        return CommandVerb::Update;
+    else if (m_command.startsWith("archive")
+             || m_command.startsWith("undo"))
+        return CommandVerb::Delete;
+
+    return CommandVerb::Create;
 }
 
 QByteArray QueryRequest::toJson() const

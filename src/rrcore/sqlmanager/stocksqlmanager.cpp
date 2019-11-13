@@ -362,7 +362,9 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
+                                    q.lastError().text(),
+                                    "Failed to start transation.");
 
         // STEP: Insert category note.
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
@@ -538,23 +540,9 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
 
         QVariantList items;
         for (const auto &record : records) {
-            QVariantMap itemRecord;
-            itemRecord.insert("item_id", record.value("item_id"));
-            itemRecord.insert("category_id", record.value("category_id").toInt());
-            itemRecord.insert("category", record.value("category").toString());
-            itemRecord.insert("item", record.value("item"));
-            itemRecord.insert("description", record.value("description"));
-            itemRecord.insert("divisible", record.value("divisible"));
+            QVariantMap itemRecord{ recordToMap(record) };
             itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
-            itemRecord.insert("quantity", record.value("quantity"));
-            itemRecord.insert("unit", record.value("unit"));
-            itemRecord.insert("unit_id", record.value("unit_id"));
-            itemRecord.insert("cost_price", record.value("cost_price"));
-            itemRecord.insert("retail_price", record.value("retail_price"));
-            itemRecord.insert("currency", record.value("currency"));
-            itemRecord.insert("created", record.value("created"));
-            itemRecord.insert("last_edited", record.value("last_edited"));
-            itemRecord.insert("user", record.value("user"));
+            itemRecord.remove("image");
 
             items.append(itemRecord);
         }
@@ -922,23 +910,9 @@ void StockSqlManager::filterStockItems(const QueryRequest &request, QueryResult 
 
         QVariantList items;
         for (const auto &record : records) {
-            QVariantMap itemRecord;
-            itemRecord.insert("item_id", record.value("item_id"));
-            itemRecord.insert("category_id", record.value("category_id").toInt());
-            itemRecord.insert("category", record.value("category").toString());
-            itemRecord.insert("item", record.value("item"));
-            itemRecord.insert("description", record.value("description"));
-            itemRecord.insert("divisible", record.value("divisible"));
+            QVariantMap itemRecord { recordToMap(record) };
             itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
-            itemRecord.insert("quantity", record.value("quantity"));
-            itemRecord.insert("unit", record.value("unit"));
-            itemRecord.insert("unit_id", record.value("unit_id"));
-            itemRecord.insert("cost_price", record.value("cost_price"));
-            itemRecord.insert("retail_price", record.value("retail_price"));
-            itemRecord.insert("currency", record.value("currency"));
-            itemRecord.insert("created", record.value("created"));
-            itemRecord.insert("last_edited", record.value("last_edited"));
-            itemRecord.insert("user", record.value("user"));
+            itemRecord.remove("image");
 
             items.append(itemRecord);
         }

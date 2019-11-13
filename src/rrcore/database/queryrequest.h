@@ -21,6 +21,14 @@ public:
         Expense,
         Debtor
     }; Q_ENUM(Type)
+
+    enum class CommandVerb {
+        Create,
+        Read,
+        Update,
+        Delete
+    }; Q_ENUM(CommandVerb)
+
     explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The parent parameter is mandatory!
     QueryRequest(const QueryRequest &other);
     QueryRequest &operator= (const QueryRequest &other);
@@ -36,6 +44,7 @@ public:
     QString command() const;
     QVariantMap params() const;
     Type type() const;
+    CommandVerb commandVerb() const;
     QByteArray toJson() const;
 
     static QueryRequest fromJson(const QByteArray &json);
@@ -44,7 +53,7 @@ public:
     {
         debug.nospace() << "QueryRequest(command=" << request.command()
                         << ", params=" << request.params()
-                        << ", type=" << request.type() << ") ";
+                        << ", type=" << request.type() << ")";
 
         return debug;
     }

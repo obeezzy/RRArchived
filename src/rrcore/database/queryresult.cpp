@@ -111,13 +111,11 @@ QVariant QueryResult::outcome() const
 
 QueryResult QueryResult::fromJson(const QByteArray &json)
 {
-    QJsonObject jsonObject = QJsonDocument::fromJson(json).object();
-    QJsonObject requestJsonObject = jsonObject.value("request").toObject();
-    QueryRequest request = QueryRequest::fromJson(QJsonDocument(requestJsonObject).toJson());
-    QueryResult result(request);
-    result.setSuccessful(requestJsonObject.value("successful").toBool());
-    result.setOutcome(requestJsonObject.value("outcome").toVariant().toMap());
-    result.setErrorMessage(requestJsonObject.value("error").toObject().value("message").toString());
+    QJsonObject jsonObject{ QJsonDocument::fromJson(json).object() };
+    QueryResult result;
+    result.setSuccessful(jsonObject.value("successful").toBool());
+    result.setOutcome(jsonObject.value("outcome").toObject().toVariantMap());
+    result.setErrorMessage(jsonObject.value("error").toObject().value("message").toString());
 
     return result;
 }

@@ -2,13 +2,12 @@
 #include <QCoreApplication>
 #include <QUrl>
 
-UserProfile *UserProfile::m_instance = nullptr;
-
 UserProfile::UserProfile(QObject *parent) :
     QObject(parent),
     m_userName(QString()),
     m_userId(0),
-    m_businessDetails(new BusinessDetails(this))
+    m_businessDetails(new BusinessDetails(this)),
+    m_rackId("RACK-ID")
 {
 
 }
@@ -54,6 +53,11 @@ bool UserProfile::hasPrivilege(const QString &privilege) const
 BusinessDetails *UserProfile::businessDetails() const
 {
     return m_businessDetails;
+}
+
+QString UserProfile::rackId() const
+{
+    return m_rackId;
 }
 
 BusinessDetails::BusinessDetails(QObject *parent) :

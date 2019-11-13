@@ -31,6 +31,7 @@ private:
     JsonLogger *m_jsonLogger;
 
     void waitForFinished(QNetworkReply *reply);
+    void flushBackup();
 };
 
 class NetworkThread : public QThread
@@ -45,10 +46,17 @@ public:
 
     void run() override final;
     void syncWithServer(const QueryResult result);
+    void tunnelToServer(const QueryResult result);
 
     inline static const QString SERVER_URL = QStringLiteral("http://localhost:3000");
     inline static const QString STOCK_API_URL = SERVER_URL + QStringLiteral("/api/database/stock");
     inline static const QString SALES_API_URL = SERVER_URL + QStringLiteral("/api/database/sales");
+    inline static const QString PURCHASE_API_URL = SERVER_URL + QStringLiteral("/api/database/purchase");
+    inline static const QString INCOME_API_URL = SERVER_URL + QStringLiteral("/api/database/income");
+    inline static const QString EXPENSE_API_URL = SERVER_URL + QStringLiteral("/api/database/expense");
+    inline static const QString DEBTOR_API_URL = SERVER_URL + QStringLiteral("/api/database/debtor");
+    inline static const QString CREDITOR_API_URL = SERVER_URL + QStringLiteral("/api/database/creditor");
+    inline static const QString USER_API_URL = SERVER_URL + QStringLiteral("/api/database/user");
 signals:
     void execute(const QueryRequest request);
     void execute(const ServerRequest request);
