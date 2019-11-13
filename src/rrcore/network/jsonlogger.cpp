@@ -7,6 +7,8 @@
 #include <QJsonDocument>
 #include <QDebug>
 
+#include "serverrequest.h"
+
 const QString BACKUP_LOCATION = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/RecordRack/backup";
 const QString BACKUP_FILEPATH = BACKUP_LOCATION + "/rr.json";
 const int MAX_BACKUP_SIZE = 1024 * 1000 * 5; // 5 MB
@@ -31,4 +33,9 @@ void JsonLogger::append(const QByteArray &json)
 
     backupArray.append(jsonObject);
     file.write(QJsonDocument(backupArray).toJson());
+}
+
+QList<ServerRequest> JsonLogger::requests() const
+{
+    return m_requests;
 }

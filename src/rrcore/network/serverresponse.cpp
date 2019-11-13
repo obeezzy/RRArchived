@@ -2,6 +2,7 @@
 #include "serverrequest.h"
 #include <QJsonObject>
 #include <QJsonDocument>
+#include "database/queryresult.h"
 
 ServerResponse::ServerResponse(QObject *parent) :
     QObject(parent),
@@ -19,14 +20,19 @@ ServerResponse::ServerResponse(const ServerRequest &request) :
     qRegisterMetaType<ServerResponse>("ServerResponse");
 }
 
-ServerResponse::ServerResponse(const ServerResponse &other)
+ServerResponse::ServerResponse(const ServerResponse &other) :
+    QObject(nullptr)
 {
     setSuccessful(other.isSuccessful());
+    setQueryResult(other.queryResult());
+    setErrorMessage(other.errorMessage());
 }
 
 ServerResponse &ServerResponse::operator=(const ServerResponse &other)
 {
     setSuccessful(other.isSuccessful());
+    setQueryResult(other.queryResult());
+    setErrorMessage(other.errorMessage());
 
     return *this;
 }
@@ -51,15 +57,32 @@ void ServerResponse::setErrorMessage(const QString &errorMessage)
     m_errorMessage = errorMessage;
 }
 
+QueryResult ServerResponse::queryResult() const
+{
+    return m_queryResult;
+}
+
+void ServerResponse::setQueryResult(const QueryResult &queryResult)
+{
+    m_queryResult = queryResult;
+}
+
 ServerResponse ServerResponse::fromJson(const QByteArray &json)
 {
     ServerResponse response;
-    QJsonObject jsonObject(QJsonDocument::fromJson(json).object());
+    QJsonObject jsonObject{ QJsonDocument::fromJson(json).object() };
 
     if (json.isEmpty())
         return response;
 
     response.setSuccessful(jsonObject.value("successful").toBool());
+
+    QJsonObject queryResultObject {
+        { "successful", jsonObject.value("successful") },
+        { "outcome", jsonObject.value("outcome") }
+    };
+
+    response.setQueryResult(QueryResult::fromJson(QJsonDocument(queryResultObject).toJson()));
 
     return response;
 }

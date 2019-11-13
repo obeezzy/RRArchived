@@ -91,23 +91,8 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
 
         // STEP: Insert note, if available.
         if (!params.value("note").toString().trimmed().isEmpty()) {
-            const QList<QSqlRecord> records(callProcedure("AddNote", {
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "note",
-                                                                  params.value("note", QVariant::String)
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "table_name",
-                                                                  QStringLiteral("sale_transaction")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "user_id",
-                                                                  UserProfile::instance().userId()
-                                                              }
-                                                          }));
+            addNote(params.value("note", QVariant::String).toString(),
+                    QStringLiteral("sale_transaction"));
         }
 
         // STEP: Insert sale transaction.
@@ -195,87 +180,87 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
             // 1. This is a non-suspended transaction.
             // 2. This is a suspended transaction and you want to reserve the goods for this customer.
             if (!params.value("suspended", false).toBool()) {
-                const QList<QSqlRecord> records(callProcedure("DeductStockQuantity", {
-                                                                  ProcedureArgument {
-                                                                      ProcedureArgument::Type::In,
-                                                                      "item_id",
-                                                                      itemInfo.value("item_id")
-                                                                  },
-                                                                  ProcedureArgument {
-                                                                      ProcedureArgument::Type::In,
-                                                                      "quantity",
-                                                                      itemInfo.value("quantity").toDouble()
-                                                                  },
-                                                                  ProcedureArgument {
-                                                                      ProcedureArgument::Type::In,
-                                                                      "unit_id",
-                                                                      itemInfo.value("unit_id")
-                                                                  },
-                                                                  ProcedureArgument {
-                                                                      ProcedureArgument::Type::In,
-                                                                      "reason",
-                                                                      request.command()
-                                                                  },
-                                                                  ProcedureArgument {
-                                                                      ProcedureArgument::Type::In,
-                                                                      "user_id",
-                                                                      UserProfile::instance().userId()
-                                                                  },
-                                                                  ProcedureArgument {
-                                                                      ProcedureArgument::Type::Out,
-                                                                      "initial_quantity_id",
-                                                                      {}
-                                                                  }
-                                                              }));
+                callProcedure("DeductStockQuantity", {
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "item_id",
+                                      itemInfo.value("item_id")
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "quantity",
+                                      itemInfo.value("quantity").toDouble()
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "unit_id",
+                                      itemInfo.value("unit_id")
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "reason",
+                                      request.command()
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::In,
+                                      "user_id",
+                                      UserProfile::instance().userId()
+                                  },
+                                  ProcedureArgument {
+                                      ProcedureArgument::Type::Out,
+                                      "initial_quantity_id",
+                                      {}
+                                  }
+                              });
             }
 
-            const QList<QSqlRecord> records(callProcedure("AddSaleItem", {
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "sale_transaction_id",
-                                                                  saleTransactionId
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "item_id",
-                                                                  itemInfo.value("item_id")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "unit_id",
-                                                                  itemInfo.value("unit_id")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "unit_price",
-                                                                  itemInfo.value("unit_price")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "quantity",
-                                                                  itemInfo.value("quantity")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "cost",
-                                                                  itemInfo.value("cost")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "discount",
-                                                                  itemInfo.value("discount")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "currency",
-                                                                  QStringLiteral("NGN")
-                                                              },
-                                                              ProcedureArgument {
-                                                                  ProcedureArgument::Type::In,
-                                                                  "user_id",
-                                                                  UserProfile::instance().userId()
-                                                              }
-                                                          }));
+            callProcedure("AddSaleItem", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "sale_transaction_id",
+                                  saleTransactionId
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "item_id",
+                                  itemInfo.value("item_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "unit_id",
+                                  itemInfo.value("unit_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "unit_price",
+                                  itemInfo.value("unit_price")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "quantity",
+                                  itemInfo.value("quantity")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "cost",
+                                  itemInfo.value("cost")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "discount",
+                                  itemInfo.value("discount")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "currency",
+                                  QStringLiteral("NGN")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
         }
 
         // STEP: Insert debt or credit.
@@ -554,21 +539,14 @@ void SaleSqlManager::viewSaleCart(const QueryRequest &request, QueryResult &resu
                                                           }
                                                       }));
 
-        QVariantMap outcome;
         QVariantList items;
-        for (const QSqlRecord &record : records) {
+        for (const QSqlRecord &record : records)
             items.append(recordToMap(record));
-        }
 
         if (!items.isEmpty()) {
-            outcome.insert("transaction_id", params.value("transaction_id"));
-            outcome.insert("client_id", items.first().toMap().value("client_id"));
-            outcome.insert("customer_name", items.first().toMap().value("customer_name"));
-            outcome.insert("customer_phone_number", items.first().toMap().value("customer_phone_number"));
-            outcome.insert("total_cost", items.first().toMap().value("total_cost"));
+            QVariantMap outcome { items.first().toMap() };
             outcome.insert("items", items);
             outcome.insert("record_count", items.count());
-
             result.setOutcome(outcome);
         }
     } catch (DatabaseException &) {

@@ -43,7 +43,7 @@ public:
                         << ", errorCode=" << result.errorCode()
                         << ", errorMessage=" << (result.errorMessage().isEmpty() ? result.errorUserMessage() : result.errorMessage())
                         << ", recordCount=" << result.outcome().toMap().value("record_count").toInt()
-                        << ", outcomeValid=" << result.outcome().isValid() << ") ";
+                        << ", outcomeValid=" << result.outcome().isValid() << ")";
 
         return debug;
     }

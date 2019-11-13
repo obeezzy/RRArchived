@@ -56,17 +56,20 @@ public:
     bool hasPrivilege(const QString &privilege) const;
 
     BusinessDetails *businessDetails() const;
+
+    QString rackId() const;
 signals:
     void adminChanged();
 private:
-    static UserProfile *m_instance;
     QUrl m_logoUrl;
     QString m_userName;
     int m_userId;
     QVariant m_privileges;
     BusinessDetails *m_businessDetails;
+    QString m_rackId;
 
     explicit UserProfile(QObject *parent = nullptr);
+    explicit UserProfile(const UserProfile &other) = delete;
     void setUser(int userId, const QString &userName, const QVariant &privileges);
 };
 
