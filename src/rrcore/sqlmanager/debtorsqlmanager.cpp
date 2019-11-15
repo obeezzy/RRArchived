@@ -34,7 +34,8 @@ QueryResult DebtorSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_debtor_details")
             viewDebtorDetails(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound,
+                                    QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {
@@ -259,11 +260,11 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
             }
         }
 
-        QVariantMap outcome;
-        outcome.insert("client_id", clientId);
-        outcome.insert("debtor_id", debtorId);
-        outcome.insert("debt_transaction_ids", debtTransactionIds);
-        result.setOutcome(outcome);
+        result.setOutcome(QVariantMap {
+                              { "client_id", clientId },
+                              { "debtor_id", debtorId },
+                              { "debt_transaction_ids", debtTransactionIds }
+                          });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
@@ -687,12 +688,12 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                           });
         }
 
-        QVariantMap outcome;
-        outcome.insert("client_id", clientId);
-        outcome.insert("debtor_id", debtorId);
-        outcome.insert("updated_debt_transaction_ids", updatedDebtTransactionIds);
-        outcome.insert("new_debt_transaction_ids", newDebtTransactionIds);
-        result.setOutcome(outcome);
+        result.setOutcome(QVariantMap {
+                              { "client_id", clientId },
+                              { "debtor_id", debtorId },
+                              { "updated_debt_transaction_ids", updatedDebtTransactionIds },
+                              { "new_debt_transaction_ids", newDebtTransactionIds }
+                          });
 
         if (!DatabaseUtils::commitTransaction(q))
             throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
@@ -749,7 +750,10 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
             debtors.append(recordToMap(record));
         }
 
-        result.setOutcome(QVariantMap { { "debtors", debtors }, { "record_count", debtors.count() } });
+        result.setOutcome(QVariantMap {
+                              { "debtors", debtors },
+                              { "record_count", debtors.count() }
+                          });
     } catch (DatabaseException &) {
         throw;
     }
@@ -888,10 +892,11 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
         QVariantMap debtor;
         if (!records.isEmpty()) {
             debtor = recordToMap(records.first());
-            result.setOutcome(QVariantMap { { "debtor", QVariant(debtor) },
-                                            { "record_count", 1 },
-                                            { "debtor_id", params.value("debtor_id") },
-                                            { "debtor_row", params.value("debtor_row") }
+            result.setOutcome(QVariantMap {
+                                  { "debtor", QVariant(debtor) },
+                                  { "record_count", 1 },
+                                  { "debtor_id", params.value("debtor_id") },
+                                  { "debtor_row", params.value("debtor_row") }
                               });
         } else {
             throw DatabaseException(DatabaseException::RRErrorCode::UndoRemoveDebtorFailure,
@@ -1006,14 +1011,16 @@ void DebtorSqlManager::viewDebtTransactions(const QueryRequest &request, QueryRe
                                     QString("Transaction count (%1) and payment group count (%2) are unequal.")
                                     .arg(transactions.count()).arg(paymentGroups.count()));
 
-        result.setOutcome(QVariantMap { { "client_id", clientId },
-                                        { "debtor_id", params.value("debtor_id") },
-                                        { "preferred_name", preferredName },
-                                        { "primary_phone_number", primaryPhoneNumber },
-                                        { "note", debtorNote },
-                                        { "transactions", transactions },
-                                        { "payment_groups", paymentGroups },
-                                        { "record_count", transactions.count() } });
+        result.setOutcome(QVariantMap {
+                              { "client_id", clientId },
+                              { "debtor_id", params.value("debtor_id") },
+                              { "preferred_name", preferredName },
+                              { "primary_phone_number", primaryPhoneNumber },
+                              { "note", debtorNote },
+                              { "transactions", transactions },
+                              { "payment_groups", paymentGroups },
+                              { "record_count", transactions.count() }
+                          });
     } catch (DatabaseException &) {
         throw;
     }
@@ -1030,22 +1037,25 @@ void DebtorSqlManager::viewDebtorDetails(const QueryRequest &request, QueryResul
 
         // STEP: Get total balance for each debtor
         const auto records = callProcedure("ViewDebtorDetails", {
-                                    ProcedureArgument {
-                                        ProcedureArgument::Type::In,
-                                        "debtor_id",
-                                        params.value("debtor_id")
-                                    },
-                                    ProcedureArgument {
-                                        ProcedureArgument::Type::In,
-                                        "archived",
-                                        params.value("archived", false)
-                                    }
-                                });
+                                               ProcedureArgument {
+                                                   ProcedureArgument::Type::In,
+                                                   "debtor_id",
+                                                   params.value("debtor_id")
+                                               },
+                                               ProcedureArgument {
+                                                   ProcedureArgument::Type::In,
+                                                   "archived",
+                                                   params.value("archived", false)
+                                               }
+                                           });
 
         QVariantMap debtorInfo;
         if (!records.isEmpty()) {
             debtorInfo = recordToMap(records.first());
-            result.setOutcome(QVariantMap { { "debtor", debtorInfo }, { "record_count", 1 } });
+            result.setOutcome(QVariantMap {
+                                  { "debtor", debtorInfo },
+                                  { "record_count", 1 }
+                              });
         }
     } catch (DatabaseException &) {
         throw;

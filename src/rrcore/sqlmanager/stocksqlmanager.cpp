@@ -227,7 +227,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,
                                         "base_unit_equivalent",
-                                        1
+                                        params.value("base_unit_equivalent")
                                     },
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,
@@ -241,8 +241,8 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
                                     },
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,
-                                        "preferred",
-                                        true
+                                        "is_preferred_unit",
+                                        params.value("is_preferred_unit")
                                     },
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,

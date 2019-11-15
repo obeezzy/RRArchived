@@ -13,6 +13,7 @@ INCLUDEPATH += .
 SOURCES += \
     network/networkexception.cpp \
     network/networkthread.cpp \
+    network/requestlogger.cpp \
     network/serverrequest.cpp \
     network/serverresponse.cpp \
     qmlapi/qmlexpensetransactionmodel.cpp \
@@ -25,7 +26,6 @@ SOURCES += \
     database/databaseserver.cpp \
     database/databasecreator.cpp \
     backup/backupthread.cpp \
-    network/jsonlogger.cpp \
     database/databaseexception.cpp \
     database/queryrequest.cpp \
     database/queryresult.cpp \
@@ -98,6 +98,7 @@ SOURCES += \
 HEADERS += \
     network/networkexception.h \
     network/networkthread.h \
+    network/requestlogger.h \
     network/serverrequest.h \
     network/serverresponse.h \
     qmlapi/qmlexpensetransactionmodel.h \
@@ -110,7 +111,6 @@ HEADERS += \
     database/databaseserver.h \
     database/databasecreator.h \
     backup/backupthread.h \
-    network/jsonlogger.h \
     database/databaseexception.h \
     database/queryrequest.h \
     database/queryresult.h \

@@ -9,18 +9,12 @@ QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
 QMLStockItemPusher::QMLStockItemPusher(DatabaseThread &thread, QObject *parent) :
     AbstractPusher(thread, parent),
     m_itemId(-1),
-    m_imageSource(QString()),
-    m_category(QString()),
-    m_item(QString()),
-    m_description(QString()),
     m_quantity(0.0),
-    m_unit(QString()),
-    m_categoryNote(QString()),
-    m_itemNote(QString()),
     m_tracked(false),
     m_divisible(false),
     m_costPrice(0.0),
-    m_retailPrice(0.0)
+    m_retailPrice(0.0),
+    m_baseUnitEquivalent(1.0)
 {
 
 }
@@ -211,24 +205,28 @@ void QMLStockItemPusher::push()
 {
     setBusy(true);
 
-    QVariantMap params;
-    // Don't pass quantity if you are updating the stock item.
+    QVariantMap params {
+        { "image_source", m_imageSource },
+        { "category", m_category },
+        { "item", m_item },
+        { "description", m_description },
+        { "unit", m_unit },
+        { "category_note", m_categoryNote },
+        { "item_note", m_itemNote },
+        { "tracked", m_tracked },
+        { "divisible", m_divisible },
+        { "cost_price", m_costPrice },
+        { "retail_price", m_retailPrice },
+        { "base_unit_equivalent", m_baseUnitEquivalent },
+        { "is_preferred_unit", true },
+        { "currency", "NGN" }
+    };
+
+    // NOTE: Don't pass quantity if you are updating the stock item.
     if (m_itemId > 0)
         params.insert("item_id", m_itemId);
     else
         params.insert("quantity", m_quantity);
-
-    params.insert("image_source", m_imageSource);
-    params.insert("category", m_category);
-    params.insert("item", m_item);
-    params.insert("description", m_description);
-    params.insert("unit", m_unit);
-    params.insert("category_note", m_categoryNote);
-    params.insert("item_note", m_itemNote);
-    params.insert("tracked", m_tracked);
-    params.insert("divisible", m_divisible);
-    params.insert("cost_price", m_costPrice);
-    params.insert("retail_price", m_retailPrice);
 
     QueryRequest request(this);
     if (m_itemId > 0)

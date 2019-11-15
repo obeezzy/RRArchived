@@ -1,7 +1,7 @@
 #include "networkthread.h"
 #include "serverresponse.h"
 #include "networkexception.h"
-#include "jsonlogger.h"
+#include "requestlogger.h"
 
 #include <QElapsedTimer>
 #include <QCoreApplication>
@@ -18,7 +18,7 @@ NetworkWorker::NetworkWorker(QObject *parent) :
     QObject(parent)
 {
     m_networkManager = new QNetworkAccessManager(this);
-    m_jsonLogger = new JsonLogger(this);
+    m_requestLogger = new RequestLogger(this);
 }
 
 NetworkWorker::~NetworkWorker()
@@ -65,10 +65,10 @@ void NetworkWorker::execute(const QueryRequest request)
         result.setRequest(request);
         response.setQueryResult(result);
 
-        qDebug() << "Response? " << response;
+        qInfo() << "Response? " << response;
     } catch (NetworkException &e) {
-        qDebug() << "Exception caught in NetworkThread:" << e.message();
-        m_jsonLogger->append(serverRequest.toJson());
+        qWarning() << "Exception caught in NetworkThread:" << e.message();
+        m_requestLogger->push(serverRequest);
     }
 
     emit responseReady(response);
@@ -108,7 +108,9 @@ void NetworkWorker::flushBackup()
     QNetworkRequest networkRequest;
 
     try {
-        for (const ServerRequest &request : m_jsonLogger->requests()) {
+        while (m_requestLogger->hasNext()) {
+            const ServerRequest &request = m_requestLogger->nextRequest();
+
             if (request.queryRequest().type() == QueryRequest::Stock)
                 networkRequest.setUrl(QUrl(NetworkThread::STOCK_API_URL));
             else if (request.queryRequest().type() == QueryRequest::Sales)
@@ -125,9 +127,12 @@ void NetworkWorker::flushBackup()
                 throw NetworkException(networkReply->error(),
                                        networkReply->errorString(),
                                        "Failed to receive reply!");
+
+            m_requestLogger->pop();
         }
     } catch (NetworkException &e) {
-        qDebug() << "Exception caught in NetworkThread:" << e.message();
+        qWarning() << "Exception caught while flushing backup:" << e.message();
+        throw;
     }
 }
 
@@ -144,7 +149,7 @@ void NetworkThread::run()
 
 void NetworkThread::syncWithServer(const QueryResult result)
 {
-    if (!result.isSuccessful() || result.request().commandVerb() != QueryRequest::CommandVerb::Read)
+    if (!result.isSuccessful() || result.request().commandVerb() == QueryRequest::CommandVerb::Read)
         return;
 
     emit execute(result.request());
@@ -179,6 +184,7 @@ NetworkThread::NetworkThread(QObject *parent) :
 NetworkThread &NetworkThread::instance()
 {
     static NetworkThread instance;
-    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &instance, &NetworkThread::quit);
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+            &instance, &NetworkThread::quit);
     return instance;
 }

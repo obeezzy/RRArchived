@@ -174,17 +174,15 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
     QFile file(fileName);
     if (QFileInfo(fileName).suffix() != "sql")
         throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
-                                QString("File '%1' is not a sql file").arg(fileName));
+                                QStringLiteral("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
         throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
-                                QString("File '%1' is too large (larger than 50MB).").arg(fileName));
+                                QStringLiteral("File '%1' is too large (larger than 50MB).").arg(fileName));
     if (!file.open(QFile::ReadOnly))
         throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
-                                QString("Failed to open '%1'").arg(fileName));
+                                QStringLiteral("Failed to open '%1'").arg(fileName));
 
-    // Drop procedures first
     QSqlQuery q(m_connection);
-    // Now, create defined procedures
     file.seek(0);
     QString sqlData = file.readAll();
 
