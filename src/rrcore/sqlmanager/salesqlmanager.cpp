@@ -476,7 +476,9 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
 
     try {
         if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
+                                    q.lastError().text(),
+                                    "Failed to start transation.");
 
         const QList<QSqlRecord> &records(callProcedure("IsSaleTransactionSuspended", {
                                                            ProcedureArgument {

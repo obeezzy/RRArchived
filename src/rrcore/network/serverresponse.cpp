@@ -69,11 +69,11 @@ void ServerResponse::setQueryResult(const QueryResult &queryResult)
 
 ServerResponse ServerResponse::fromJson(const QByteArray &json)
 {
+    if (json.isEmpty())
+        return ServerResponse();
+
     ServerResponse response;
     QJsonObject jsonObject{ QJsonDocument::fromJson(json).object() };
-
-    if (json.isEmpty())
-        return response;
 
     response.setSuccessful(jsonObject.value("successful").toBool());
 

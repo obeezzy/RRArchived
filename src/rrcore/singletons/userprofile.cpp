@@ -7,7 +7,7 @@ UserProfile::UserProfile(QObject *parent) :
     m_userName(QString()),
     m_userId(0),
     m_businessDetails(new BusinessDetails(this)),
-    m_rackId("RACK-ID")
+    m_rackId("rr_server")
 {
 
 }

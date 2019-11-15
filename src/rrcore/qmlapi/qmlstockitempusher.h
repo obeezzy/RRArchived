@@ -110,6 +110,7 @@ private:
     bool m_divisible;
     double m_costPrice;
     double m_retailPrice;
+    double m_baseUnitEquivalent;
 };
 
 #endif // QMLSTOCKITEMPUSHER_H

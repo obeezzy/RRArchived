@@ -9,7 +9,7 @@
 
 class QNetworkAccessManager;
 class QNetworkReply;
-class JsonLogger;
+class RequestLogger;
 
 class NetworkWorker : public QObject
 {
@@ -28,7 +28,7 @@ signals:
     void responseReady(const ServerResponse result);
 private:
     QNetworkAccessManager *m_networkManager;
-    JsonLogger *m_jsonLogger;
+    RequestLogger *m_requestLogger;
 
     void waitForFinished(QNetworkReply *reply);
     void flushBackup();

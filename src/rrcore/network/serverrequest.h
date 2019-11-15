@@ -17,19 +17,34 @@ public:
     QObject *receiver() const;
     void setReceiver(QObject *receiver);
 
+    QString action() const;
+    void setAction(const QString &action);
+
+    QVariantMap data() const;
+    void setData(const QVariantMap &data);
+
+    void setQueryRequest(const QueryRequest &queryRequest);
     QueryRequest queryRequest() const;
+
+    static ServerRequest fromJson(const QByteArray &json);
     QByteArray toJson() const;
 
     friend QDebug operator<<(QDebug debug, const ServerRequest &request)
     {
         Q_UNUSED(request)
-        debug.nospace() << "ServerRequest(command=) ";
+        debug.nospace() << "ServerRequest("
+                        << "command=" << request.queryRequest().command()
+                        << ", action=" << request.action()
+                        << ", data=" << request.data()
+                        << ")";
 
         return debug;
     }
 private:
     QObject *m_receiver;
     QueryRequest m_queryRequest;
+    QString m_action;
+    QVariantMap m_data;
 };
 
 #endif // SERVERREQUEST_H
