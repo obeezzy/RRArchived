@@ -80,8 +80,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         // STEP: Insert category note
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
@@ -316,12 +315,9 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -361,10 +357,7 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
         qWarning() << Q_FUNC_INFO << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
-                                    q.lastError().text(),
-                                    "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         // STEP: Insert category note.
         if (!params.value("category_note").toString().trimmed().isEmpty()) {
@@ -509,12 +502,9 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -664,12 +654,9 @@ void StockSqlManager::removeStockItem(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        enforceArguments({ "item_id" }, params);
+        AbstractSqlManager::enforceArguments({ "item_id" }, params);
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
-                                    q.lastError().text(),
-                                    "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         callProcedure("ArchiveStockItem", {
                           ProcedureArgument {
@@ -684,14 +671,9 @@ void StockSqlManager::removeStockItem(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed,
-                                    q.lastError().text(),
-                                    "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -707,10 +689,7 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
     try {
         enforceArguments({ "item_id" }, params);
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
-                                    q.lastError().text(),
-                                    "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         const QList<QSqlRecord> &records(callProcedure("UndoArchiveStockItem", {
                                                            ProcedureArgument {
@@ -739,14 +718,9 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
                               { "item_row", params.value("item_row").toInt() }
                           });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed,
-                                    q.lastError().text(),
-                                    "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
