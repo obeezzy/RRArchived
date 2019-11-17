@@ -44,7 +44,7 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
     return result;
 }
 
-void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult &result, bool skipSqlTransaction)
+void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult &result, TransactionMode mode)
 {
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request.params();
@@ -62,9 +62,8 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
     try {
         //        AbstractSqlManager::enforceArguments( { "action" }, params);
 
-        if (!skipSqlTransaction && !DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to start transation."));
+        if (mode == TransactionMode::UseSqlTransaction)
+            DatabaseUtils::beginTransaction(q);
 
         // STEP: Add client, if client does not exist.
         if (!params.value("customer_phone_number").toString().trimmed().isEmpty() && !params.value("suspended").toBool()) {
@@ -450,18 +449,16 @@ void SaleSqlManager::addSaleTransaction(const QueryRequest &request, QueryResult
                                     });
         }
 
-        if (!skipSqlTransaction && !DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to commit."));
+        if (mode == TransactionMode::UseSqlTransaction)
+            DatabaseUtils::commitTransaction(q);
 
-        QVariantMap outcome;
-        outcome.insert("client_id", clientId);
-        outcome.insert("transaction_id", saleTransactionId);
-
-        result.setOutcome(outcome);
+        result.setOutcome(QVariantMap {
+                              { "client_id", clientId },
+                              { "transaction_id", saleTransactionId }
+                          });
     } catch (DatabaseException &) {
-        if (!skipSqlTransaction && !DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+        if (mode == TransactionMode::UseSqlTransaction)
+            DatabaseUtils::rollbackTransaction(q);
 
         throw;
     }
@@ -475,10 +472,7 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed,
-                                    q.lastError().text(),
-                                    "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         const QList<QSqlRecord> &records(callProcedure("IsSaleTransactionSuspended", {
                                                            ProcedureArgument {
@@ -491,7 +485,7 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
         if (!records.first().value("suspended").toBool())
             throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
 
-        addSaleTransaction(request, result, true);
+        addSaleTransaction(request, result, TransactionMode::SkipSqlTransaction);
 
         callProcedure("ArchiveSaleTransaction", {
                           ProcedureArgument {
@@ -506,12 +500,9 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -567,8 +558,7 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
     try {
         enforceArguments({ "transaction_id" }, params);
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         if (params.value("transaction_id").toInt() > 0) {
             callProcedure("ArchiveSaleTransaction", {
@@ -649,14 +639,11 @@ void SaleSqlManager::undoAddSaleTransaction(const QueryRequest &request, QueryRe
                           });
         }
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
 
         result.setOutcome(request.params());
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -696,7 +683,10 @@ void SaleSqlManager::viewSaleTransactions(const QueryRequest &request, QueryResu
             transactions.append(recordToMap(record));
         }
 
-        result.setOutcome(QVariantMap { { "transactions", transactions }, { "record_count", transactions.count() } });
+        result.setOutcome(QVariantMap {
+                              { "transactions", transactions },
+                              { "record_count", transactions.count() }
+                          });
     } catch (DatabaseException &) {
         throw;
     }
@@ -734,7 +724,10 @@ void SaleSqlManager::viewSaleTransactionItems(const QueryRequest &request, Query
             items.append(recordToMap(record));
         }
 
-        result.setOutcome(QVariantMap { { "items", items }, { "record_count", items.count() } });
+        result.setOutcome(QVariantMap {
+                              { "items", items },
+                              { "record_count", items.count() }
+                          });
     } catch (DatabaseException &) {
         throw;
     }

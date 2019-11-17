@@ -8,6 +8,7 @@
 #include <QUuid>
 #include <QCryptographicHash>
 #include <QStandardPaths>
+#include <QSqlError>
 
 #include "database/databaseexception.h"
 
@@ -21,25 +22,28 @@ DatabaseUtils::DatabaseUtils(QObject *parent)
 
 }
 
-bool DatabaseUtils::beginTransaction(QSqlQuery &q)
+void DatabaseUtils::beginTransaction(QSqlQuery &q)
 {
-    if (!q.exec("SET AUTOCOMMIT = 0"))
-        return false;
-
-    return q.exec("START TRANSACTION");
+    if (!q.exec("SET AUTOCOMMIT = 0") || !q.exec("START TRANSACTION"))
+        throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
+                                "Failed to start transation.");
 }
 
-bool DatabaseUtils::commitTransaction(QSqlQuery &q)
+void DatabaseUtils::commitTransaction(QSqlQuery &q)
 {
-    return q.exec("COMMIT");
+    if (!q.exec("COMMIT"))
+        throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
+                                "Failed to commit.");
 }
 
-bool DatabaseUtils::rollbackTransaction(QSqlQuery &q)
+void DatabaseUtils::rollbackTransaction(QSqlQuery &q)
 {
-    return q.exec("ROLLBACK");
+    if (!q.exec("ROLLBACK"))
+        qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
 }
 
-bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &password, const QString &databaseName, const QString &connectionName)
+bool DatabaseUtils::connectToDatabase(const QString &userName, const QString &password,
+                                      const QString &databaseName, const QString &connectionName)
 {
     if (connectionName.isEmpty())
         return false;

@@ -64,8 +64,7 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
     try {
         AbstractSqlManager::enforceArguments({ "preferred_name", "primary_phone_number" }, params);
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         // STEP: Check if debt transactions exist
         if (newDebtTransactions.count() == 0)
@@ -266,12 +265,9 @@ void DebtorSqlManager::addNewDebtor(const QueryRequest &request, QueryResult &re
                               { "debt_transaction_ids", debtTransactionIds }
                           });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -290,8 +286,7 @@ void DebtorSqlManager::undoAddNewDebtor(const QueryRequest &request, QueryResult
     try {
         AbstractSqlManager::enforceArguments({ "client_id", "debtor_id", "debt_transaction_ids" }, params.value("outcome").toMap());
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         // Remove debtor
         q.prepare("UPDATE debtor SET archived = 1, last_edited = :last_edited, user_id = :user_id WHERE id = :debtor_id");
@@ -329,12 +324,9 @@ void DebtorSqlManager::undoAddNewDebtor(const QueryRequest &request, QueryResult
                                         "Failed to archive debt payments.");
         }
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -359,9 +351,7 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
     try {
         AbstractSqlManager::enforceArguments({ "client_id", "debtor_id", "preferred_name", "primary_phone_number" }, params);
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to start transation."));
+        DatabaseUtils::beginTransaction(q);
 
         // STEP: Check if debt transactions exist.
         if (updatedDebtTransactions.isEmpty() && newDebtTransactions.isEmpty())
@@ -695,12 +685,9 @@ void DebtorSqlManager::updateDebtor(const QueryRequest &request, QueryResult &re
                               { "new_debt_transaction_ids", newDebtTransactionIds }
                           });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to commit."));
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+        DatabaseUtils::rollbackTransaction(q);
 
         throw;
     }
@@ -772,9 +759,8 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
         if (params.value("debtor_id").toInt() <= 0)
             throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(),
                                     QStringLiteral("Debtor ID is invalid."));
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to start transation."));
+
+        DatabaseUtils::beginTransaction(q);
 
         callProcedure("ArchiveDebtor", {
                           ProcedureArgument {
@@ -823,12 +809,9 @@ void DebtorSqlManager::removeDebtor(const QueryRequest &request, QueryResult &re
                                        { "debtor_row", params.value("debtor_row") }
                           });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -847,8 +830,7 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
         if (params.value("debtor_id").toInt() <= 0)
             throw DatabaseException(DatabaseException::RRErrorCode::InvalidArguments, QString(), "Debtor ID is invalid.");
 
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         // Archive debt transactions.
         callProcedure("UndoArchiveDebtor", {
@@ -904,13 +886,9 @@ void DebtorSqlManager::undoRemoveDebtor(const QueryRequest &request, QueryResult
                                     QStringLiteral("Unable to fetch remove debtor."));
         }
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
-                                    QStringLiteral("Failed to commit."));
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }

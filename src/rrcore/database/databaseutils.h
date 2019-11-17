@@ -10,9 +10,9 @@ class DatabaseUtils : public QObject
 {
     Q_OBJECT
 public:
-    static bool beginTransaction(QSqlQuery &q);
-    static bool commitTransaction(QSqlQuery &q);
-    static bool rollbackTransaction(QSqlQuery &q);
+    static void beginTransaction(QSqlQuery &q);
+    static void commitTransaction(QSqlQuery &q);
+    static void rollbackTransaction(QSqlQuery &q);
 
     static QByteArray imageToByteArray(const QString &imageSource, qint64 maxSize = 2 * 1024 * 1000 /* 2MB limit */); // Throws DatabaseException
     static QString byteArrayToImage(const QByteArray &imageData);

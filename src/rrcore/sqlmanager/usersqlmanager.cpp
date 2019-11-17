@@ -159,8 +159,7 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
@@ -186,13 +185,10 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
 
         createRRUser(userName, q);
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
 
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -220,8 +216,7 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         q.prepare(QString("CREATE USER '%1'@'localhost' IDENTIFIED BY '%2'").arg(userName, password));
         if (!q.exec())
@@ -237,13 +232,10 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
 
         createRRUser(userName, q);
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
 
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -255,8 +247,7 @@ void UserSqlManager::removeUser(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         callProcedure("RemoveUser", {
                           ProcedureArgument {
@@ -266,12 +257,9 @@ void UserSqlManager::removeUser(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -302,9 +290,6 @@ void UserSqlManager::viewUsers(const QueryRequest &request, QueryResult &result)
                               { "record_count", users.count() }
                           });
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
         throw;
     }
 }
@@ -350,8 +335,7 @@ void UserSqlManager::addUser(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         const QList<QSqlRecord> &records(callProcedure("AddRRUser", {
                                                            ProcedureArgument {
@@ -434,11 +418,9 @@ void UserSqlManager::addUser(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &e) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+        DatabaseUtils::rollbackTransaction(q);
 
         switch (e.code()) {
         case static_cast<int>(DatabaseException::MySqlErrorCode::DuplicateEntryError):
@@ -461,8 +443,7 @@ void UserSqlManager::activateUser(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         callProcedure("ActivateUser", {
                           ProcedureArgument {
@@ -477,12 +458,9 @@ void UserSqlManager::activateUser(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
-
+        DatabaseUtils::rollbackTransaction(q);
         throw;
     }
 }
@@ -495,8 +473,7 @@ void UserSqlManager::updateUserPrivileges(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         callProcedure("UpdateUserPrivileges", {
                           ProcedureArgument {
@@ -511,11 +488,9 @@ void UserSqlManager::updateUserPrivileges(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &e) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+        DatabaseUtils::rollbackTransaction(q);
 
         if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::DuplicateEntryError))
             throw DatabaseException(DatabaseException::RRErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
@@ -568,8 +543,7 @@ void UserSqlManager::changePassword(const QueryRequest &request)
     QSqlQuery q(connection);
 
     try {
-        if (!DatabaseUtils::beginTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(), "Failed to start transation.");
+        DatabaseUtils::beginTransaction(q);
 
         callProcedure("ChangePassword", {
                           ProcedureArgument {
@@ -594,11 +568,9 @@ void UserSqlManager::changePassword(const QueryRequest &request)
                           }
                       });
 
-        if (!DatabaseUtils::commitTransaction(q))
-            throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(), "Failed to commit transation.");
+        DatabaseUtils::commitTransaction(q);
     } catch (DatabaseException &e) {
-        if (!DatabaseUtils::rollbackTransaction(q))
-            qCritical("Failed to rollback failed transaction! %s", q.lastError().text().toStdString().c_str());
+        DatabaseUtils::rollbackTransaction(q);
 
         if (e.code() == static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException)) {
             throw DatabaseException(DatabaseException::RRErrorCode::OldPasswordWrong, e.message(), e.userMessage());
