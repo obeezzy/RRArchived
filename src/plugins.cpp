@@ -109,7 +109,7 @@ void Plugins::registerFonts()
     QDirIterator iter(FONT_DIR);
     while (iter.hasNext()) {
         const QString &fontPath = iter.next();
-        qDebug() << "Adding font..." << fontPath;
+        qInfo() << "Adding font..." << fontPath;
         QFontDatabase::addApplicationFont(fontPath);
     }
 }

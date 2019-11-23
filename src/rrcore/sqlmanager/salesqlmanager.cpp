@@ -31,7 +31,8 @@ QueryResult SaleSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_sale_report")
             viewSaleReport(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+                                    QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {
@@ -483,7 +484,7 @@ void SaleSqlManager::updateSuspendedTransaction(const QueryRequest &request, Que
                                                        }));
 
         if (!records.first().value("suspended").toBool())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
+            throw DatabaseException(DatabaseError::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
 
         addSaleTransaction(request, result, TransactionMode::SkipSqlTransaction);
 

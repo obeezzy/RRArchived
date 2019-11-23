@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QFutureWatcher>
+#include <QLoggingCategory>
 
 class DatabaseCreator;
 
@@ -27,5 +28,7 @@ private:
     void setBusy(bool busy);
     void onFinished();
 };
+
+Q_DECLARE_LOGGING_CATEGORY(qmlDatabaseCreator);
 
 #endif // QMLDATABASECREATOR_H

@@ -1,6 +1,6 @@
 #include "qmlstockitempusher.h"
 #include "database/databasethread.h"
-#include "database/databaseexception.h"
+#include "database/databaseerror.h"
 
 QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
     AbstractPusher(DatabaseThread::instance(), parent)
@@ -250,10 +250,10 @@ void QMLStockItemPusher::processResult(const QueryResult result)
             emit success(UpdateItemSuccess);
     } else {
         switch (result.errorCode()) {
-        case static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException):
+        case static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException):
             emit error(DuplicateEntryError);
             break;
-        case static_cast<int>(DatabaseException::RRErrorCode::ImageTooLarge):
+        case static_cast<int>(DatabaseError::RRErrorCode::ImageTooLarge):
             emit error(ImageTooLargeError);
             break;
         default:

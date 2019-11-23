@@ -176,11 +176,11 @@ RRUi.Page {
                     switch (successCode) {
                     case RRModels.UserPrivilegeModel.AddUserSuccess:
                         transitionView.trigger();
-                        newUserPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("User added successfully."));
+                        MainWindow.snackBar.show(qsTr("User added successfully."));
                         break;
                     case RRModels.UserPrivilegeModel.UpdateUserSuccess:
                         newUserPage.pop();
-                        newUserPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("User updated successfully."));
+                        MainWindow.snackBar.show(qsTr("User updated successfully."));
                         break;
                     }
                 }

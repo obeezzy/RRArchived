@@ -26,7 +26,8 @@ QueryResult IncomeSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_income_report")
             viewIncomeReport(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+                                    QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {

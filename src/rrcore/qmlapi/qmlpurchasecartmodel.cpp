@@ -261,7 +261,6 @@ void QMLPurchaseCartModel::submitTransaction(const QVariantMap &transactionInfo)
 
 void QMLPurchaseCartModel::suspendTransaction(const QVariantMap &params)
 {
-    qDebug() << Q_FUNC_INFO << "note? " << params.value("note").toString();
     if (m_transactionId == -1)
         addTransaction( { { "suspended", true },
                           { "action", "suspend" },
@@ -303,8 +302,6 @@ QString QMLPurchaseCartModel::toPrintableFormat() const
 
 void QMLPurchaseCartModel::addTransaction(const QVariantMap &transactionInfo)
 {
-    qDebug() << Q_FUNC_INFO << "note? " << transactionInfo.value("note").toString();
-
     if (!m_records.isEmpty()) {
         QVariantMap params;
         params.insert("transaction_id", m_transactionId);

@@ -1,6 +1,6 @@
 ﻿#include "qmldebttransactionmodel.h"
 #include "models/debtpaymentmodel.h"
-#include "database/databaseexception.h"
+#include "database/databaseerror.h"
 #include "database/databasethread.h"
 
 #include <QDateTime>
@@ -110,7 +110,6 @@ void QMLDebtTransactionModel::setDebtorId(int debtorId)
     if (m_debtorId == debtorId)
         return;
 
-    qDebug() << "Debtor ID===" << debtorId;
     m_debtorId = debtorId;
     emit debtorIdChanged();
 }
@@ -536,13 +535,13 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
         }
     } else {
         switch (result.errorCode()) {
-        case int(DatabaseException::RRErrorCode::DuplicateEntryFailure):
+        case int(DatabaseError::RRErrorCode::DuplicateEntryFailure):
             emit error(DuplicateEntryError);
             break;
-        case int(DatabaseException::RRErrorCode::AmountOverpaid):
+        case int(DatabaseError::RRErrorCode::AmountOverpaid):
             emit error(AmountOverpaidError);
             break;
-        case int(DatabaseException::RRErrorCode::InvalidDueDate):
+        case int(DatabaseError::RRErrorCode::InvalidDueDate):
             emit error(InvalidDueDateError);
             break;
         default:

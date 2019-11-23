@@ -1,10 +1,12 @@
 #include "userprofile.h"
 #include <QCoreApplication>
 #include <QUrl>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QSettings>
 
 UserProfile::UserProfile(QObject *parent) :
     QObject(parent),
-    m_userName(QString()),
     m_userId(0),
     m_businessDetails(new BusinessDetails(this)),
     m_rackId("rr_server")
@@ -12,11 +14,17 @@ UserProfile::UserProfile(QObject *parent) :
 
 }
 
-void UserProfile::setUser(int userId, const QString &userName, const QVariant &privileges)
+void UserProfile::setUser(int userId,
+                          const QString &userName,
+                          const QString &password,
+                          const QVariant &privileges,
+                          const QByteArray &accessToken)
 {
     m_userId = userId;
     m_userName = userName;
+    m_password = password;
     m_privileges = privileges;
+    QSettings().setValue("access_token", accessToken);
 }
 
 UserProfile &UserProfile::instance()
@@ -33,6 +41,11 @@ int UserProfile::userId() const
 QString UserProfile::userName() const
 {
     return m_userName;
+}
+
+QString UserProfile::password() const
+{
+    return m_password;
 }
 
 bool UserProfile::isAdmin() const
@@ -58,6 +71,23 @@ BusinessDetails *UserProfile::businessDetails() const
 QString UserProfile::rackId() const
 {
     return m_rackId;
+}
+
+QByteArray UserProfile::accessToken() const
+{
+    return QSettings().value("access_token").toByteArray();
+}
+
+QByteArray UserProfile::toJson() const
+{
+    QJsonObject jsonObject {
+        { "userName", m_userName },
+        { "userId", m_userId },
+        { "password", m_password },
+        { "rackId", m_rackId }
+    };
+
+    return QJsonDocument(jsonObject).toJson();
 }
 
 BusinessDetails::BusinessDetails(QObject *parent) :

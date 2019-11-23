@@ -54,7 +54,8 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "filter_stock_categories_by_item")
             filterStockCategoriesByItem(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+                                    QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {
@@ -600,7 +601,7 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryRes
             itemInfo.remove("image");
         }
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::ViewStockItemDetailsFailed,
+            throw DatabaseException(DatabaseError::RRErrorCode::ViewStockItemDetailsFailed,
                                     QString(),
                                     QString("Item details do not exists for item '%1'.").arg(params.value("item_id").toString()));
 
@@ -705,7 +706,7 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
                                                        }));
 
         if (records.isEmpty())
-            throw DatabaseException(DatabaseException::RRErrorCode::EmptyResultSet,
+            throw DatabaseException(DatabaseError::RRErrorCode::EmptyResultSet,
                                     QString(),
                                     "No results returned.");
 

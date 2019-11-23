@@ -16,6 +16,8 @@
 #include "database/databaseutils.h"
 #include "config/config.h"
 
+Q_LOGGING_CATEGORY(databaseCreator, "rrcore.database.databasecreator");
+
 const QString CONNECTION_NAME("databasecreator");
 
 const QString INIT_SQL_FILE(":/sql/init.sql");
@@ -56,20 +58,20 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
     QFile file(fileName);
     if (QFileInfo(fileName).suffix() != "sql")
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed, QString(),
                                 QString("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed, QString(),
                                 QString("File '%1' is too large (larger than 50MB).").arg(fileName));
     if (!file.open(QFile::ReadOnly))
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed, QString(),
                                 QString("Failed to open '%1'").arg(fileName));
 
     QSqlQuery q(m_connection);
     QString sqlData = file.readAll();
 
     if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed,
                                 q.lastError().text(), "Database name cannot be mysql.");
 
     // Inject database name
@@ -103,7 +105,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
             else {
                 q.exec(s);                        //<== execute normal query
                 if(q.lastError().type() != QSqlError::NoError) {
-                    qInfo() << q.lastError().text();
+                    qCInfo(databaseCreator) << q.lastError().text();
                     m_connection.rollback();                    //<== rollback the transaction if there is any problem
                 }
             }
@@ -120,10 +122,10 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
         //Execute each individual queries
         QStringList extractedQueries = sqlData.split(';', QString::SkipEmptyParts);
-        foreach(const QString &s, extractedQueries) {
+        for (const QString &s : extractedQueries) {
             q.exec(s);
             if(q.lastError().type() != QSqlError::NoError)
-                qInfo() << q.lastError().text();
+                qCInfo(databaseCreator) << q.lastError().text();
         }
     }
 }
@@ -138,7 +140,7 @@ bool DatabaseCreator::start()
 
         settings.setValue("is_first_time", false);
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.code() << e.message() << e.userMessage();
+        qCCritical(databaseCreator) << "Exception caught:" << e.code() << e.message() << e.userMessage();
         return false;
     }
 
@@ -158,7 +160,7 @@ void DatabaseCreator::createProcedures()
         if (QFileInfo(file).suffix() != "sql")
             continue;
         if (!file.open(QFile::ReadOnly))
-            throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+            throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed,
                                     file.errorString(),
                                     QStringLiteral("Failed to create procedures!"));
 
@@ -173,13 +175,13 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
 
     QFile file(fileName);
     if (QFileInfo(fileName).suffix() != "sql")
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed, QString(),
                                 QStringLiteral("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed, QString(),
                                 QStringLiteral("File '%1' is too large (larger than 50MB).").arg(fileName));
     if (!file.open(QFile::ReadOnly))
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed, QString(),
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed, QString(),
                                 QStringLiteral("Failed to open '%1'").arg(fileName));
 
     QSqlQuery q(m_connection);
@@ -187,7 +189,7 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
     QString sqlData = file.readAll();
 
     if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
-        throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+        throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed,
                                 q.lastError().text(), "Database name cannot be mysql.");
 
     // Inject database name
@@ -205,8 +207,8 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
         statement = statement.trimmed();
 
         if (!q.exec(statement)) {
-            qDebug() << "Invalid statement=====" << statement;
-            throw DatabaseException(DatabaseException::RRErrorCode::DatabaseInitializationFailed,
+            qCCritical(databaseCreator) << "Invalid statement=====" << statement;
+            throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed,
                                     QString("Failed to execute query: %1").arg(statement));
         }
     }

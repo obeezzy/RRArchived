@@ -2,6 +2,8 @@
 #define DATABASECREATOR_H
 
 #include <QSqlDatabase>
+#include <QLoggingCategory>
+
 class QString;
 
 class DatabaseCreator
@@ -19,5 +21,7 @@ private:
 
     void executeStoredProcedures(const QString &fileName); // throws DatabaseException!
 };
+
+Q_DECLARE_LOGGING_CATEGORY(databaseCreator);
 
 #endif // DATABASECREATOR_H

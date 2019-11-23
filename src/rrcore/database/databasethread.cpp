@@ -3,6 +3,7 @@
 #include <QElapsedTimer>
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QSettings>
 
 #include "databaseexception.h"
 #include "queryrequest.h"
@@ -43,7 +44,7 @@ void DatabaseWorker::execute(const QueryRequest request)
 
     try {
         if (request.command().trimmed().isEmpty())
-            throw DatabaseException(DatabaseException::RRErrorCode::NoCommand, "No command set.");
+            throw DatabaseException(DatabaseError::RRErrorCode::NoCommand, "No command set.");
 
         switch (request.type()) {
         case QueryRequest::User:
@@ -74,7 +75,7 @@ void DatabaseWorker::execute(const QueryRequest request)
             result = DebtorSqlManager(CONNECTION_NAME).execute(request);
             break;
         default:
-            throw DatabaseException(DatabaseException::RRErrorCode::RequestTypeNotFound, "Unhandled request type.");
+            throw DatabaseException(DatabaseError::RRErrorCode::RequestTypeNotFound, "Unhandled request type.");
         }
 
         if (!result.isSuccessful())
@@ -95,16 +96,21 @@ DatabaseThread::DatabaseThread(QObject *parent) :
     QThread(parent)
 {
     if (!isRunning()) {
-        DatabaseWorker *worker = new DatabaseWorker;
+        QSettings().setValue("forward_to_server", true);
+        if (QSettings().value("forward_to_server", false).toBool()) {
+            connect(this, &DatabaseThread::execute, &NetworkThread::instance(), &NetworkThread::tunnelToServer);
+            connect(&NetworkThread::instance(), &NetworkThread::resultReady, this, &DatabaseThread::resultReady);
+        } else {
+            DatabaseWorker *worker = new DatabaseWorker;
 
-        connect(worker, &DatabaseWorker::resultReady, this, &DatabaseThread::resultReady);
-        connect(this, &DatabaseThread::execute, worker, &DatabaseWorker::execute);
-        connect(this, &DatabaseThread::finished, worker, &DatabaseWorker::deleteLater);
+            connect(worker, &DatabaseWorker::resultReady, this, &DatabaseThread::resultReady);
+            connect(this, &DatabaseThread::execute, worker, &DatabaseWorker::execute);
+            connect(this, &DatabaseThread::finished, worker, &DatabaseWorker::deleteLater);
+            connect(this, &DatabaseThread::resultReady, &NetworkThread::instance(), &NetworkThread::syncWithServer);
 
-        connect(this, &DatabaseThread::resultReady, &NetworkThread::instance(), &NetworkThread::syncWithServer);
-
-        worker->moveToThread(this);
-        start();
+            worker->moveToThread(this);
+            start();
+        }
     }
 }
 

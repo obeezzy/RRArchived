@@ -15,7 +15,7 @@ QueryResult ClientSqlManager::execute(const QueryRequest &request)
         if (request.command() == "view_clients")
             viewClients(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {

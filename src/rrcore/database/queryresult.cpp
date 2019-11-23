@@ -116,6 +116,9 @@ QueryResult QueryResult::fromJson(const QByteArray &json)
     result.setSuccessful(jsonObject.value("successful").toBool());
     result.setOutcome(jsonObject.value("outcome").toObject().toVariantMap());
     result.setErrorMessage(jsonObject.value("error").toObject().value("message").toString());
+    if (jsonObject.value("error").toObject().contains("errno")
+            && jsonObject.value("error").toObject().value("errno").isDouble())
+        result.setErrorCode(jsonObject.value("error").toObject().value("errno").toInt());
 
     return result;
 }

@@ -84,9 +84,6 @@ QByteArray ServerRequest::toJson() const
         serverRequestObject = queryRequestObject;
     }
 
-    serverRequestObject.insert("userId", UserProfile::instance().userId());
-    serverRequestObject.insert("rackId", UserProfile::instance().rackId());
-
     if (!m_action.isEmpty())
         serverRequestObject.insert("action", m_action);
     if (!m_data.isEmpty())

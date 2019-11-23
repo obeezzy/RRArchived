@@ -25,14 +25,14 @@ DatabaseUtils::DatabaseUtils(QObject *parent)
 void DatabaseUtils::beginTransaction(QSqlQuery &q)
 {
     if (!q.exec("SET AUTOCOMMIT = 0") || !q.exec("START TRANSACTION"))
-        throw DatabaseException(DatabaseException::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
+        throw DatabaseException(DatabaseError::RRErrorCode::BeginTransactionFailed, q.lastError().text(),
                                 "Failed to start transation.");
 }
 
 void DatabaseUtils::commitTransaction(QSqlQuery &q)
 {
     if (!q.exec("COMMIT"))
-        throw DatabaseException(DatabaseException::RRErrorCode::CommitTransationFailed, q.lastError().text(),
+        throw DatabaseException(DatabaseError::RRErrorCode::CommitTransationFailed, q.lastError().text(),
                                 "Failed to commit.");
 }
 
@@ -88,7 +88,7 @@ QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource, qint64 ma
     image.save(&buffer, "PNG");
 
     if (ba.size() > maxSize)
-        throw DatabaseException(DatabaseException::RRErrorCode::ImageTooLarge,
+        throw DatabaseException(DatabaseError::RRErrorCode::ImageTooLarge,
                                 QStringLiteral("Image too large (%1 bytes). Expected size should be less than %2").arg(ba.size()).arg(maxSize),
                                 QStringLiteral("Image too large (%1 bytes). Expected size should be less than %2").arg(ba.size()).arg(maxSize));
     return ba;
