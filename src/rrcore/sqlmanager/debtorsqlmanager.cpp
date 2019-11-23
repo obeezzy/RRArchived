@@ -737,13 +737,8 @@ void DebtorSqlManager::viewDebtors(const QueryRequest &request, QueryResult &res
         }
 
         QVariantList debtors;
-        for (const QSqlRecord &record : records) {
-            qDebug() << "Debtor?" << record.value("debtor_id").toInt()
-                     << record.value("preferred_name").toString()
-                     << record.value("total_debt").toDouble()
-                     << record.value("archived").toBool();
+        for (const QSqlRecord &record : records)
             debtors.append(recordToMap(record));
-        }
 
         result.setOutcome(QVariantMap {
                               { "debtors", debtors },

@@ -110,7 +110,6 @@ void QMLDebtTransactionModel::setDebtorId(int debtorId)
     if (m_debtorId == debtorId)
         return;
 
-    qDebug() << "Debtor ID===" << debtorId;
     m_debtorId = debtorId;
     emit debtorIdChanged();
 }

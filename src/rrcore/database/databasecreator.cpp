@@ -16,6 +16,8 @@
 #include "database/databaseutils.h"
 #include "config/config.h"
 
+Q_LOGGING_CATEGORY(databaseCreator, "rrcore.database.databasecreator");
+
 const QString CONNECTION_NAME("databasecreator");
 
 const QString INIT_SQL_FILE(":/sql/init.sql");
@@ -103,7 +105,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
             else {
                 q.exec(s);                        //<== execute normal query
                 if(q.lastError().type() != QSqlError::NoError) {
-                    qInfo() << q.lastError().text();
+                    qCInfo(databaseCreator) << q.lastError().text();
                     m_connection.rollback();                    //<== rollback the transaction if there is any problem
                 }
             }
@@ -123,7 +125,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
         for (const QString &s : extractedQueries) {
             q.exec(s);
             if(q.lastError().type() != QSqlError::NoError)
-                qInfo() << q.lastError().text();
+                qCInfo(databaseCreator) << q.lastError().text();
         }
     }
 }
@@ -138,7 +140,7 @@ bool DatabaseCreator::start()
 
         settings.setValue("is_first_time", false);
     } catch (DatabaseException &e) {
-        qDebug() << "Exception caught:" << e.code() << e.message() << e.userMessage();
+        qCCritical(databaseCreator) << "Exception caught:" << e.code() << e.message() << e.userMessage();
         return false;
     }
 
@@ -205,7 +207,7 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
         statement = statement.trimmed();
 
         if (!q.exec(statement)) {
-            qDebug() << "Invalid statement=====" << statement;
+            qCCritical(databaseCreator) << "Invalid statement=====" << statement;
             throw DatabaseException(DatabaseError::RRErrorCode::DatabaseInitializationFailed,
                                     QString("Failed to execute query: %1").arg(statement));
         }

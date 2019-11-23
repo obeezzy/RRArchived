@@ -135,7 +135,6 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
-    qDebug() << m_lastRequest;
     if (!m_lastRequest.command().isEmpty() && m_lastRequest.receiver()) {
         setBusy(true);
         QueryRequest request(m_lastRequest);

@@ -63,7 +63,7 @@ void NetworkWorker::execute(const QueryRequest request)
 
         qInfo() << "Response? " << response;
     } catch (NetworkException &e) {
-        qWarning() << "Exception caught in NetworkThread:" << e.message() << e.userMessage();
+        qCWarning(networkThread) << "Exception caught in NetworkThread:" << e.message() << e.userMessage();
         if (request.commandVerb() != QueryRequest::CommandVerb::Authenticate
                 && request.commandVerb() != QueryRequest::CommandVerb::Read) // Don't store authentication or read commands
             m_requestLogger->push(serverRequest);
@@ -83,7 +83,7 @@ void NetworkWorker::execute(const ServerRequest request)
 
     try {
     } catch (NetworkException &e) {
-        qDebug() << "Exception caught in NetworkThread:" << e.what();
+        qCWarning(networkThread) << "Exception caught in NetworkThread:" << e.what();
     }
 
     emit responseReady(response);
@@ -152,7 +152,7 @@ void NetworkWorker::flushLoggedRequests()
             m_requestLogger->pop();
         }
     } catch (NetworkException &e) {
-        qWarning(networkThread) << "Exception caught while flushing backup:" << e.message();
+        qCWarning(networkThread) << "Exception caught while flushing backup:" << e.message();
         throw;
     }
 }
