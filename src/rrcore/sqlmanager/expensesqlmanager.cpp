@@ -26,7 +26,8 @@ QueryResult ExpenseSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_expense_report")
             viewExpenseReport(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+                                    QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {

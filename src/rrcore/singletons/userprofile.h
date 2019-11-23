@@ -51,6 +51,7 @@ public:
 
     int userId() const;
     QString userName() const;
+    QString password() const;
 
     bool isAdmin() const;
     bool hasPrivilege(const QString &privilege) const;
@@ -58,11 +59,14 @@ public:
     BusinessDetails *businessDetails() const;
 
     QString rackId() const;
+    QByteArray accessToken() const;
+    QByteArray toJson() const;
 signals:
     void adminChanged();
 private:
     QUrl m_logoUrl;
     QString m_userName;
+    QString m_password;
     int m_userId;
     QVariant m_privileges;
     BusinessDetails *m_businessDetails;
@@ -70,7 +74,8 @@ private:
 
     explicit UserProfile(QObject *parent = nullptr);
     explicit UserProfile(const UserProfile &other) = delete;
-    void setUser(int userId, const QString &userName, const QVariant &privileges);
+    void setUser(int userId, const QString &userName, const QString &password,
+                 const QVariant &privileges, const QByteArray &accessToken);
 };
 
 #endif // USERPROFILE_H

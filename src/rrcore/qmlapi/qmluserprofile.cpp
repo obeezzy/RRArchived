@@ -3,7 +3,7 @@
 #include <QSettings>
 
 #include "database/databasethread.h"
-#include "database/databaseexception.h"
+#include "database/databaseerror.h"
 #include "singletons/userprofile.h"
 
 Q_LOGGING_CATEGORY(qmlUserProfile, "rrcore.qmlapi.qmluserprofile");
@@ -18,8 +18,6 @@ QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
 {
     connect(this, &QMLUserProfile::executeRequest, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
-
-    //connect(UserProfile::instance(), &UserProfile::adminChanged, this, &QMLUserProfile::adminChanged);
 }
 
 bool QMLUserProfile::isBusy() const
@@ -62,7 +60,12 @@ void QMLUserProfile::signIn(const QString &userName, const QString &password)
         setBusy(true);
 
         QueryRequest request(this);
-        request.setCommand("sign_in_user", { { "user_name", userName }, { "password", password } }, QueryRequest::User);
+        request.setCommand("sign_in_user", {
+                               { "user_name", userName },
+                               { "password", password },
+                               { "rack_id", UserProfile::instance().rackId() },
+                               { "user_id", UserProfile::instance().userId() }
+                           }, QueryRequest::User);
         emit executeRequest(request);
     }
 }
@@ -93,6 +96,7 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
 void QMLUserProfile::signOut()
 {
     qCInfo(qmlUserProfile) << "signOut";
+    setBusy(true);
     QueryRequest request(this);
     request.setCommand("sign_out_user", { }, QueryRequest::User);
     emit executeRequest(request);
@@ -135,19 +139,21 @@ void QMLUserProfile::processResult(const QueryResult &result)
         } else if (result.request().command() == "change_password") {
             QSettings().setValue("is_first_time", false);
             emit success(ChangePasswordSuccess);
-        } else if (!result.outcome().toMap().isEmpty()) {
-            UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
-                                            result.outcome().toMap().value("user_name").toString(),
-                                            result.outcome().toMap().value("user_privileges"));
-
+        } else {
             emit success(UnknownSuccess);
         }
+
+        UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
+                                        result.outcome().toMap().value("user_name").toString(),
+                                        result.outcome().toMap().value("password").toString(),
+                                        result.outcome().toMap().value("user_privileges"),
+                                        result.outcome().toMap().value("access_token").toByteArray());
     } else {
         switch (result.errorCode()) {
-        case static_cast<int>(DatabaseException::RRErrorCode::UserAccountIsLocked):
+        case static_cast<int>(DatabaseError::RRErrorCode::UserAccountIsLocked):
             emit error(UserAccountIsLockedError);
             break;
-        case static_cast<int>(DatabaseException::RRErrorCode::SignInFailure):
+        case static_cast<int>(DatabaseError::RRErrorCode::SignInFailure):
             emit error(IncorrectCredentials);
             break;
         default:

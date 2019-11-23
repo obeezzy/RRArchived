@@ -1,7 +1,7 @@
 #include "qmluserprivilegemodel.h"
 
 #include "models/userprivilegemodel.h"
-#include "database/databaseexception.h"
+#include "database/databaseerror.h"
 #include "database/databasethread.h"
 
 QMLUserPrivilegeModel::QMLUserPrivilegeModel(QObject *parent) :
@@ -266,11 +266,11 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
         }
     } else {
         switch (result.errorCode()) {
-        case static_cast<int>(DatabaseException::RRErrorCode::DuplicateEntryFailure):
-        case static_cast<int>(DatabaseException::RRErrorCode::CreateUserFailed):
+        case static_cast<int>(DatabaseError::RRErrorCode::DuplicateEntryFailure):
+        case static_cast<int>(DatabaseError::RRErrorCode::CreateUserFailed):
             emit error(UserAlreadyExistsError);
             break;
-        case static_cast<int>(DatabaseException::RRErrorCode::UserPreviouslyArchived):
+        case static_cast<int>(DatabaseError::RRErrorCode::UserPreviouslyArchived):
             emit error(UserPreviouslyArchivedError);
             break;
         default:

@@ -61,6 +61,8 @@ QueryRequest::CommandVerb QueryRequest::commandVerb() const
     else if (m_command.startsWith("archive")
              || m_command.startsWith("undo"))
         return CommandVerb::Delete;
+    else if (m_command.startsWith("sign"))
+        return CommandVerb::Authenticate;
 
     return CommandVerb::Create;
 }

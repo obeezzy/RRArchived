@@ -11,6 +11,7 @@ RESOURCES += sql/sql.qrc \
 INCLUDEPATH += .
 
 SOURCES += \
+    database/databaseerror.cpp \
     network/networkexception.cpp \
     network/networkthread.cpp \
     network/requestlogger.cpp \
@@ -96,6 +97,7 @@ SOURCES += \
     qmlapi/qmlincomereportmodel.cpp
 
 HEADERS += \
+    database/databaseerror.h \
     network/networkexception.h \
     network/networkthread.h \
     network/requestlogger.h \

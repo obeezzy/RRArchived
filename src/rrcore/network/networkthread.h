@@ -16,7 +16,8 @@ class NetworkWorker : public QObject
     Q_OBJECT
 public:
     enum ErrorCode {
-        RequestFailed
+        RequestFailed,
+        UnableToDetermineDestinationUrl
     };
 
     explicit NetworkWorker(QObject *parent = nullptr);
@@ -25,13 +26,15 @@ public:
     void execute(const QueryRequest request);
     void execute(const ServerRequest request);
 signals:
-    void responseReady(const ServerResponse result);
+    void resultReady(const QueryResult result);
+    void responseReady(const ServerResponse response);
 private:
     QNetworkAccessManager *m_networkManager;
     RequestLogger *m_requestLogger;
 
+    QUrl determineUrl(const QueryRequest &request) const; // throws NetworkException
     void waitForFinished(QNetworkReply *reply);
-    void flushBackup();
+    void flushLoggedRequests(); // throws NetworkException
 };
 
 class NetworkThread : public QThread
@@ -46,9 +49,15 @@ public:
 
     void run() override final;
     void syncWithServer(const QueryResult result);
-    void tunnelToServer(const QueryResult result);
+    void tunnelToServer(const QueryRequest request);
 
     inline static const QString SERVER_URL = QStringLiteral("http://localhost:3000");
+    inline static const QString AUTH_API_URL = SERVER_URL + QStringLiteral("/api/auth");
+    inline static const QString SIGN_IN_API_URL = AUTH_API_URL + QStringLiteral("/signin");
+    inline static const QString SIGN_UP_API_URL = AUTH_API_URL + QStringLiteral("/signup");
+    inline static const QString SIGN_OUT_API_URL = AUTH_API_URL + QStringLiteral("/signout");
+
+    inline static const QString DASHBOARD_API_URL = SERVER_URL + QStringLiteral("/api/database/dashboard");
     inline static const QString STOCK_API_URL = SERVER_URL + QStringLiteral("/api/database/stock");
     inline static const QString SALES_API_URL = SERVER_URL + QStringLiteral("/api/database/sales");
     inline static const QString PURCHASE_API_URL = SERVER_URL + QStringLiteral("/api/database/purchase");
@@ -61,6 +70,7 @@ signals:
     void execute(const QueryRequest request);
     void execute(const ServerRequest request);
     void responseReady(const ServerResponse response);
+    void resultReady(const QueryResult result);
 private:
     explicit NetworkThread(QObject *parent = nullptr);
 };

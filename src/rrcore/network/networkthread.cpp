@@ -36,42 +36,40 @@ void NetworkWorker::execute(const QueryRequest request)
     timer.start();
 
     try {
-        if (request.type() == QueryRequest::Stock)
-            networkRequest.setUrl(QUrl(NetworkThread::STOCK_API_URL));
-        else if (request.type() == QueryRequest::Sales)
-            networkRequest.setUrl(QUrl(NetworkThread::SALES_API_URL));
-        else
-            return;
-
+        networkRequest.setUrl(determineUrl(request));
         networkRequest.setRawHeader("Content-Type", "application/json");
         networkRequest.setRawHeader("Content-Length", QByteArray::number(serverRequest.toJson().size()));
+        networkRequest.setRawHeader("x-access-token", QSettings().value("access_token").toByteArray());            
 
-        flushBackup();
+        flushLoggedRequests();
 
         QNetworkReply *networkReply = m_networkManager->post(networkRequest, serverRequest.toJson());
         waitForFinished(networkReply);
+
+        response = ServerResponse::fromJson(networkReply->readAll());
+        QueryResult result{ response.queryResult() };
+        result.setRequest(request);
+        response.setQueryResult(result);
+
         if (networkReply->error() != QNetworkReply::NoError)
             throw NetworkException(networkReply->error(),
                                    networkReply->errorString(),
-                                   "Failed to receive reply!");
+                                   response.errorMessage());
 
-        response = ServerResponse::fromJson(networkReply->readAll());
         if (!response.isSuccessful())
             throw NetworkException(RequestFailed,
                                    response.errorMessage(),
                                    "Request failed.");
 
-        QueryResult result{ response.queryResult() };
-        result.setRequest(request);
-        response.setQueryResult(result);
-
         qInfo() << "Response? " << response;
     } catch (NetworkException &e) {
-        qWarning() << "Exception caught in NetworkThread:" << e.message();
-        m_requestLogger->push(serverRequest);
+        qWarning() << "Exception caught in NetworkThread:" << e.message() << e.userMessage();
+        if (request.commandVerb() != QueryRequest::CommandVerb::Authenticate
+                && request.commandVerb() != QueryRequest::CommandVerb::Read) // Don't store authentication or read commands
+            m_requestLogger->push(serverRequest);
     }
 
-    emit responseReady(response);
+    emit resultReady(response.queryResult());
     qInfo(networkThread) << "NetworkWorker->" << response << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
@@ -92,6 +90,33 @@ void NetworkWorker::execute(const ServerRequest request)
     qInfo(networkThread) << "NetworkWorker->" << response << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
+QUrl NetworkWorker::determineUrl(const QueryRequest &request) const
+{
+    if (request.type() == QueryRequest::Dashboard) {
+        return QUrl(NetworkThread::DASHBOARD_API_URL);
+    } else if (request.type() == QueryRequest::Stock) {
+        return QUrl(NetworkThread::STOCK_API_URL);
+    } else if (request.type() == QueryRequest::Sales) {
+        return QUrl(NetworkThread::SALES_API_URL);
+    } else if (request.type() == QueryRequest::User) {
+        if (request.commandVerb() == QueryRequest::CommandVerb::Authenticate) {
+            if (request.command() == "sign_in_user")
+                return QUrl(NetworkThread::SIGN_IN_API_URL);
+            else if (request.command() == "sign_up_user")
+                return QUrl(NetworkThread::SIGN_UP_API_URL);
+            else if (request.command() == "sign_out_user")
+                return QUrl(NetworkThread::SIGN_OUT_API_URL);
+        } else {
+            return QUrl(NetworkThread::USER_API_URL);
+        }
+    }
+
+    throw NetworkException(UnableToDetermineDestinationUrl,
+                           QStringLiteral("Unable to determine destination URL for command '%1'").arg(request.command()),
+                           QStringLiteral("Unable to determine destination URL for command '%1'").arg(request.command())
+                           );
+}
+
 void NetworkWorker::waitForFinished(QNetworkReply *reply)
 {
     if (!reply)
@@ -100,9 +125,11 @@ void NetworkWorker::waitForFinished(QNetworkReply *reply)
     QEventLoop loop(this);
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
+
+    qInfo(networkThread) << "NetworkWorker-> Reply received for" << reply->request().url();
 }
 
-void NetworkWorker::flushBackup()
+void NetworkWorker::flushLoggedRequests()
 {
     ServerResponse response;
     QNetworkRequest networkRequest;
@@ -111,13 +138,7 @@ void NetworkWorker::flushBackup()
         while (m_requestLogger->hasNext()) {
             const ServerRequest &request = m_requestLogger->nextRequest();
 
-            if (request.queryRequest().type() == QueryRequest::Stock)
-                networkRequest.setUrl(QUrl(NetworkThread::STOCK_API_URL));
-            else if (request.queryRequest().type() == QueryRequest::Sales)
-                networkRequest.setUrl(QUrl(NetworkThread::SALES_API_URL));
-            else
-                continue;
-
+            networkRequest.setUrl(determineUrl(request.queryRequest()));
             networkRequest.setRawHeader("Content-Type", "application/json");
             networkRequest.setRawHeader("Content-Length", QByteArray::number(request.toJson().size()));
 
@@ -131,7 +152,7 @@ void NetworkWorker::flushBackup()
             m_requestLogger->pop();
         }
     } catch (NetworkException &e) {
-        qWarning() << "Exception caught while flushing backup:" << e.message();
+        qWarning(networkThread) << "Exception caught while flushing backup:" << e.message();
         throw;
     }
 }
@@ -155,12 +176,9 @@ void NetworkThread::syncWithServer(const QueryResult result)
     emit execute(result.request());
 }
 
-void NetworkThread::tunnelToServer(const QueryResult result)
+void NetworkThread::tunnelToServer(const QueryRequest request)
 {
-    if (!result.isSuccessful())
-        return;
-
-    emit execute(result.request());
+    emit execute(request);
 }
 
 NetworkThread::NetworkThread(QObject *parent) :
@@ -170,6 +188,7 @@ NetworkThread::NetworkThread(QObject *parent) :
         NetworkWorker *worker = new NetworkWorker;
 
         connect(worker, &NetworkWorker::responseReady, this, &NetworkThread::responseReady);
+        connect(worker, &NetworkWorker::resultReady, this, &NetworkThread::resultReady);
         connect(this, QOverload<ServerRequest>::of(&NetworkThread::execute),
                 worker, QOverload<ServerRequest>::of(&NetworkWorker::execute));
         connect(this, QOverload<QueryRequest>::of(&NetworkThread::execute),

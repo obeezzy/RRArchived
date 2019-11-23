@@ -26,7 +26,8 @@ public:
         Create,
         Read,
         Update,
-        Delete
+        Delete,
+        Authenticate
     }; Q_ENUM(CommandVerb)
 
     explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The parent parameter is mandatory!

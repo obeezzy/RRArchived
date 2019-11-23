@@ -3,7 +3,7 @@
 #include <QCoreApplication>
 
 #include "qmlapi/qmluserprofile.h"
-#include "database/databaseexception.h"
+#include "database/databaseerror.h"
 #include "mockdatabasethread.h"
 
 class QMLUserProfileTest : public QObject
@@ -84,7 +84,7 @@ void QMLUserProfileTest::testIncorrectCredentialsError()
     auto databaseWillReturnSignInFailure = [this]() {
         m_result.setSuccessful(false);
         m_result.setOutcome(QVariant());
-        m_result.setErrorCode(static_cast<int>(DatabaseException::RRErrorCode::SignInFailure));
+        m_result.setErrorCode(static_cast<int>(DatabaseError::RRErrorCode::SignInFailure));
     };
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);

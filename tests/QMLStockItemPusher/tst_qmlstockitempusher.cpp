@@ -289,7 +289,7 @@ void QMLStockItemPusherTest::testPushSameItem()
     auto databaseWillReturnDuplicateEntryError = [this]() {
         m_result.setSuccessful(false);
         m_result.setOutcome(QVariant());
-        m_result.setErrorCode(static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException));
+        m_result.setErrorCode(static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException));
     };
     QSignalSpy busyChangedSpy(m_stockItemPusher, &QMLStockItemPusher::busyChanged);
     QSignalSpy errorSpy(m_stockItemPusher, &QMLStockItemPusher::error);

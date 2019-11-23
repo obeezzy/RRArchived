@@ -185,6 +185,17 @@ END;
 
 ---
 
+CREATE PROCEDURE UndoArchiveDebtPayment (
+    IN iDebtPaymentId,
+    IN iUserId INTEGER
+)
+BEGIN
+    UPDATE debt_payment SET archived = 0, last_edited = CURRENT_TIMESTAMP(),
+        user_id = iUserId WHERE id = iDebtTransactionId;
+END;
+
+---
+
 CREATE PROCEDURE ViewTotalBalanceForDebtor (
 	IN iDebtorId INTEGER
 )

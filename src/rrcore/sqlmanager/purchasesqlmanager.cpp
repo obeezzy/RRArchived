@@ -39,7 +39,8 @@ QueryResult PurchaseSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_purchase_report")
             viewPurchaseReport(request, result);
         else
-            throw DatabaseException(DatabaseException::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+                                    QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {
@@ -556,7 +557,7 @@ void PurchaseSqlManager::updateSuspendedTransaction(const QueryRequest &request,
                                                        }));
 
         if (!records.first().value("suspended").toBool())
-            throw DatabaseException(DatabaseException::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
+            throw DatabaseException(DatabaseError::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
 
         addPurchaseTransaction(request, result, TransactionMode::SkipSqlTransaction);
 

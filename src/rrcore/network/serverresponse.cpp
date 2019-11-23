@@ -83,6 +83,7 @@ ServerResponse ServerResponse::fromJson(const QByteArray &json)
     };
 
     response.setQueryResult(QueryResult::fromJson(QJsonDocument(queryResultObject).toJson()));
+    response.setErrorMessage(jsonObject.value("error").toObject().value("message").toString());
 
     return response;
 }

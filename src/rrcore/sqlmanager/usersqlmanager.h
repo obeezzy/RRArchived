@@ -12,7 +12,7 @@ public:
 
     QueryResult execute(const QueryRequest &request) override final;
 private:
-    bool storeProfile(QueryResult &result, const QString &userName); // throws DatabaseException
+    bool storeProfile(QueryResult &result, const QString &userName, const QString &password); // throws DatabaseException
 
     void signInUser(const QueryRequest &, QueryResult &); // throws DatabaseException!
     void signUpUser(const QueryRequest &); // throws DatabaseException!

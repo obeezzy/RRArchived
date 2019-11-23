@@ -56,7 +56,7 @@ void AbstractSqlManager::enforceArguments(QStringList argumentsToEnforce, const 
     }
 
     if (!argumentsToEnforce.isEmpty())
-        throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments,
+        throw DatabaseException(DatabaseError::RRErrorCode::MissingArguments,
                                 QString(),
                                 QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")));
 }
@@ -121,7 +121,7 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
                 inArgument = QStringLiteral("%1").arg(argument.value.toString());
 
             if (!q.exec(QStringLiteral("SET @%1 = %2").arg(argument.name, inArgument)))
-                throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
+                throw DatabaseException(DatabaseError::RRErrorCode::ProcedureFailed,
                                         QStringLiteral("Failed to SET variable @%1").arg(argument.name));
 
             sqlArguments.append(QString("@") + argument.name);
@@ -135,7 +135,7 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
     const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
     qInfo() << "Procedure syntax: " << storedProcedure;
     if (!q.exec(storedProcedure)) {
-        if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseException::MySqlErrorCode::UserDefinedException))
+        if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException))
             throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
                                     q.lastError().text(),
                                     q.lastError().databaseText());
@@ -147,7 +147,7 @@ QList<QSqlRecord> AbstractSqlManager::callProcedure(const QString &procedure, st
 
     if (!selectStatementSuffixes.isEmpty()) {
         if (!q.exec(QStringLiteral("SELECT %1").arg(selectStatementSuffixes.join(", "))))
-            throw DatabaseException(DatabaseException::RRErrorCode::ProcedureFailed,
+            throw DatabaseException(DatabaseError::RRErrorCode::ProcedureFailed,
                                     q.lastError().text(),
                                     QStringLiteral("Failed to select out arguments for procedure '%1'.").arg(procedure));
 
@@ -193,7 +193,7 @@ int AbstractSqlManager::addNote(const QString &note, const QString &tableName) {
 
 void AbstractSqlManager::updateNote(int noteId, const QString &note, const QString &tableName) {
     if (noteId <= 0 || note.trimmed().isEmpty())
-        throw DatabaseException(DatabaseException::RRErrorCode::MissingArguments, "Missing arguments for updateNote().");
+        throw DatabaseException(DatabaseError::RRErrorCode::MissingArguments, "Missing arguments for updateNote().");
 
     callProcedure("UpdateNote", {
                       ProcedureArgument {
