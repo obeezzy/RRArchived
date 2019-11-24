@@ -20,8 +20,8 @@ Q_LOGGING_CATEGORY(databaseCreator, "rrcore.database.databasecreator");
 
 const QString CONNECTION_NAME("databasecreator");
 
-const QString INIT_SQL_FILE(":/sql/init.sql");
-const QString PROCEDURE_DIR(":/sql/procedures");
+const QString INIT_SQL_FILE(":/schema/rr-schema/sql/mysql/init.sql");
+const QString PROCEDURE_DIR(":/schema/rr-schema/sql/mysql/procedures");
 
 const QString PROCEDURE_SEPARATOR("---");
 const QString SPACES_AND_TABS_PATTERN("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)"); // Replace comments and tabs and new lines with space

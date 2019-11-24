@@ -204,14 +204,14 @@ RRUi.Page {
     }
 
     FluidControls.Placeholder {
-        visible: categoryListView.count == 0 && searchBar.text !== ""
+        visible: !categoryListView.busy && categoryListView.count == 0 && searchBar.text !== ""
         anchors.centerIn: parent
         icon.source: FluidControls.Utils.iconUrl("action/search")
         text: qsTr("No results for this search query.")
     }
 
     FluidControls.Placeholder {
-        visible: categoryListView.count == 0 && searchBar.text === ""
+        visible: !categoryListView.busy && categoryListView.count == 0 && searchBar.text === ""
         anchors.centerIn: parent
         icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
         text: qsTr("No products available.")

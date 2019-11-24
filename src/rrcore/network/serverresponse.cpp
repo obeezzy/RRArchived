@@ -79,7 +79,8 @@ ServerResponse ServerResponse::fromJson(const QByteArray &json)
 
     QJsonObject queryResultObject {
         { "successful", jsonObject.value("successful") },
-        { "outcome", jsonObject.value("outcome") }
+        { "outcome", jsonObject.value("outcome") },
+        { "error", jsonObject.value("error") }
     };
 
     response.setQueryResult(QueryResult::fromJson(QJsonDocument(queryResultObject).toJson()));

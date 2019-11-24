@@ -178,15 +178,18 @@ void QMLStockCategoryModel::tryQuery()
         request.setCommand("filter_stock_categories_by_item", {
                                { "filter_text", m_itemFilterText },
                                { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
+                               { "archived", false }
                            }, QueryRequest::Stock);
     } else if (!filterText().trimmed().isEmpty()) {
         request.setCommand("filter_stock_categories", {
                                { "filter_text", filterText() },
-                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" }
+                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
+                               { "archived", false }
                            }, QueryRequest::Stock);
     } else {
         request.setCommand("view_stock_categories", {
                                { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
+                               { "archived", false }
                            }, QueryRequest::Stock);
     }
 

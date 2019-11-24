@@ -89,7 +89,7 @@ void DatabaseWorker::execute(const QueryRequest request)
     }
 
     emit resultReady(result);
-    qInfo() << "DatabaseWorker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
+    qCInfo(databaseThread) << "DatabaseWorker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :

@@ -11,7 +11,7 @@ UserProfile::UserProfile(QObject *parent) :
     m_businessDetails(new BusinessDetails(this)),
     m_rackId("rr_server")
 {
-
+    QSettings().setValue("access_token", "");
 }
 
 void UserProfile::setUser(int userId,
