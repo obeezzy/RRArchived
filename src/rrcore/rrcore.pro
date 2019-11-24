@@ -6,7 +6,8 @@ CONFIG += c++17
 
 RESOURCES += sql/sql.qrc \
     config/config.qrc \
-    json/json.qrc
+    json/json.qrc \
+    schema/schema.qrc
 
 INCLUDEPATH += .
 

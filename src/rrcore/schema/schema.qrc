@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/schema">
+        <file>rr-schema/sql/mysql/init.sql</file>
+        <file>rr-schema/sql/mysql/procedures/client.sql</file>
+        <file>rr-schema/sql/mysql/procedures/creditor.sql</file>
+        <file>rr-schema/sql/mysql/procedures/debtor.sql</file>
+        <file>rr-schema/sql/mysql/procedures/note.sql</file>
+        <file>rr-schema/sql/mysql/procedures/sales.sql</file>
+        <file>rr-schema/sql/mysql/procedures/stock.sql</file>
+        <file>rr-schema/sql/mysql/procedures/user.sql</file>
+        <file>rr-schema/sql/mysql/procedures/expense.sql</file>
+        <file>rr-schema/sql/mysql/procedures/income.sql</file>
+        <file>rr-schema/sql/mysql/procedures/purchase.sql</file>
+        <file>rr-schema/sql/mysql/procedures/vendor.sql</file>
+        <file>rr-schema/sql/mysql/procedures/customer.sql</file>
+    </qresource>
+</RCC>
