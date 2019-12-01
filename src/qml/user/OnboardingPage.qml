@@ -4,11 +4,18 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
 import "../rrui" as RRUi
+import "../singletons"
 
 RRUi.Page {
     id: onboardingPage
 
     signal finished
+
+    QtObject {
+        id: privateProperties
+
+        property int businessStoreIndex: -1
+    }
 
     contentItem: FocusScope {
         RRUi.Card {
@@ -52,7 +59,15 @@ RRUi.Page {
                 }
 
                 clip: true
-                initialItem: Qt.resolvedUrl("OnlineLoginPage.qml")
+
+                Component.onCompleted: push(Qt.resolvedUrl("OnlineLoginPage.qml"), { userProfile });
+
+                Connections {
+                    enabled: stackView.currentObjectName === "onlineLoginPage"
+                    ignoreUnknownSignals: true
+                    target: stackView.currentItem
+                    onLoggedIn: nextButton.enabled = true;
+                }
             }
 
             Item {
@@ -82,8 +97,9 @@ RRUi.Page {
                 }
 
                 QQC2.Button {
+                    id: nextButton
                     Material.background: Material.Blue
-                    Material.foreground: "white"
+                    Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
 
                     anchors {
                         right: parent.right
@@ -92,14 +108,17 @@ RRUi.Page {
                     }
 
 
+                    enabled: false
                     text: stackView.currentObjectName === "businessDetailPage" ? qsTr("Finish") : qsTr("Next")
                     onClicked: {
                         if (stackView.currentObjectName === "onlineLoginPage") {
-                            stackView.push(Qt.resolvedUrl("BusinessSelectionPage.qml"));
+                            stackView.push(Qt.resolvedUrl("BusinessSelectionPage.qml"), { userProfile });
                         } else if (stackView.currentObjectName === "businessSelectionPage") {
-                            stackView.push(Qt.resolvedUrl("BusinessDetailPage.qml"));
+                            userProfile.businessStoreModel.currentIndex = stackView.currentItem.businessStoreIndex;
+                            stackView.push(Qt.resolvedUrl("BusinessDetailPage.qml"), { userProfile });
                         } else if (stackView.currentObjectName === "businessDetailPage") {
-                            databaseCreator.start();
+                            busyOverlay.text = qsTr("Linking business store...");
+                            userProfile.linkBusinessStore();
                         }
                     }
                 }
@@ -112,5 +131,21 @@ RRUi.Page {
         onSuccess: onboardingPage.finished();
     }
 
-    RRUi.BusyOverlay { visible: databaseCreator.busy; text: qsTr("Building database...") }
+    RRUi.BusyOverlay {
+        id: busyOverlay
+        visible: databaseCreator.busy || (userProfile.busy && stackView.currentObjectName === "businessDetailPage")
+    }
+
+    RR.UserProfile {
+        id: userProfile
+
+        onSuccess: {
+            switch (successCode) {
+            case RR.UserProfile.LinkBusinessStoreSuccess:
+                busyOverlay.text = qsTr("Building database...");
+                databaseCreator.start();
+                break;
+            }
+        }
+    }
 }

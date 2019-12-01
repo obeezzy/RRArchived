@@ -5,13 +5,18 @@
 #include <QJsonDocument>
 #include <QSettings>
 
+#include "database/databaseutils.h"
+#include "businessdetails.h"
+#include "businessadmin.h"
+
 UserProfile::UserProfile(QObject *parent) :
     QObject(parent),
     m_userId(0),
     m_businessDetails(new BusinessDetails(this)),
-    m_rackId("rr_server")
+    m_businessAdmin(new BusinessAdmin(this))
 {
     QSettings().setValue("access_token", "");
+    qRegisterMetaType<QList<BusinessStore>>("QList<BusinessStore>");
 }
 
 void UserProfile::setUser(int userId,
@@ -25,6 +30,31 @@ void UserProfile::setUser(int userId,
     m_password = password;
     m_privileges = privileges;
     QSettings().setValue("access_token", accessToken);
+}
+
+void UserProfile::setDatabaseReady(bool databaseReady)
+{
+    QSettings().setValue("database_ready", databaseReady);
+}
+
+void UserProfile::setRackId(const QString &rackId)
+{
+    QSettings().setValue("rack_id", rackId);
+}
+
+void UserProfile::setUserId(int userId)
+{
+    m_userId = userId;
+}
+
+void UserProfile::setAccessToken(const QByteArray &accessToken)
+{
+    QSettings().setValue("access_token", accessToken);
+}
+
+void UserProfile::clearUser()
+{
+    UserProfile::instance().setUser(-1, QString(), QString(), QVariant(), QByteArray());
 }
 
 UserProfile &UserProfile::instance()
@@ -48,6 +78,11 @@ QString UserProfile::password() const
     return m_password;
 }
 
+bool UserProfile::isDatabaseReady() const
+{
+    return QSettings().value("database_ready", false).toBool();
+}
+
 bool UserProfile::isAdmin() const
 {
     return false;
@@ -68,9 +103,14 @@ BusinessDetails *UserProfile::businessDetails() const
     return m_businessDetails;
 }
 
+BusinessAdmin *UserProfile::businessAdmin() const
+{
+    return m_businessAdmin;
+}
+
 QString UserProfile::rackId() const
 {
-    return m_rackId;
+    return QSettings().value("rack_id", "NO_RACK_ID").toString();
 }
 
 QByteArray UserProfile::accessToken() const
@@ -84,89 +124,8 @@ QByteArray UserProfile::toJson() const
         { "userName", m_userName },
         { "userId", m_userId },
         { "password", m_password },
-        { "rackId", m_rackId }
+        { "rackId", rackId() }
     };
 
     return QJsonDocument(jsonObject).toJson();
-}
-
-BusinessDetails::BusinessDetails(QObject *parent) :
-    QObject(parent),
-    m_logoUrl(QUrl(QStringLiteral("qrc:/logo.png"))),
-    m_name(QStringLiteral("Emeka and Jane")),
-    m_address(QStringLiteral("1234 My Address, Apt #12, Ogun State, Nigeria")),
-    m_phoneNumber(QStringLiteral("998877665544")),
-    m_establishmentYear(1984)
-{
-
-}
-
-QUrl BusinessDetails::logoUrl() const
-{
-    return m_logoUrl;
-}
-
-QString BusinessDetails::name() const
-{
-    return m_name;
-}
-
-void BusinessDetails::setName(const QString &name)
-{
-    if (m_name == name)
-        return;
-
-    m_name = name;
-    emit nameChanged();
-}
-
-QString BusinessDetails::address() const
-{
-    return m_address;
-}
-
-void BusinessDetails::setAddress(const QString &address)
-{
-    if (m_address == address)
-        return;
-
-    m_address = address;
-    emit addressChanged();
-}
-
-QString BusinessDetails::phoneNumber() const
-{
-    return m_phoneNumber;
-}
-
-void BusinessDetails::setPhoneNumber(const QString &phoneNumber)
-{
-    if (m_phoneNumber == phoneNumber)
-        return;
-
-    m_phoneNumber = phoneNumber;
-    emit phoneNumberChanged();
-}
-
-int BusinessDetails::establishmentYear() const
-{
-    return m_establishmentYear;
-}
-
-void BusinessDetails::setLogoUrl(const QUrl &logoUrl)
-{
-    if (m_logoUrl == logoUrl)
-        return;
-
-    m_logoUrl = logoUrl;
-    emit logoUrlChanged();
-}
-
-void BusinessDetails::setEstablishmentYear(int establishmentYear)
-{
-    if (m_establishmentYear == establishmentYear)
-        return;
-
-    m_establishmentYear = establishmentYear;
-    emit establishmentYearChanged();
 }

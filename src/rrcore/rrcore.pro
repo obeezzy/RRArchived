@@ -4,15 +4,13 @@ QT += core qml quick quickcontrols2 sql svg printsupport
 
 CONFIG += c++17
 
-RESOURCES += sql/sql.qrc \
-    config/config.qrc \
+RESOURCES += config/config.qrc \
     json/json.qrc \
     schema/schema.qrc
 
 INCLUDEPATH += .
 
 SOURCES += \
-    database/databaseerror.cpp \
     network/networkexception.cpp \
     network/networkthread.cpp \
     network/requestlogger.cpp \
@@ -35,7 +33,10 @@ SOURCES += \
     sqlmanager/dashboardsqlmanager.cpp \
     qmlapi/qmlstockitempusher.cpp \
     sqlmanager/stocksqlmanager.cpp \
-    singletons/userprofile.cpp \
+    user/businessadmin.cpp \
+    user/businessstore.cpp \
+    user/businessstoremodel.cpp \
+    user/userprofile.cpp \
     database/databaseutils.cpp \
     models/abstractvisuallistmodel.cpp \
     pusher/abstractpusher.cpp \
@@ -54,6 +55,7 @@ SOURCES += \
     qmlapi/qmlstockitemdetailrecord.cpp \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
+    user/businessdetails.cpp \
     widgets/dialogs.cpp \
     qmlapi/qmlclientmodel.cpp \
     sqlmanager/clientsqlmanager.cpp \
@@ -99,8 +101,10 @@ SOURCES += \
 
 HEADERS += \
     database/databaseerror.h \
+    network/networkerror.h \
     network/networkexception.h \
     network/networkthread.h \
+    network/networkurl.h \
     network/requestlogger.h \
     network/serverrequest.h \
     network/serverresponse.h \
@@ -108,6 +112,7 @@ HEADERS += \
     qmlapi/qmlstockitemcountrecord.h \
     qmlapi/qmlstockitemmodel.h \
     qmlapi/qmluserprofile.h \
+    schema/schema.h \
     sqlmanager/usersqlmanager.h \
     sqlmanager/abstractsqlmanager.h \
     database/databasethread.h \
@@ -121,7 +126,10 @@ HEADERS += \
     sqlmanager/dashboardsqlmanager.h \
     qmlapi/qmlstockitempusher.h \
     sqlmanager/stocksqlmanager.h \
-    singletons/userprofile.h \
+    user/businessadmin.h \
+    user/businessstore.h \
+    user/businessstoremodel.h \
+    user/userprofile.h \
     database/databaseutils.h \
     models/abstractvisuallistmodel.h \
     pusher/abstractpusher.h \
@@ -140,6 +148,7 @@ HEADERS += \
     qmlapi/qmlstockitemdetailrecord.h \
     models/abstracttransactionmodel.h \
     models/abstracttransactionitemmodel.h \
+    user/businessdetails.h \
     widgets/dialogs.h \
     qmlapi/qmlclientmodel.h \
     sqlmanager/clientsqlmanager.h \

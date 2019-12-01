@@ -1,10 +1,14 @@
 #ifndef DATABASEERROR_H
 #define DATABASEERROR_H
 
+#include <type_traits>
+#include <QString>
+#include <QHash>
+
 namespace DatabaseError
 {
-    enum class RRErrorCode {
-        Unknown,
+    enum class QueryErrorCode {
+        UnknownError,
         DatabaseInitializationFailed,
         SignInFailure,
         SignUpFailure,
@@ -62,6 +66,16 @@ namespace DatabaseError
         UserDefinedException = 1644,
         UserAccountIsLockedError = 3118
     };
+
+    static QHash<QString, QueryErrorCode> queryErrorHash = {
+        { "invalid-credentials", QueryErrorCode::SignInFailure }
+    };
+
+    template <typename Enumeration>
+    constexpr auto asInteger(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
+    {
+        return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+    }
 };
 
 #endif // DATABASEERROR_H

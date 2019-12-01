@@ -5,7 +5,7 @@
 #include <QSqlError>
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
 
 PurchaseSqlManager::PurchaseSqlManager(const QString &connectionName) :
     AbstractSqlManager (connectionName)
@@ -39,7 +39,7 @@ QueryResult PurchaseSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_purchase_report")
             viewPurchaseReport(request, result);
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+            throw DatabaseException(DatabaseError::QueryErrorCode::CommandNotFound,
                                     QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
@@ -557,7 +557,7 @@ void PurchaseSqlManager::updateSuspendedTransaction(const QueryRequest &request,
                                                        }));
 
         if (!records.first().value("suspended").toBool())
-            throw DatabaseException(DatabaseError::RRErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
+            throw DatabaseException(DatabaseError::QueryErrorCode::UpdateTransactionFailure, QString(), "Transaction must be suspended.");
 
         addPurchaseTransaction(request, result, TransactionMode::SkipSqlTransaction);
 

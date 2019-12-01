@@ -30,7 +30,6 @@ int QMLExpenseTransactionModel::columnCount(const QModelIndex &parent) const
 
 QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) const
 {
-    Q_UNUSED(role)
     if (!index.isValid())
         return QVariant();
 

@@ -6,7 +6,7 @@
 
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
 
 IncomeSqlManager::IncomeSqlManager(const QString &connectionName) :
     AbstractSqlManager (connectionName)
@@ -26,7 +26,7 @@ QueryResult IncomeSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "view_income_report")
             viewIncomeReport(request, result);
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+            throw DatabaseException(DatabaseError::QueryErrorCode::CommandNotFound,
                                     QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);

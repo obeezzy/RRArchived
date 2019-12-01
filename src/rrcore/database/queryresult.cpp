@@ -109,13 +109,14 @@ QVariant QueryResult::outcome() const
     return m_outcome;
 }
 
-QueryResult QueryResult::fromJson(const QByteArray &json)
+QueryResult QueryResult::fromJson(const QByteArray &json, const QueryRequest &request)
 {
     QJsonObject jsonObject{ QJsonDocument::fromJson(json).object() };
     QueryResult result;
     result.setSuccessful(jsonObject.value("successful").toBool());
     result.setOutcome(jsonObject.value("outcome").toObject().toVariantMap());
     result.setErrorMessage(jsonObject.value("error").toObject().value("message").toString());
+    result.setRequest(request);
     if (jsonObject.value("error").toObject().contains("errno")
             && jsonObject.value("error").toObject().value("errno").isDouble())
         result.setErrorCode(jsonObject.value("error").toObject().value("errno").toInt());

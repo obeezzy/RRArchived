@@ -158,5 +158,7 @@
         <file>sales/SaleTransactionDetailTableView.qml</file>
         <file>purchase/PurchaseTransactionDetailTableView.qml</file>
         <file>settings/user/UserTableView.qml</file>
+        <file>lottie/Checkmark.qml</file>
+        <file>rrui/BusyIndicator.qml</file>
     </qresource>
 </RCC>

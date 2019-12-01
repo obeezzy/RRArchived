@@ -34,7 +34,7 @@ public:
     void setOutcome(const QVariant &outcome);
     QVariant outcome() const;
 
-    static QueryResult fromJson(const QByteArray &json);
+    static QueryResult fromJson(const QByteArray &json, const QueryRequest &request = QueryRequest());
 
     friend QDebug operator<<(QDebug debug, const QueryResult &result)
     {

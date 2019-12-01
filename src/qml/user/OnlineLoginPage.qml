@@ -1,15 +1,18 @@
-import QtQuick 2.12
+import QtQuick 2.13
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
 import "../rrui" as RRUi
+import "../lottie" as Lottie
+import "../singletons"
 
 RRUi.Page {
     id: onlineLoginPage
     objectName: "onlineLoginPage"
 
     readonly property bool detailValid: emailAddressField.textField.text !== "" && passwordField.textField.text !== ""
+    property RR.UserProfile userProfile: null
     signal loggedIn
 
     padding: 16
@@ -29,6 +32,7 @@ RRUi.Page {
         }
 
         Column {
+            visible: !lottieCheckmark.visible && !busyIndicator.visible
             anchors.centerIn: parent
 
             RRUi.IconTextField {
@@ -62,17 +66,17 @@ RRUi.Page {
 
             QQC2.Button {
                 Material.background: Material.accent
-                Material.foreground: "white"
+                Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
                 anchors.right: parent.right
                 text: qsTr("Login")
-                onClicked: userProfile.signInOnline(emailAddressField.textField.text, passwordField.textField.text);
+                onClicked: onlineLoginPage.userProfile.linkAccount(emailAddressField.textField.text, passwordField.textField.text);
             }
 
             Item { width: 1; height: 24 }
 
             FluidControls.SubheadingLabel {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("<a href='https://www.github.com/obeezzy/RecordRackDesktop/'>New to Record Rack?</a>")
+                text: qsTr("<a href='%1'>New to Record Rack?</a>").arg(onlineLoginPage.userProfile.newUserUrl)
                 onLinkActivated: Qt.openUrlExternally(link);
             }
 
@@ -80,15 +84,56 @@ RRUi.Page {
 
             FluidControls.SubheadingLabel {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("<a href='https://www.github.com/obeezzy/Seppuku/'>Forgot password?</a>")
+                text: qsTr("<a href='%1'>Forgot password?</a>").arg(onlineLoginPage.userProfile.passwordRetrievalUrl)
                 onLinkActivated: Qt.openUrlExternally(link);
             }
         }
+
+        Lottie.Checkmark {
+            id: lottieCheckmark
+            anchors.fill: parent
+            text: qsTr("Account linked!")
+            onFinished: onlineLoginPage.loggedIn();
+        }
+
+        RRUi.BusyIndicator {
+            id: busyIndicator
+            anchors.centerIn: parent
+            visible: onlineLoginPage.userProfile.busy
+            text: qsTr("Connecting to online server...")
+        }
     }
 
-    RRUi.BusyOverlay { visible: userProfile.busy }
+    RRUi.ErrorDialog { id: errorDialog }
 
-    RRUi.ErrorDialog { }
+    Connections {
+        target: onlineLoginPage.userProfile
+        onSuccess: {
+            switch (successCode) {
+            case RR.UserProfile.LinkAccountSuccess:
+                lottieCheckmark.animate();
+                break;
+            }
+        }
 
-    RR.UserProfile { id: userProfile }
+        onError: {
+            switch (errorCode) {
+            case RR.UserProfile.ConnectionRefusedError:
+                errorDialog.show(qsTr("Unable to connect to the server. Check your internet connection and try again."), qsTr("Error"));
+                break;
+            case RR.UserProfile.NoEmailAddressProvided:
+                errorDialog.show(qsTr("Please enter your email address."), qsTr("Error"));
+                break;
+            case RR.UserProfile.NoPasswordProvided:
+                errorDialog.show(qsTr("Please enter your password."), qsTr("Error"));
+                break;
+            case RR.UserProfile.IncorrectCredentials:
+                errorDialog.show(qsTr("The email address or password provided is incorrect."), qsTr("Authentication error"));
+                break;
+            default:
+                errorDialog.show(qsTr("An unknown error occurred."), qsTr("Error"));
+                break;
+            }
+        }
+    }
 }

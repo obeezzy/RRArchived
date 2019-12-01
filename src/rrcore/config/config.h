@@ -10,7 +10,7 @@ public:
 
     ~Config() = default;
     Config(Config const &) = delete;
-    void operator=(Config const &) = delete;
+    Config &operator=(const Config &) = delete;
 
     QString hostName();
     int port();

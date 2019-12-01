@@ -535,13 +535,13 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
         }
     } else {
         switch (result.errorCode()) {
-        case int(DatabaseError::RRErrorCode::DuplicateEntryFailure):
+        case int(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
             emit error(DuplicateEntryError);
             break;
-        case int(DatabaseError::RRErrorCode::AmountOverpaid):
+        case int(DatabaseError::QueryErrorCode::AmountOverpaid):
             emit error(AmountOverpaidError);
             break;
-        case int(DatabaseError::RRErrorCode::InvalidDueDate):
+        case int(DatabaseError::QueryErrorCode::InvalidDueDate):
             emit error(InvalidDueDateError);
             break;
         default:

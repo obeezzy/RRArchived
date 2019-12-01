@@ -8,10 +8,12 @@ import "../rrui" as RRUi
 RRUi.Page {
     id: businessSelectionPage
     objectName: "businessSelectionPage"
+
+    readonly property int businessStoreIndex: listView.currentIndex
+    property RR.UserProfile userProfile: null
+
     padding: 16
     topPadding: 36
-
-    signal loggedIn
 
     contentItem: FocusScope {
         focus: true
@@ -29,6 +31,7 @@ RRUi.Page {
         }
 
         ListView {
+            id: listView
             anchors {
                 top: descriptionLabel.bottom
                 left: parent.left
@@ -37,20 +40,15 @@ RRUi.Page {
                 topMargin: 24
             }
 
-            model: ["Emeka and Jane, Ota", "Emeka and Jane, Oshodi", "Nerve"]
+            model: businessSelectionPage.userProfile.businessStoreModel
+            currentIndex: 0
 
             delegate: QQC2.RadioButton {
-                text: modelData
+                text: name
                 checked: ListView.view.currentIndex === index
             }
         }
     }
 
-    RRUi.BusyOverlay { visible: userProfile.busy }
-
     RRUi.ErrorDialog { }
-
-    RR.UserProfile {
-        id: userProfile
-    }
 }

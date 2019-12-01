@@ -44,7 +44,7 @@ void DatabaseWorker::execute(const QueryRequest request)
 
     try {
         if (request.command().trimmed().isEmpty())
-            throw DatabaseException(DatabaseError::RRErrorCode::NoCommand, "No command set.");
+            throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand, "No command set.");
 
         switch (request.type()) {
         case QueryRequest::User:
@@ -75,7 +75,7 @@ void DatabaseWorker::execute(const QueryRequest request)
             result = DebtorSqlManager(CONNECTION_NAME).execute(request);
             break;
         default:
-            throw DatabaseException(DatabaseError::RRErrorCode::RequestTypeNotFound, "Unhandled request type.");
+            throw DatabaseException(DatabaseError::QueryErrorCode::RequestTypeNotFound, "Unhandled request type.");
         }
 
         if (!result.isSuccessful())

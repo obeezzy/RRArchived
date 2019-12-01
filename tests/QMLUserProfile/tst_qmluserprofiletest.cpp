@@ -84,7 +84,7 @@ void QMLUserProfileTest::testIncorrectCredentialsError()
     auto databaseWillReturnSignInFailure = [this]() {
         m_result.setSuccessful(false);
         m_result.setOutcome(QVariant());
-        m_result.setErrorCode(static_cast<int>(DatabaseError::RRErrorCode::SignInFailure));
+        m_result.setErrorCode(static_cast<int>(DatabaseError::QueryErrorCode::SignInFailure));
     };
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);

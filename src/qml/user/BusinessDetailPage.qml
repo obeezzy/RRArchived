@@ -8,10 +8,11 @@ import "../rrui" as RRUi
 RRUi.Page {
     id: businessDetailPage
     objectName: "businessDetailPage"
+
+    property RR.UserProfile userProfile: null
+
     padding: 16
     topPadding: 36
-
-    signal loggedIn
 
     contentItem: FocusScope {
         focus: true
@@ -34,30 +35,46 @@ RRUi.Page {
             RRUi.IconTextField {
                 icon.source: FluidControls.Utils.iconUrl("social/domain")
                 textField.placeholderText: qsTr("Business name")
+                textField.text: businessDetailPage.userProfile.businessDetails.name
+                textField.onTextEdited: userProfile.businessDetails.name = text;
             }
 
             RRUi.IconTextField {
                 icon.source: FluidControls.Utils.iconUrl("communication/location_on")
                 textField.placeholderText: qsTr("Business address")
+                textField.text: businessDetailPage.userProfile.businessDetails.address
+                textField.onTextEdited: userProfile.businessDetails.address = text;
             }
 
             RRUi.IconTextField {
                 icon.source: FluidControls.Utils.iconUrl("communication/phone")
                 textField.placeholderText: qsTr("Business phone number")
+                textField.text: businessDetailPage.userProfile.businessDetails.phoneNumber
+                textField.onTextEdited: businessDetailPage.userProfile.businessDetails.phoneNumber = text;
             }
 
             RRUi.IconTextField {
                 icon.source: FluidControls.Utils.iconUrl("action/date_range")
                 textField.placeholderText: qsTr("Establishment year")
+                textField.text: businessDetailPage.userProfile.businessDetails.establishmentYear
+                textField.onTextEdited: businessDetailPage.userProfile.businessDetails.establishmentYear = text;
             }
         }
     }
 
-    RRUi.BusyOverlay { visible: userProfile.busy }
+    RRUi.ErrorDialog { id: errorDialog }
 
-    RRUi.ErrorDialog { }
-
-    RR.UserProfile {
-        id: userProfile
+    Connections {
+        target: businessDetailPage.userProfile
+        onError: {
+            switch (errorCode) {
+            case RR.UserProfile.ConnectionRefusedError:
+                errorDialog.show(qsTr("Unable to connect to the server. Check your internet connection and try again."), qsTr("Error"));
+                break;
+            default:
+                errorDialog.show(qsTr("An unknown error occurred."), qsTr("Error"));
+                break;
+            }
+        }
     }
 }

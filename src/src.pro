@@ -19,7 +19,8 @@ win32:DESTDIR = $$OUT_PWD
 RESOURCES += qml/qml.qrc \
     icons/icons.qrc \
     images.qrc \
-    fonts/fonts.qrc
+    fonts/fonts.qrc \
+    lottie/lottie.qrc
 
 win32:Release {
     RR_INSTALL_ROOT = $$OUT_PWD/../install-root

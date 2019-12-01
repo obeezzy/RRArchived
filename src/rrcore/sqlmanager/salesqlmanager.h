@@ -3,7 +3,7 @@
 
 #include "abstractsqlmanager.h"
 
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 

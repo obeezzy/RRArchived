@@ -18,7 +18,7 @@ public:
     void setReceiver(QObject *receiver);
 
     QString action() const;
-    void setAction(const QString &action);
+    void setAction(const QString &action, const QVariantMap &data = QVariantMap());
 
     QVariantMap data() const;
     void setData(const QVariantMap &data);
@@ -31,12 +31,17 @@ public:
 
     friend QDebug operator<<(QDebug debug, const ServerRequest &request)
     {
-        Q_UNUSED(request)
-        debug.nospace() << "ServerRequest("
-                        << "command=" << request.queryRequest().command()
-                        << ", action=" << request.action()
-                        << ", data=" << request.data()
-                        << ")";
+        if (!request.queryRequest().command().trimmed().isEmpty()) {
+            debug.nospace() << "ServerRequest("
+                            << "command=" << request.queryRequest().command()
+                            << ", params=" << request.queryRequest().params()
+                            << ")";
+        } else {
+            debug.nospace() << "ServerRequest("
+                            << "action=" << request.action()
+                            << ", data=" << request.data()
+                            << ")";
+        }
 
         return debug;
     }
