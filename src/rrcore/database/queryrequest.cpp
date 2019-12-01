@@ -51,7 +51,10 @@ QueryRequest::Type QueryRequest::type() const
 
 QueryRequest::CommandVerb QueryRequest::commandVerb() const
 {
-    if (m_command.startsWith("view")
+    if (m_command.startsWith("sign")
+             || m_command == "change_password")
+        return CommandVerb::Authenticate;
+    else if (m_command.startsWith("view")
              || m_command.startsWith("filter"))
         return CommandVerb::Read;
     else if (m_command.startsWith("update")
@@ -61,8 +64,6 @@ QueryRequest::CommandVerb QueryRequest::commandVerb() const
     else if (m_command.startsWith("archive")
              || m_command.startsWith("undo"))
         return CommandVerb::Delete;
-    else if (m_command.startsWith("sign"))
-        return CommandVerb::Authenticate;
 
     return CommandVerb::Create;
 }

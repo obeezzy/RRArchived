@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/lottie">
+        <file>check_animation.json</file>
+    </qresource>
+</RCC>

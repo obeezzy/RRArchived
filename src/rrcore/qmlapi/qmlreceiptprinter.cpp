@@ -15,7 +15,8 @@
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
+#include "user/businessdetails.h"
 #include "singletons/settings.h"
 #include "models/receiptcartmodel.h"
 

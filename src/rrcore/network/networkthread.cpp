@@ -2,6 +2,7 @@
 #include "serverresponse.h"
 #include "networkexception.h"
 #include "requestlogger.h"
+#include "user/userprofile.h"
 
 #include <QElapsedTimer>
 #include <QCoreApplication>
@@ -11,6 +12,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QEventLoop>
+#include "networkurl.h"
+#include "networkerror.h"
 
 Q_LOGGING_CATEGORY(networkThread, "rrcore.database.networkthread");
 
@@ -28,7 +31,7 @@ NetworkWorker::~NetworkWorker()
 void NetworkWorker::execute(const QueryRequest request)
 {
     qCInfo(networkThread) << "NetworkWorker->" << request;
-    ServerResponse response;
+    ServerResponse response(QueryResult{ request }); // Always know your sender, even if an exception is thrown
     QNetworkRequest networkRequest;
     ServerRequest serverRequest(request);
 
@@ -39,34 +42,35 @@ void NetworkWorker::execute(const QueryRequest request)
         networkRequest.setUrl(determineUrl(request));
         networkRequest.setRawHeader("Content-Type", "application/json");
         networkRequest.setRawHeader("Content-Length", QByteArray::number(serverRequest.toJson().size()));
-        networkRequest.setRawHeader("x-access-token", QSettings().value("access_token").toByteArray());            
+        if (!UserProfile::instance().accessToken().trimmed().isEmpty())
+            networkRequest.setRawHeader("Authorization", QByteArray("Bearer ").append(UserProfile::instance().accessToken()));
 
         flushLoggedRequests();
 
         QNetworkReply *networkReply = m_networkManager->post(networkRequest, serverRequest.toJson());
         waitForFinished(networkReply);
 
-        response = ServerResponse::fromJson(networkReply->readAll());
+        response = ServerResponse::fromJson(networkReply->readAll(), request);
         QueryResult result{ response.queryResult() };
-        result.setRequest(request);
         response.setQueryResult(result);
 
         if (networkReply->error() != QNetworkReply::NoError)
-            throw NetworkException(networkReply->error(),
-                                   networkReply->errorString(),
-                                   response.errorMessage());
-
-        if (!response.isSuccessful())
-            throw NetworkException(RequestFailed,
+            throw NetworkException(response.errorCode(),
                                    response.errorMessage(),
-                                   "Request failed.");
-
-        qInfo() << "Response? " << response;
+                                   networkReply->error(),
+                                   networkReply->errorString());
     } catch (NetworkException &e) {
-        qCWarning(networkThread) << "Exception caught in NetworkThread:" << e.message() << e.userMessage();
+        response.setErrorCode(e.code());
+        response.setErrorMessage(e.message());
+        response.setStatusCode(e.statusCode());
+        response.setStatusMessage(e.statusMessage());
+
         if (request.commandVerb() != QueryRequest::CommandVerb::Authenticate
                 && request.commandVerb() != QueryRequest::CommandVerb::Read) // Don't store authentication or read commands
             m_requestLogger->push(serverRequest);
+
+        qCWarning(networkThread).nospace() << "Exception caught in NetworkThread: ResponseError=(" << e.message()
+                                           << "), NetworkReplyError=(" << e.statusMessage() << ")";
     }
 
     emit resultReady(response.queryResult());
@@ -76,45 +80,79 @@ void NetworkWorker::execute(const QueryRequest request)
 void NetworkWorker::execute(const ServerRequest request)
 {
     qCInfo(networkThread) << "NetworkWorker->" << request;
-    ServerResponse response(request);
+    ServerResponse response(request); // Always know the sender
+    QNetworkRequest networkRequest;
 
     QElapsedTimer timer;
     timer.start();
 
     try {
+        networkRequest.setUrl(determineUrl(request));
+        networkRequest.setRawHeader("Content-Type", "application/json");
+        networkRequest.setRawHeader("Content-Length", QByteArray::number(request.toJson().size()));
+        if (!UserProfile::instance().accessToken().trimmed().isEmpty())
+            networkRequest.setRawHeader("Authorization", QByteArray("Bearer ").append(UserProfile::instance().accessToken()));
+
+        QNetworkReply *networkReply = m_networkManager->post(networkRequest, request.toJson());
+        waitForFinished(networkReply);
+
+        response = ServerResponse::fromJson(networkReply->readAll(), request);
+
+        if (networkReply->error() != QNetworkReply::NoError)
+            throw NetworkException(response.errorCode(),
+                                   response.errorMessage(),
+                                   networkReply->error(),
+                                   networkReply->errorString());
     } catch (NetworkException &e) {
-        qCWarning(networkThread) << "Exception caught in NetworkThread:" << e.what();
+        response.setErrorCode(e.code());
+        response.setErrorMessage(e.message());
+        response.setStatusCode(e.statusCode());
+        response.setStatusMessage(e.statusMessage());
+
+        qCWarning(networkThread).nospace() << "Exception caught in NetworkThread: ResponseError=(" << e.message()
+                                           << "), NetworkReplyError=(" << e.statusMessage() << ")";
     }
 
     emit responseReady(response);
-    qInfo(networkThread) << "NetworkWorker->" << response << " [elapsed = " << timer.elapsed() << " ms]";
+    qCInfo(networkThread) << "NetworkWorker->" << response << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 QUrl NetworkWorker::determineUrl(const QueryRequest &request) const
 {
     if (request.type() == QueryRequest::Dashboard) {
-        return QUrl(NetworkThread::DASHBOARD_API_URL);
+        return QUrl(NetworkUrl::DASHBOARD_API_URL);
     } else if (request.type() == QueryRequest::Stock) {
-        return QUrl(NetworkThread::STOCK_API_URL);
+        return QUrl(NetworkUrl::STOCK_API_URL);
     } else if (request.type() == QueryRequest::Sales) {
-        return QUrl(NetworkThread::SALES_API_URL);
+        return QUrl(NetworkUrl::SALES_API_URL);
     } else if (request.type() == QueryRequest::User) {
         if (request.commandVerb() == QueryRequest::CommandVerb::Authenticate) {
             if (request.command() == "sign_in_user")
-                return QUrl(NetworkThread::SIGN_IN_API_URL);
+                return QUrl(NetworkUrl::SIGN_IN_API_URL);
             else if (request.command() == "sign_up_user")
-                return QUrl(NetworkThread::SIGN_UP_API_URL);
+                return QUrl(NetworkUrl::SIGN_UP_API_URL);
             else if (request.command() == "sign_out_user")
-                return QUrl(NetworkThread::SIGN_OUT_API_URL);
+                return QUrl(NetworkUrl::SIGN_OUT_API_URL);
+            else if (request.command() == "change_password")
+                return QUrl(NetworkUrl::CHANGE_PASSWORD_API_URL);
         } else {
-            return QUrl(NetworkThread::USER_API_URL);
+            return QUrl(NetworkUrl::USER_API_URL);
         }
     }
 
-    throw NetworkException(UnableToDetermineDestinationUrl,
-                           QStringLiteral("Unable to determine destination URL for command '%1'").arg(request.command()),
-                           QStringLiteral("Unable to determine destination URL for command '%1'").arg(request.command())
-                           );
+    throw NetworkException(NetworkError::ServerErrorCode::UnableToDetermineDestinationUrl,
+                           QStringLiteral("Unable to determine destination URL for command '%1'").arg(request.command()));
+}
+
+QUrl NetworkWorker::determineUrl(const ServerRequest &request) const
+{
+    if (request.action() == "link_account")
+        return QUrl(NetworkUrl::LINK_ACCOUNT_URL);
+    else if (request.action() == "link_business_store")
+        return QUrl(NetworkUrl::LINK_BUSINESS_STORE_URL);
+
+    throw NetworkException(NetworkError::ServerErrorCode::UnableToDetermineDestinationUrl,
+                           QStringLiteral("Unable to determine destination URL for action '%1'").arg(request.action()));
 }
 
 void NetworkWorker::waitForFinished(QNetworkReply *reply)
@@ -144,15 +182,19 @@ void NetworkWorker::flushLoggedRequests()
 
             QNetworkReply *networkReply = m_networkManager->post(networkRequest, request.toJson());
             waitForFinished(networkReply);
+
+            response = ServerResponse::fromJson(networkReply->readAll(), request);
+
             if (networkReply->error() != QNetworkReply::NoError)
-                throw NetworkException(networkReply->error(),
-                                       networkReply->errorString(),
-                                       "Failed to receive reply!");
+                throw NetworkException(response.errorCode(),
+                                       response.errorMessage(),
+                                       networkReply->error(),
+                                       networkReply->errorString());
 
             m_requestLogger->pop();
         }
     } catch (NetworkException &e) {
-        qCWarning(networkThread) << "Exception caught while flushing backup:" << e.message();
+        qCWarning(networkThread) << "Exception caught while flushing backup:" << e.message() << e.statusMessage();
         throw;
     }
 }

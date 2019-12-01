@@ -1,5 +1,5 @@
 #include "serverrequest.h"
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
 
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -17,6 +17,25 @@ ServerRequest::ServerRequest(const QueryRequest &queryRequest) :
 
 }
 
+ServerRequest::ServerRequest(const ServerRequest &other) :
+    QObject (nullptr)
+{
+    setAction(other.action());
+    setData(other.data());
+    setReceiver(other.receiver());
+    m_queryRequest = other.queryRequest();
+}
+
+ServerRequest &ServerRequest::operator=(const ServerRequest &other)
+{
+    setAction(other.action());
+    setData(other.data());
+    setReceiver(other.receiver());
+    m_queryRequest = other.queryRequest();
+
+    return *this;
+}
+
 QObject *ServerRequest::receiver() const
 {
     return m_receiver;
@@ -32,9 +51,11 @@ QString ServerRequest::action() const
     return m_action;
 }
 
-void ServerRequest::setAction(const QString &action)
+void ServerRequest::setAction(const QString &action, const QVariantMap &data)
 {
     m_action = action;
+    if (m_data.isEmpty())
+        m_data = data;
 }
 
 QVariantMap ServerRequest::data() const
@@ -59,9 +80,6 @@ QueryRequest ServerRequest::queryRequest() const
 
 ServerRequest ServerRequest::fromJson(const QByteArray &json)
 {
-    if (json.isEmpty())
-        return ServerRequest();
-
     ServerRequest request;
     const QJsonObject serverRequestObject{ QJsonDocument::fromJson(json).object() };
     if (serverRequestObject.contains("action")) {
@@ -90,24 +108,4 @@ QByteArray ServerRequest::toJson() const
         serverRequestObject.insert("data", QJsonObject::fromVariantMap(m_data));
 
     return QJsonDocument(serverRequestObject).toJson();
-}
-
-ServerRequest::ServerRequest(const ServerRequest &other) :
-    QObject (nullptr),
-    m_receiver(other.receiver())
-{
-    setAction(other.action());
-    setData(other.data());
-    setReceiver(other.receiver());
-    m_queryRequest = other.queryRequest();
-}
-
-ServerRequest &ServerRequest::operator=(const ServerRequest &other)
-{
-    setAction(other.action());
-    setData(other.data());
-    setReceiver(other.receiver());
-    m_queryRequest = other.queryRequest();
-
-    return *this;
 }

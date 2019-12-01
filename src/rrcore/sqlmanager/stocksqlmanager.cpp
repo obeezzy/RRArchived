@@ -10,7 +10,7 @@
 #include <QVariantList>
 #include <QVariantMap>
 
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 
@@ -54,7 +54,7 @@ QueryResult StockSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "filter_stock_categories_by_item")
             filterStockCategoriesByItem(request, result);
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+            throw DatabaseException(DatabaseError::QueryErrorCode::CommandNotFound,
                                     QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
@@ -601,7 +601,7 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryRes
             itemInfo.remove("image");
         }
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::ViewStockItemDetailsFailed,
+            throw DatabaseException(DatabaseError::QueryErrorCode::ViewStockItemDetailsFailed,
                                     QString(),
                                     QString("Item details do not exists for item '%1'.").arg(params.value("item_id").toString()));
 
@@ -706,7 +706,7 @@ void StockSqlManager::undoRemoveStockItem(const QueryRequest &request, QueryResu
                                                        }));
 
         if (records.isEmpty())
-            throw DatabaseException(DatabaseError::RRErrorCode::EmptyResultSet,
+            throw DatabaseException(DatabaseError::QueryErrorCode::EmptyResultSet,
                                     QString(),
                                     "No results returned.");
 

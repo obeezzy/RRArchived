@@ -16,13 +16,13 @@ DatabaseException::DatabaseException(int errorCode, const QString &message, cons
 
 }
 
-DatabaseException::DatabaseException(RRErrorCode errorCode) :
+DatabaseException::DatabaseException(QueryErrorCode errorCode) :
     m_code(static_cast<int>(errorCode))
 {
 
 }
 
-DatabaseException::DatabaseException(RRErrorCode errorCode, const QString &message, const QString &userMessage) :
+DatabaseException::DatabaseException(QueryErrorCode errorCode, const QString &message, const QString &userMessage) :
     m_code(static_cast<int>(errorCode)), m_message(message), m_userMessage(userMessage)
 {
 

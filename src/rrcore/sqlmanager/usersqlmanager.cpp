@@ -11,7 +11,7 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 #include "config/config.h"
-#include "singletons/userprofile.h"
+#include "user/userprofile.h"
 #include "json/userprivilegecenter.h"
 
 UserSqlManager::UserSqlManager(const QString &connectionName)
@@ -50,7 +50,7 @@ QueryResult UserSqlManager::execute(const QueryRequest &request)
         else if (request.command() == "sign_out_user")
             signOut(request);
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound,
+            throw DatabaseException(DatabaseError::QueryErrorCode::CommandNotFound,
                                     QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
@@ -70,7 +70,7 @@ bool UserSqlManager::storeProfile(QueryResult &result, const QString &userName, 
 
     if (!connection.isOpen()) {
         qWarning() << "Database connection is closed.";
-        throw DatabaseException(DatabaseError::RRErrorCode::Unknown,
+        throw DatabaseException(DatabaseError::QueryErrorCode::UnknownError,
                                 QStringLiteral("Database connection is closed."));
     }
 
@@ -87,7 +87,7 @@ bool UserSqlManager::storeProfile(QueryResult &result, const QString &userName, 
         if (!records.isEmpty())
             userDetails = recordToMap(records.first());
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::Unknown,
+            throw DatabaseException(DatabaseError::QueryErrorCode::UnknownError,
                                     QStringLiteral("User does not exist."));
 
         result.setOutcome(QVariantMap {
@@ -125,10 +125,10 @@ void UserSqlManager::signInUser(const QueryRequest &request, QueryResult &result
 
     if (!connection.open() || !storeProfile(result, userName, password)) {
         if (connection.lastError().nativeErrorCode().toInt() == static_cast<int>(DatabaseError::MySqlErrorCode::UserAccountIsLockedError))
-            throw DatabaseException(DatabaseError::RRErrorCode::UserAccountIsLocked, connection.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::UserAccountIsLocked, connection.lastError().text(),
                                     QString("Failed to sign in as '%1'.").arg(userName));
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::SignInFailure, connection.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignInFailure, connection.lastError().text(),
                                     QString("Failed to sign in as '%1'.").arg(userName));
     }
 }
@@ -155,7 +155,7 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection.open())
-        throw DatabaseException(DatabaseError::RRErrorCode::SignInFailure, connection.lastError().text(),
+        throw DatabaseException(DatabaseError::QueryErrorCode::SignInFailure, connection.lastError().text(),
                                 QString("Failed to open connection."));
 
     QSqlQuery q(connection);
@@ -165,14 +165,14 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
-            throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                     QString("Failed to flush privileges for '%1'.").arg(userName));
 
         q.prepare("CREATE USER :username @'localhost' IDENTIFIED BY :password");
         q.bindValue(":username", userName);
         q.bindValue(":password", password);
         if (!q.exec())
-            throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                     QString("Failed to create user '%1'.").arg(userName));
 
         grantPrivilege("SELECT", userName, q);
@@ -182,7 +182,7 @@ void UserSqlManager::signUpUser(const QueryRequest &request)
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
-            throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                     QString("Failed to flush privileges for '%1'.").arg(userName));
 
         createRRUser(userName, q);
@@ -222,14 +222,14 @@ void UserSqlManager::signUpRootUser(const QueryRequest &request)
 
         q.prepare(QString("CREATE USER '%1'@'localhost' IDENTIFIED BY '%2'").arg(userName, password));
         if (!q.exec())
-            throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                     QString("Failed to create root user '%1'.").arg(userName));
 
         grantPrivilege("ALL PRIVILEGES", userName, q);
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
-            throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                     QString("Failed to flush privileges for '%1'.").arg(userName));
 
         createRRUser(userName, q);
@@ -402,7 +402,7 @@ void UserSqlManager::addUser(const QueryRequest &request)
                           });
 
         } else {
-            throw DatabaseException(DatabaseError::RRErrorCode::AddUserFailed,
+            throw DatabaseException(DatabaseError::QueryErrorCode::AddUserFailed,
                                     "No user ID returned.");
         }
 
@@ -426,11 +426,11 @@ void UserSqlManager::addUser(const QueryRequest &request)
 
         switch (e.code()) {
         case static_cast<int>(DatabaseError::MySqlErrorCode::DuplicateEntryError):
-            throw DatabaseException(DatabaseError::RRErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
+            throw DatabaseException(DatabaseError::QueryErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
         case static_cast<int>(DatabaseError::MySqlErrorCode::CreateUserError):
-            throw DatabaseException(DatabaseError::RRErrorCode::CreateUserFailed, e.message(), e.userMessage());
+            throw DatabaseException(DatabaseError::QueryErrorCode::CreateUserFailed, e.message(), e.userMessage());
         case static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException):
-            throw DatabaseException(DatabaseError::RRErrorCode::UserPreviouslyArchived, e.message(), e.userMessage());
+            throw DatabaseException(DatabaseError::QueryErrorCode::UserPreviouslyArchived, e.message(), e.userMessage());
         default:
             throw;
         }
@@ -495,9 +495,9 @@ void UserSqlManager::updateUserPrivileges(const QueryRequest &request)
         DatabaseUtils::rollbackTransaction(q);
 
         if (e.code() == static_cast<int>(DatabaseError::MySqlErrorCode::DuplicateEntryError))
-            throw DatabaseException(DatabaseError::RRErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
+            throw DatabaseException(DatabaseError::QueryErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
         else if (e.code() == static_cast<int>(DatabaseError::MySqlErrorCode::CreateUserError))
-            throw DatabaseException(DatabaseError::RRErrorCode::CreateUserFailed, e.message(), e.userMessage());
+            throw DatabaseException(DatabaseError::QueryErrorCode::CreateUserFailed, e.message(), e.userMessage());
         else
             throw;
     }
@@ -575,7 +575,7 @@ void UserSqlManager::changePassword(const QueryRequest &request)
         DatabaseUtils::rollbackTransaction(q);
 
         if (e.code() == static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException)) {
-            throw DatabaseException(DatabaseError::RRErrorCode::OldPasswordWrong, e.message(), e.userMessage());
+            throw DatabaseException(DatabaseError::QueryErrorCode::OldPasswordWrong, e.message(), e.userMessage());
         } else {
             throw;
         }
@@ -593,7 +593,7 @@ void UserSqlManager::grantPrivilege(const QString &privilege, const QString &use
     q.prepare(QString("GRANT %1 ON * . * TO :username@'localhost'").arg(privilege));
     q.bindValue(":username", userName);
     if (!q.exec())
-        throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                 QString("Failed to grant '%1' privileges to '%2'.")
                                 .arg(privilege, userName));
 }
@@ -615,7 +615,7 @@ void UserSqlManager::createRRUser(const QString &userName, QSqlQuery &q)
     q.bindValue(":last_edited", currentDateTime);
 
     if (!q.exec())
-        throw DatabaseException(DatabaseError::RRErrorCode::SignUpFailure, q.lastError().text(),
+        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
                                 QString("Failed to create RR user '%1'.").arg(userName));
 }
 

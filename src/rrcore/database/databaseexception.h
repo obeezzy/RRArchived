@@ -11,8 +11,8 @@ public:
     explicit DatabaseException(int errorCode);
     explicit DatabaseException(int errorCode, const QString &message, const QString &userMessage = "");
 
-    explicit DatabaseException(DatabaseError::RRErrorCode errorCode);
-    explicit DatabaseException(DatabaseError::RRErrorCode errorCode, const QString &message, const QString &userMessage = "");
+    explicit DatabaseException(DatabaseError::QueryErrorCode errorCode);
+    explicit DatabaseException(DatabaseError::QueryErrorCode errorCode, const QString &message, const QString &userMessage = "");
 
     explicit DatabaseException(DatabaseError::MySqlErrorCode errorCode);
     explicit DatabaseException(DatabaseError::MySqlErrorCode errorCode, const QString &message, const QString &userMessage = "");

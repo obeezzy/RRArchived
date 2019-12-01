@@ -45,6 +45,9 @@
 #include "rrcore/qmlapi/qmlstockitemcountrecord.h"
 
 #include "rrcore/widgets/dialogs.h"
+#include "rrcore/user/businessdetails.h"
+#include "rrcore/user/businessstore.h"
+#include "rrcore/user/businessstoremodel.h"
 
 const QString FONT_DIR(":/fonts");
 
@@ -61,6 +64,10 @@ void Plugins::registerTypes()
     qmlRegisterSingletonType<QMLNotifier>("com.gecko.rr", 1, 0, "Notifier", notifier_provider);
     qmlRegisterType<QMLSettings>("com.gecko.rr", 1, 0, "Settings");
     qmlRegisterType<QMLReceiptPrinter>("com.gecko.rr", 1, 0, "ReceiptPrinter");
+
+    qmlRegisterUncreatableType<BusinessDetails>("com.gecko.rr", 1, 0, "BusinessDetails", "Don't you dare create me!");
+    qmlRegisterUncreatableType<BusinessStore>("com.gecko.rr", 1, 0, "BusinessStore", "Don't you dare create me!");
+    qmlRegisterUncreatableType<BusinessStoreModel>("com.gecko.rr", 1, 0, "BusinessStoreModel", "Don't you dare create me!");
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");

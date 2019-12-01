@@ -21,7 +21,7 @@ QueryResult DashboardSqlManager::execute(const QueryRequest &request)
         if (request.command() == "view_dashboard")
             viewDashboard(request, result);
         else
-            throw DatabaseException(DatabaseError::RRErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
+            throw DatabaseException(DatabaseError::QueryErrorCode::CommandNotFound, QString("Command not found: %1").arg(request.command()));
 
         result.setSuccessful(true);
     } catch (DatabaseException &e) {

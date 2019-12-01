@@ -66,8 +66,7 @@ QHash<int, QByteArray> QMLStockReportModel::roleNames() const
 
 QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    Q_UNUSED(role)
-    if (orientation == Qt::Horizontal) {
+   if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
             switch (section) {
             case CategoryColumn:
