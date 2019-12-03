@@ -5,6 +5,7 @@
 #include <QDateTime>
 
 #include "models/abstractvisuallistmodel.h"
+#include "utility/purchaseutils.h"
 
 class PurchasePayment;
 class PurchasePaymentModel;
@@ -26,7 +27,7 @@ class QMLPurchaseCartModel : public AbstractVisualListModel
 public:
     explicit QMLPurchaseCartModel(QObject *parent = nullptr);
     explicit QMLPurchaseCartModel(DatabaseThread &thread, QObject *parent = nullptr);
-    ~QMLPurchaseCartModel() override;
+    ~QMLPurchaseCartModel() override = default;
 
     enum Roles {
         CategoryIdRole = Qt::UserRole,
@@ -94,7 +95,7 @@ public:
 
     PurchasePaymentModel *paymentModel() const;
 
-    QList<PurchasePayment *> payments() const;
+    PurchasePaymentList payments() const;
 
     Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
     Q_INVOKABLE void removePayment(int index);
@@ -136,7 +137,7 @@ private:
     bool m_canAcceptCash;
     bool m_canAcceptCard;
     QVariantList m_records;
-    QList<PurchasePayment *> m_purchasePayments;
+    PurchasePaymentList m_purchasePayments;
     PurchasePaymentModel *m_paymentModel;
 
     bool containsItem(int itemId);

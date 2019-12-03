@@ -1,4 +1,5 @@
 #include "qmlincometransactionmodel.h"
+#include "queryexecutors/income.h"
 
 QMLIncomeTransactionModel::QMLIncomeTransactionModel(QObject *parent) :
     AbstractTransactionModel (parent)
@@ -99,10 +100,8 @@ QVariant QMLIncomeTransactionModel::headerData(int section, Qt::Orientation orie
 void QMLIncomeTransactionModel::tryQuery()
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("view_income_transactions", { { "archived", false } }, QueryRequest::Income);
-    emit executeRequest(request);
+    emit execute(new IncomeQuery::ViewIncomeTransactions(false,
+                                                     this));
 }
 
 void QMLIncomeTransactionModel::processResult(const QueryResult result)

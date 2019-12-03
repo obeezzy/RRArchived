@@ -1,5 +1,6 @@
 #include "qmlstockreportmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/stock.h"
 
 QMLStockReportModel::QMLStockReportModel(QObject *parent) :
     QMLStockReportModel(DatabaseThread::instance(), parent)
@@ -117,9 +118,7 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
 void QMLStockReportModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_stock_report", { }, QueryRequest::Stock);
-    emit executeRequest(request);
+    emit execute(new StockQuery::ViewStockReport(this));
 }
 
 void QMLStockReportModel::processResult(const QueryResult result)
@@ -129,7 +128,7 @@ void QMLStockReportModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_stock_report") {
+        if (result.request().command() == StockQuery::ViewStockReport::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();

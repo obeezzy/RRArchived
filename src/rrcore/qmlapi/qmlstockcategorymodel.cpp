@@ -3,6 +3,7 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
+#include "queryexecutors/stock.h"
 #include <QDebug>
 
 QMLStockCategoryModel::QMLStockCategoryModel(QObject *parent) :
@@ -67,13 +68,9 @@ void QMLStockCategoryModel::unarchiveItem(int itemId)
         return;
 
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("undo_remove_stock_item", {
-                           { "item_id", itemId }
-                       }, QueryRequest::Stock);
-
-    emit executeRequest(request);
+    StockQuery::RemoveStockItem *removeStockItem = new StockQuery::RemoveStockItem(itemId, this);
+    removeStockItem->undoOnNextExecution(true);
+    emit execute(removeStockItem);
 }
 
 void QMLStockCategoryModel::updateCategory(int categoryId, const QVariantMap &categoryInfo)
@@ -172,28 +169,22 @@ void QMLStockCategoryModel::undoRemoveCategoryFromModel(int row, const QVariantM
 void QMLStockCategoryModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
 
     if (!m_itemFilterText.trimmed().isEmpty()) {
-        request.setCommand("filter_stock_categories_by_item", {
-                               { "filter_text", m_itemFilterText },
-                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
-                               { "archived", false }
-                           }, QueryRequest::Stock);
+        emit execute(new StockQuery::FilterStockCategoriesByItem(m_itemFilterText,
+                                                             sortOrder(),
+                                                             false,
+                                                             this));
     } else if (!filterText().trimmed().isEmpty()) {
-        request.setCommand("filter_stock_categories", {
-                               { "filter_text", filterText() },
-                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
-                               { "archived", false }
-                           }, QueryRequest::Stock);
+        emit execute(new StockQuery::FilterStockCategories(filterText(),
+                                                       sortOrder(),
+                                                       false,
+                                                       this));
     } else {
-        request.setCommand("view_stock_categories", {
-                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
-                               { "archived", false }
-                           }, QueryRequest::Stock);
+        emit execute(new StockQuery::ViewStockCategories(sortOrder(),
+                                                     false,
+                                                     this));
     }
-
-    emit executeRequest(request);
 }
 
 void QMLStockCategoryModel::processResult(const QueryResult result)
@@ -204,15 +195,15 @@ void QMLStockCategoryModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_stock_categories"
-                || result.request().command() == "filter_stock_categories_by_item"
-                || result.request().command() == "filter_stock_categories") {
+        if (result.request().command() == StockQuery::ViewStockCategories::COMMAND
+                || result.request().command() == StockQuery::FilterStockCategoriesByItem::COMMAND
+                || result.request().command() == StockQuery::FilterStockCategories::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("categories").toList();
             endResetModel();
 
             emit success(ViewStockCategoriesSuccess);
-        } else if (result.request().command() == "undo_remove_stock_item") {
+        } else if (result.request().command() == StockQuery::RemoveStockItem::UNDO_COMMAND) {
             const int categoryId = result.outcome().toMap().value("category_id").toInt();
             const QString &category = result.outcome().toMap().value("category").toString();
             updateCategory(categoryId, QVariantMap {

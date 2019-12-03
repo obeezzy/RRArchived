@@ -8,16 +8,9 @@
 #include "databaseexception.h"
 #include "queryrequest.h"
 #include "queryresult.h"
-#include "sqlmanager/usersqlmanager.h"
-#include "sqlmanager/dashboardsqlmanager.h"
-#include "sqlmanager/stocksqlmanager.h"
-#include "sqlmanager/salesqlmanager.h"
-#include "sqlmanager/debtorsqlmanager.h"
-#include "sqlmanager/clientsqlmanager.h"
-#include "sqlmanager/purchasesqlmanager.h"
-#include "sqlmanager/incomesqlmanager.h"
-#include "sqlmanager/expensesqlmanager.h"
 #include "network/networkthread.h"
+#include "user/userprofile.h"
+#include "queryexecutors/user/userexecutor.h"
 
 const QString CONNECTION_NAME(QStringLiteral("db_thread"));
 
@@ -34,10 +27,12 @@ DatabaseWorker::~DatabaseWorker()
     connection.close();
 }
 
-void DatabaseWorker::execute(const QueryRequest request)
+void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 {
-    qCInfo(databaseThread) << "DatabaseWorker->" << request;
-    QueryResult result;
+    QSharedPointer<QueryExecutor> executor(queryExecutor, &QueryExecutor::deleteLater);
+    qCInfo(databaseThread) << "DatabaseWorker->" << executor->request();
+    const QueryRequest &request(executor->request());
+    QueryResult result{ request };
 
     QElapsedTimer timer;
     timer.start();
@@ -46,40 +41,8 @@ void DatabaseWorker::execute(const QueryRequest request)
         if (request.command().trimmed().isEmpty())
             throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand, "No command set.");
 
-        switch (request.type()) {
-        case QueryRequest::User:
-            result = UserSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Client:
-            result = ClientSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Dashboard:
-            result = DashboardSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Stock:
-            result = StockSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Sales:
-            result = SaleSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Purchase:
-            result = PurchaseSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Income:
-            result = IncomeSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Expense:
-            result = ExpenseSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        case QueryRequest::Debtor:
-            result = DebtorSqlManager(CONNECTION_NAME).execute(request);
-            break;
-        default:
-            throw DatabaseException(DatabaseError::QueryErrorCode::RequestTypeNotFound, "Unhandled request type.");
-        }
-
-        if (!result.isSuccessful())
-            throw DatabaseException(result.errorCode(), result.errorMessage(), result.errorUserMessage());
+        executor->setConnectionName(CONNECTION_NAME);
+        result = executor->execute();
     } catch (DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());
@@ -96,10 +59,11 @@ DatabaseThread::DatabaseThread(QObject *parent) :
     QThread(parent)
 {
     if (!isRunning()) {
-        QSettings().setValue("forward_to_server", true);
-        if (QSettings().value("forward_to_server", false).toBool()) {
-            connect(this, &DatabaseThread::execute, &NetworkThread::instance(), &NetworkThread::tunnelToServer);
-            connect(&NetworkThread::instance(), &NetworkThread::resultReady, this, &DatabaseThread::resultReady);
+        if (UserProfile::instance().isServerTunnelingEnabled()) {
+            connect(this, &DatabaseThread::execute,
+                    &NetworkThread::instance(), &NetworkThread::tunnelToServer);
+            connect(&NetworkThread::instance(), &NetworkThread::resultReady,
+                    this, &DatabaseThread::resultReady);
         } else {
             DatabaseWorker *worker = new DatabaseWorker;
 

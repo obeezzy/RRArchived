@@ -3,6 +3,7 @@
 #include "models/userprivilegemodel.h"
 #include "database/databaseerror.h"
 #include "database/databasethread.h"
+#include "queryexecutors/user.h"
 
 QMLUserPrivilegeModel::QMLUserPrivilegeModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
@@ -48,6 +49,11 @@ QHash<int, QByteArray> QMLUserPrivilegeModel::roleNames() const
         { TitleRole, "title" },
         { PrivilegeModelRole, "privilege_model" }
     };
+}
+
+bool QMLUserPrivilegeModel::isExistingUser() const
+{
+    return m_userId > -1;
 }
 
 int QMLUserPrivilegeModel::userId() const
@@ -202,25 +208,23 @@ bool QMLUserPrivilegeModel::submit()
                           });
         }
 
-        QueryRequest request(this);
         QVariantMap params;
         params.insert("user_privileges", groups);
 
-        if (m_userId > -1) {
-            params.insert("user_id", m_userId);
-            request.setCommand("update_user_privileges", params, QueryRequest::User);
+        if (isExistingUser()) {
+            emit execute(new UserQuery::UpdateUserPrivileges(m_userId,
+                                                             this));
         } else {
-            params.insert("first_name", m_firstName);
-            params.insert("last_name", m_lastName);
-            params.insert("user_name", m_userName);
-            params.insert("image_url", m_imageUrl);
-            params.insert("password", m_password);
-            params.insert("phone_number", m_phoneNumber);
-            params.insert("email_address", m_emailAddress);
-            request.setCommand("add_user", params, QueryRequest::User);
+            emit execute(new UserQuery::AddUser(m_firstName,
+                                                m_lastName,
+                                                m_userName,
+                                                m_password,
+                                                m_phoneNumber,
+                                                m_emailAddress,
+                                                m_imageUrl,
+                                                this));
         }
 
-        emit executeRequest(request);
         return true;
     }
 
@@ -230,9 +234,8 @@ bool QMLUserPrivilegeModel::submit()
 void QMLUserPrivilegeModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_user_privileges", { { "user_id", m_userId } }, QueryRequest::User);
-    emit executeRequest(request);
+    emit execute(new UserQuery::ViewUserPrivileges(m_userId,
+                                                   this));
 }
 
 void QMLUserPrivilegeModel::processResult(const QueryResult result)
@@ -242,7 +245,7 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_user_privileges") {
+        if (result.request().command() == UserQuery::ViewUserPrivileges::COMMAND) {
             beginResetModel();
             QMapIterator<QString, QVariant> mapIter(result.outcome().toMap().value("user_privileges").toMap());
             while (mapIter.hasNext()) {
@@ -259,18 +262,18 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
 
             endResetModel();
             emit success();
-        } else if (result.request().command() == "add_user") {
+        } else if (result.request().command() == UserQuery::AddUser::COMMAND) {
             emit success(AddUserSuccess);
-        } else if (result.request().command() == "update_user_privileges") {
+        } else if (result.request().command() == UserQuery::UpdateUserPrivileges::COMMAND) {
             emit success(UpdateUserSuccess);
         }
     } else {
         switch (result.errorCode()) {
-        case static_cast<int>(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
-        case static_cast<int>(DatabaseError::QueryErrorCode::CreateUserFailed):
+        case DatabaseError::asInteger(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
+        case DatabaseError::asInteger(DatabaseError::QueryErrorCode::CreateUserFailed):
             emit error(UserAlreadyExistsError);
             break;
-        case static_cast<int>(DatabaseError::QueryErrorCode::UserPreviouslyArchived):
+        case DatabaseError::asInteger(DatabaseError::QueryErrorCode::UserPreviouslyArchived):
             emit error(UserPreviouslyArchivedError);
             break;
         default:

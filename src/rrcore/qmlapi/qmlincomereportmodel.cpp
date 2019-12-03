@@ -1,5 +1,6 @@
 #include "qmlincomereportmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/income.h"
 
 QMLIncomeReportModel::QMLIncomeReportModel(QObject *parent) :
     QMLIncomeReportModel(DatabaseThread::instance(), parent)
@@ -83,9 +84,7 @@ QVariant QMLIncomeReportModel::headerData(int section, Qt::Orientation orientati
 void QMLIncomeReportModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_income_report", { }, QueryRequest::Income);
-    emit executeRequest(request);
+    emit execute(new IncomeQuery::ViewIncomeReport(this));
 }
 
 void QMLIncomeReportModel::processResult(const QueryResult result)
@@ -95,7 +94,7 @@ void QMLIncomeReportModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_income_report") {
+        if (result.request().command() == IncomeQuery::ViewIncomeReport::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("transactions").toList();
             endResetModel();

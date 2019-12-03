@@ -14,6 +14,7 @@
 #include <QEventLoop>
 #include "networkurl.h"
 #include "networkerror.h"
+#include "database/queryexecutor.h"
 
 Q_LOGGING_CATEGORY(networkThread, "rrcore.database.networkthread");
 
@@ -218,9 +219,11 @@ void NetworkThread::syncWithServer(const QueryResult result)
     emit execute(result.request());
 }
 
-void NetworkThread::tunnelToServer(const QueryRequest request)
+void NetworkThread::tunnelToServer(QueryExecutor *queryExecutor)
 {
-    emit execute(request);
+    emit execute(queryExecutor->request());
+    if (!queryExecutor->canUndo())
+        queryExecutor->deleteLater();
 }
 
 NetworkThread::NetworkThread(QObject *parent) :

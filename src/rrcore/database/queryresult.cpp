@@ -5,12 +5,8 @@
 
 QueryResult::QueryResult(QObject *parent) :
     QObject(parent),
-    m_request(QueryRequest()),
     m_successful(false),
-    m_errorCode(-1),
-    m_errorMessage(QString()),
-    m_errorUserMessage(QString()),
-    m_outcome(QVariant())
+    m_errorCode(-1)
 {
     qRegisterMetaType<QueryResult>("QueryResult");
 }
@@ -19,11 +15,9 @@ QueryResult::QueryResult(const QueryRequest &request) :
     QObject(nullptr),
     m_request(request),
     m_successful(false),
-    m_errorCode(-1),
-    m_errorMessage(QString()),
-    m_errorUserMessage(QString()),
-    m_outcome(QVariant())
+    m_errorCode(-1)
 {
+    qRegisterMetaType<QueryResult>("QueryResult");
 }
 
 QueryResult::QueryResult(const QueryResult &other) :

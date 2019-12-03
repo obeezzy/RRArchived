@@ -10,6 +10,7 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 class RequestLogger;
+class QueryExecutor;
 
 class NetworkWorker : public QObject
 {
@@ -45,7 +46,7 @@ public:
 
     void run() override final;
     void syncWithServer(const QueryResult result);
-    void tunnelToServer(const QueryRequest request);
+    void tunnelToServer(QueryExecutor *queryExecutor);
 signals:
     void execute(const QueryRequest request);
     void execute(const ServerRequest request);

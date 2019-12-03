@@ -15,7 +15,7 @@ UserProfile::UserProfile(QObject *parent) :
     m_businessDetails(new BusinessDetails(this)),
     m_businessAdmin(new BusinessAdmin(this))
 {
-    QSettings().setValue("access_token", "");
+    setAccessToken(QByteArray());
     qRegisterMetaType<QList<BusinessStore>>("QList<BusinessStore>");
 }
 
@@ -29,7 +29,7 @@ void UserProfile::setUser(int userId,
     m_userName = userName;
     m_password = password;
     m_privileges = privileges;
-    QSettings().setValue("access_token", accessToken);
+    setAccessToken(accessToken);
 }
 
 void UserProfile::setDatabaseReady(bool databaseReady)
@@ -50,6 +50,11 @@ void UserProfile::setUserId(int userId)
 void UserProfile::setAccessToken(const QByteArray &accessToken)
 {
     QSettings().setValue("access_token", accessToken);
+}
+
+void UserProfile::setServerTunnelingEnabled(bool enabled)
+{
+    QSettings().setValue("server_tunneling_enabled", enabled);
 }
 
 void UserProfile::clearUser()
@@ -96,6 +101,11 @@ bool UserProfile::hasPrivilege(const QString &privilege) const
         return false;
 
     return true;
+}
+
+bool UserProfile::isServerTunnelingEnabled() const
+{
+    return QSettings().value("server_tunneling_enabled", false).toBool();
 }
 
 BusinessDetails *UserProfile::businessDetails() const

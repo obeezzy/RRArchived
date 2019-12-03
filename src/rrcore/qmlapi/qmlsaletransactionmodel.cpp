@@ -7,6 +7,7 @@
 #include "database/databasethread.h"
 
 #include "qmlsaletransactionmodel.h"
+#include "queryexecutors/sales.h"
 
 QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
     QMLSaleTransactionModel(DatabaseThread::instance(), parent)
@@ -139,30 +140,28 @@ QVariant QMLSaleTransactionModel::headerData(int section, Qt::Orientation orient
 void QMLSaleTransactionModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    QVariantMap params;
+    bool suspended = false;
+    bool archived = false;
 
     if (keys() == Completed) {
-        params.insert("suspended", false);
-        params.insert("archived", false);
+        suspended = false;
+        archived = false;
     } else if (keys() == Suspended) {
-        params.insert("suspended", true);
-        params.insert("archived", false);
+        suspended = true;
+        archived = false;
     } else if (keys() == Archived) {
-        params.insert("suspended", false);
-        params.insert("archived", true);
+        suspended = false;
+        archived = true;
     } else if (keys() == All) {
-        params.insert("suspended", true);
-        params.insert("archived", true);
+        suspended = true;
+        archived = true;
     }
 
-    if (!from().isNull() && from().isValid())
-        params.insert("from", from());
-    if (!to().isNull() && to().isValid())
-        params.insert("to", to());
-
-    request.setCommand("view_sale_transactions", params, QueryRequest::Sales);
-    emit executeRequest(request);
+    emit execute(new SaleQuery::ViewSaleTransactions(from(),
+                                                 to(),
+                                                 suspended,
+                                                 archived,
+                                                 this));
 }
 
 void QMLSaleTransactionModel::processResult(const QueryResult result)
@@ -189,11 +188,6 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
 void QMLSaleTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("remove_transaction", {
-                           { "can_undo", true },
-                           { "transaction_id", data(index(row, 0), TransactionIdRole).toInt() }
-                       }, QueryRequest::Sales);
-    emit executeRequest(request);
+    emit execute(new SaleQuery::RemoveSaleTransaction(data(index(row, 0), TransactionIdRole).toInt(),
+                                                  this));
 }

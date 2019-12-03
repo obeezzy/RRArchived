@@ -23,6 +23,7 @@ public:
     bool isDatabaseReady() const;
     bool isAdmin() const;
     bool hasPrivilege(const QString &privilege) const;
+    bool isServerTunnelingEnabled() const;
 
     BusinessDetails *businessDetails() const;
     BusinessAdmin *businessAdmin() const;
@@ -49,6 +50,7 @@ private:
     void setRackId(const QString &rackId);
     void setUserId(int userId);
     void setAccessToken(const QByteArray &accessToken);
+    void setServerTunnelingEnabled(bool enabled);
 
     void clearUser();
 };

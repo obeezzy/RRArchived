@@ -7,6 +7,8 @@
 #include "queryrequest.h"
 #include "queryresult.h"
 
+class QueryExecutor;
+
 class DatabaseWorker : public QObject
 {
     Q_OBJECT
@@ -14,7 +16,7 @@ public:
     explicit DatabaseWorker(QObject *parent = nullptr);
     ~DatabaseWorker();
 
-    void execute(const QueryRequest request);
+    void execute(QueryExecutor *queryExecutor);
 signals:
     void resultReady(const QueryResult result);
 };
@@ -33,7 +35,7 @@ public:
 
     void run() override final;
 signals:
-    void execute(const QueryRequest request);
+    void execute(QueryExecutor *queryExecutor);
     void resultReady(const QueryResult result);
 private:
     explicit DatabaseThread(QObject *parent = nullptr);

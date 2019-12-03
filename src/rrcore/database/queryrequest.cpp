@@ -4,14 +4,16 @@
 #include <QJsonDocument>
 
 QueryRequest::QueryRequest(QObject *receiver) :
-    m_receiver(receiver)
+    m_receiver(receiver),
+    m_type(Unknown)
 {
     qRegisterMetaType<QueryRequest>("QueryRequest");
 }
 
 QueryRequest::QueryRequest(const QueryRequest &other) :
     QObject (nullptr),
-    m_receiver(other.receiver())
+    m_receiver(other.receiver()),
+    m_type(Unknown)
 {
     setCommand(other.command(), other.params(), other.type());
 }

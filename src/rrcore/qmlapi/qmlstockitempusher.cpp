@@ -1,6 +1,9 @@
 #include "qmlstockitempusher.h"
 #include "database/databasethread.h"
 #include "database/databaseerror.h"
+#include "queryexecutors/stock.h"
+
+#include <QUrl>
 
 QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
     AbstractPusher(DatabaseThread::instance(), parent)
@@ -17,6 +20,11 @@ QMLStockItemPusher::QMLStockItemPusher(DatabaseThread &thread, QObject *parent) 
     m_baseUnitEquivalent(1.0)
 {
 
+}
+
+bool QMLStockItemPusher::isExistingItem() const
+{
+    return m_itemId > 0;
 }
 
 int QMLStockItemPusher::itemId() const
@@ -205,35 +213,42 @@ void QMLStockItemPusher::push()
 {
     setBusy(true);
 
-    QVariantMap params {
-        { "image_source", m_imageSource },
-        { "category", m_category },
-        { "item", m_item },
-        { "description", m_description },
-        { "unit", m_unit },
-        { "category_note", m_categoryNote },
-        { "item_note", m_itemNote },
-        { "tracked", m_tracked },
-        { "divisible", m_divisible },
-        { "cost_price", m_costPrice },
-        { "retail_price", m_retailPrice },
-        { "base_unit_equivalent", m_baseUnitEquivalent },
-        { "is_preferred_unit", true },
-        { "currency", "NGN" }
-    };
-
-    // NOTE: Don't pass quantity if you are updating the stock item.
-    if (m_itemId > 0)
-        params.insert("item_id", m_itemId);
+    if (isExistingItem())
+        emit execute(new StockQuery::UpdateStockItem(
+                         m_itemId,
+                         m_category,
+                         m_item,
+                         m_description,
+                         m_unit,
+                         m_tracked,
+                         m_divisible,
+                         m_costPrice,
+                         m_retailPrice,
+                         m_baseUnitEquivalent,
+                         true,
+                         "NGN",
+                         QUrl(),
+                         QString(),
+                         QString(),
+                         this));
     else
-        params.insert("quantity", m_quantity);
-
-    QueryRequest request(this);
-    if (m_itemId > 0)
-        request.setCommand("update_stock_item", params, QueryRequest::Stock);
-    else
-        request.setCommand("add_new_stock_item", params, QueryRequest::Stock);
-    emit executeRequest(request);
+        emit execute(new StockQuery::AddStockItem(
+                         m_category,
+                         m_item,
+                         m_description,
+                         m_quantity,
+                         m_unit,
+                         m_tracked,
+                         m_divisible,
+                         m_costPrice,
+                         m_retailPrice,
+                         m_baseUnitEquivalent,
+                         true,
+                         "NGN",
+                         QUrl(),
+                         QString(),
+                         QString(),
+                         this));
 }
 
 void QMLStockItemPusher::processResult(const QueryResult result)
@@ -244,9 +259,9 @@ void QMLStockItemPusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "add_new_stock_item")
+        if (result.request().command() == StockQuery::AddStockItem::COMMAND)
             emit success(AddItemSuccess);
-        else if (result.request().command() == "update_stock_item")
+        else if (result.request().command() == StockQuery::UpdateStockItem::COMMAND)
             emit success(UpdateItemSuccess);
     } else {
         switch (result.errorCode()) {

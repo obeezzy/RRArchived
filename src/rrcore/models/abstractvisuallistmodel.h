@@ -5,12 +5,14 @@
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
 #include <QVariant>
+#include <QSharedPointer>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
 class QueryRequest;
 class QueryResult;
 class DatabaseThread;
+class QueryExecutor;
 
 class AbstractVisualListModel : public QAbstractListModel, public QQmlParserStatus
 {
@@ -57,10 +59,9 @@ protected:
     virtual void filter();
     void setBusy(bool);
 
-    void setLastRequest(const QueryRequest &lastRequest);
-    QueryRequest lastRequest() const;
+    QueryExecutor *lastQueryExecutor() const;
 signals:
-    void executeRequest(const QueryRequest request);
+    void execute(QueryExecutor *);
     void autoQueryChanged();
     void busyChanged();
 
@@ -79,8 +80,9 @@ private:
     int m_filterColumn;
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
-    QueryRequest m_lastRequest;
+    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
 
+    void cacheQueryExecutor(QueryExecutor *queryExecutor);
     void saveRequest(const QueryResult &result);
 };
 

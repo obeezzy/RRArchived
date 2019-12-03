@@ -1,5 +1,6 @@
 #include "abstractvisualtablemodel.h"
 #include "database/databasethread.h"
+#include "database/queryexecutor.h"
 
 AbstractVisualTableModel::AbstractVisualTableModel(QObject *parent) :
     AbstractVisualTableModel(DatabaseThread::instance(), parent)
@@ -14,9 +15,10 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     m_sortColumn(-1),
     m_tableViewWidth(0.0)
 {
-    connect(this, &AbstractVisualTableModel::executeRequest, &thread, &DatabaseThread::execute);
+    connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
 
+    connect(&thread, &DatabaseThread::execute, this, &AbstractVisualTableModel::cacheQueryExecutor);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::saveRequest);
 
     connect(this, &AbstractVisualTableModel::filterTextChanged, this, &AbstractVisualTableModel::filter);
@@ -150,12 +152,10 @@ void AbstractVisualTableModel::componentComplete()
 
 void AbstractVisualTableModel::undoLastCommit()
 {
-    if (!m_lastRequest.command().isEmpty() && m_lastRequest.receiver()) {
+    if (!m_lastQueryExecutor->request().command().isEmpty() && m_lastQueryExecutor->request().receiver()) {
         setBusy(true);
-        QueryRequest request(m_lastRequest);
-
-        request.setCommand(QString("undo_") + request.command(), request.params(), request.type());
-        emit executeRequest(request);
+        m_lastQueryExecutor->undoOnNextExecution();
+        emit execute(m_lastQueryExecutor.data());
     } else {
         qWarning() << "AbstractVisualTableModel-> No request to undo.";
     }
@@ -169,18 +169,15 @@ void AbstractVisualTableModel::filter()
 void AbstractVisualTableModel::saveRequest(const QueryResult &result)
 {
     if (result.isSuccessful() && result.request().receiver() == this) {
-        if (result.request().params().value("can_undo").toBool() && !result.request().command().startsWith("undo_")) {
+        if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet() && m_lastQueryExecutor->request() == result.request()) {
             qInfo() << "Request saved:" << result.request().command();
-            QueryRequest request(result.request());
+            // FIXME: Get rid of this
+            QueryRequest &request(m_lastQueryExecutor->request());
+            request.params().insert("outcome", result.outcome());
 
-            QVariantMap params = request.params();
-            params.insert("outcome", result.outcome());
-            params.remove("can_undo");
-
-            request.setCommand(request.command(), params, request.type());
-            m_lastRequest = request;
+            m_lastQueryExecutor->undoOnNextExecution(false);
         } else {
-            m_lastRequest = QueryRequest();
+            m_lastQueryExecutor.clear();
         }
     }
 }
@@ -194,14 +191,15 @@ void AbstractVisualTableModel::setBusy(bool busy)
     emit busyChanged();
 }
 
-void AbstractVisualTableModel::setLastRequest(const QueryRequest &lastRequest)
+void AbstractVisualTableModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    m_lastRequest = lastRequest;
+    if (queryExecutor->canUndo())
+        m_lastQueryExecutor.reset(queryExecutor);
 }
 
-QueryRequest AbstractVisualTableModel::lastRequest() const
+QueryExecutor *AbstractVisualTableModel::lastQueryExecutor() const
 {
-    return m_lastRequest;
+    return m_lastQueryExecutor.data();
 }
 
 void AbstractVisualTableModel::refresh()

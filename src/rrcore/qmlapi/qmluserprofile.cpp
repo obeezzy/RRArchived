@@ -15,6 +15,7 @@
 #include "user/businessadmin.h"
 #include "user/businessstore.h"
 #include "user/businessstoremodel.h"
+#include "queryexecutors/user.h"
 
 Q_LOGGING_CATEGORY(qmlUserProfile, "rrcore.qmlapi.qmluserprofile");
 
@@ -27,11 +28,11 @@ QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
     m_busy(false),
     m_businessStoreModel(new BusinessStoreModel(this))
 {
-    UserProfile::instance().setDatabaseReady(false);
-    connect(this, &QMLUserProfile::executeRequest, &thread, &DatabaseThread::execute);
+    UserProfile::instance().setDatabaseReady(true);
+    connect(this, &QMLUserProfile::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
 
-    connect(this, &QMLUserProfile::executeServerRequest,
+    connect(this, &QMLUserProfile::executeRequest,
             &NetworkThread::instance(), QOverload<ServerRequest>::of(&NetworkThread::execute));
     connect(&NetworkThread::instance(), &NetworkThread::responseReady, this, &QMLUserProfile::processServerResponse);
 
@@ -97,15 +98,7 @@ void QMLUserProfile::signIn(const QString &userName, const QString &password)
         emit error(NoPasswordProvided);
     } else {
         setBusy(true);
-
-        QueryRequest request(this);
-        request.setCommand("sign_in_user", {
-                               { "user_name", userName },
-                               { "password", password },
-                               { "rack_id", UserProfile::instance().rackId() },
-                               { "user_id", UserProfile::instance().userId() }
-                           }, QueryRequest::User);
-        emit executeRequest(request);
+        emit execute(new UserQuery::SignInUser(userName, password, this));
     }
 }
 
@@ -125,13 +118,7 @@ void QMLUserProfile::signUp(const QString &userName, const QString &password)
         emit error(NoPasswordProvided);
     } else {
         setBusy(true);
-
-        QueryRequest request(this);
-        request.setCommand("sign_up_user", {
-                               { "user_name", userName },
-                               { "password", password }
-                           }, QueryRequest::User);
-        emit executeRequest(request);
+        emit execute(new UserQuery::SignUpUser(userName, password, this));
     }
 }
 
@@ -141,7 +128,7 @@ void QMLUserProfile::signOut()
     setBusy(true);
     QueryRequest request(this);
     request.setCommand("sign_out_user", { }, QueryRequest::User);
-    emit executeRequest(request);
+    emit execute(new UserQuery::SignOutUser(this));
 }
 
 void QMLUserProfile::linkAccount(const QString &emailAddress, const QString &password)
@@ -156,7 +143,7 @@ void QMLUserProfile::linkAccount(const QString &emailAddress, const QString &pas
 
         ServerRequest request(this);
         request.setAction("link_account", { { "emailAddress", emailAddress }, { "password", password } });
-        emit executeServerRequest(request);
+        emit executeRequest(request);
     }
 }
 
@@ -171,7 +158,7 @@ void QMLUserProfile::linkBusinessStore()
                           { "emailAddress", UserProfile::instance().businessAdmin()->emailAddress() },
                           { "password", UserProfile::instance().businessAdmin()->password() }
                       });
-    emit executeServerRequest(request);
+    emit executeRequest(request);
 }
 
 void QMLUserProfile::changePassword(const QString &oldPassword, const QString &newPassword)
@@ -181,14 +168,7 @@ void QMLUserProfile::changePassword(const QString &oldPassword, const QString &n
         return;
     }
 
-    QueryRequest request(this);
-    request.setCommand("change_password", {
-                           { "user_name", UserProfile::instance().userName() },
-                           { "rack_id", UserProfile::instance().rackId() },
-                           { "old_password", oldPassword },
-                           { "new_password", newPassword } },
-                       QueryRequest::User);
-    emit executeRequest(request);
+    emit execute(new UserQuery::ChangePassword(oldPassword, newPassword, this));
 }
 
 bool QMLUserProfile::hasPrivilege(const QString &privilege)
@@ -207,24 +187,24 @@ void QMLUserProfile::processResult(const QueryResult &result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "sign_in_user") {
+        if (result.request().command() == UserQuery::SignInUser::COMMAND) {
             UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
                                             result.outcome().toMap().value("user_name").toString(),
                                             result.outcome().toMap().value("password").toString(),
                                             result.outcome().toMap().value("user_privileges"),
                                             result.outcome().toMap().value("access_token").toByteArray());
             emit success(SignInSuccess);
-        } else if (result.request().command() == "sign_up_user") {
+        } else if (result.request().command() == UserQuery::SignUpUser::COMMAND) {
             UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
                                             result.outcome().toMap().value("user_name").toString(),
                                             result.outcome().toMap().value("password").toString(),
                                             result.outcome().toMap().value("user_privileges"),
                                             result.outcome().toMap().value("access_token").toByteArray());
             emit success(SignUpSuccess);
-        } else if (result.request().command() == "sign_out_user") {
+        } else if (result.request().command() == UserQuery::SignOutUser::COMMAND) {
             UserProfile::instance().clearUser();
             emit success(SignOutSuccess);
-        } else if (result.request().command() == "change_password") {
+        } else if (result.request().command() == UserQuery::ChangePassword::COMMAND) {
             UserProfile::instance().setDatabaseReady(true);
             emit success(ChangePasswordSuccess);
         } else {

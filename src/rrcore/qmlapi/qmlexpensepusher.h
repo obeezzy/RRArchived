@@ -52,6 +52,8 @@ private:
     QString m_purpose;
     qreal m_amount;
     PaymentMethod m_paymentMethod;
+
+    QString paymentMethodAsString() const;
 };
 
 #endif // QMLEXPENSEPUSHER_H

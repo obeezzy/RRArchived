@@ -3,6 +3,7 @@
 #include "database/databasethread.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/queryexecutor.h"
 
 AbstractPusher::AbstractPusher(QObject *parent) :
     AbstractPusher(DatabaseThread::instance(), parent)
@@ -12,7 +13,9 @@ AbstractPusher::AbstractPusher(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
     m_busy(false)
 {
-    connect(this, &AbstractPusher::executeRequest, &thread, &DatabaseThread::execute);
+    connect(this, &AbstractPusher::execute, &thread, &DatabaseThread::execute);
+
+    connect(&thread, &DatabaseThread::execute, this, &AbstractPusher::cacheQueryExecutor);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::processResult);
 
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::saveRequest);
@@ -40,36 +43,35 @@ void AbstractPusher::setBusy(bool busy)
 void AbstractPusher::undoLastCommit()
 {
     setBusy(true);
-    QueryRequest request(m_lastRequest);
-
-    request.setCommand(QString("undo_") + request.command(), request.params(), request.type());
-    emit executeRequest(request);
+    m_lastQueryExecutor->undoOnNextExecution();
+    emit execute(m_lastQueryExecutor.data());
 }
 
 void AbstractPusher::saveRequest(const QueryResult &result)
 {
-    if (result.isSuccessful() && result.request().receiver() == this) {
-        if (result.request().params().value("can_undo").toBool() && !result.request().command().startsWith("undo_")) {
-            QueryRequest request(result.request());
+    if (m_lastQueryExecutor.isNull())
+        return;
 
-            QVariantMap params = request.params();
-            params.insert("outcome", result.outcome());
-            params.remove("can_undo");
+    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor->request()) {
+        if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet()) {
+            // FIXME: Remove this!
+            QueryRequest &request(m_lastQueryExecutor->request());
+            request.params().insert("outcome", result.outcome());
 
-            request.setCommand(request.command(), params, request.type());
-            m_lastRequest = request;
+            m_lastQueryExecutor->undoOnNextExecution(false);
         } else {
-            m_lastRequest = QueryRequest();
+            m_lastQueryExecutor.clear();
         }
     }
 }
 
-void AbstractPusher::setLastRequest(const QueryRequest &lastRequest)
+void AbstractPusher::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    m_lastRequest = lastRequest;
+    if (queryExecutor->canUndo())
+        m_lastQueryExecutor.reset(queryExecutor);
 }
 
-QueryRequest AbstractPusher::lastRequest() const
+QueryExecutor *AbstractPusher::lastQueryExecutor() const
 {
-    return m_lastRequest;
+    return m_lastQueryExecutor.data();
 }

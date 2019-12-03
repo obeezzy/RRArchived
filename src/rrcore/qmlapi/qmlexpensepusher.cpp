@@ -1,5 +1,6 @@
 #include "qmlexpensepusher.h"
 #include "database/databasethread.h"
+#include "queryexecutors/expense.h"
 
 QMLExpensePusher::QMLExpensePusher(QObject *parent) :
     QMLExpensePusher(DatabaseThread::instance(), parent)
@@ -71,30 +72,12 @@ void QMLExpensePusher::setPaymentMethod(QMLExpensePusher::PaymentMethod paymentM
 void QMLExpensePusher::push()
 {
     setBusy(true);
-
-    QString paymentMethod;
-    switch (m_paymentMethod) {
-    case PaymentMethod::Cash:
-        paymentMethod = "cash";
-        break;
-    case PaymentMethod::DebitCard:
-        paymentMethod = "debit_card";
-        break;
-    case PaymentMethod::CreditCard:
-        paymentMethod = "credit_card";
-        break;
-    }
-
-    QVariantMap params {
-        { "client_name", m_clientName },
-        { "purpose", m_purpose },
-        { "amount", m_amount },
-        { "payment_method", paymentMethod }
-    };
-
-    QueryRequest request(this);
-    request.setCommand("add_new_expense_transaction", params, QueryRequest::Expense);
-    emit executeRequest(request);
+    emit execute(new ExpenseQuery::AddExpenseTransaction(
+                     m_clientName,
+                     m_purpose,
+                     m_amount,
+                     paymentMethodAsString(),
+                     this));
 }
 
 void QMLExpensePusher::processResult(const QueryResult result)
@@ -105,9 +88,23 @@ void QMLExpensePusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "add_new_expense_transaction")
+        if (result.request().command() == ExpenseQuery::AddExpenseTransaction::COMMAND)
             emit success(static_cast<int>(SuccessCode::AddExpenseSuccess));
     } else {
         emit error();
     }
+}
+
+QString QMLExpensePusher::paymentMethodAsString() const
+{
+    switch (m_paymentMethod) {
+    case PaymentMethod::Cash:
+        return QStringLiteral("cash");
+    case PaymentMethod::DebitCard:
+        return QStringLiteral("debit_card");
+    case PaymentMethod::CreditCard:
+        return QStringLiteral("credit_card");
+    }
+
+    return QString();
 }

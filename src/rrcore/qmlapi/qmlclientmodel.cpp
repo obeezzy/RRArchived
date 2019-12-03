@@ -1,5 +1,6 @@
 #include "qmlclientmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/client.h"
 
 QMLClientModel::QMLClientModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
@@ -38,20 +39,17 @@ QVariant QMLClientModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLClientModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
-    roles.insert(PreferredNameRole, "client_id");
-    roles.insert(PreferredNameRole, "preferred_name");
-    roles.insert(PhoneNumberRole, "phone_number");
-
-    return roles;
+    return {
+        { PreferredNameRole, "client_id" },
+        { PreferredNameRole, "preferred_name" },
+        { PhoneNumberRole, "phone_number" }
+    };
 }
 
 void QMLClientModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_clients", QVariantMap(), QueryRequest::Client);
-    emit executeRequest(request);
+    emit execute(new ClientQuery::ViewClients(this));
 }
 
 void QMLClientModel::processResult(const QueryResult result)
@@ -78,21 +76,20 @@ void QMLClientModel::filter()
         return;
 
     setBusy(true);
+    emit execute(new ClientQuery::ViewClients(
+                     filterText(),
+                     columnName(),
+                     this));
+}
 
-    QueryRequest request(this);
-    QVariantMap params;
-
-    params.insert("filter_text", filterText());
-
+QString QMLClientModel::columnName() const
+{
     switch (filterColumn()) {
     case PhoneNumberColumn:
-        params.insert("filter_column", "phone_number");
-        break;
-    default:
-        params.insert("filter_column", "preferred_name");
-        break;
+        return QStringLiteral("phone_number");
+    case PreferredNameColumn:
+        return QStringLiteral("preferred_name");
     }
 
-    request.setCommand("view_clients", params, QueryRequest::Client);
-    emit executeRequest(request);
+    return QString();
 }

@@ -1,6 +1,7 @@
 #include "qmlsaletransactionitemmodel.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "queryexecutors/sales.h"
 
 #include <QDateTime>
 
@@ -158,9 +159,8 @@ void QMLSaleTransactionItemModel::tryQuery()
         return;
 
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_sale_transaction_items", { { "transaction_id", transactionId() } }, QueryRequest::Sales);
-    emit executeRequest(request);
+    emit execute(new SaleQuery::ViewSaleTransactionItems(transactionId(),
+                                                         this));
 }
 
 void QMLSaleTransactionItemModel::processResult(const QueryResult result)
@@ -171,7 +171,7 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_sale_transaction_items") {
+        if (result.request().command() == SaleQuery::ViewSaleTransactionItems::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();
@@ -204,13 +204,7 @@ QString QMLSaleTransactionItemModel::columnName(int column) const
 void QMLSaleTransactionItemModel::removeTransactionItem(int row)
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("remove_sale_transaction_item", {
-                           { "can_undo", true },
-                           { "transaction_id", transactionId() },
-                           { "transaction_item_id", data(index(row, 0), TransactionItemIdRole).toInt() }
-                       }, QueryRequest::Sales);
-
-    emit executeRequest(request);
+    emit execute(new SaleQuery::RemoveSaleTransactionItem(transactionId(),
+                                                          data(index(row, 0), TransactionItemIdRole).toInt(),
+                                                          this));
 }

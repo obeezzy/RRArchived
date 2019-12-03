@@ -5,6 +5,9 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
+#include "utility/purchaseutils.h"
+
+#include "queryexecutors/purchase.h"
 
 QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(QObject *parent) :
     QMLPurchaseTransactionModel(DatabaseThread::instance(), parent)
@@ -135,30 +138,30 @@ QVariant QMLPurchaseTransactionModel::headerData(int section, Qt::Orientation or
 void QMLPurchaseTransactionModel::tryQuery()
 {
     setBusy(true);
+    bool suspended = false;
+    bool archived = false;
     QueryRequest request(this);
     QVariantMap params;
 
     if (keys() == Completed) {
-        params.insert("suspended", false);
-        params.insert("archived", false);
+        suspended = false;
+        archived = false;
     } else if (keys() == Suspended) {
-        params.insert("suspended", true);
-        params.insert("archived", false);
+        suspended = true;
+        archived = false;
     } else if (keys() == Archived) {
-        params.insert("suspended", false);
-        params.insert("archived", true);
+        suspended = false;
+        archived = true;
     } else if (keys() == All) {
-        params.insert("suspended", true);
-        params.insert("archived", true);
+        suspended = true;
+        archived = true;
     }
 
-    if (!from().isNull() && from().isValid())
-        params.insert("from", from());
-    if (!to().isNull() && to().isValid())
-        params.insert("to", to());
-
-    request.setCommand("view_purchase_transactions", params, QueryRequest::Purchase);
-    emit executeRequest(request);
+    emit execute(new PurchaseQuery::ViewPurchaseTransactions(from(),
+                                                             to(),
+                                                             suspended,
+                                                             archived,
+                                                             this));
 }
 
 void QMLPurchaseTransactionModel::processResult(const QueryResult result)
@@ -168,26 +171,26 @@ void QMLPurchaseTransactionModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_purchase_transactions") {
+        if (result.request().command() == PurchaseQuery::ViewPurchaseTransactions::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("transactions").toList();
             endResetModel();
 
             emit success(ViewTransactionSuccess);
-        } else if (result.request().command() == "remove_purchase_transaction") {
+        } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::COMMAND) {
             removeTransactionFromModel(result.request().params().value("row").toInt());
             emit success(RemoveTransactionSuccess);
-        } else if (result.request().command() == "undo_remove_purchase_transaction") {
-            undoRemoveTransactionFromModel(lastRequest().params().value("row").toInt(),
-                                           lastRequest().params().value("record").toMap());
+        } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::UNDO_COMMAND) {
+            undoRemoveTransactionFromModel(lastQueryExecutor()->request().params().value("row").toInt(),
+                                           lastQueryExecutor()->request().params().value("record").toMap());
             emit success(UndoRemoveTransactionSuccess);
         } else {
             emit success(UnknownSuccess);
         }
     } else {
-        if (result.request().command() == "remove_purchase_transaction") {
+        if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::COMMAND) {
             emit error(RemoveTransactionError);
-        } else if (result.request().command() == "undo_remove_purchase_transaction") {
+        } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::UNDO_COMMAND) {
             emit error(UndoRemoveTransactionError);
         } else {
             emit error(UnknownError);
@@ -198,15 +201,10 @@ void QMLPurchaseTransactionModel::processResult(const QueryResult result)
 void QMLPurchaseTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("remove_purchase_transaction", {
-                           { "can_undo", true },
-                           { "transaction_id", data(index(row, 0), TransactionIdRole).toInt() },
-                           { "row", row },
-                           { "record", m_records.at(row) }
-                       }, QueryRequest::Purchase);
-    emit executeRequest(request);
+    emit execute(new PurchaseQuery::RemovePurchaseTransaction(data(index(row, 0), TransactionIdRole).toInt(),
+                                                              row,
+                                                              PurchaseTransaction{ m_records.at(row).toMap() },
+                                                              this));
 }
 
 void QMLPurchaseTransactionModel::removeTransactionFromModel(int row)

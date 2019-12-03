@@ -1,5 +1,6 @@
 #include "qmldebtordetailrecord.h"
 #include "database/databasethread.h"
+#include "queryexecutors/debtor.h"
 #include <QDateTime>
 
 QMLDebtorDetailRecord::QMLDebtorDetailRecord(QObject *parent) :
@@ -174,9 +175,8 @@ void QMLDebtorDetailRecord::tryQuery()
         return;
 
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_debtor_details", { {"debtor_id", m_debtorId } }, QueryRequest::Debtor);
-    emit executeRequest(request);
+    emit execute(new DebtorQuery::ViewDebtorDetails(m_debtorId,
+                                                this));
 }
 
 void QMLDebtorDetailRecord::processResult(const QueryResult result)
@@ -187,7 +187,7 @@ void QMLDebtorDetailRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_debtor_details") {
+        if (result.request().command() == DebtorQuery::ViewDebtorDetails::COMMAND) {
             const QVariantMap &record = result.outcome().toMap().value("debtor").toMap();
             setPreferredName(record.value("preferred_name").toString());
             setFirstName(record.value("first_name").toString());

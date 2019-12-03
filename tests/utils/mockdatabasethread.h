@@ -4,6 +4,8 @@
 #include "database/databasethread.h"
 #include "database/queryresult.h"
 
+class QueryExecutor;
+
 class MockDatabaseThread : public DatabaseThread
 {
     Q_OBJECT
@@ -12,7 +14,7 @@ public:
 private:
     QueryResult *m_result;
 
-    void emitResult(const QueryRequest &request);
+    void emitResult(QueryExecutor *queryExecutor);
 };
 
 #endif // MOCKDATABASETHREAD_H

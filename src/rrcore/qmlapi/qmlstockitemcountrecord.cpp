@@ -2,6 +2,7 @@
 #include "database/databasethread.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "queryexecutors/stock.h"
 
 QMLStockItemCountRecord::QMLStockItemCountRecord(QObject *parent) :
     QMLStockItemCountRecord(DatabaseThread::instance(), parent)
@@ -68,17 +69,14 @@ void QMLStockItemCountRecord::tryQuery()
 {
     setBusy(true);
 
-    QueryRequest request(this);
     if (!m_filterText.trimmed().isEmpty() && m_filterColumn > -1)
-        request.setCommand("filter_stock_item_count", {
-                               { "category_id", m_categoryId },
-                               { "filter_text", m_filterText },
-                               { "filter_column", columnName(m_filterColumn) }
-                           }, QueryRequest::Stock);
+        emit execute(new StockQuery::FilterStockItemCount(
+                         m_categoryId,
+                         m_filterText,
+                         columnName(m_filterColumn),
+                         this));
     else
-        request.setCommand("view_stock_item_count", { }, QueryRequest::Stock);
-
-    emit executeRequest(request);
+        emit execute(new StockQuery::ViewStockItemCount(this));
 }
 
 void QMLStockItemCountRecord::processResult(const QueryResult result)

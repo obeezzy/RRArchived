@@ -1,5 +1,6 @@
 #include "mockdatabasethread.h"
 #include "database/queryresult.h"
+#include "database/queryexecutor.h"
 
 MockDatabaseThread::MockDatabaseThread(QueryResult *result) :
     DatabaseThread(result),
@@ -8,8 +9,8 @@ MockDatabaseThread::MockDatabaseThread(QueryResult *result) :
     connect(this, &MockDatabaseThread::execute, this, &MockDatabaseThread::emitResult);
 }
 
-void MockDatabaseThread::emitResult(const QueryRequest &request)
+void MockDatabaseThread::emitResult(QueryExecutor *queryExecutor)
 {
-    m_result->setRequest(request);
+    m_result->setRequest(queryExecutor->request());
     emit resultReady(*m_result);
 }

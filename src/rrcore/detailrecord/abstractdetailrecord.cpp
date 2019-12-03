@@ -1,5 +1,6 @@
 #include "abstractdetailrecord.h"
 #include "database/databasethread.h"
+#include "database/queryexecutor.h"
 
 AbstractDetailRecord::AbstractDetailRecord(QObject *parent) :
     AbstractDetailRecord(DatabaseThread::instance(), parent)
@@ -10,7 +11,7 @@ AbstractDetailRecord::AbstractDetailRecord(DatabaseThread &thread, QObject *pare
     m_autoQuery(true),
     m_busy(false)
 {
-    connect(this, &AbstractDetailRecord::executeRequest, &thread, &DatabaseThread::execute);
+    connect(this, &AbstractDetailRecord::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractDetailRecord::processResult);
 }
 

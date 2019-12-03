@@ -33,9 +33,9 @@ public:
     void setTotalAmount(double totalAmount);
     void setPaymentRecords(const QVariantList &records);
 
-    void addPayment(DebtPayment *debtPayment);
-    void updatePayment(DebtPayment *debtPayment);
-    void removePayment(DebtPayment *debtPayment);
+    void addPayment(DebtPayment debtPayment);
+    void updatePayment(DebtPayment debtPayment);
+    void removePayment(DebtPayment debtPayment);
     void clearPayments();
 signals:
     void dirtyChanged();
@@ -45,7 +45,7 @@ protected:
 private:
     int m_transactionId;
     QVariantList m_records;
-    QList<DebtPayment *> m_debtPayments;
+    DebtPaymentList m_debtPayments;
     bool m_dirty;
     double m_totalAmount;
 

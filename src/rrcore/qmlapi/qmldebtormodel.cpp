@@ -2,6 +2,7 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
+#include "queryexecutors/debtor.h"
 #include <QDateTime>
 
 QMLDebtorModel::QMLDebtorModel(QObject *parent) :
@@ -53,28 +54,23 @@ QVariant QMLDebtorModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLDebtorModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
-    roles.insert(ClientIdRole, "client_id");
-    roles.insert(DebtorIdRole, "debtor_id");
-    roles.insert(ImageSourceRole, "image_source");
-    roles.insert(PreferredNameRole, "preferred_name");
-    roles.insert(TotalDebtRole, "total_debt");
-    roles.insert(NoteRole, "note");
-    roles.insert(CreatedRole, "created");
-    roles.insert(LastEditedRole, "last_edited");
-    roles.insert(UserRole, "user");
-
-    return roles;
+    return {
+        { ClientIdRole, "client_id" },
+        { DebtorIdRole, "debtor_id" },
+        { ImageSourceRole, "image_source" },
+        { PreferredNameRole, "preferred_name" },
+        { TotalDebtRole, "total_debt" },
+        { NoteRole, "note" },
+        { CreatedRole, "created" },
+        { LastEditedRole, "last_edited" },
+        { UserRole, "user" }
+    };
 }
 
 void QMLDebtorModel::tryQuery()
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("view_debtors", QVariantMap(), QueryRequest::Debtor);
-
-    emit executeRequest(request);
+    emit execute(new DebtorQuery::ViewDebtors(this));
 }
 
 void QMLDebtorModel::processResult(const QueryResult result)
@@ -85,15 +81,15 @@ void QMLDebtorModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_debtors") {
+        if (result.request().command() == DebtorQuery::ViewDebtors::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("debtors").toList();
             endResetModel();
             emit success(ViewDebtorsSuccess);
-        } else if (result.request().command() == "remove_debtor") {
+        } else if (result.request().command() == DebtorQuery::RemoveDebtor::COMMAND) {
             removeItemFromModel(result.outcome().toMap().value("debtor_id").toInt());
             emit success(RemoveDebtorSuccess);
-        } else if (result.request().command() == "undo_remove_debtor") {
+        } else if (result.request().command() == DebtorQuery::RemoveDebtor::UNDO_COMMAND) {
             undoRemoveItemFromModel(result.outcome().toMap().value("debtor_row").toInt(),
                                     result.outcome().toMap().value("debtor_id").toInt(),
                                     result.outcome().toMap().value("debtor").toMap());
@@ -110,23 +106,11 @@ void QMLDebtorModel::filter()
         return;
 
     setBusy(true);
-
-    QueryRequest request(this);
-    QVariantMap params;
-
-    params.insert("filter_text", filterText());
-
-    switch (filterColumn()) {
-    case PreferredNameColumn:
-        params.insert("filter_column", "preferred_name");
-        break;
-    default:
-        params.insert("filter_column", "total_debt");
-        break;
-    }
-
-    request.setCommand("view_debtors", params, QueryRequest::Debtor);
-    emit executeRequest(request);
+    emit execute(new DebtorQuery::ViewDebtors(
+                     filterText(),
+                     filterColumnName(),
+                     this)
+                 );
 }
 
 void QMLDebtorModel::removeDebtor(int debtorId)
@@ -137,12 +121,10 @@ void QMLDebtorModel::removeDebtor(int debtorId)
     }
 
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("remove_debtor",
-                       QVariantMap { { "debtor_id", debtorId }, { "can_undo", true }, { "debtor_row", debtorRowFromId(debtorId) } },
-                       QueryRequest::Debtor);
-    emit executeRequest(request);
+    emit execute(new DebtorQuery::RemoveDebtor(
+                     debtorId,
+                     debtorRowFromId(debtorId),
+                     this));
 }
 
 int QMLDebtorModel::debtorRowFromId(int debtorId)
@@ -182,5 +164,17 @@ void QMLDebtorModel::undoRemoveItemFromModel(int row, int debtorId, const QVaria
     beginInsertRows(QModelIndex(), row, row);
     m_records.insert(row, debtorInfo);
     endInsertRows();
+}
+
+QString QMLDebtorModel::filterColumnName() const
+{
+    switch (filterColumn()) {
+    case PreferredNameColumn:
+        return QStringLiteral("preferred_name");
+    case TotalDebtColumn:
+        return QStringLiteral("total_debt");
+    }
+
+    return QString();
 }
 

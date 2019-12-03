@@ -1,5 +1,6 @@
 #include "qmluserdetailrecord.h"
 #include "database/databasethread.h"
+#include "queryexecutors/user.h"
 
 QMLUserDetailRecord::QMLUserDetailRecord(QObject *parent) :
     QMLUserDetailRecord(DatabaseThread::instance(), parent)
@@ -113,9 +114,7 @@ void QMLUserDetailRecord::setEmailAddress(const QString &emailAddress)
 void QMLUserDetailRecord::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_user_details", { { "user_id", m_userId } }, QueryRequest::User);
-    emit executeRequest(request);
+    emit execute(new UserQuery::ViewUserDetails(m_userId, this));
 }
 
 void QMLUserDetailRecord::processResult(const QueryResult result)

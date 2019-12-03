@@ -2,6 +2,7 @@
 #include "database/databasethread.h"
 
 #include <QDateTime>
+#include "queryexecutors/stock.h"
 
 QMLStockItemModel::QMLStockItemModel(QObject *parent) :
     QMLStockItemModel(DatabaseThread::instance(), parent)
@@ -165,16 +166,10 @@ void QMLStockItemModel::removeItem(int row)
         return;
 
     setBusy(true);
-
-    QueryRequest request(this);
-    const int itemId = index(row, 0).data(ItemIdRole).toInt();
-    request.setCommand("remove_stock_item", {
-                           { "item_id", itemId },
-                           { "item_row", row },
-                           { "item_info", m_records.at(row) },
-                           { "can_undo", true }
-                       }, QueryRequest::Stock);
-    emit executeRequest(request);
+    emit execute(new StockQuery::RemoveStockItem(index(row, 0).data(ItemIdRole).toInt(),
+                                                 row,
+                                                 StockItem{ m_records.at(row).toMap() },
+                                                 this));
 }
 
 void QMLStockItemModel::tryQuery()
@@ -183,26 +178,19 @@ void QMLStockItemModel::tryQuery()
         return;
 
     setBusy(true);
-
-    QueryRequest request(this);
     if (!filterText().trimmed().isEmpty() && sortColumn() > -1 && filterColumn() > -1) {
-        request.setCommand("filter_stock_items", {
-                               { "category_id", m_categoryId },
-                               { "filter_text", filterText() },
-                               { "filter_column", columnName(filterColumn()) },
-                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending" },
-                               { "sort_column", columnName(sortColumn()) }
-                           } , QueryRequest::Stock);
+        emit execute(new StockQuery::FilterStockItems(m_categoryId,
+                                                      filterText(),
+                                                      columnName(filterColumn()),
+                                                      sortOrder(),
+                                                      columnName(sortColumn()),
+                                                      this));
 
     } else {
-        request.setCommand("view_stock_items", {
-                               { "category_id", m_categoryId },
-                               { "sort_order", sortOrder() == Qt::AscendingOrder ? "ascending" : "descending"} },
-                           QueryRequest::Stock);
+        emit execute(new StockQuery::ViewStockItems(m_categoryId,
+                                                    sortOrder(),
+                                                    this));
     }
-
-    emit executeRequest(request);
-
 }
 
 void QMLStockItemModel::processResult(const QueryResult result)
@@ -213,18 +201,18 @@ void QMLStockItemModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_stock_items"
-                || result.request().command() == "filter_stock_items") {
+        if (result.request().command() == StockQuery::ViewStockItems::COMMAND
+                || result.request().command() == StockQuery::FilterStockItems::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();
 
             emit success(ViewStockItemsSuccess);
-        } else if (result.request().command() == "remove_stock_item") {
+        } else if (result.request().command() == StockQuery::RemoveStockItem::COMMAND) {
             const int row = result.request().params().value("item_row").toInt();
             removeItemFromModel(row);
             emit success(RemoveItemSuccess);
-        } else if (result.request().command() == "undo_remove_stock_item") {
+        } else if (result.request().command() == StockQuery::RemoveStockItem::UNDO_COMMAND) {
             const int row = result.request().params().value("item_row").toInt();
             const QVariantMap &itemInfo = result.request().params().value("item_info").toMap();
             undoRemoveItemFromModel(row, itemInfo);

@@ -5,8 +5,8 @@
 #include <QDateTime>
 
 #include "models/abstractvisuallistmodel.h"
+#include "utility/saleutils.h"
 
-class SalePayment;
 class SalePaymentModel;
 
 class QMLSaleCartModel : public AbstractVisualListModel
@@ -70,6 +70,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 
+    bool isExistingTransaction() const;
+
     qint64 transactionId() const;
     void setTransactionId(qint64 transactionId);
 
@@ -93,7 +95,7 @@ public:
 
     SalePaymentModel *paymentModel() const;
 
-    QList<SalePayment *> payments() const;
+    QList<SalePayment> payments() const;
 
     Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
     Q_INVOKABLE void removePayment(int index);
@@ -135,7 +137,7 @@ private:
     bool m_canAcceptCash;
     bool m_canAcceptCard;
     QVariantList m_records;
-    QList<SalePayment *> m_salePayments;
+    SalePaymentList m_salePayments;
     SalePaymentModel *m_paymentModel;
 
     bool containsItem(int itemId);
