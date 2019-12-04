@@ -1,6 +1,7 @@
 #include "qmlusermodel.h"
 #include "database/databasethread.h"
 #include "models/abstractvisualtablemodel.h"
+#include "queryexecutors/user.h"
 
 QMLUserModel::QMLUserModel(QObject *parent) :
     QMLUserModel(DatabaseThread::instance(), parent)
@@ -113,9 +114,8 @@ QVariant QMLUserModel::headerData(int section, Qt::Orientation orientation, int 
 
 void QMLUserModel::tryQuery()
 {
-    QueryRequest request(this);
-    request.setCommand("view_users", { }, QueryRequest::User);
-    emit executeRequest(request);
+    setBusy(true);
+    emit execute(new UserQuery::ViewUsers(false, this));
 }
 
 void QMLUserModel::processResult(const QueryResult result)
@@ -129,7 +129,7 @@ void QMLUserModel::processResult(const QueryResult result)
             emit success(ActivateUserSuccess);
         } else {
             beginResetModel();
-            if (result.request().command() == "view_users") {
+            if (result.request().command() == UserQuery::ViewUsers::COMMAND) {
                 m_records = result.outcome().toMap().value("users").toList();
                 emit success(ViewUsersSuccess);
             } else if (result.request().command() == "remove_user") {
@@ -161,20 +161,13 @@ void QMLUserModel::removeUserFromModel(const QString &userName)
 void QMLUserModel::removeUser(const QString &userName)
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("remove_user", { { "user_name", userName } }, QueryRequest::User);
-    emit executeRequest(request);
+    emit execute(new UserQuery::RemoveUser(userName, this));
 }
 
 void QMLUserModel::activateUser(const QString &userName, bool active)
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("activate_user", {
-                           { "user_name", userName },
-                           { "active", active }
-                       }, QueryRequest::User);
-    emit executeRequest(request);
+    emit execute(new UserQuery::ActivateUser(userName,
+                                             active,
+                                             this));
 }

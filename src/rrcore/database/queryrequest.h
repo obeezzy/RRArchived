@@ -35,7 +35,7 @@ public:
     QueryRequest &operator= (const QueryRequest &other);
 
     inline bool operator ==(const QueryRequest &other) const {
-        return m_command == other.command() && m_type == other.type() && parent() == other.parent();
+        return m_command == other.command() && m_type == other.type();
     }
 
     QObject *receiver() const;

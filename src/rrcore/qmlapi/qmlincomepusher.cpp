@@ -1,5 +1,6 @@
 #include "qmlincomepusher.h"
 #include "database/databasethread.h"
+#include "queryexecutors/income.h"
 
 QMLIncomePusher::QMLIncomePusher(QObject *parent) :
     QMLIncomePusher(DatabaseThread::instance(), parent)
@@ -71,30 +72,12 @@ void QMLIncomePusher::setPaymentMethod(QMLIncomePusher::PaymentMethod paymentMet
 void QMLIncomePusher::push()
 {
     setBusy(true);
-
-    QString paymentMethod;
-    switch (m_paymentMethod) {
-    case PaymentMethod::Cash:
-        paymentMethod = "cash";
-        break;
-    case PaymentMethod::DebitCard:
-        paymentMethod = "debit_card";
-        break;
-    case PaymentMethod::CreditCard:
-        paymentMethod = "credit_card";
-        break;
-    }
-
-    QVariantMap params {
-        { "client_name", m_clientName },
-        { "purpose", m_purpose },
-        { "amount", m_amount },
-        { "payment_method", paymentMethod }
-    };
-
-    QueryRequest request(this);
-    request.setCommand("add_new_income_transaction", params, QueryRequest::Income);
-    emit executeRequest(request);
+    emit execute(new IncomeQuery::AddIncomeTransaction(
+                     m_clientName,
+                     m_purpose,
+                     m_amount,
+                     paymentMethodAsString(),
+                     this));
 }
 
 void QMLIncomePusher::processResult(const QueryResult result)
@@ -105,9 +88,23 @@ void QMLIncomePusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "add_new_income_transaction")
-            emit success(static_cast<int>(SuccessCode::AddIncomeSuccess));
+        if (result.request().command() == IncomeQuery::AddIncomeTransaction::COMMAND)
+            emit success(AddIncomeSuccess);
     } else {
         emit error();
     }
+}
+
+QString QMLIncomePusher::paymentMethodAsString() const
+{
+    switch (m_paymentMethod) {
+    case PaymentMethod::Cash:
+        return QStringLiteral("cash");
+    case PaymentMethod::DebitCard:
+        return QStringLiteral("debit_card");
+    case PaymentMethod::CreditCard:
+        return QStringLiteral("credit_card");
+    }
+
+    return QString();
 }

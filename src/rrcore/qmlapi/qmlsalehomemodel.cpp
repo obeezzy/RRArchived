@@ -5,6 +5,7 @@
 
 #include "models/saletotalrevenuemodel.h"
 #include "models/salemostsolditemmodel.h"
+#include "queryexecutors/sales.h"
 
 QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
     QMLSaleHomeModel(DatabaseThread::instance(), parent)
@@ -52,11 +53,7 @@ QHash<int, QByteArray> QMLSaleHomeModel::roleNames() const
 void QMLSaleHomeModel::tryQuery()
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("view_sale_home", QVariantMap(), QueryRequest::Sales);
-
-    emit executeRequest(request);
+    emit execute(new SaleQuery::ViewSaleHome(this));
 }
 
 void QMLSaleHomeModel::processResult(const QueryResult result)

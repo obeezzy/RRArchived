@@ -39,6 +39,8 @@ protected:
     void filter() override final;
 private:
     QVariantList m_records;
+
+    QString columnName() const;
 };
 
 #endif // QMLCLIENTMODEL_H

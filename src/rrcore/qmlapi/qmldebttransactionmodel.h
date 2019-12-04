@@ -137,13 +137,13 @@ private:
     QString m_note;
     QVariantList m_records;
     QList<DebtPaymentModel *> m_debtPaymentModels;
-    QList<DebtTransaction *> m_existingDebtTransactions;
-    QList<DebtTransaction *> m_newDebtTransactions;
+    DebtTransactionList m_existingDebtTransactions;
+    DebtTransactionList m_newDebtTransactions;
 
     QVector<int> m_archivedDebtTransactionIds;
     QVector<int> m_archivedDebtPaymentIds;
 
-    QVariant convertToVariant(const QList<DebtTransaction *> &debtTransactions);
+    QVariant convertToVariant(const DebtTransactionList &debtTransactions);
     QVariant convertToVariant(const QVector<int> &archivedDebtTransactionIds);
 
     void clearAll();

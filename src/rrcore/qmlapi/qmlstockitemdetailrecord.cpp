@@ -1,5 +1,7 @@
 #include "qmlstockitemdetailrecord.h"
 #include "database/databasethread.h"
+#include "queryexecutors/stock.h"
+
 #include <QDateTime>
 
 QMLStockItemDetailRecord::QMLStockItemDetailRecord(QObject *parent) :
@@ -120,9 +122,7 @@ void QMLStockItemDetailRecord::tryQuery()
         return;
 
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_stock_item_details", { { "item_id", m_itemId } }, QueryRequest::Stock);
-    emit executeRequest(request);
+    emit execute(new StockQuery::ViewStockItemDetails(m_itemId, this));
 }
 
 void QMLStockItemDetailRecord::processResult(const QueryResult result)

@@ -1,5 +1,6 @@
 #include "qmlsalereportmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/sales.h"
 
 QMLSaleReportModel::QMLSaleReportModel(QObject *parent) :
     QMLSaleReportModel(DatabaseThread::instance(), parent)
@@ -102,9 +103,7 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
 void QMLSaleReportModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_sale_report", { }, QueryRequest::Sales);
-    emit executeRequest(request);
+    emit execute(new SaleQuery::ViewSaleReport(this));
 }
 
 void QMLSaleReportModel::processResult(const QueryResult result)
@@ -114,7 +113,7 @@ void QMLSaleReportModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_sale_report") {
+        if (result.request().command() == SaleQuery::ViewSaleReport::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();

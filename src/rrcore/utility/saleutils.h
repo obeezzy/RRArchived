@@ -2,6 +2,7 @@
 #define SALEUTILS_H
 
 #include <QString>
+#include <QList>
 
 struct SalePayment {
     enum class PaymentMethod {
@@ -13,7 +14,39 @@ struct SalePayment {
     double amount;
     PaymentMethod method;
     QString note;
+    QString currency;
+
+    QString paymentMethodAsString() const {
+        switch (method) {
+        case PaymentMethod::Cash:
+            return QStringLiteral("cash");
+        case PaymentMethod::DebitCard:
+            return QStringLiteral("debit_card");
+        case PaymentMethod::CreditCard:
+            return QStringLiteral("credit_card");
+        }
+
+        return QString();
+    }
+
+    QVariantMap toVariantMap() const {
+        return {
+            { "amount", amount },
+            { "payment_method", paymentMethodAsString(), },
+            { "note", note }
+        };
+    }
 }; Q_DECLARE_TYPEINFO(SalePayment, Q_PRIMITIVE_TYPE);
 
+class SalePaymentList : public QList<SalePayment> {
+public:
+    QVariantList toVariantList() const {
+        QVariantList list;
+        for (const auto &payment : *this)
+            list.append(payment.toVariantMap());
+
+        return list;
+    }
+};
 
 #endif // SALEUTILS_H

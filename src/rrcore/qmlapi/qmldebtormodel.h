@@ -53,6 +53,7 @@ private:
     QVariantList m_records;
 
     int debtorRowFromId(int debtorId);
+    QString filterColumnName() const;
 
     void removeItemFromModel(int debtorId);
     void undoRemoveItemFromModel(int row, int debtorId, const QVariantMap &debtorInfo);

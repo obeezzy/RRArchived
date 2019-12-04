@@ -39,6 +39,8 @@ public:
         ImageTooLargeError
     }; Q_ENUM(ErrorCode)
 
+    bool isExistingItem() const;
+
     int itemId() const;
     void setItemId(int itemId);
 

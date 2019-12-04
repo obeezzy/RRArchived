@@ -7,6 +7,7 @@
 #include "database/queryresult.h"
 
 class DatabaseThread;
+class QueryExecutor;
 
 class AbstractDetailRecord : public QObject, public QQmlParserStatus
 {
@@ -31,7 +32,7 @@ protected:
     virtual void processResult(const QueryResult result) = 0;
     void setBusy(bool busy);
 signals:
-    void executeRequest(const QueryRequest request);
+    void execute(QueryExecutor *);
     void autoQueryChanged();
     void busyChanged();
 

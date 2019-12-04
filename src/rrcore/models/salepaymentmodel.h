@@ -22,7 +22,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 
-    void addPayment(SalePayment *payment);
+    void addPayment(SalePayment payment);
     void removePayment(int index);
     void clearPayments();
 
@@ -37,7 +37,7 @@ signals:
     void cashPaymentCountChanged();
     void cardPaymentCountChanged();
 private:
-    QList<SalePayment *> m_salePayments;
+    QList<SalePayment> m_salePayments;
     int m_cashPaymentCount;
     int m_cardPaymentCount;
 }; Q_DECLARE_METATYPE(SalePaymentModel *)

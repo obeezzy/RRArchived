@@ -1,5 +1,6 @@
 #include "qmlexpensereportmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/expense.h"
 
 QMLExpenseReportModel::QMLExpenseReportModel(QObject *parent) :
     QMLExpenseReportModel(DatabaseThread::instance(), parent)
@@ -83,9 +84,7 @@ QVariant QMLExpenseReportModel::headerData(int section, Qt::Orientation orientat
 void QMLExpenseReportModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_expense_report", { }, QueryRequest::Expense);
-    emit executeRequest(request);
+    emit execute(new ExpenseQuery::ViewExpenseReport(this));
 }
 
 void QMLExpenseReportModel::processResult(const QueryResult result)
@@ -95,7 +94,7 @@ void QMLExpenseReportModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_expense_report") {
+        if (result.request().command() == ExpenseQuery::ViewExpenseReport::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("transactions").toList();
             endResetModel();

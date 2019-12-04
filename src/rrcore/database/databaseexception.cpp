@@ -19,7 +19,14 @@ DatabaseException::DatabaseException(int errorCode, const QString &message, cons
 DatabaseException::DatabaseException(QueryErrorCode errorCode) :
     m_code(static_cast<int>(errorCode))
 {
-
+    switch (errorCode) {
+    case QueryErrorCode::NotYetImplementedError:
+        m_message = QStringLiteral("Not yet implemented");
+        m_userMessage = QStringLiteral("Not yet implemented");
+        break;
+    default:
+        break;
+    }
 }
 
 DatabaseException::DatabaseException(QueryErrorCode errorCode, const QString &message, const QString &userMessage) :

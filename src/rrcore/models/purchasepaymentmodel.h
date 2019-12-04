@@ -2,18 +2,7 @@
 #define PURCHASEPAYMENTMODEL_H
 
 #include "abstractvisuallistmodel.h"
-
-struct PurchasePayment {
-    enum class PaymentMethod {
-        Cash,
-        DebitCard,
-        CreditCard
-    };
-
-    double amount;
-    PaymentMethod method;
-    QString note;
-}; Q_DECLARE_TYPEINFO(PurchasePayment, Q_PRIMITIVE_TYPE);
+#include "utility/purchaseutils.h"
 
 class PurchasePaymentModel : public AbstractVisualListModel
 {
@@ -32,7 +21,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 
-    void addPayment(PurchasePayment *payment);
+    void addPayment(const PurchasePayment &payment);
     void removePayment(int index);
     void clearPayments();
 
@@ -47,7 +36,7 @@ signals:
     void cashPaymentCountChanged();
     void cardPaymentCountChanged();
 private:
-    QList<PurchasePayment *> m_purchasePayments;
+    PurchasePaymentList m_purchasePayments;
     int m_cashPaymentCount;
     int m_cardPaymentCount;
 }; Q_DECLARE_METATYPE(PurchasePaymentModel *)

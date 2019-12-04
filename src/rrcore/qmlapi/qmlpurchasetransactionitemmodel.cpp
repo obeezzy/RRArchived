@@ -2,6 +2,7 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
+#include "queryexecutors/purchase.h"
 
 #include <QDateTime>
 
@@ -156,9 +157,8 @@ void QMLPurchaseTransactionItemModel::tryQuery()
         return;
 
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_purchase_transaction_items", { { "transaction_id", transactionId() } }, QueryRequest::Purchase);
-    emit executeRequest(request);
+    emit execute(new PurchaseQuery::ViewPurchaseTransactionItems(transactionId(),
+                                                                 this));
 }
 
 void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
@@ -169,7 +169,7 @@ void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_purchase_transaction_items") {
+        if (result.request().command() == PurchaseQuery::ViewPurchaseTransactionItems::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();
@@ -202,13 +202,8 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
 void QMLPurchaseTransactionItemModel::removeTransactionItem(int row)
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("remove_purchase_transaction_item", {
-                           { "can_undo", true },
-                           { "transaction_id", transactionId() },
-                           { "transaction_item_id", data(index(row, 0), TransactionItemIdRole).toInt() }
-                       }, QueryRequest::Purchase);
-    emit executeRequest(request);
+    emit execute(new PurchaseQuery::RemovePurchaseTransactionItem(transactionId(),
+                                                                  data(index(row, 0), TransactionItemIdRole).toInt(),
+                                                                  this));
 }
 

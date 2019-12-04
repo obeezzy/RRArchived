@@ -5,6 +5,7 @@
 #include <QUrl>
 #include <QLoggingCategory>
 #include "user/businessstore.h"
+#include "database/queryexecutor.h"
 
 class QueryRequest;
 class QueryResult;
@@ -48,7 +49,6 @@ public:
         IncorrectCredentials,
         OldPasswordWrongError,
         UserAccountIsLockedError,
-
         ConnectionRefusedError
     }; Q_ENUM(ErrorCode)
 
@@ -76,8 +76,8 @@ public:
 
     Q_INVOKABLE bool hasPrivilege(const QString &privilege);
 signals:
-    void executeRequest(const QueryRequest &);
-    void executeServerRequest(const ServerRequest &);
+    void execute(QueryExecutor *);
+    void executeRequest(const ServerRequest &);
     void busyChanged();
     void success(int successCode);
     void error(int errorCode);

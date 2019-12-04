@@ -34,7 +34,7 @@ QVariant DebtPaymentModel::data(const QModelIndex &index, int role) const
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("amount_paid").toDouble();
         else
-            return m_debtPayments.at(index.row() - m_records.count())->amount;
+            return m_debtPayments.at(index.row() - m_records.count()).amount;
         break;
     case BalanceRole:
         if (isExistingRecord(index.row()))
@@ -52,7 +52,7 @@ QVariant DebtPaymentModel::data(const QModelIndex &index, int role) const
         if (isExistingRecord(index.row()))
             return m_records.at(index.row()).toMap().value("note").toString();
         else
-            return m_debtPayments.at(index.row() - m_records.count())->note;
+            return m_debtPayments.at(index.row() - m_records.count()).note;
         break;
     case UncommittedRole:
         return false;
@@ -74,17 +74,16 @@ QVariant DebtPaymentModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> DebtPaymentModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
-    roles.insert(AmountPaidRole, "amount_paid");
-    roles.insert(BalanceRole, "balance");
-    roles.insert(CurrencyRole, "currency");
-    roles.insert(DueDateRole, "due_date");
-    roles.insert(NoteRole, "note");
-    roles.insert(UncommittedRole, "uncommitted");
-    roles.insert(ArchivedRole, "archived");
-    roles.insert(CreatedRole, "created");
-
-    return roles;
+    return {
+        { AmountPaidRole, "amount_paid" },
+        { BalanceRole, "balance" },
+        { CurrencyRole, "currency" },
+        { DueDateRole, "due_date" },
+        { NoteRole, "note" },
+        { UncommittedRole, "uncommitted" },
+        { ArchivedRole, "archived" },
+        { CreatedRole, "created" }
+    };
 }
 
 int DebtPaymentModel::transactionId() const
@@ -110,7 +109,7 @@ void DebtPaymentModel::setPaymentRecords(const QVariantList &records)
     m_records = records;
 }
 
-void DebtPaymentModel::addPayment(DebtPayment *debtPayment)
+void DebtPaymentModel::addPayment(DebtPayment debtPayment)
 {
     if (m_debtPayments.contains(debtPayment))
         return;
@@ -122,7 +121,7 @@ void DebtPaymentModel::addPayment(DebtPayment *debtPayment)
     setDirty(m_debtPayments.count() != 0);
 }
 
-void DebtPaymentModel::updatePayment(DebtPayment *debtPayment)
+void DebtPaymentModel::updatePayment(DebtPayment debtPayment)
 {
     const int row = m_debtPayments.indexOf(debtPayment);
     emit dataChanged(index(row), index(row));
@@ -130,7 +129,7 @@ void DebtPaymentModel::updatePayment(DebtPayment *debtPayment)
     setDirty(m_debtPayments.count() != 0);
 }
 
-void DebtPaymentModel::removePayment(DebtPayment *debtPayment)
+void DebtPaymentModel::removePayment(DebtPayment debtPayment)
 {
     if (!m_debtPayments.contains(debtPayment))
         return;

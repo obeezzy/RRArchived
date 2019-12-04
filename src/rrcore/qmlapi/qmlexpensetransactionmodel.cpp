@@ -1,5 +1,7 @@
 #include "qmlexpensetransactionmodel.h"
 
+#include "queryexecutors/expense.h"
+
 QMLExpenseTransactionModel::QMLExpenseTransactionModel(QObject *parent) :
     AbstractTransactionModel (parent)
 {
@@ -99,10 +101,11 @@ QVariant QMLExpenseTransactionModel::headerData(int section, Qt::Orientation ori
 void QMLExpenseTransactionModel::tryQuery()
 {
     setBusy(true);
-
-    QueryRequest request(this);
-    request.setCommand("view_expense_transactions", { { "archived", false } }, QueryRequest::Expense);
-    emit executeRequest(request);
+    emit execute(new ExpenseQuery::ViewExpenseTransactions(
+                     QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
+                     QDateTime::currentDateTime(),
+                     false,
+                     this));
 }
 
 void QMLExpenseTransactionModel::processResult(const QueryResult result)

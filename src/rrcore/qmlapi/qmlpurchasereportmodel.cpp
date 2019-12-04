@@ -1,5 +1,6 @@
 #include "qmlpurchasereportmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/purchase.h"
 
 QMLPurchaseReportModel::QMLPurchaseReportModel(QObject *parent) :
     QMLPurchaseReportModel(DatabaseThread::instance(), parent)
@@ -102,9 +103,7 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
 void QMLPurchaseReportModel::tryQuery()
 {
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("view_purchase_report", { }, QueryRequest::Purchase);
-    emit executeRequest(request);
+    emit execute(new PurchaseQuery::ViewPurchaseReport(this));
 }
 
 void QMLPurchaseReportModel::processResult(const QueryResult result)
@@ -114,7 +113,7 @@ void QMLPurchaseReportModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_purchase_report") {
+        if (result.request().command() == PurchaseQuery::ViewPurchaseReport::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("items").toList();
             endResetModel();
