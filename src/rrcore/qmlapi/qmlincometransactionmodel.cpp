@@ -1,6 +1,8 @@
 #include "qmlincometransactionmodel.h"
 #include "queryexecutors/income.h"
 
+#include <QDateTime>
+
 QMLIncomeTransactionModel::QMLIncomeTransactionModel(QObject *parent) :
     AbstractTransactionModel (parent)
 {
@@ -100,8 +102,11 @@ QVariant QMLIncomeTransactionModel::headerData(int section, Qt::Orientation orie
 void QMLIncomeTransactionModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new IncomeQuery::ViewIncomeTransactions(false,
-                                                     this));
+    emit execute(new IncomeQuery::ViewIncomeTransactions(
+                     QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
+                     QDateTime::currentDateTime(),
+                     false,
+                     this));
 }
 
 void QMLIncomeTransactionModel::processResult(const QueryResult result)

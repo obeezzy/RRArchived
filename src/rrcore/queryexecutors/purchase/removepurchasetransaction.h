@@ -16,6 +16,7 @@ public:
                                        int row,
                                        const PurchaseTransaction &transaction,
                                        QObject *receiver);
+    QueryResult execute() override;
 };
 }
 

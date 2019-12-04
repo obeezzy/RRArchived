@@ -37,7 +37,5 @@ AddPurchaseTransaction::AddPurchaseTransaction(qint64 transactionId,
 
 QueryResult AddPurchaseTransaction::execute()
 {
-    QueryResult result{ request() };
-
-    return result;
+    return PurchaseExecutor::addPurchaseTransaction(TransactionMode::UseSqlTransaction);
 }

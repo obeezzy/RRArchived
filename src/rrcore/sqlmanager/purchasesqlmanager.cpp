@@ -22,7 +22,7 @@ QueryResult PurchaseSqlManager::execute(const QueryRequest &request)
             viewPurchaseHome(request, result);
         else if (request.command() == "add_purchase_transaction")
             addPurchaseTransaction(request, result);
-        else if (request.command() == "update_suspend_transaction")
+        else if (request.command() == "update_suspended_transaction")
             updateSuspendedTransaction(request, result);
         else if (request.command() == "view_purchase_cart")
             viewPurchaseCart(request, result);

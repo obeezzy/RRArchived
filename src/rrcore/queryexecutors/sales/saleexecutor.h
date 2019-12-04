@@ -3,7 +3,6 @@
 
 #include "database/queryexecutor.h"
 
-namespace SaleQuery {
 class SaleExecutor : public QueryExecutor
 {
     Q_OBJECT
@@ -12,7 +11,8 @@ public:
                           const QVariantMap &params,
                           QObject *receiver);
     virtual ~SaleExecutor() = default;
+protected:
+    QueryResult addSaleTransaction(TransactionMode mode);
 };
-}
 
 #endif // SALEEXECUTOR_H

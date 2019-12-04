@@ -1,4 +1,11 @@
 #include "addsaletransaction.h"
+#include "database/databaseexception.h"
+#include "database/databaseutils.h"
+#include "user/userprofile.h"
+
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 using namespace SaleQuery;
 
@@ -30,7 +37,8 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
                     { "action", action },
                     { "note", note },
                     { "payments", payments.toVariantList() },
-                    { "items", items.toVariantList() }
+                    { "items", items.toVariantList() },
+                    { "user_id", UserProfile::instance().userId() }
                  }, receiver)
 {
 
@@ -38,7 +46,5 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
 
 QueryResult AddSaleTransaction::execute()
 {
-    QueryResult result{ request() };
-
-    return result;
+    return SaleExecutor::addSaleTransaction(TransactionMode::UseSqlTransaction);
 }

@@ -1,4 +1,11 @@
 #include "updatesuspendedpurchasetransaction.h"
+#include "database/databaseutils.h"
+#include "database/databaseexception.h"
+#include "user/userprofile.h"
+
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 
 using namespace PurchaseQuery;
 
@@ -32,6 +39,48 @@ UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(qint64 tr
 QueryResult UpdateSuspendedPurchaseTransaction::execute()
 {
     QueryResult result{ request() };
+    result.setSuccessful(true);
 
-    return result;
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request().params();
+
+    QSqlQuery q(connection);
+
+    try {
+        DatabaseUtils::beginTransaction(q);
+
+        const QList<QSqlRecord> &records(callProcedure("IsPurchaseTransactionSuspended", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "transaction_id",
+                                                               params.value("transaction_id")
+                                                           }
+                                                       }));
+
+        if (!records.first().value("suspended").toBool())
+            throw DatabaseException(DatabaseError::QueryErrorCode::UpdateTransactionFailure,
+                                    QString(),
+                                    "Transaction must be suspended.");
+
+        PurchaseExecutor::addPurchaseTransaction(TransactionMode::SkipSqlTransaction);
+
+        callProcedure("ArchivePurchaseTransaction", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "transaction_id",
+                              params.value("transaction_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
+
+        DatabaseUtils::commitTransaction(q);
+        return result;
+    } catch (DatabaseException &) {
+        DatabaseUtils::rollbackTransaction(q);
+        throw;
+    }
 }

@@ -1,4 +1,11 @@
 #include "updatesuspendedsaletransaction.h"
+#include "database/databaseexception.h"
+#include "database/databaseutils.h"
+#include "user/userprofile.h"
+
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 using namespace SaleQuery;
 UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(qint64 transactionId,
@@ -20,7 +27,8 @@ UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(qint64 transactio
                     { "amount_paid", amountPaid },
                     { "balance", balance },
                     { "note", note },
-                    { "suspended", suspended }
+                    { "suspended", suspended },
+                    { "user_id", UserProfile::instance().userId() }
                  }, receiver)
 {
 
@@ -29,6 +37,47 @@ UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(qint64 transactio
 QueryResult UpdateSuspendedSaleTransaction::execute()
 {
     QueryResult result{ request() };
+    result.setSuccessful(true);
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request().params();
 
-    return result;
+    QSqlQuery q(connection);
+
+    try {
+        DatabaseUtils::beginTransaction(q);
+
+        const QList<QSqlRecord> &records(callProcedure("IsSaleTransactionSuspended", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "transaction_id",
+                                                               params.value("transaction_id")
+                                                           }
+                                                       }));
+
+        if (!records.first().value("suspended").toBool())
+            throw DatabaseException(DatabaseError::QueryErrorCode::UpdateTransactionFailure,
+                                    QString(),
+                                    "Transaction must be suspended.");
+
+        result = SaleExecutor::addSaleTransaction(TransactionMode::SkipSqlTransaction);
+
+        callProcedure("ArchiveSaleTransaction", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "transaction_id",
+                              params.value("transaction_id")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              params.value("user_id")
+                          }
+                      });
+
+        DatabaseUtils::commitTransaction(q);
+        return result;
+    } catch (DatabaseException &) {
+        DatabaseUtils::rollbackTransaction(q);
+        throw;
+    }
 }

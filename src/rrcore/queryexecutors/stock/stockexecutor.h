@@ -3,7 +3,6 @@
 
 #include "database/queryexecutor.h"
 
-namespace StockQuery {
 class StockExecutor : public QueryExecutor
 {
     Q_OBJECT
@@ -13,6 +12,5 @@ public:
                            QObject *receiver);
     virtual ~StockExecutor() = default;
 };
-}
 
 #endif // STOCKEXECUTOR_H

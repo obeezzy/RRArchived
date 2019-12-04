@@ -11,7 +11,8 @@ AbstractPusher::AbstractPusher(QObject *parent) :
 
 AbstractPusher::AbstractPusher(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
-    m_busy(false)
+    m_busy(false),
+    m_lastQueryExecutor(nullptr, &QueryExecutor::deleteLater)
 {
     connect(this, &AbstractPusher::execute, &thread, &DatabaseThread::execute);
 

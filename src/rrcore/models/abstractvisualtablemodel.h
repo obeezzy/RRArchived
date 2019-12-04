@@ -87,8 +87,8 @@ private:
     int m_filterColumn;
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
-    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
     qreal m_tableViewWidth;
+    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);

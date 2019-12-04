@@ -1,4 +1,6 @@
 #include "filterstockitems.h"
+#include "database/databaseexception.h"
+#include "database/databaseutils.h"
 
 using namespace StockQuery;
 
@@ -22,6 +24,53 @@ FilterStockItems::FilterStockItems(int categoryId,
 QueryResult FilterStockItems::execute()
 {
     QueryResult result{ request() };
+    result.setSuccessful(true);
+    const QVariantMap &params = request().params();
 
-    return result;
+    try {
+        const QList<QSqlRecord> &records(callProcedure("FilterStockItems", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "category_id",
+                                                               params.value("category_id")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_text",
+                                                               params.value("filter_text")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "filter_column",
+                                                               params.value("filter_column")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_order",
+                                                               params.value("sort_order")
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "sort_column",
+                                                               params.value("sort_column")
+                                                           }
+                                                       }));
+
+        QVariantList items;
+        for (const auto &record : records) {
+            QVariantMap itemRecord { recordToMap(record) };
+            itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+            itemRecord.remove("image");
+
+            items.append(itemRecord);
+        }
+
+        result.setOutcome(QVariantMap {
+                              { "items", items },
+                              { "record_count", items.count() }
+                          });
+        return result;
+    } catch (DatabaseException &) {
+        throw;
+    }
 }

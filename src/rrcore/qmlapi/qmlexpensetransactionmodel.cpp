@@ -101,7 +101,11 @@ QVariant QMLExpenseTransactionModel::headerData(int section, Qt::Orientation ori
 void QMLExpenseTransactionModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new ExpenseQuery::ViewExpenseTransactions(false, this));
+    emit execute(new ExpenseQuery::ViewExpenseTransactions(
+                     QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
+                     QDateTime::currentDateTime(),
+                     false,
+                     this));
 }
 
 void QMLExpenseTransactionModel::processResult(const QueryResult result)

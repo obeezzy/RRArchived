@@ -33,7 +33,8 @@ void UserExecutor::createRRUser(const QString &userName, QSqlQuery &q)
     q.bindValue(":last_edited", currentDateTime);
 
     if (!q.exec())
-        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
+        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure,
+                                q.lastError().text(),
                                 QString("Failed to create RR user '%1'.").arg(userName));
 }
 
@@ -42,7 +43,8 @@ void UserExecutor::grantPrivilege(const QString &privilege, const QString &userN
     q.prepare(QString("GRANT %1 ON * . * TO :username@'localhost'").arg(privilege));
     q.bindValue(":username", userName);
     if (!q.exec())
-        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
+        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure,
+                                q.lastError().text(),
                                 QString("Failed to grant '%1' privileges to '%2'.")
                                 .arg(privilege, userName));
 }

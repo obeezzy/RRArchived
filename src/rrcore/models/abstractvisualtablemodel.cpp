@@ -13,7 +13,8 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     m_filterColumn(-1),
     m_sortOrder(Qt::AscendingOrder),
     m_sortColumn(-1),
-    m_tableViewWidth(0.0)
+    m_tableViewWidth(0.0),
+    m_lastQueryExecutor(nullptr, &QueryExecutor::deleteLater)
 {
     connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);

@@ -11,6 +11,8 @@ public:
                               const QVariantMap &params,
                               QObject *receiver);
     virtual ~PurchaseExecutor() = default;
+protected:
+    QueryResult addPurchaseTransaction(TransactionMode mode);
 };
 
 #endif // PURCHASEEXECUTOR_H

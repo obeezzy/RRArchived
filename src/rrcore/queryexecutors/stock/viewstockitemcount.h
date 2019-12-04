@@ -9,7 +9,8 @@ class ViewStockItemCount : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_stock_item_count");
 
-    explicit ViewStockItemCount(QObject *receiver);
+    explicit ViewStockItemCount(int categoryId,
+                                QObject *receiver);
     QueryResult execute() override;
 };
 }

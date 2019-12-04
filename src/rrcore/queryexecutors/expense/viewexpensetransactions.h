@@ -10,7 +10,10 @@ class ViewExpenseTransactions : public ExpenseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_expense_transactions");
 
-    explicit ViewExpenseTransactions(bool archived, QObject *receiver);
+    explicit ViewExpenseTransactions(const QDateTime &from,
+                                     const QDateTime &to,
+                                     bool archived,
+                                     QObject *receiver);
     QueryResult execute() override;
 };
 }
