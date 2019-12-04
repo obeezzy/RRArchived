@@ -1,4 +1,6 @@
 #include "removesaletransactionitem.h"
+#include "database/databaseexception.h"
+#include "database/databaseerror.h"
 
 using namespace SaleQuery;
 
@@ -15,7 +17,5 @@ RemoveSaleTransactionItem::RemoveSaleTransactionItem(qint64 transactionId,
 
 QueryResult RemoveSaleTransactionItem::execute()
 {
-    QueryResult result{ request() };
-
-    return result;
+    throw DatabaseException(DatabaseError::QueryErrorCode::NotYetImplementedError);
 }

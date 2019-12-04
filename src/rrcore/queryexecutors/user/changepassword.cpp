@@ -40,18 +40,8 @@ QueryResult ChangePassword::execute()
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "old_password",
-                              params.value("old_password").toString()
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
                               "new_password",
                               params.value("new_password")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "new_password_hash",
-                              params.value("new_password").toString()
                           }
                       });
 
@@ -59,9 +49,10 @@ QueryResult ChangePassword::execute()
     } catch (DatabaseException &e) {
         DatabaseUtils::rollbackTransaction(q);
 
-        if (e.code() == static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException)) {
+        switch (e.code()) {
+        case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::UserDefinedException):
             throw DatabaseException(DatabaseError::QueryErrorCode::OldPasswordWrong, e.message(), e.userMessage());
-        } else {
+        default:
             throw;
         }
     }

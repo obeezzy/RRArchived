@@ -169,6 +169,9 @@ void AbstractVisualTableModel::filter()
 
 void AbstractVisualTableModel::saveRequest(const QueryResult &result)
 {
+    if (m_lastQueryExecutor.isNull())
+        return;
+
     if (result.isSuccessful() && result.request().receiver() == this) {
         if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet() && m_lastQueryExecutor->request() == result.request()) {
             qInfo() << "Request saved:" << result.request().command();

@@ -15,6 +15,9 @@ public:
                           int debtorRow,
                           QObject *receiver);
     QueryResult execute() override;
+private:
+    QueryResult removeDebtor();
+    QueryResult undoRemoveDebtor();
 };
 }
 

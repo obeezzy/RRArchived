@@ -46,5 +46,113 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
 
 QueryResult AddSaleTransaction::execute()
 {
+    if (canUndo() && isUndoSet())
+        return undoAddSaleTransaction();
+
     return SaleExecutor::addSaleTransaction(TransactionMode::UseSqlTransaction);
+}
+
+QueryResult AddSaleTransaction::undoAddSaleTransaction()
+{
+    QueryResult result{ request() };
+    result.setSuccessful(true);
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    const QVariantMap &params = request().params();
+    const QDateTime currentDateTime = QDateTime::currentDateTime();
+
+    QSqlQuery q(connection);
+
+    try {
+        QueryExecutor::enforceArguments({ "transaction_id" }, params);
+
+        DatabaseUtils::beginTransaction(q);
+
+        if (params.value("transaction_id").toInt() > 0) {
+            callProcedure("ArchiveSaleTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "archived",
+                                  false
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_id",
+                                  params.value("transaction_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
+
+            callProcedure("ArchiveDebtTransaction1", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "archived",
+                                  false
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_table",
+                                  QStringLiteral("sale_transaction")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_id",
+                                  params.value("transaction_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
+
+            callProcedure("ArchiveCreditTransaction", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "archived",
+                                  false
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_table",
+                                  QStringLiteral("sale_transaction")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_id",
+                                  params.value("transaction_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
+
+            callProcedure("RevertSaleQuantityUpdate", {
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "transaction_id",
+                                  params.value("transaction_id")
+                              },
+                              ProcedureArgument {
+                                  ProcedureArgument::Type::In,
+                                  "user_id",
+                                  UserProfile::instance().userId()
+                              }
+                          });
+        }
+
+        DatabaseUtils::commitTransaction(q);
+
+        result.setOutcome(params);
+        return result;
+    } catch (DatabaseException &) {
+        DatabaseUtils::rollbackTransaction(q);
+        throw;
+    }
 }

@@ -14,7 +14,7 @@ public:
     explicit RemovePurchaseTransactionItem(qint64 transactionId,
                                            int transactionItemId,
                                            QObject *receiver);
-    QueryResult execute() override;
+    QueryResult execute() override;    
 };
 }
 

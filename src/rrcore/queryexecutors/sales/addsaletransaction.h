@@ -27,6 +27,8 @@ public:
                                 const StockItemList &items,
                                 QObject *receiver);
     QueryResult execute() override;
+private:
+    QueryResult undoAddSaleTransaction();
 };
 }
 

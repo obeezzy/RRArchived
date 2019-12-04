@@ -25,6 +25,14 @@ RemovePurchaseTransaction::RemovePurchaseTransaction(qint64 transactionId,
 
 QueryResult RemovePurchaseTransaction::execute()
 {
+    if (canUndo() && isUndoSet())
+        return undoRemovePurchaseTransaction();
+
+    return removePurchaseTransaction();
+}
+
+QueryResult RemovePurchaseTransaction::removePurchaseTransaction()
+{
     QueryResult result{ request() };
     result.setSuccessful(true);
 
@@ -121,4 +129,9 @@ QueryResult RemovePurchaseTransaction::execute()
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
+}
+
+QueryResult RemovePurchaseTransaction::undoRemovePurchaseTransaction()
+{
+    throw DatabaseException(DatabaseError::QueryErrorCode::NotYetImplementedError);
 }

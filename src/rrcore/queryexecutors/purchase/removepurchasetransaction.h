@@ -17,6 +17,9 @@ public:
                                        const PurchaseTransaction &transaction,
                                        QObject *receiver);
     QueryResult execute() override;
+private:
+    QueryResult removePurchaseTransaction();
+    QueryResult undoRemovePurchaseTransaction();
 };
 }
 

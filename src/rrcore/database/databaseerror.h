@@ -9,6 +9,7 @@ namespace DatabaseError
 {
     enum class QueryErrorCode {
         UnknownError,
+        NotYetImplementedError,
         DatabaseInitializationFailed,
         SignInFailure,
         SignUpFailure,

@@ -46,12 +46,14 @@ QueryResult UpdateUserPrivileges::execute()
     } catch (DatabaseException &e) {
         DatabaseUtils::rollbackTransaction(q);
 
-        if (e.code() == static_cast<int>(DatabaseError::MySqlErrorCode::DuplicateEntryError))
+        switch (e.code()) {
+        case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::DuplicateEntryError):
             throw DatabaseException(DatabaseError::QueryErrorCode::DuplicateEntryFailure, e.message(), e.userMessage());
-        else if (e.code() == static_cast<int>(DatabaseError::MySqlErrorCode::CreateUserError))
+        case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::CreateUserError):
             throw DatabaseException(DatabaseError::QueryErrorCode::CreateUserFailed, e.message(), e.userMessage());
-        else
+        default:
             throw;
+        }
     }
     return result;
 }

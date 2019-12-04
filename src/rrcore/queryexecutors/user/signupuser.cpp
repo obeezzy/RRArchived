@@ -64,7 +64,8 @@ QueryResult SignUpUser::execute()
         q.bindValue(":username", userName);
         q.bindValue(":password", password);
         if (!q.exec())
-            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure,
+                                    q.lastError().text(),
                                     QString("Failed to create user '%1'.").arg(userName));
 
         UserExecutor::grantPrivilege("SELECT", userName, q);
@@ -74,7 +75,8 @@ QueryResult SignUpUser::execute()
 
         q.prepare("FLUSH PRIVILEGES");
         if (!q.exec())
-            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure, q.lastError().text(),
+            throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure,
+                                    q.lastError().text(),
                                     QString("Failed to flush privileges for '%1'.").arg(userName));
 
         UserExecutor::createRRUser(userName, q);

@@ -33,13 +33,20 @@ AddDebtor::AddDebtor(const QString &preferredName,
 
 QueryResult AddDebtor::execute()
 {
+    if (canUndo() && isUndoSet())
+        return undoAddDebtor();
+
+    return addDebtor();
+}
+
+QueryResult AddDebtor::addDebtor()
+{
     QueryResult result{ request() };
     result.setSuccessful(true);
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
-    const QVariantList newDebtTransactions = params.value("new_debt_transactions").toList();
+    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
     int noteId = 0;
     int debtorId = 0;
     int clientId = 0;
@@ -54,8 +61,10 @@ QueryResult AddDebtor::execute()
 
         // STEP: Check if debt transactions exist
         if (newDebtTransactions.count() == 0)
-            throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments, q.lastError().text(),
-                                    QString("No new debt transactions for debtor %1.").arg(params.value("preferred_name").toString()));
+            throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments,
+                                    q.lastError().text(),
+                                    QString("No new debt transactions for debtor %1.")
+                                    .arg(params.value("preferred_name").toString()));
 
         // STEP: Ensure that debtor doesn't already exist
         if (!params.value("primary_phone_number").toString().isEmpty()) {
@@ -257,4 +266,9 @@ QueryResult AddDebtor::execute()
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
+}
+
+QueryResult AddDebtor::undoAddDebtor()
+{
+    throw DatabaseException(DatabaseError::QueryErrorCode::NotYetImplementedError);
 }

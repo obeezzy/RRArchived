@@ -12,7 +12,8 @@ ViewClients::ViewClients(QObject *receiver) :
 ViewClients::ViewClients(const QString &filterText, const QString &filterColumn, QObject *receiver) :
     ClientExecutor(COMMAND, {
                         { "filter_text", filterText },
-                        { "filter_column", filterColumn }
+                        { "filter_column", filterColumn },
+                        { "archived", false }
                    }, receiver)
 {
 
@@ -29,17 +30,17 @@ QueryResult ViewClients::execute()
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
                                                               "filter_column",
-                                                              params.value("filter_column", QVariant::String)
+                                                              params.value("filter_column")
                                                           },
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
                                                               "filter_text",
-                                                              params.value("filter_text", QVariant::String)
+                                                              params.value("filter_text")
                                                           },
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
                                                               "archived",
-                                                              params.value("archived", false)
+                                                              params.value("archived")
                                                           },
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::Out,

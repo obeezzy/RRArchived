@@ -28,6 +28,8 @@ public:
                                     const QString &note,
                                     QObject *receiver);
     QueryResult execute() override;
+private:
+    QueryResult undoAddPurchaseTransaction();
 };
 }
 

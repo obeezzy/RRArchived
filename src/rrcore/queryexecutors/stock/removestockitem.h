@@ -15,6 +15,9 @@ public:
     explicit RemoveStockItem(int itemId, QObject *receiver);
     explicit RemoveStockItem(int itemId, int itemRow, StockItem item, QObject *receiver);
     QueryResult execute() override;
+private:
+    QueryResult removeStockItem();
+    QueryResult undoRemoveStockItem();
 };
 }
 

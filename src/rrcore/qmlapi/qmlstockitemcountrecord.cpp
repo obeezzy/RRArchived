@@ -76,7 +76,7 @@ void QMLStockItemCountRecord::tryQuery()
                          columnName(m_filterColumn),
                          this));
     else
-        emit execute(new StockQuery::ViewStockItemCount(this));
+        emit execute(new StockQuery::ViewStockItemCount(m_categoryId, this));
 }
 
 void QMLStockItemCountRecord::processResult(const QueryResult result)
