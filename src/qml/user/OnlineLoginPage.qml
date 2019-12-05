@@ -69,7 +69,8 @@ RRUi.Page {
                 Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
                 anchors.right: parent.right
                 text: qsTr("Login")
-                onClicked: onlineLoginPage.userProfile.linkAccount(emailAddressField.textField.text, passwordField.textField.text);
+                onClicked: onlineLoginPage.userProfile.linkAccount(emailAddressField.textField.text,
+                                                                   passwordField.textField.text);
             }
 
             Item { width: 1; height: 24 }

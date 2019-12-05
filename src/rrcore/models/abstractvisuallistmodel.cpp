@@ -146,7 +146,7 @@ void AbstractVisualListModel::undoLastCommit()
         m_lastQueryExecutor->undoOnNextExecution();
         emit execute(m_lastQueryExecutor.data());
     } else {
-        qCWarning(abstractVisualListModel) << "AbstractVisualListModel-> No request to undo.";
+        qCWarning(abstractVisualListModel) << "No request to undo.";
     }
 }
 
