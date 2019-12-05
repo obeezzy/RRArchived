@@ -141,7 +141,9 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
-    if (m_lastQueryExecutor.isValid() && !m_lastQueryExecutor.request().command().isEmpty() && m_lastQueryExecutor.request().receiver()) {
+    if (m_lastQueryExecutor.isValid()
+            && !m_lastQueryExecutor.request().command().isEmpty()
+            && m_lastQueryExecutor.request().receiver()) {
         setBusy(true);
         m_lastQueryExecutor.undoOnNextExecution();
         emit execute(new QueryExecutor(m_lastQueryExecutor));
@@ -160,7 +162,9 @@ void AbstractVisualListModel::saveRequest(const QueryResult &result)
     if (!m_lastQueryExecutor.isValid())
         return;
 
-    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor.request()) {
+    if (result.isSuccessful()
+            && result.request().receiver() == this
+            && result.request() == m_lastQueryExecutor.request()) {
         if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet()) {
             qInfo(abstractVisualListModel) << "Request saved:" << result.request().command();
             // FIXME: Remove this!

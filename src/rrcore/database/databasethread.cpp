@@ -42,7 +42,6 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 
         queryExecutor->setConnectionName(CONNECTION_NAME);
         result = queryExecutor->execute();
-        queryExecutor->deleteLater();
     } catch (DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());
@@ -51,6 +50,7 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
         qCCritical(databaseThread) << e;
     }
 
+    queryExecutor->deleteLater();
     emit resultReady(result);
     qCInfo(databaseThread) << result << " [elapsed = " << timer.elapsed() << " ms]";
 }
