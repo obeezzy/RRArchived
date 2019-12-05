@@ -118,13 +118,13 @@ void NetworkWorker::execute(const ServerRequest request)
 
 QUrl NetworkWorker::determineUrl(const QueryRequest &request) const
 {
-    if (request.type() == QueryRequest::Dashboard) {
+    if (request.queryGroup() == QueryRequest::QueryGroup::Dashboard) {
         return QUrl(NetworkUrl::DASHBOARD_API_URL);
-    } else if (request.type() == QueryRequest::Stock) {
+    } else if (request.queryGroup() == QueryRequest::QueryGroup::Stock) {
         return QUrl(NetworkUrl::STOCK_API_URL);
-    } else if (request.type() == QueryRequest::Sales) {
+    } else if (request.queryGroup() == QueryRequest::QueryGroup::Sales) {
         return QUrl(NetworkUrl::SALES_API_URL);
-    } else if (request.type() == QueryRequest::User) {
+    } else if (request.queryGroup() == QueryRequest::QueryGroup::User) {
         if (request.commandVerb() == QueryRequest::CommandVerb::Authenticate) {
             if (request.command() == "sign_in_user")
                 return QUrl(NetworkUrl::SIGN_IN_API_URL);

@@ -127,7 +127,7 @@ void QMLUserProfile::signOut()
     qCInfo(qmlUserProfile) << "signOut";
     setBusy(true);
     QueryRequest request(this);
-    request.setCommand("sign_out_user", { }, QueryRequest::User);
+    request.setCommand("sign_out_user", { }, QueryRequest::QueryGroup::User);
     emit execute(new UserQuery::SignOutUser(this));
 }
 
@@ -142,7 +142,7 @@ void QMLUserProfile::linkAccount(const QString &emailAddress, const QString &pas
         setBusy(true);
 
         ServerRequest request(this);
-        request.setAction("link_account", { { "emailAddress", emailAddress }, { "password", password } });
+        request.setAction("link_account", { { "email_address", emailAddress }, { "password", password } });
         emit executeRequest(request);
     }
 }
@@ -154,8 +154,8 @@ void QMLUserProfile::linkBusinessStore()
     const BusinessStore &businessStore(UserProfile::instance().businessAdmin()->businessStores().at(m_businessStoreModel->currentIndex()));
     ServerRequest request(this);
     request.setAction("link_business_store", {
-                          { "businessStore", businessStore.toVariantMap() },
-                          { "emailAddress", UserProfile::instance().businessAdmin()->emailAddress() },
+                          { "business_store", businessStore.toVariantMap() },
+                          { "email_address", UserProfile::instance().businessAdmin()->emailAddress() },
                           { "password", UserProfile::instance().businessAdmin()->password() }
                       });
     emit executeRequest(request);
@@ -234,10 +234,10 @@ void QMLUserProfile::processServerResponse(const ServerResponse &response)
     if (response.isSuccessful()) {
         if (response.request().action() == "link_account") {
             UserProfile::instance()
-                    .businessAdmin()->extractFromVariantMap(response.data().value("businessAdmin").toMap());
+                    .businessAdmin()->extractFromVariantMap(response.data().value("business_admin").toMap());
             emit success(LinkAccountSuccess);
         } else if (response.request().action() == "link_business_store") {
-            const BusinessStore &businessStore(BusinessStore::fromVariantMap(response.data().value("businessStore").toMap()));
+            const BusinessStore &businessStore(BusinessStore::fromVariantMap(response.data().value("business_store").toMap()));
 
             UserProfile::instance().setUserId(1); // User is definitely "admin"
             UserProfile::instance().setRackId(businessStore.rackId());

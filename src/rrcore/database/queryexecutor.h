@@ -28,7 +28,7 @@ public:
     explicit QueryExecutor(const QueryRequest &request);
     explicit QueryExecutor(const QString &command,
                            const QVariantMap &params,
-                           QueryRequest::Type type,
+                           QueryRequest::QueryGroup queryGroup,
                            QObject *receiver);
     QueryExecutor(const QueryExecutor &other);
     QueryExecutor &operator=(const QueryExecutor &other);

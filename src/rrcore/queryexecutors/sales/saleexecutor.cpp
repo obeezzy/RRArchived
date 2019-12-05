@@ -10,7 +10,7 @@
 SaleExecutor::SaleExecutor(const QString &command,
                            const QVariantMap &params,
                            QObject *receiver) :
-    QueryExecutor(command, params, QueryRequest::Sales, receiver)
+    QueryExecutor(command, params, QueryRequest::QueryGroup::Sales, receiver)
 {
 
 }

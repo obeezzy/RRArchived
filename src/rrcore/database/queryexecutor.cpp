@@ -26,10 +26,10 @@ QueryExecutor::QueryExecutor(const QueryRequest &request) :
 
 QueryExecutor::QueryExecutor(const QString &command,
                              const QVariantMap &params,
-                             QueryRequest::Type type,
+                             QueryRequest::QueryGroup queryGroup,
                              QObject *receiver)
 {
-    m_request.setCommand(command, params, type);
+    m_request.setCommand(command, params, queryGroup);
     m_request.setReceiver(receiver);
 }
 
@@ -74,9 +74,9 @@ bool QueryExecutor::isUndoSet() const
 void QueryExecutor::undoOnNextExecution(bool undo)
 {
     if (canUndo() && undo && !isUndoSet())
-        m_request.setCommand(QStringLiteral("undo_") + m_request.command(), m_request.params(), m_request.type());
+        m_request.setCommand(QStringLiteral("undo_") + m_request.command(), m_request.params(), m_request.queryGroup());
     else if (isUndoSet()) {
-        m_request.setCommand(m_request.command().remove("undo_"), m_request.params(), m_request.type());
+        m_request.setCommand(m_request.command().remove("undo_"), m_request.params(), m_request.queryGroup());
         m_request.params().remove("can_undo");
     }
 }
