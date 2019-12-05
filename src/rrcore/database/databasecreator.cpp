@@ -192,7 +192,7 @@ void DatabaseCreator::updateBusinessDetails()
               .arg(UserProfile::instance().businessDetails()->businessFamily())
               .arg(UserProfile::instance().businessDetails()->establishmentYear())
               .arg(UserProfile::instance().businessDetails()->phoneNumber())
-              .arg(QString(DatabaseUtils::imageToByteArray(UserProfile::instance().businessDetails()->logoUrl().toLocalFile()))));
+              .arg(QString(DatabaseUtils::imageUrlToByteArray(UserProfile::instance().businessDetails()->logoUrl()))));
 
     if (!q.exec())
         throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,

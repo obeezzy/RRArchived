@@ -22,12 +22,14 @@ public:
                              qreal baseUnitEquivalent,
                              bool isPreferredUnit,
                              const QString &currency,
-                             const QUrl &imageSource,
+                             const QUrl &imageUrl,
                              const QString &categoryNote,
                              const QString &itemNote,
                              QObject *receiver);
     QueryResult execute() override;
 };
 }
+
+Q_DECLARE_LOGGING_CATEGORY(updateStockItem);
 
 #endif // UPDATESTOCKITEM_H

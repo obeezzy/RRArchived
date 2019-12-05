@@ -2,11 +2,14 @@
 #include <QSqlDatabase>
 #include "config/config.h"
 #include <QSqlError>
+#include <QLoggingCategory>
 #include "database/databaseerror.h"
 #include "database/databaseexception.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "user/userprofile.h"
+
+Q_LOGGING_CATEGORY(signInUser, "rrcore.queryexecutors.user.signinuser");
 
 using namespace UserQuery;
 
@@ -89,7 +92,7 @@ bool SignInUser::storeProfile(QueryResult &result, const QString &userName, cons
                               { "record_count", 1 }
                           });
     } catch (DatabaseException &e) {
-        qWarning() << "Exception thrown while storing profile:" << e.code() << e.message() << e.userMessage();
+        qCWarning(signInUser) << e;
         throw;
     }
 

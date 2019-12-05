@@ -4,28 +4,26 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
-import QtQuick.Dialogs 1.3 as Dialogs
+import "fragments" as Fragments
 import "../singletons"
 
 RRUi.Page {
     id: newItemPage
 
+    readonly property bool isExistingItem: itemId !== -1
     property int itemId: -1
 
-    title: itemId == -1 ? qsTr("New product") : qsTr("Edit product")
+    title: isExistingItem ? qsTr("Edit product") : qsTr("New product")
     padding: 10
 
-    /*!
-        \qmlsignal void goBack(var event)
-
-        This signal is emitted when the back action is triggered or back key is released.
-
-        By default, the page will be popped from the page stack. To change the default
-        behavior, for example to show a confirmation dialog, listen for this signal using
-        \c onGoBack and set \c event.accepted to \c true. To dismiss the page from your
-        dialog without triggering this signal and re-showing the dialog, call
-        \c page.forcePop().
-    */
+    onGoBack: {
+        if (transitionView.item.dirty && !isExistingItem) {
+            leaveConfirmationDialog.open();
+            event.accepted = true;
+        } else {
+            event.accepted = false;
+        }
+    }
 
     actions: FluidControls.Action {
         icon.source: FluidControls.Utils.iconUrl("action/note_add")
@@ -43,17 +41,18 @@ RRUi.Page {
 
         width: 800
 
-        transitionComponent: Item {
+        component: Item {
             id: transitionItem
 
-            property url itemImageSource: ""
+            readonly property bool dirty: itemImage.dirty || itemDetails.dirty
+            property url imageUrl: ""
 
             Flickable {
                 anchors {
                     left: parent.left
                     right: parent.right
                     top: parent.top
-                    bottom: buttonCard.top
+                    bottom: bottom.bottom
                     bottomMargin: 12
                 }
 
@@ -63,10 +62,6 @@ RRUi.Page {
 
                 RRUi.Card {
                     id: detailCard
-
-                    property bool userAddedCategory: false
-                    property string categoryText: ""
-                    readonly property string defaultCategoryText: qsTr("No category added")
 
                     padding: 32
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -81,258 +76,28 @@ RRUi.Page {
                             right: parent.right
                         }
 
-                        height: itemInfoColumn.height + 12
+                        height: itemDetails.height + 12
 
-                        Column {
-                            id: imageColumn
+                        Fragments.ItemImage {
+                            id: itemImage
                             anchors {
                                 left: parent.left
                                 top: parent.top
                             }
-                            width: 160
-                            spacing: 4
-
-                            RRUi.LetterCircleImage {
-                                id: itemImage
-                                anchors {
-                                    left: parent.left
-                                    right: parent.right
-                                }
-
-                                height: width
-                                font.pixelSize: 30
-                                name: itemTextField.text
-                                source: transitionItem.itemImageSource
-                                sourceSize: Qt.size(width, height)
-
-                                FluidControls.Icon {
-                                    anchors.centerIn: parent
-                                    visible: itemImage.name === "" && itemImage.status !== Image.Ready
-                                    color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white"
-                                    source: FluidControls.Utils.iconUrl("image/photo_camera")
-                                }
-                            }
-
-                            Row {
-                                anchors.horizontalCenter: parent.horizontalCenter
-
-                                RRUi.ToolButton {
-                                    id: takePhotoButton
-                                    icon.source: FluidControls.Utils.iconUrl("image/photo_camera")
-                                    text: qsTr("Take a photo")
-                                }
-
-                                RRUi.ToolButton {
-                                    id: selectPhotoButton
-                                    icon.source: FluidControls.Utils.iconUrl("image/photo")
-                                    text: qsTr("Select image")
-                                    onClicked: fileDialog.visible = true;
-                                }
-
-                                RRUi.ToolButton {
-                                    id: deviceSearchButton
-                                    icon.source: FluidControls.Utils.iconUrl("hardware/phonelink")
-                                    text: qsTr("Start DeviceLink")
-                                }
-                            }
+                            name: itemDetails.item
+                            source: itemDetails.imageUrl
                         }
 
-                        Column {
-                            id: itemInfoColumn
+                        Fragments.ItemDetails {
+                            id: itemDetails
                             anchors {
-                                left: imageColumn.right
+                                left: itemImage.right
                                 right: parent.right
                                 top: parent.top
                                 margins: 20
                                 leftMargin: 80
                             }
-                            spacing: 16
-
-                            RRUi.SectionFragment {
-                                id: categoryFragment
-                                title: qsTr("Category")
-                                anchors {
-                                    left: parent.left
-                                    right: parent.right
-                                }
-
-                                Row {
-                                    spacing: 0
-
-                                    FluidControls.Icon {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        source: Qt.resolvedUrl("qrc:/icons/shape.svg")
-                                    }
-
-                                    Item { width: 12; height: 1 }
-
-                                    QQC2.ComboBox {
-                                        id: categoryComboBox
-                                        visible: !categoryLabel.visible
-                                        enabled: visible
-                                        focus: enabled
-                                        width: 220
-                                        textRole: "category"
-                                        currentIndex: -1
-                                        displayText: currentIndex > -1 ? currentText : qsTr("<Select category>")
-                                        model: RRModels.StockCategoryModel {
-                                            onSuccess: categoryComboBox.currentIndex = categoryComboBox.find(stockItemDetailRecord.category);
-                                        }
-                                    }
-
-                                    QQC2.Label {
-                                        id: categoryLabel
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        width: 200
-                                        font.pixelSize: 17
-                                        color: detailCard.categoryText == "" ? Material.color(Material.Grey) : Material.theme === Material.Dark ? "white" : "black"
-                                        text: detailCard.defaultCategoryText
-                                        visible: detailCard.userAddedCategory || !categoryComboBox.count
-                                    }
-
-                                    Item { width: 4; height: 1 }
-
-                                    RRUi.ToolButton {
-                                        id: addCategoryButton
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        icon.source: FluidControls.Utils.iconUrl(detailCard.userAddedCategory ?
-                                                                                     "content/remove_circle" : "content/add_circle")
-                                        text: detailCard.userAddedCategory ? qsTr("Remove category") : qsTr("Add category")
-
-                                        onClicked: {
-                                            if (detailCard.userAddedCategory) {
-                                                if (categoryComboBox.count === 0) {
-                                                    categoryLabel.text = detailCard.defaultCategoryText;
-                                                    detailCard.categoryText = "";
-                                                }
-
-                                                detailCard.userAddedCategory = false;
-                                            } else {
-                                                categoryInputDialogLoader.active = true;
-                                            }
-                                        }
-                                    }
-
-                                    RRUi.ToolButton {
-                                        id: searchButton
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        icon.source: FluidControls.Utils.iconUrl("action/search")
-                                        text: qsTr("Search")
-                                    }
-                                }
-                            }
-
-                            RRUi.SectionFragment {
-                                id: itemFragment
-                                title: qsTr("Product")
-                                anchors {
-                                    left: parent.left
-                                    right: parent.right
-                                }
-
-                                RRUi.IconTextField {
-                                    id: itemTextField
-                                    icon.source: Qt.resolvedUrl("qrc:/icons/shopping.svg")
-                                    textField.placeholderText: qsTr("Product name");
-                                }
-
-                                RRUi.IconTextField {
-                                    id: descriptionTextField
-                                    icon.source: Qt.resolvedUrl("qrc:/icons/book-open-variant.svg")
-                                    textField.placeholderText: qsTr("Short description");
-                                }
-                            }
-
-                            RRUi.SectionFragment {
-                                id: quantityUnitFragment
-                                title: qsTr("Quantity and unit")
-                                anchors {
-                                    left: parent.left
-                                    right: parent.right
-                                }
-
-                                Row {
-                                    spacing: 12
-
-                                    FluidControls.Icon {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        source: Qt.resolvedUrl("qrc:/icons/cube-outline.svg")
-                                    }
-
-                                    QQC2.SpinBox {
-                                        id: quantitySpinBox
-                                        down.indicator: null
-                                        up.indicator: null
-                                        width: 50
-                                        editable: newItemPage.itemId <= 0
-                                        to: 10000
-                                    }
-
-                                    RRUi.TextField {
-                                        id: unitTextField
-                                        placeholderText: qsTr("Unit")
-                                        width: 200
-                                    }
-                                }
-
-                                Row {
-                                    spacing: 12
-
-                                    QQC2.CheckBox {
-                                        id: trackedCheckBox
-                                        text: qsTr("Can be tracked")
-                                    }
-
-                                    QQC2.CheckBox {
-                                        id: divisibleCheckBox
-                                        text: qsTr("Can be divided")
-                                        checked: true
-                                    }
-                                }
-                            }
-
-                            RRUi.SectionFragment {
-                                id: priceFragment
-                                title: qsTr("Price")
-                                anchors {
-                                    left: parent.left
-                                    right: parent.right
-                                }
-
-                                Row {
-                                    spacing: 12
-
-                                    FluidControls.Icon {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        source: Qt.resolvedUrl("qrc:/icons/tag.svg")
-                                    }
-
-                                    QQC2.SpinBox {
-                                        id: retailPriceSpinBox
-                                        down.indicator: null
-                                        up.indicator: null
-                                        width: 50
-                                        editable: true
-                                        to: 10000000
-
-                                        property int decimals: 2
-                                        property real realValue: value / 100
-
-                                        validator: DoubleValidator {
-                                            bottom: Math.min(retailPriceSpinBox.from, retailPriceSpinBox.to)
-                                            top:  Math.max(retailPriceSpinBox.from, retailPriceSpinBox.to)
-                                        }
-
-                                        textFromValue: function(value, locale) {
-                                            return "\u20a6 " + Number(value).toLocaleString(locale, 'f', retailPriceSpinBox.decimals)
-                                        }
-
-                                        valueFromText: function(text, locale) {
-                                            return Number.fromLocaleString(locale, text.replace("\u20a6 ", ""))
-                                        }
-                                    }
-                                }
-                            }
+                            itemId: newItemPage.itemId
                         }
                     }
 
@@ -340,26 +105,26 @@ RRUi.Page {
                         id: stockItemPusher
                         itemId: newItemPage.itemId
                         imageSource: itemImage.source
-                        category: detailCard.categoryText || categoryComboBox.currentText
-                        item: itemTextField.text
-                        description: descriptionTextField.text
-                        quantity: quantitySpinBox.value
-                        unit: unitTextField.text
-                        categoryNote: ""
-                        itemNote: ""
-                        costPrice: retailPriceSpinBox.value
-                        retailPrice: retailPriceSpinBox.value
-                        tracked: trackedCheckBox.checked
-                        divisible: divisibleCheckBox.checked
+                        category: itemDetails.category
+                        item: itemDetails.item
+                        description: itemDetails.description
+                        quantity: itemDetails.quantity
+                        unit:itemDetails.unit
+                        categoryNote: itemDetails.categoryNote
+                        itemNote: itemDetails.itemNote
+                        costPrice: itemDetails.costPrice
+                        retailPrice: itemDetails.retailPrice
+                        tracked: itemDetails.tracked
+                        divisible: itemDetails.divisible
 
                         onSuccess: {
                             switch (successCode) {
                             case RRModels.StockItemPusher.AddItemSuccess:
-                                newItemPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully added!"));
+                                MainWindow.snackBar.show(qsTr("Your item was successfully added!"));
                                 transitionView.trigger();
                                 break;
                             case RRModels.StockItemPusher.UpdateItemSuccess:
-                                newItemPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully updated!"));
+                                MainWindow.snackBar.show(qsTr("Your item was successfully updated!"));
                                 newItemPage.pop();
                                 break;
                             }
@@ -367,146 +132,103 @@ RRUi.Page {
                         onError: {
                             switch (errorCode) {
                             case RRModels.StockItemPusher.InsertFailed:
-                                failureAlertDialogLoader.message = qsTr("Product could not be inserted into the database.");
+                                errorDialog.show(qsTr("Product could not be inserted into the database."),
+                                                 qsTr("Failed to add item"));
                                 break;
                             case RRModels.StockItemPusher.DuplicateEntryError:
-                                failureAlertDialogLoader.message = qsTr("A product of the same name already exists.");
+                                errorDialog.show(qsTr("A product of the same name already exists."),
+                                                 qsTr("Failed to add item"));
                                 break;
                             case RRModels.StockItemPusher.ImageTooLargeError:
-                                failureAlertDialogLoader.message = qsTr("The image selected for the product is too large. Please choose an image less than 2 MB.");
+                                errorDialog.show(qsTr("The image selected for the product is too large. Please choose an image less than 2 MB."),
+                                                 qsTr("Failed to add item"));
                                 break;
                             default:
-                                failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");
+                                errorDialog.show(qsTr("The cause of the error could not be determined."),
+                                                 qsTr("Failed to add item"));
                                 break;
                             }
-
-                            failureAlertDialogLoader.active = true;
                         }
                     }
 
-                    RRModels.StockItemDetailRecord {
-                        id: stockItemDetailRecord
-                        autoQuery: newItemPage.itemId > 0
-                        itemId: newItemPage.itemId
-
-                        onSuccess: {
-                            transitionView.currentItem.itemImageSource = imageSource;
-                            categoryComboBox.currentIndex = categoryComboBox.find(category);
-                            itemTextField.text = item;
-                            descriptionTextField.text = description;
-                            quantitySpinBox.value = quantity;
-                            unitTextField.text = unit;
-                            retailPriceSpinBox.value = retailPrice;
-                            trackedCheckBox.checked = true;
-                            divisibleCheckBox.checked = divisible;
-                        }
-                    }
-
-                    RRUi.FailureAlertDialogLoader {
-                        id: failureAlertDialogLoader
-                        parent: QQC2.ApplicationWindow.contentItem
-                        title: qsTr("Failed to add item")
-                    }
+                    RRUi.ErrorDialog { id: errorDialog }
 
                     RRUi.BusyOverlay { visible: stockItemPusher.busy }
-
-                    Loader {
-                        id: categoryInputDialogLoader
-                        active: false
-                        onLoaded: item.open();
-
-                        sourceComponent: FluidControls.InputDialog {
-                            parent: FluidControls.ApplicationWindow.contentItem
-                            x: (parent.width - width) / 2
-                            y: (parent.height - height) / 2
-                            text: qsTr("Enter category name")
-                            textField.placeholderText: qsTr("Category")
-
-                            onAccepted: {
-                                if (textField.text.trim().length > 0 && categoryComboBox.find(textField.text.trim()) === -1) {
-                                    categoryLabel.text = textField.text;
-                                    detailCard.categoryText = textField.text;
-                                    detailCard.userAddedCategory = true;
-                                } else if (categoryComboBox.find(textField.text.trim()) > -1) {
-                                    categoryLabel.text = detailCard.defaultCategoryText;
-                                    detailCard.categoryText = "";
-                                    detailCard.userAddedCategory = false;
-                                    categoryComboBox.currentIndex = categoryComboBox.find(textField.text.trim());
-                                }
-                            }
-                            onClosed: categoryInputDialogLoader.active = false;
-                        }
-                    }
-
-                    function validateUserInput() {
-                        if (detailCard.categoryText.trim() === "" && !categoryComboBox.visible) {
-                            failureAlertDialogLoader.message = qsTr("Category field is not set.    "); // Force dialog to stretch
-                            failureAlertDialogLoader.create();
-                            return false;
-                        } else if (itemTextField.text.trim() === "") {
-                            failureAlertDialogLoader.message = qsTr("Item field is empty.          "); // Force dialog to stretch
-                            failureAlertDialogLoader.create();
-                            return false;
-                        } else if (unitTextField.text.trim() === "") {
-                            failureAlertDialogLoader.message = qsTr("Unit field is empty.          "); // Force dialog to stretch
-                            failureAlertDialogLoader.create();
-                            return false;
-                        }
-
-                        return true;
-                    }
                 }
             }
 
-            RRUi.Card {
-                id: buttonCard
+            function validateUserInput() {
+                if (itemDetails.category.trim().length === 0) {
+                    errorDialog.show(qsTr("Category field is not set."),
+                                     qsTr("Failed to add item")); // Force dialog to stretch
+                    return false;
+                } else if (itemDetails.item.trim().length === 0) {
+                    errorDialog.show(qsTr("Item field is empty."),
+                                     qsTr("Failed to add item")); // Force dialog to stretch
+                    return false;
+                } else if (itemDetails.unit.trim().length === 0) {
+                    errorDialog.show(qsTr("Unit field is empty."),
+                                     qsTr("Failed to add item")); // Force dialog to stretch
+                    return false;
+                }
+
+                return true;
+            }
+
+            function submit() {
+                if (validateUserInput())
+                    stockItemPusher.push();
+            }
+        }
+
+        RRUi.Card {
+            id: buttonCard
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            height: buttonRow.height
+            leftPadding: 20
+            rightPadding: 20
+
+            QQC2.Button {
+                id: advancedButton
+                flat: true
                 anchors {
                     left: parent.left
-                    right: parent.right
-                    bottom: parent.bottom
+                    verticalCenter: parent.verticalCenter
                 }
-                height: buttonRow.height
-                leftPadding: 20
-                rightPadding: 20
+                text: qsTr("Advanced")
+            }
+
+            Row {
+                id: buttonRow
+                spacing: 12
+                anchors.right: parent.right
 
                 QQC2.Button {
-                    id: advancedButton
+                    id: cancelButton
                     flat: true
-                    anchors {
-                        left: parent.left
-                        verticalCenter: parent.verticalCenter
-                    }
-                    text: qsTr("Advanced")
+                    text: qsTr("Cancel")
+                    onClicked: newItemPage.pop();
                 }
 
-                Row {
-                    id: buttonRow
-                    spacing: 12
-                    anchors.right: parent.right
-
-                    QQC2.Button {
-                        id: cancelButton
-                        flat: true
-                        text: qsTr("Cancel")
-                        onClicked: newItemPage.pop();
-                    }
-
-                    QQC2.Button {
-                        id: addItemButton
-                        Material.elevation: 1
-                        text: newItemPage.itemId == -1 ? qsTr("Add Product") : qsTr("Update Product")
-                        onClicked: if (detailCard.validateUserInput()) stockItemPusher.push();
-                    }
+                QQC2.Button {
+                    id: addItemButton
+                    Material.elevation: 1
+                    text: newItemPage.isExistingItem ? qsTr("Update Product") : qsTr("Add Product")
+                    onClicked: transitionView.item.submit();
                 }
             }
         }
     }
 
-    Dialogs.FileDialog {
-        id: fileDialog
-        title: qsTr("Please choose a file")
-        folder: shortcuts.home
-        nameFilters: [ "Image files (*.jpg *.png *.jpeg)"]
-        onAccepted:  transitionView.currentItem.itemImageSource = fileDialog.fileUrl;
+    FluidControls.AlertDialog {
+        id: leaveConfirmationDialog
+        title: Stylesheet.padText(qsTr("Leave?"))
+        text: qsTr("Are you sure you want to leave?")
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
+        onAccepted: newItemPage.forcePop();
     }
 }

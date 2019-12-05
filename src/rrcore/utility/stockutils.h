@@ -55,7 +55,7 @@ struct StockItem {
         item(item.value("item").toString()),
         description(item.value("description").toString()),
         divisible(item.value("divisible").toBool()),
-        imageUrl(item.value("image_source").toUrl()),
+        imageUrl(item.value("image_url").toUrl()),
         quantity(item.value("quantity").toDouble()),
         unitId(item.value("unit_id").toInt()),
         unit(item.value("unit").toString()),

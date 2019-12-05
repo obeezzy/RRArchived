@@ -12,11 +12,11 @@ void BusinessAdmin::extractFromVariantMap(const QVariantMap &map)
     if (map.isEmpty())
         return;
 
-    m_emailAddress = map.value("emailAddress").toString();
+    m_emailAddress = map.value("email_address").toString();
     m_password = map.value("password").toString();
     m_businessStores.clear();
     QList<BusinessStore> stores;
-    for (const QVariant &variant : map.value("businessStores").toList()) {
+    for (const QVariant &variant : map.value("business_stores").toList()) {
         const QVariantMap &map = variant.toMap();
         stores.append(BusinessStore::fromVariantMap(map));
     }

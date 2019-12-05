@@ -69,7 +69,7 @@ void QMLStockCategoryModel::unarchiveItem(int itemId)
 
     setBusy(true);
     StockQuery::RemoveStockItem *removeStockItem = new StockQuery::RemoveStockItem(itemId, this);
-    removeStockItem->undoOnNextExecution(true);
+    removeStockItem->undoOnNextExecution();
     emit execute(removeStockItem);
 }
 

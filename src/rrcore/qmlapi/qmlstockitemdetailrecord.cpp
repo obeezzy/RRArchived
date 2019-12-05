@@ -61,9 +61,9 @@ bool QMLStockItemDetailRecord::isDivisible() const
     return m_divisible;
 }
 
-QString QMLStockItemDetailRecord::imageSource() const
+QUrl QMLStockItemDetailRecord::imageUrl() const
 {
-    return m_imageSource;
+    return m_imageUrl;
 }
 
 double QMLStockItemDetailRecord::quantity() const
@@ -139,7 +139,7 @@ void QMLStockItemDetailRecord::processResult(const QueryResult result)
         setItem(record.value("item").toString());
         setDescription(record.value("description").toString());
         setDivisible(record.value("divisible").toBool());
-        setImageSource(record.value("image_source").toString());
+        setImageUrl(record.value("image_url").toString());
         setQuantity(record.value("quantity").toDouble());
         setUnitId(record.value("unit_id").toInt());
         setUnit(record.value("unit").toString());
@@ -201,13 +201,13 @@ void QMLStockItemDetailRecord::setDivisible(bool divisible)
     emit divisibleChanged();
 }
 
-void QMLStockItemDetailRecord::setImageSource(const QString &imageSource)
+void QMLStockItemDetailRecord::setImageUrl(const QUrl &imageUrl)
 {
-    if (m_imageSource == imageSource)
+    if (m_imageUrl == imageUrl)
         return;
 
-    m_imageSource = imageSource;
-    emit imageSourceChanged();
+    m_imageUrl = imageUrl;
+    emit imageUrlChanged();
 }
 
 void QMLStockItemDetailRecord::setQuantity(double quantity)

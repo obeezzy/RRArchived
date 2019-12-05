@@ -5,7 +5,7 @@
 
 QueryRequest::QueryRequest(QObject *receiver) :
     m_receiver(receiver),
-    m_type(Unknown)
+    m_queryGroup(QueryGroup::Unknown)
 {
     qRegisterMetaType<QueryRequest>("QueryRequest");
 }
@@ -13,14 +13,14 @@ QueryRequest::QueryRequest(QObject *receiver) :
 QueryRequest::QueryRequest(const QueryRequest &other) :
     QObject (nullptr),
     m_receiver(other.receiver()),
-    m_type(Unknown)
+    m_queryGroup(QueryGroup::Unknown)
 {
-    setCommand(other.command(), other.params(), other.type());
+    setCommand(other.command(), other.params(), other.queryGroup());
 }
 
 QueryRequest &QueryRequest::operator=(const QueryRequest &other)
 {
-    setCommand(other.command(), other.params(), other.type());
+    setCommand(other.command(), other.params(), other.queryGroup());
     setReceiver(other.receiver());
 
     return *this;
@@ -46,9 +46,9 @@ QVariantMap QueryRequest::params() const
     return m_params;
 }
 
-QueryRequest::Type QueryRequest::type() const
+QueryRequest::QueryGroup QueryRequest::queryGroup() const
 {
-    return m_type;
+    return m_queryGroup;
 }
 
 QueryRequest::CommandVerb QueryRequest::commandVerb() const
@@ -75,7 +75,7 @@ QByteArray QueryRequest::toJson() const
     QJsonObject jsonObject {
         { "command", m_command },
         { "params", QJsonObject::fromVariantMap(m_params) },
-        { "type", typeEnumToString(m_type) }
+        { "query_group", queryGroupToString(m_queryGroup) }
     };
 
     return QJsonDocument(jsonObject).toJson();
@@ -90,66 +90,66 @@ QueryRequest QueryRequest::fromJson(const QByteArray &json)
     QueryRequest request;
     request.setCommand(object.value("command").toString(),
                        object.value("params").toVariant().toMap(),
-                       typeStringToEnum(object.value("type").toString()));
+                       queryGroupToEnum(object.value("query_group").toString()));
 
     return request;
 }
 
-QueryRequest::Type QueryRequest::typeStringToEnum(const QString &typeString)
+QueryRequest::QueryGroup QueryRequest::queryGroupToEnum(const QString &queryGroupString)
 {
-    if (typeString == "stock")
-        return Stock;
-    else if (typeString == "sales")
-        return Sales;
-    else if (typeString == "purchase")
-        return Purchase;
-    else if (typeString == "income")
-        return Income;
-    else if (typeString == "expense")
-        return Expense;
-    else if (typeString == "debtor")
-        return Debtor;
-    else if (typeString == "user")
-        return User;
-    else if (typeString == "client")
-        return Client;
-    else if (typeString == "dashboard")
-        return Dashboard;
+    if (queryGroupString == "stock")
+        return QueryGroup::Stock;
+    else if (queryGroupString == "sales")
+        return QueryGroup::Sales;
+    else if (queryGroupString == "purchase")
+        return QueryGroup::Purchase;
+    else if (queryGroupString == "income")
+        return QueryGroup::Income;
+    else if (queryGroupString == "expense")
+        return QueryGroup::Expense;
+    else if (queryGroupString == "debtor")
+        return QueryGroup::Debtor;
+    else if (queryGroupString == "user")
+        return QueryGroup::User;
+    else if (queryGroupString == "client")
+        return QueryGroup::Client;
+    else if (queryGroupString == "dashboard")
+        return QueryGroup::Dashboard;
 
-    return Unknown;
+    return QueryGroup::Unknown;
 }
 
-QString QueryRequest::typeEnumToString(QueryRequest::Type typeEnum)
+QString QueryRequest::queryGroupToString(QueryRequest::QueryGroup queryGroupEnum)
 {
-    switch (typeEnum) {
-    case Stock:
+    switch (queryGroupEnum) {
+    case QueryGroup::Stock:
         return "stock";
-    case Sales:
+    case QueryGroup::Sales:
         return "sales";
-    case Purchase:
+    case QueryGroup::Purchase:
         return "purchase";
-    case Income:
+    case QueryGroup::Income:
         return "income";
-    case Expense:
+    case QueryGroup::Expense:
         return "expense";
-    case Debtor:
+    case QueryGroup::Debtor:
         return "debotr";
-    case User:
+    case QueryGroup::User:
         return "user";
-    case Client:
+    case QueryGroup::Client:
         return "client";
-    case Dashboard:
+    case QueryGroup::Dashboard:
         return "dashboard";
-    case Unknown:
-        return QString();
+    default:
+        break;
     }
 
     return QString();
 }
 
-void QueryRequest::setCommand(const QString &command, const QVariantMap &params, const Type type)
+void QueryRequest::setCommand(const QString &command, const QVariantMap &params, const QueryGroup queryGroup)
 {
     m_command = command;
     m_params = params;
-    m_type = type;
+    m_queryGroup = queryGroup;
 }

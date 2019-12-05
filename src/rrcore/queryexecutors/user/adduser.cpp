@@ -24,7 +24,7 @@ AddUser::AddUser(const QString &firstName,
                         { "password", password },
                         { "phone_number", phoneNumber },
                         { "email_address", emailAddress },
-                        { "image_source", imageUrl },
+                        { "image_url", imageUrl },
                         { "user_id", UserProfile::instance().userId() }
                  }, receiver)
 {
@@ -66,7 +66,7 @@ QueryResult AddUser::execute()
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
                                                                "photo",
-                                                               DatabaseUtils::imageToByteArray(params.value("image_url").toString())
+                                                               DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl())
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,

@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QJsonArray>
 #include <QSettings>
+#include <QLoggingCategory>
 #include "serverrequest.h"
 
 class RequestLogger : public QObject
@@ -26,5 +27,7 @@ private:
     QJsonArray readBackupArray() const;
     void writeBackupArray();
 };
+
+Q_DECLARE_LOGGING_CATEGORY(requestLogger);
 
 #endif // REQUESTLOGGER_H

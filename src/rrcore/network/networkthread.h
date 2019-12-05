@@ -17,7 +17,7 @@ class NetworkWorker : public QObject
     Q_OBJECT
 public:
     explicit NetworkWorker(QObject *parent = nullptr);
-    ~NetworkWorker();
+    ~NetworkWorker() = default;
 
     void execute(const QueryRequest request);
     void execute(const ServerRequest request);

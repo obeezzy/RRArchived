@@ -6,9 +6,12 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSettings>
+#include <QLoggingCategory>
 #include <QDebug>
 
 #include "serverrequest.h"
+
+Q_LOGGING_CATEGORY(requestLogger, "rrcore.network.requestlogger", QtWarningMsg);
 
 const QString BACKUP_LOCATION = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/RecordRack/backup";
 const QString BACKUP_FILEPATH = BACKUP_LOCATION + "/rr.json";
@@ -70,7 +73,7 @@ QJsonArray RequestLogger::readBackupArray() const
     file.open(QFile::ReadOnly);
 
     if (isFull()) {
-        qWarning() << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
+        qCWarning(requestLogger) << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
     }
 
     return QJsonDocument::fromJson(file.readAll()).array();
@@ -82,7 +85,7 @@ void RequestLogger::writeBackupArray()
     file.open(QFile::WriteOnly);
 
     if (file.size() > MAX_BACKUP_SIZE) {
-        qWarning() << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
+        qWarning(requestLogger) << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
         m_settings.setValue("sql_dump_needed", true);
         return;
     }

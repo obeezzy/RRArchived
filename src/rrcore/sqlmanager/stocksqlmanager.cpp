@@ -191,7 +191,7 @@ void StockSqlManager::addNewStockItem(const QueryRequest &request)
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,
                                         "image",
-                                        DatabaseUtils::imageToByteArray(params.value("image_source").toString())// Store image as BLOB
+                                        DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl()) // Store image as BLOB
                                     },
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,
@@ -435,7 +435,7 @@ void StockSqlManager::updateStockItem(const QueryRequest &request)
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "image",
-                              DatabaseUtils::imageToByteArray(params.value("image_source").toString()) // Store image as BLOB
+                              DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl()) // Store image as BLOB
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -532,7 +532,7 @@ void StockSqlManager::viewStockItems(const QueryRequest &request, QueryResult &r
         QVariantList items;
         for (const auto &record : records) {
             QVariantMap itemRecord{ recordToMap(record) };
-            itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+            itemRecord.insert("image_url", DatabaseUtils::byteArrayToImageUrl(record.value("image").toByteArray()));
             itemRecord.remove("image");
 
             items.append(itemRecord);
@@ -597,7 +597,7 @@ void StockSqlManager::viewStockItemDetails(const QueryRequest &request, QueryRes
         QVariantMap itemInfo;
         if (!records.isEmpty()) {
             itemInfo = recordToMap(records.first());
-            itemInfo.insert("image_source", DatabaseUtils::byteArrayToImage(itemInfo.value("image").toByteArray()));
+            itemInfo.insert("image_url", DatabaseUtils::byteArrayToImageUrl(itemInfo.value("image").toByteArray()));
             itemInfo.remove("image");
         }
         else
@@ -886,7 +886,7 @@ void StockSqlManager::filterStockItems(const QueryRequest &request, QueryResult 
         QVariantList items;
         for (const auto &record : records) {
             QVariantMap itemRecord { recordToMap(record) };
-            itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+            itemRecord.insert("image_url", DatabaseUtils::byteArrayToImageUrl(record.value("image").toByteArray()));
             itemRecord.remove("image");
 
             items.append(itemRecord);

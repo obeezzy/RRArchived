@@ -6,6 +6,8 @@
 #include <QVariantMap>
 #include <QSqlRecord>
 #include <initializer_list>
+#include <QLoggingCategory>
+
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
@@ -25,14 +27,14 @@ public:
         SkipSqlTransaction
     };
     explicit QueryExecutor(QObject *parent = nullptr);
-    explicit QueryExecutor(const QueryRequest &request);
+    explicit QueryExecutor(const QueryRequest &request, QObject *parent = nullptr);
     explicit QueryExecutor(const QString &command,
                            const QVariantMap &params,
-                           QueryRequest::Type type,
+                           QueryRequest::QueryGroup queryGroup,
                            QObject *receiver);
     QueryExecutor(const QueryExecutor &other);
     QueryExecutor &operator=(const QueryExecutor &other);
-    virtual ~QueryExecutor() = default;
+    virtual ~QueryExecutor();
 
     QueryRequest request() const;
     QueryRequest &request();
@@ -66,5 +68,7 @@ private:
     QueryRequest m_request;
     QString m_connectionName;
 };
+
+Q_DECLARE_LOGGING_CATEGORY(queryExecutor);
 
 #endif // QUERYEXECUTOR_H

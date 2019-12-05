@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <QString>
+#include <QDebug>
 
 namespace NetworkError {
     enum class ServerErrorCode;
@@ -29,6 +30,18 @@ public:
     QString statusMessage() const;
     QString userMessage() const;
     const char * what() const noexcept override final;
+
+    friend QDebug operator<<(QDebug debug, const NetworkException &networkException)
+    {
+        debug.nospace() << "NetworkException("
+                        << "code=" << networkException.code()
+                        << ", message=" << networkException.message()
+                        << ", statusCode=" << networkException.statusCode()
+                        << ", statusMessage=" << networkException.statusMessage()
+                        << ")";
+
+        return debug;
+    }
 private:
     int m_code;
     QString m_message;

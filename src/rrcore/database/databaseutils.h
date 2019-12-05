@@ -5,6 +5,7 @@
 #include <QVariant>
 
 class QSqlQuery;
+class QUrl;
 
 class DatabaseUtils : public QObject
 {
@@ -14,8 +15,8 @@ public:
     static void commitTransaction(QSqlQuery &q);
     static void rollbackTransaction(QSqlQuery &q);
 
-    static QByteArray imageToByteArray(const QString &imageSource, qint64 maxSize = 2 * 1024 * 1000 /* 2MB limit */); // Throws DatabaseException
-    static QString byteArrayToImage(const QByteArray &imageData);
+    static QByteArray imageUrlToByteArray(const QUrl &imageUrl, qint64 maxSize = 2 * 1024 * 1000 /* 2MB limit */); // Throws DatabaseException
+    static QUrl byteArrayToImageUrl(const QByteArray &imageData);
 
     static bool connectToDatabase(const QString &userName, const QString &password, const QString &databaseName, const QString &connectionName);
 

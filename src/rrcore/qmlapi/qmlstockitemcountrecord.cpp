@@ -65,6 +65,11 @@ int QMLStockItemCountRecord::itemCount() const
     return m_itemCount;
 }
 
+void QMLStockItemCountRecord::refresh()
+{
+    tryQuery();
+}
+
 void QMLStockItemCountRecord::tryQuery()
 {
     setBusy(true);

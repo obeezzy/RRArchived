@@ -51,7 +51,7 @@ void QMLDebtorModelTest::testViewDebtors()
             QVariantMap {
                 { "client_id", 1 },
                 { "debtor_id", 1 },
-                { "image_source", QStringLiteral("image/source") },
+                { "image_url", QStringLiteral("image/source") },
                 { "preferred_name", QStringLiteral("Preferred name") },
                 { "total_debt", 1234.56 },
                 { "note", QStringLiteral("Note") }
@@ -81,7 +81,7 @@ void QMLDebtorModelTest::testViewDebtors()
     QCOMPARE(m_debtorModel->rowCount(), 1);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(), 1);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ClientIdRole).toInt(), 1);
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ImageSourceRole).toString(), QStringLiteral("image/source"));
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ImageUrlRole).toString(), QStringLiteral("image/source"));
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(), QStringLiteral("Preferred name"));
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(), 1234.56);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(), QStringLiteral("Note"));
@@ -97,7 +97,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
             QVariantMap {
                 { "client_id", 1 },
                 { "debtor_id", 1 },
-                { "image_source", QStringLiteral("image/source") },
+                { "image_url", QStringLiteral("image/source") },
                 { "preferred_name", QStringLiteral("Preferred name") },
                 { "total_debt", 1234.56 },
                 { "note", QStringLiteral("Note") }
@@ -173,7 +173,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
             QVariantMap {
                 { "client_id", 1 },
                 { "debtor_id", 1 },
-                { "image_source", QStringLiteral("image/source") },
+                { "image_url", QStringLiteral("image/source") },
                 { "preferred_name", QStringLiteral("Preferred name") },
                 { "total_debt", 1234.56 },
                 { "note", QStringLiteral("Note") }
@@ -199,7 +199,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
         QVariantMap debtor {
             { "client_id", 1 },
             { "debtor_id", 1 },
-            { "image_source", QStringLiteral("image/source") },
+            { "image_url", QStringLiteral("image/source") },
             { "preferred_name", QStringLiteral("Preferred name") },
             { "total_debt", 1234.56 },
             { "note", QStringLiteral("Note") }

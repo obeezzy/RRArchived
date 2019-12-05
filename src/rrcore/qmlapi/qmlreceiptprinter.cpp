@@ -20,6 +20,8 @@
 #include "singletons/settings.h"
 #include "models/receiptcartmodel.h"
 
+Q_LOGGING_CATEGORY(qmlReceiptPrinter, "rrcore.qmlapi.qmlReceiptPrinter");
+
 QMLReceiptPrinter::QMLReceiptPrinter(QObject *parent) :
     QObject(parent)
 {

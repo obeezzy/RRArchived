@@ -50,6 +50,11 @@ void AbstractDetailRecord::componentComplete()
         tryQuery();
 }
 
+void AbstractDetailRecord::refresh()
+{
+
+}
+
 void AbstractDetailRecord::setBusy(bool busy)
 {
     if (m_busy == busy)

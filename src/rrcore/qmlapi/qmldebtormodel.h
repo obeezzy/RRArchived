@@ -24,7 +24,7 @@ public:
     enum Roles {
         ClientIdRole = Qt::UserRole,
         DebtorIdRole,
-        ImageSourceRole,
+        ImageUrlRole,
         PreferredNameRole,
         TotalDebtRole,
         NoteRole,

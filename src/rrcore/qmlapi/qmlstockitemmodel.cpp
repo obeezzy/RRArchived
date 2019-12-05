@@ -51,8 +51,8 @@ QVariant QMLStockItemModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("description").toString();
     case DivisibleRole:
         return m_records.at(index.row()).toMap().value("divisible").toBool();
-    case ImageSourceRole:
-        return m_records.at(index.row()).toMap().value("image_source").toString();
+    case ImageUrlRole:
+        return m_records.at(index.row()).toMap().value("image_url").toUrl();
     case QuantityRole:
         return m_records.at(index.row()).toMap().value("quantity").toDouble();
     case UnitRole:
@@ -85,7 +85,7 @@ QHash<int, QByteArray> QMLStockItemModel::roleNames() const
         { ItemRole, "item" },
         { DescriptionRole, "description" },
         { DivisibleRole, "divisible" },
-        { ImageSourceRole, "image_source" },
+        { ImageUrlRole, "image_url" },
         { QuantityRole, "quantity" },
         { UnitRole, "unit" },
         { UnitIdRole, "unit_id" },

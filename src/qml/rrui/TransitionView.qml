@@ -4,9 +4,10 @@ import QtQuick.Controls 2.12 as QQC2
 QQC2.StackView {
     id: transitionView
 
-    property Component transitionComponent: null
+    property Component component: null
+    readonly property Item item: currentItem
 
-    initialItem: transitionComponent
+    initialItem: component
 
-    function trigger() { transitionView.replace(null, transitionView.transitionComponent); }
+    function trigger() { transitionView.replace(null, transitionView.component); }
 }
