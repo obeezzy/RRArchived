@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QSettings>
-#include <QMutexLocker>
 
 #include "databaseexception.h"
 #include "queryrequest.h"
@@ -31,7 +30,6 @@ DatabaseWorker::~DatabaseWorker()
 void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 {
     qCInfo(databaseThread) << queryExecutor->request();
-    QMutexLocker locker(&m_queryExecutorMutex);
     const QueryRequest &request(queryExecutor->request());
     QueryResult result{ request };
 
@@ -44,6 +42,7 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 
         queryExecutor->setConnectionName(CONNECTION_NAME);
         result = queryExecutor->execute();
+        queryExecutor->deleteLater();
     } catch (DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());

@@ -15,25 +15,26 @@
 Q_LOGGING_CATEGORY(queryExecutor, "rrcore.database.queryexecutor");
 
 QueryExecutor::QueryExecutor(QObject *parent) :
-    QObject(parent)
+    QObject(nullptr)
 {
+    Q_UNUSED(parent)
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
-    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command();
+    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command() << this;
 }
 
-QueryExecutor::QueryExecutor(const QueryRequest &request, QObject *parent) :
-    QObject(parent),
+QueryExecutor::QueryExecutor(const QueryRequest &request) :
+    QObject(nullptr),
     m_request(request)
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
-    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command();
+    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command() << this;
 }
 
 QueryExecutor::QueryExecutor(const QString &command,
                              const QVariantMap &params,
                              QueryRequest::QueryGroup queryGroup,
                              QObject *receiver) :
-    QObject(receiver)
+    QObject(nullptr)
 {
     m_request.setCommand(command, params, queryGroup);
     m_request.setReceiver(receiver);
@@ -41,7 +42,7 @@ QueryExecutor::QueryExecutor(const QString &command,
 }
 
 QueryExecutor::QueryExecutor(const QueryExecutor &other) :
-    QObject(other.request().receiver()),
+    QObject(nullptr),
     m_request(other.request())
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
@@ -50,7 +51,6 @@ QueryExecutor::QueryExecutor(const QueryExecutor &other) :
 QueryExecutor &QueryExecutor::operator=(const QueryExecutor &other)
 {
     m_request = other.request();
-    setParent(other.request().receiver());
     return *this;
 }
 
@@ -72,6 +72,11 @@ QueryRequest &QueryExecutor::request()
 QueryResult QueryExecutor::execute()
 {
     return QueryResult();
+}
+
+bool QueryExecutor::isValid() const
+{
+    return !m_request.command().trimmed().isEmpty();
 }
 
 bool QueryExecutor::canUndo() const

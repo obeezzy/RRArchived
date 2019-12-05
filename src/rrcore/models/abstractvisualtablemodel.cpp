@@ -152,12 +152,12 @@ void AbstractVisualTableModel::componentComplete()
 
 void AbstractVisualTableModel::undoLastCommit()
 {
-    if (!m_lastQueryExecutor->request().command().isEmpty() && m_lastQueryExecutor->request().receiver()) {
+    if (m_lastQueryExecutor.isValid() && !m_lastQueryExecutor.request().command().isEmpty() && m_lastQueryExecutor.request().receiver()) {
         setBusy(true);
-        m_lastQueryExecutor->undoOnNextExecution();
-        emit execute(m_lastQueryExecutor);
+        m_lastQueryExecutor.undoOnNextExecution();
+        emit execute(new QueryExecutor(m_lastQueryExecutor));
     } else {
-        qCWarning(abstractVisualTableModel) << "AbstractVisualTableModel-> No request to undo.";
+        qCWarning(abstractVisualTableModel) << "No request to undo.";
     }
 }
 
@@ -168,20 +168,19 @@ void AbstractVisualTableModel::filter()
 
 void AbstractVisualTableModel::saveRequest(const QueryResult &result)
 {
-    if (!m_lastQueryExecutor)
+    if (!m_lastQueryExecutor.isValid())
         return;
 
     if (result.isSuccessful() && result.request().receiver() == this) {
-        if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet() && m_lastQueryExecutor->request() == result.request()) {
+        if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet() && m_lastQueryExecutor.request() == result.request()) {
             qInfo(abstractVisualTableModel) << "Request saved:" << result.request().command();
             // FIXME: Get rid of this
-            QueryRequest &request(m_lastQueryExecutor->request());
+            QueryRequest &request(m_lastQueryExecutor.request());
             request.params().insert("outcome", result.outcome());
 
-            m_lastQueryExecutor->undoOnNextExecution(false);
+            m_lastQueryExecutor.undoOnNextExecution(false);
         } else {
-            m_lastQueryExecutor->deleteLater();
-            m_lastQueryExecutor = nullptr;
+            m_lastQueryExecutor = QueryExecutor();
         }
     }
 }
@@ -197,7 +196,8 @@ void AbstractVisualTableModel::setBusy(bool busy)
 
 void AbstractVisualTableModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    m_lastQueryExecutor = queryExecutor;
+    if (queryExecutor->canUndo())
+        m_lastQueryExecutor = *queryExecutor;
 }
 
 void AbstractVisualTableModel::refresh()

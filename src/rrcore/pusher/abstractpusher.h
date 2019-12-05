@@ -5,10 +5,10 @@
 #include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/queryexecutor.h"
 
 class DatabaseThread;
 class QueryResult;
-class QueryExecutor;
 
 class AbstractPusher : public QObject
 {
@@ -33,7 +33,7 @@ public slots:
     virtual void undoLastCommit();
 private:
     bool m_busy;
-    QueryExecutor *m_lastQueryExecutor;
+    QueryExecutor m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);
