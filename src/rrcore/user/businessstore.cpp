@@ -94,11 +94,11 @@ BusinessStore BusinessStore::fromVariantMap(const QVariantMap &map)
     BusinessStore businessStore;
     businessStore.setName(map.value("name").toString());
     businessStore.setAddress(map.value("address").toString());
-    businessStore.setBusinessFamily(map.value("businessFamily").toString());
-    businessStore.setEstablishmentYear(map.value("establishmentYear").toInt());
-    businessStore.setPhoneNumber(map.value("phoneNumber").toString());
+    businessStore.setBusinessFamily(map.value("business_family").toString());
+    businessStore.setEstablishmentYear(map.value("establishment_year").toInt());
+    businessStore.setPhoneNumber(map.value("phone_number").toString());
     businessStore.setLogoUrl(DatabaseUtils::byteArrayToImageUrl(map.value("logo").toByteArray()));
-    businessStore.setRackId(map.value("rackId").toString());
+    businessStore.setRackId(map.value("rack_id").toString());
 
     return businessStore;
 }
@@ -108,11 +108,11 @@ QVariantMap BusinessStore::toVariantMap() const
     return {
         { "name", m_name },
         { "address", m_address },
-        { "businessFamily", m_businessFamily },
-        { "establishmentYear", m_establishmentYear },
-        { "phoneNumber", m_phoneNumber },
+        { "business_family", m_businessFamily },
+        { "establishment_year", m_establishmentYear },
+        { "phone_number", m_phoneNumber },
         { "logo", DatabaseUtils::imageUrlToByteArray(m_logoUrl) },
-        { "rackId", m_rackId }
+        { "rack_id", m_rackId }
     };
 }
 

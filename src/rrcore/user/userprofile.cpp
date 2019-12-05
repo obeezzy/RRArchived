@@ -130,10 +130,10 @@ QByteArray UserProfile::accessToken() const
 QByteArray UserProfile::toJson() const
 {
     QJsonObject jsonObject {
-        { "userName", m_userName },
-        { "userId", m_userId },
+        { "user_name", m_userName },
+        { "user_id", m_userId },
         { "password", m_password },
-        { "rackId", rackId() }
+        { "rack_id", rackId() }
     };
 
     return QJsonDocument(jsonObject).toJson();
