@@ -10,11 +10,15 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(queryExecutor, "rrcore.database.queryexecutor");
 
 QueryExecutor::QueryExecutor(QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
+    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command();
 }
 
 QueryExecutor::QueryExecutor(const QueryRequest &request) :
@@ -22,15 +26,18 @@ QueryExecutor::QueryExecutor(const QueryRequest &request) :
     m_request(request)
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
+    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command();
 }
 
 QueryExecutor::QueryExecutor(const QString &command,
                              const QVariantMap &params,
                              QueryRequest::QueryGroup queryGroup,
-                             QObject *receiver)
+                             QObject *receiver) :
+    QObject(nullptr)
 {
     m_request.setCommand(command, params, queryGroup);
     m_request.setReceiver(receiver);
+    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command() << this;
 }
 
 QueryExecutor::QueryExecutor(const QueryExecutor &other) :
@@ -73,9 +80,9 @@ bool QueryExecutor::isUndoSet() const
 
 void QueryExecutor::undoOnNextExecution(bool undo)
 {
-    if (canUndo() && undo && !isUndoSet())
+    if (canUndo() && undo && !isUndoSet()) {
         m_request.setCommand(QStringLiteral("undo_") + m_request.command(), m_request.params(), m_request.queryGroup());
-    else if (isUndoSet()) {
+    } else if (isUndoSet()) {
         m_request.setCommand(m_request.command().remove("undo_"), m_request.params(), m_request.queryGroup());
         m_request.params().remove("can_undo");
     }
@@ -88,6 +95,12 @@ QString QueryExecutor::connectionName() const
 void QueryExecutor::setConnectionName(const QString &connectionName)
 {
     m_connectionName = connectionName;
+}
+
+void QueryExecutor::deleteLater()
+{
+    qCInfo(queryExecutor()) << "QueryExecutor destroyed:" << m_request.command() << this;
+    QObject::deleteLater();
 }
 
 QVariantMap QueryExecutor::recordToMap(const QSqlRecord &record)
@@ -202,7 +215,7 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::in
     }
 
     const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
-    qInfo() << "Procedure syntax: " << storedProcedure;
+    qCDebug(queryExecutor) << "Procedure syntax:" << storedProcedure;
     if (!q.exec(storedProcedure)) {
         if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException))
             throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
@@ -262,7 +275,8 @@ int QueryExecutor::addNote(const QString &note, const QString &tableName) {
 
 void QueryExecutor::updateNote(int noteId, const QString &note, const QString &tableName) {
     if (noteId <= 0 || note.trimmed().isEmpty())
-        throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments, "Missing arguments for updateNote().");
+        throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments,
+                                "Missing arguments for updateNote().");
 
     callProcedure("UpdateNote", {
                       ProcedureArgument {

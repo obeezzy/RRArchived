@@ -5,6 +5,10 @@
 #include "database/queryresult.h"
 #include "database/queryexecutor.h"
 
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(abstractPusher, "rrcore.database.abstractpusher");
+
 AbstractPusher::AbstractPusher(QObject *parent) :
     AbstractPusher(DatabaseThread::instance(), parent)
 {}
@@ -20,11 +24,6 @@ AbstractPusher::AbstractPusher(DatabaseThread &thread, QObject *parent) :
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::processResult);
 
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::saveRequest);
-}
-
-AbstractPusher::~AbstractPusher()
-{
-
 }
 
 bool AbstractPusher::isBusy() const
@@ -55,6 +54,7 @@ void AbstractPusher::saveRequest(const QueryResult &result)
 
     if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor->request()) {
         if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet()) {
+            qCDebug(abstractPusher) << "Request saved:" << result.request();
             // FIXME: Remove this!
             QueryRequest &request(m_lastQueryExecutor->request());
             request.params().insert("outcome", result.outcome());
@@ -70,9 +70,4 @@ void AbstractPusher::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
     if (queryExecutor->canUndo())
         m_lastQueryExecutor.reset(queryExecutor);
-}
-
-QueryExecutor *AbstractPusher::lastQueryExecutor() const
-{
-    return m_lastQueryExecutor.data();
 }

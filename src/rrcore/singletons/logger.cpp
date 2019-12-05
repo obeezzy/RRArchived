@@ -17,19 +17,19 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
         switch (type) {
         case QtDebugMsg:
             //fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-            fprintf(stderr, "[DEBUG] %s\n", localMsg.constData());
+            fprintf(stderr, "[DEBUG] %s: %s\n", context.category, localMsg.constData());
             break;
         case QtInfoMsg:
-            fprintf(stderr, "[INFO] %s\n", localMsg.constData());
+            fprintf(stderr, "[INFO] %s: %s\n", context.category, localMsg.constData());
             break;
         case QtWarningMsg:
-            fprintf(stderr, "[WARNING] %s\n", localMsg.constData());
+            fprintf(stderr, "[WARNING] %s: %s\n", context.category, localMsg.constData());
             break;
         case QtCriticalMsg:
-            fprintf(stderr, "[CRITICAL] %s\n", localMsg.constData());
+            fprintf(stderr, "[CRITICAL] %s: %s\n", context.category, localMsg.constData());
             break;
         case QtFatalMsg:
-            fprintf(stderr, "[FATAL] %s\n", localMsg.constData());
+            fprintf(stderr, "[FATAL] %s: %s\n", context.category, localMsg.constData());
             abort();
         }
     }

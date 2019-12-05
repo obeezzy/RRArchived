@@ -15,6 +15,7 @@ RRUi.DataTableView {
     signal success(int successCode)
     signal error(int errorCode)
     signal itemRemoved(int itemId)
+    signal modelReset
 
     function removeItem(row) { stockItemModel.removeItem(row); }
     function refresh() { stockItemModel.refresh(); }
@@ -34,6 +35,7 @@ RRUi.DataTableView {
         onItemRemoved: itemTableView.itemRemoved(itemId);
         onSuccess: itemTableView.success(successCode);
         onError: itemTableView.error(errorCode);
+        onModelReset: itemTableView.modelReset();
     }
 
     delegate: DelegateChooser {

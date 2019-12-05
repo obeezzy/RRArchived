@@ -27,7 +27,7 @@ NetworkWorker::NetworkWorker(QObject *parent) :
 
 void NetworkWorker::execute(const QueryRequest request)
 {
-    qCInfo(networkThread) << "NetworkWorker->" << request;
+    qCInfo(networkThread) << request;
     ServerResponse response(QueryResult{ request }); // Always know your sender, even if an exception is thrown
     QNetworkRequest networkRequest;
     ServerRequest serverRequest(request);
@@ -67,17 +67,16 @@ void NetworkWorker::execute(const QueryRequest request)
                 && request.commandVerb() != QueryRequest::CommandVerb::Read) // Don't store authentication or read commands
             m_requestLogger->push(serverRequest);
 
-        qCWarning(networkThread).nospace() << "Exception caught in NetworkThread: ResponseError=(" << e.message()
-                                           << "), NetworkReplyError=(" << e.statusMessage() << ")";
+        qCWarning(networkThread).nospace() << e;
     }
 
     emit resultReady(response.queryResult());
-    qInfo(networkThread) << "NetworkWorker->" << response << " [elapsed = " << timer.elapsed() << " ms]";
+    qCInfo(networkThread) << response << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 void NetworkWorker::execute(const ServerRequest request)
 {
-    qCInfo(networkThread) << "NetworkWorker->" << request;
+    qCInfo(networkThread) << request;
     ServerResponse response(request); // Always know the sender
     QNetworkRequest networkRequest;
 
@@ -108,12 +107,11 @@ void NetworkWorker::execute(const ServerRequest request)
         response.setStatusCode(e.statusCode());
         response.setStatusMessage(e.statusMessage());
 
-        qCWarning(networkThread).nospace() << "Exception caught in NetworkThread: ResponseError=(" << e.message()
-                                           << "), NetworkReplyError=(" << e.statusMessage() << ")";
+        qCWarning(networkThread).nospace() << e;
     }
 
     emit responseReady(response);
-    qCInfo(networkThread) << "NetworkWorker->" << response << " [elapsed = " << timer.elapsed() << " ms]";
+    qCInfo(networkThread) << response << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 QUrl NetworkWorker::determineUrl(const QueryRequest &request) const
@@ -163,7 +161,7 @@ void NetworkWorker::waitForFinished(QNetworkReply *reply)
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
-    qInfo(networkThread) << "NetworkWorker-> Reply received for" << reply->request().url();
+    qCDebug(networkThread) << "NetworkWorker-> Reply received for" << reply->request().url();
 }
 
 void NetworkWorker::flushLoggedRequests()

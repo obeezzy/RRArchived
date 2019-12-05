@@ -2,6 +2,10 @@
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
 
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(abstractVisualListModel, "rrcore.models.abstractvisuallistmodel");
+
 AbstractVisualListModel::AbstractVisualListModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
 {}
@@ -142,7 +146,7 @@ void AbstractVisualListModel::undoLastCommit()
         m_lastQueryExecutor->undoOnNextExecution();
         emit execute(m_lastQueryExecutor.data());
     } else {
-        qWarning() << "AbstractVisualListModel-> No request to undo.";
+        qCWarning(abstractVisualListModel) << "AbstractVisualListModel-> No request to undo.";
     }
 }
 
@@ -158,12 +162,13 @@ void AbstractVisualListModel::saveRequest(const QueryResult &result)
 
     if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor->request()) {
         if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet()) {
-            qInfo() << "Request saved for:" << result.request().command();
+            qInfo(abstractVisualListModel) << "Request saved:" << result.request().command();
             // FIXME: Remove this!
             QueryRequest &request(m_lastQueryExecutor->request());
             request.params().insert("outcome", result.outcome());
 
             m_lastQueryExecutor->undoOnNextExecution(false);
+            m_lastQueryExecutor.clear();
         } else {
             m_lastQueryExecutor.clear();
         }
@@ -172,7 +177,7 @@ void AbstractVisualListModel::saveRequest(const QueryResult &result)
 
 void AbstractVisualListModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    if (queryExecutor->canUndo())
+    if (queryExecutor && queryExecutor->canUndo())
         m_lastQueryExecutor.reset(queryExecutor);
 }
 
@@ -183,11 +188,6 @@ void AbstractVisualListModel::setBusy(bool busy)
 
     m_busy = busy;
     emit busyChanged();
-}
-
-QueryExecutor *AbstractVisualListModel::lastQueryExecutor() const
-{
-    return m_lastQueryExecutor.data();
 }
 
 void AbstractVisualListModel::refresh()

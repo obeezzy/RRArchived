@@ -12,9 +12,9 @@
 #include "user/userprofile.h"
 #include "queryexecutors/user/userexecutor.h"
 
-const QString CONNECTION_NAME(QStringLiteral("db_thread"));
-
 Q_LOGGING_CATEGORY(databaseThread, "rrcore.database.databasethread");
+
+const QString CONNECTION_NAME(QStringLiteral("db_thread"));
 
 DatabaseWorker::DatabaseWorker(QObject *parent) :
     QObject(parent)
@@ -30,7 +30,7 @@ DatabaseWorker::~DatabaseWorker()
 void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 {
     QSharedPointer<QueryExecutor> executor(queryExecutor, &QueryExecutor::deleteLater);
-    qCInfo(databaseThread) << "DatabaseWorker->" << executor->request();
+    qCInfo(databaseThread) << executor->request();
     const QueryRequest &request(executor->request());
     QueryResult result{ request };
 
@@ -42,17 +42,19 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
             throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand, "No command set.");
 
         executor->setConnectionName(CONNECTION_NAME);
+        qDebug() << "Before you call the procedure:" << executor;
         result = executor->execute();
+        qDebug() << "After you call the procedure:" << executor;
     } catch (DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());
         result.setErrorMessage(e.message());
         result.setErrorUserMessage(e.userMessage());
-        qCCritical(databaseThread) << "DatabaseException in Worker->" << e.code() << e.message() << e.userMessage();
+        qCCritical(databaseThread) << e;
     }
 
     emit resultReady(result);
-    qCInfo(databaseThread) << "DatabaseWorker->" << result << " [elapsed = " << timer.elapsed() << " ms]";
+    qCInfo(databaseThread) << result << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :

@@ -29,6 +29,7 @@ QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
     m_businessStoreModel(new BusinessStoreModel(this))
 {
     UserProfile::instance().setDatabaseReady(true);
+    UserProfile::instance().setServerTunnelingEnabled(false);
     connect(this, &QMLUserProfile::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
 

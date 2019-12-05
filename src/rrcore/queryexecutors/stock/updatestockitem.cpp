@@ -7,6 +7,8 @@
 #include <QSqlQuery>
 #include <QSqlDatabase>
 
+Q_LOGGING_CATEGORY(updateStockItem, "rrcore.queryexecutors.stock.updatestockitem")
+
 using namespace StockQuery;
 
 UpdateStockItem::UpdateStockItem(int itemId,
@@ -60,7 +62,7 @@ QueryResult UpdateStockItem::execute()
     QSqlQuery q(connection);
 
     if (params.contains("quantity"))
-        qWarning() << Q_FUNC_INFO << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
+        qCWarning(updateStockItem) << Q_FUNC_INFO << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
 
     try {
         DatabaseUtils::beginTransaction(q);

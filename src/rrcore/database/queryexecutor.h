@@ -6,6 +6,8 @@
 #include <QVariantMap>
 #include <QSqlRecord>
 #include <initializer_list>
+#include <QLoggingCategory>
+
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
@@ -53,6 +55,8 @@ public:
 
         return debug;
     }
+
+    void deleteLater();
 protected:
     QVariantMap recordToMap(const QSqlRecord &);
     QSqlRecord mapToRecord(const QVariantMap &);
@@ -66,5 +70,7 @@ private:
     QueryRequest m_request;
     QString m_connectionName;
 };
+
+Q_DECLARE_LOGGING_CATEGORY(queryExecutor);
 
 #endif // QUERYEXECUTOR_H

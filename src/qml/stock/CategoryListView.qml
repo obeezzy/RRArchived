@@ -121,6 +121,7 @@ ListView {
                     categoryListView.success(successCode);
                 }
                 onError: categoryListView.error(errorCode);
+                onModelReset: categoryListView.modelReset();
             }
         }
     }

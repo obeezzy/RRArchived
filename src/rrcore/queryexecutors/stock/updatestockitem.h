@@ -30,4 +30,6 @@ public:
 };
 }
 
+Q_DECLARE_LOGGING_CATEGORY(updateStockItem);
+
 #endif // UPDATESTOCKITEM_H
