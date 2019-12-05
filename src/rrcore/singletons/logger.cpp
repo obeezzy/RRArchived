@@ -7,6 +7,8 @@
 #include <QMutex>
 #include <QMutexLocker>
 
+const QString LOG_FILE = QStringLiteral("/tmp/rr.log");
+
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     Q_UNUSED(context)
@@ -37,12 +39,9 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
 }
 
 Logger::Logger() :
-    m_enabled(true),
-    m_fileLoggingEnabled(true)
+    m_enabled(true)
 {
-    m_settings = new QSettings;
-    m_fileLoggingEnabled = m_settings->value("log_to_file", true).toBool();
-    const QString &logFileName = m_settings->value("log_file_name", "/tmp/rr.log").toString();
+    const QString &logFileName = m_settings.value("log_file_name", LOG_FILE).toString();
     m_logFile.setFileName(logFileName);
     m_logFile.open(QFile::WriteOnly);
     m_logFile.resize(0);
@@ -56,7 +55,6 @@ Logger &Logger::instance()
 
 Logger::~Logger()
 {
-    m_settings->deleteLater();
     m_logFile.close();
 }
 
@@ -79,12 +77,12 @@ void Logger::setEnabled(bool enabled)
 
 bool Logger::isFileLoggingEnabled() const
 {
-    return m_fileLoggingEnabled;
+    return m_settings.value("log_to_file", true).toBool();
 }
 
 void Logger::setFileLoggingEnabled(bool enabled)
 {
-    m_fileLoggingEnabled = enabled;
+    m_settings.setValue("log_to_file", enabled);
 }
 
 void Logger::logToFile(const QByteArray &log)

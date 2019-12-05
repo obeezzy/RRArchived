@@ -27,6 +27,8 @@ public:
     void setFilterColumn(int filterColumn);
 
     int itemCount() const;
+public slots:
+    void refresh() override;
 signals:
     void categoryIdChanged();
     void filterTextChanged();

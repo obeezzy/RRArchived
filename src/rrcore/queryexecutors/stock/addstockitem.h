@@ -8,7 +8,7 @@ class AddStockItem : public StockExecutor
 {
     Q_OBJECT
 public:
-    static inline const QString COMMAND = QStringLiteral("add_new_stock_item");
+    static inline const QString COMMAND = QStringLiteral("add_stock_item");
 
     explicit AddStockItem(const QString &category,
                           const QString &item,
@@ -22,7 +22,7 @@ public:
                           qreal baseUnitEquivalent,
                           bool isPreferredUnit,
                           const QString &currency,
-                          const QUrl &imageSource,
+                          const QUrl &imageUrl,
                           const QString &categoryNote,
                           const QString &itemNote,
                           QObject *receiver);

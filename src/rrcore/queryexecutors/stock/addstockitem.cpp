@@ -21,12 +21,12 @@ AddStockItem::AddStockItem(const QString &category,
                            qreal baseUnitEquivalent,
                            bool isPreferredUnit,
                            const QString &currency,
-                           const QUrl &imageSource,
+                           const QUrl &imageUrl,
                            const QString &categoryNote,
                            const QString &itemNote,
                            QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "image_source", imageSource },
+                    { "image", DatabaseUtils::imageToByteArray(imageUrl.toLocalFile()) },
                     { "category", category },
                     { "item", item },
                     { "description", description },
@@ -228,7 +228,7 @@ QueryResult AddStockItem::execute()
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,
                                         "currency",
-                                        QStringLiteral("NGN")
+                                        params.value("currency")
                                     },
                                     ProcedureArgument {
                                         ProcedureArgument::Type::In,

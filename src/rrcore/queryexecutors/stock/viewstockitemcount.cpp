@@ -6,7 +6,7 @@ using namespace StockQuery;
 ViewStockItemCount::ViewStockItemCount(int categoryId,
                                        QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "category_id", categoryId },
+                    { "category_id", categoryId <= 0 ? QVariant(QVariant::Int) : categoryId },
                     { "archived", false }
                   }, receiver)
 {

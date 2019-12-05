@@ -6,7 +6,7 @@
 #include <QUrl>
 
 QMLStockItemPusher::QMLStockItemPusher(QObject *parent) :
-    AbstractPusher(DatabaseThread::instance(), parent)
+    QMLStockItemPusher(DatabaseThread::instance(), parent)
 {}
 
 QMLStockItemPusher::QMLStockItemPusher(DatabaseThread &thread, QObject *parent) :
@@ -226,7 +226,7 @@ void QMLStockItemPusher::push()
                          m_retailPrice,
                          m_baseUnitEquivalent,
                          true,
-                         "NGN",
+                         QStringLiteral("NGN"),
                          QUrl(),
                          QString(),
                          QString(),
@@ -244,7 +244,7 @@ void QMLStockItemPusher::push()
                          m_retailPrice,
                          m_baseUnitEquivalent,
                          true,
-                         "NGN",
+                         QStringLiteral("NGN"),
                          QUrl(),
                          QString(),
                          QString(),

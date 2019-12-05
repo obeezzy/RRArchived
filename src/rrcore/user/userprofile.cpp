@@ -16,7 +16,6 @@ UserProfile::UserProfile(QObject *parent) :
     m_businessAdmin(new BusinessAdmin(this))
 {
     setAccessToken(QByteArray());
-    qRegisterMetaType<QList<BusinessStore>>("QList<BusinessStore>");
 }
 
 void UserProfile::setUser(int userId,

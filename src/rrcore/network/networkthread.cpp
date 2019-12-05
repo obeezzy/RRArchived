@@ -16,17 +16,13 @@
 #include "networkerror.h"
 #include "database/queryexecutor.h"
 
-Q_LOGGING_CATEGORY(networkThread, "rrcore.database.networkthread");
+Q_LOGGING_CATEGORY(networkThread, "rrcore.network.networkthread");
 
 NetworkWorker::NetworkWorker(QObject *parent) :
     QObject(parent)
 {
     m_networkManager = new QNetworkAccessManager(this);
     m_requestLogger = new RequestLogger(this);
-}
-
-NetworkWorker::~NetworkWorker()
-{
 }
 
 void NetworkWorker::execute(const QueryRequest request)
@@ -44,7 +40,8 @@ void NetworkWorker::execute(const QueryRequest request)
         networkRequest.setRawHeader("Content-Type", "application/json");
         networkRequest.setRawHeader("Content-Length", QByteArray::number(serverRequest.toJson().size()));
         if (!UserProfile::instance().accessToken().trimmed().isEmpty())
-            networkRequest.setRawHeader("Authorization", QByteArray("Bearer ").append(UserProfile::instance().accessToken()));
+            networkRequest.setRawHeader("Authorization", QByteArray("Bearer ")
+                                        .append(UserProfile::instance().accessToken()));
 
         flushLoggedRequests();
 
@@ -92,7 +89,8 @@ void NetworkWorker::execute(const ServerRequest request)
         networkRequest.setRawHeader("Content-Type", "application/json");
         networkRequest.setRawHeader("Content-Length", QByteArray::number(request.toJson().size()));
         if (!UserProfile::instance().accessToken().trimmed().isEmpty())
-            networkRequest.setRawHeader("Authorization", QByteArray("Bearer ").append(UserProfile::instance().accessToken()));
+            networkRequest.setRawHeader("Authorization", QByteArray("Bearer ")
+                                        .append(UserProfile::instance().accessToken()));
 
         QNetworkReply *networkReply = m_networkManager->post(networkRequest, request.toJson());
         waitForFinished(networkReply);
@@ -180,6 +178,9 @@ void NetworkWorker::flushLoggedRequests()
             networkRequest.setUrl(determineUrl(request.queryRequest()));
             networkRequest.setRawHeader("Content-Type", "application/json");
             networkRequest.setRawHeader("Content-Length", QByteArray::number(request.toJson().size()));
+            if (!UserProfile::instance().accessToken().trimmed().isEmpty())
+                networkRequest.setRawHeader("Authorization", QByteArray("Bearer ")
+                                            .append(UserProfile::instance().accessToken()));
 
             QNetworkReply *networkReply = m_networkManager->post(networkRequest, request.toJson());
             waitForFinished(networkReply);
@@ -222,8 +223,6 @@ void NetworkThread::syncWithServer(const QueryResult result)
 void NetworkThread::tunnelToServer(QueryExecutor *queryExecutor)
 {
     emit execute(queryExecutor->request());
-    if (!queryExecutor->canUndo())
-        queryExecutor->deleteLater();
 }
 
 NetworkThread::NetworkThread(QObject *parent) :
