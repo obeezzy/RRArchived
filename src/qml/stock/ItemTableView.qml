@@ -46,7 +46,7 @@ RRUi.DataTableView {
                 RRUi.LetterCircleImage {
                     anchors.centerIn: parent
                     name: model.item
-                    source: model.image_source
+                    source: model.image_url
                     sourceSize: Qt.size(width, height)
                 }
             }

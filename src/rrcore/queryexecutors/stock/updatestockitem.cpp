@@ -21,12 +21,12 @@ UpdateStockItem::UpdateStockItem(int itemId,
                                  qreal baseUnitEquivalent,
                                  bool isPreferredUnit,
                                  const QString &currency,
-                                 const QUrl &imageSource,
+                                 const QUrl &imageUrl,
                                  const QString &categoryNote,
                                  const QString &itemNote,
                                  QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "image_source", imageSource },
+                    { "image_url", imageUrl },
                     { "category", category },
                     { "item", item },
                     { "description", description },
@@ -140,7 +140,7 @@ QueryResult UpdateStockItem::execute()
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "image",
-                              DatabaseUtils::imageToByteArray(params.value("image_source").toString()) // Store image as BLOB
+                              DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl()) // Store image as BLOB
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,

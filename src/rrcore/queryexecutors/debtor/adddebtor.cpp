@@ -22,7 +22,7 @@ AddDebtor::AddDebtor(const QString &preferredName,
                         { "preferred_name", preferredName },
                         { "first_name", firstName },
                         { "last_name", lastName },
-                        { "image", DatabaseUtils::imageToByteArray(imageUrl.toLocalFile()) },
+                        { "image", DatabaseUtils::imageUrlToByteArray(imageUrl) },
                         { "primary_phone_number", primaryPhoneNumber },
                         { "new_debt_transactions", newDebtTransactions.toVariantList() },
                         { "note", note }

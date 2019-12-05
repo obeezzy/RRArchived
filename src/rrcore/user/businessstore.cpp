@@ -97,7 +97,7 @@ BusinessStore BusinessStore::fromVariantMap(const QVariantMap &map)
     businessStore.setBusinessFamily(map.value("businessFamily").toString());
     businessStore.setEstablishmentYear(map.value("establishmentYear").toInt());
     businessStore.setPhoneNumber(map.value("phoneNumber").toString());
-    businessStore.setLogoUrl(DatabaseUtils::byteArrayToImage(map.value("logo").toByteArray()));
+    businessStore.setLogoUrl(DatabaseUtils::byteArrayToImageUrl(map.value("logo").toByteArray()));
     businessStore.setRackId(map.value("rackId").toString());
 
     return businessStore;
@@ -111,7 +111,7 @@ QVariantMap BusinessStore::toVariantMap() const
         { "businessFamily", m_businessFamily },
         { "establishmentYear", m_establishmentYear },
         { "phoneNumber", m_phoneNumber },
-        { "logo", DatabaseUtils::imageToByteArray(m_logoUrl.toLocalFile()) },
+        { "logo", DatabaseUtils::imageUrlToByteArray(m_logoUrl) },
         { "rackId", m_rackId }
     };
 }

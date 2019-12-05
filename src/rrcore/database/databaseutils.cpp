@@ -76,12 +76,12 @@ QString DatabaseUtils::createPasswordHash(const QString &password)
     return QString(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256).toHex());
 }
 
-QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource, qint64 maxSize)
+QByteArray DatabaseUtils::imageUrlToByteArray(const QUrl &imageUrl, qint64 maxSize)
 {
-    if (imageSource.trimmed().isEmpty())
+    if (imageUrl.isEmpty())
         return QByteArray();
 
-    QImage image(QUrl{imageSource}.toLocalFile());
+    QImage image(imageUrl.toLocalFile());
     QByteArray ba;
     QBuffer buffer(&ba);
     buffer.open(QIODevice::WriteOnly);
@@ -94,7 +94,7 @@ QByteArray DatabaseUtils::imageToByteArray(const QString &imageSource, qint64 ma
     return ba;
 }
 
-QString DatabaseUtils::byteArrayToImage(const QByteArray &imageData)
+QUrl DatabaseUtils::byteArrayToImageUrl(const QByteArray &imageData)
 {
     if (imageData.isNull())
         return QString();
