@@ -21,8 +21,8 @@ QueryExecutor::QueryExecutor(QObject *parent) :
     qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command();
 }
 
-QueryExecutor::QueryExecutor(const QueryRequest &request) :
-    QObject(nullptr),
+QueryExecutor::QueryExecutor(const QueryRequest &request, QObject *parent) :
+    QObject(parent),
     m_request(request)
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
@@ -33,7 +33,7 @@ QueryExecutor::QueryExecutor(const QString &command,
                              const QVariantMap &params,
                              QueryRequest::QueryGroup queryGroup,
                              QObject *receiver) :
-    QObject(nullptr)
+    QObject(receiver)
 {
     m_request.setCommand(command, params, queryGroup);
     m_request.setReceiver(receiver);
@@ -41,7 +41,7 @@ QueryExecutor::QueryExecutor(const QString &command,
 }
 
 QueryExecutor::QueryExecutor(const QueryExecutor &other) :
-    QObject(nullptr),
+    QObject(other.request().receiver()),
     m_request(other.request())
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
@@ -50,7 +50,13 @@ QueryExecutor::QueryExecutor(const QueryExecutor &other) :
 QueryExecutor &QueryExecutor::operator=(const QueryExecutor &other)
 {
     m_request = other.request();
+    setParent(other.request().receiver());
     return *this;
+}
+
+QueryExecutor::~QueryExecutor()
+{
+    qCDebug(queryExecutor) << "QueryExecutor destroyed:" << m_request.command() << this;
 }
 
 QueryRequest QueryExecutor::request() const
@@ -95,12 +101,6 @@ QString QueryExecutor::connectionName() const
 void QueryExecutor::setConnectionName(const QString &connectionName)
 {
     m_connectionName = connectionName;
-}
-
-void QueryExecutor::deleteLater()
-{
-    qCInfo(queryExecutor()) << "QueryExecutor destroyed:" << m_request.command() << this;
-    QObject::deleteLater();
 }
 
 QVariantMap QueryExecutor::recordToMap(const QSqlRecord &record)

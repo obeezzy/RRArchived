@@ -68,7 +68,9 @@ void QMLStockCategoryModel::unarchiveItem(int itemId)
         return;
 
     setBusy(true);
-    emit execute(new StockQuery::RemoveStockItem(itemId, this));
+    StockQuery::RemoveStockItem *removeStockItem = new StockQuery::RemoveStockItem(itemId, this);
+    removeStockItem->undoOnNextExecution();
+    emit execute(removeStockItem);
 }
 
 void QMLStockCategoryModel::updateCategory(int categoryId, const QVariantMap &categoryInfo)

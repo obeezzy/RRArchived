@@ -6,6 +6,7 @@
 #include <QLoggingCategory>
 #include "queryrequest.h"
 #include "queryresult.h"
+#include <QMutex>
 
 class QueryExecutor;
 
@@ -19,6 +20,8 @@ public:
     void execute(QueryExecutor *queryExecutor);
 signals:
     void resultReady(const QueryResult result);
+private:
+    QMutex m_queryExecutorMutex;
 };
 
 class DatabaseThread : public QThread

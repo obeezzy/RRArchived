@@ -16,7 +16,7 @@ AbstractPusher::AbstractPusher(QObject *parent) :
 AbstractPusher::AbstractPusher(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
     m_busy(false),
-    m_lastQueryExecutor(nullptr, &QueryExecutor::deleteLater)
+    m_lastQueryExecutor(nullptr)
 {
     connect(this, &AbstractPusher::execute, &thread, &DatabaseThread::execute);
 
@@ -44,12 +44,12 @@ void AbstractPusher::undoLastCommit()
 {
     setBusy(true);
     m_lastQueryExecutor->undoOnNextExecution();
-    emit execute(m_lastQueryExecutor.data());
+    emit execute(m_lastQueryExecutor);
 }
 
 void AbstractPusher::saveRequest(const QueryResult &result)
 {
-    if (m_lastQueryExecutor.isNull())
+    if (!m_lastQueryExecutor)
         return;
 
     if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor->request()) {
@@ -61,13 +61,13 @@ void AbstractPusher::saveRequest(const QueryResult &result)
 
             m_lastQueryExecutor->undoOnNextExecution(false);
         } else {
-            m_lastQueryExecutor.clear();
+            m_lastQueryExecutor->deleteLater();
+            m_lastQueryExecutor = nullptr;
         }
     }
 }
 
 void AbstractPusher::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    if (queryExecutor->canUndo())
-        m_lastQueryExecutor.reset(queryExecutor);
+    m_lastQueryExecutor = queryExecutor;
 }

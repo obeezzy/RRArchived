@@ -27,14 +27,14 @@ public:
         SkipSqlTransaction
     };
     explicit QueryExecutor(QObject *parent = nullptr);
-    explicit QueryExecutor(const QueryRequest &request);
+    explicit QueryExecutor(const QueryRequest &request, QObject *parent = nullptr);
     explicit QueryExecutor(const QString &command,
                            const QVariantMap &params,
                            QueryRequest::QueryGroup queryGroup,
                            QObject *receiver);
     QueryExecutor(const QueryExecutor &other);
     QueryExecutor &operator=(const QueryExecutor &other);
-    virtual ~QueryExecutor() = default;
+    virtual ~QueryExecutor();
 
     QueryRequest request() const;
     QueryRequest &request();
@@ -55,8 +55,6 @@ public:
 
         return debug;
     }
-
-    void deleteLater();
 protected:
     QVariantMap recordToMap(const QSqlRecord &);
     QSqlRecord mapToRecord(const QVariantMap &);

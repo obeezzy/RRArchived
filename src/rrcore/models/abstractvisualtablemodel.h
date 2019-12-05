@@ -5,7 +5,6 @@
 #include <QAbstractTableModel>
 #include <QQmlParserStatus>
 #include <QVariant>
-#include <QSharedPointer>
 #include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
@@ -87,7 +86,7 @@ private:
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
     qreal m_tableViewWidth;
-    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
+    QueryExecutor *m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);

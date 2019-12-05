@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QSettings>
+#include <QMutexLocker>
 
 #include "databaseexception.h"
 #include "queryrequest.h"
@@ -29,9 +30,9 @@ DatabaseWorker::~DatabaseWorker()
 
 void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 {
-    QSharedPointer<QueryExecutor> executor(queryExecutor, &QueryExecutor::deleteLater);
-    qCInfo(databaseThread) << executor->request();
-    const QueryRequest &request(executor->request());
+    qCInfo(databaseThread) << queryExecutor->request();
+    QMutexLocker locker(&m_queryExecutorMutex);
+    const QueryRequest &request(queryExecutor->request());
     QueryResult result{ request };
 
     QElapsedTimer timer;
@@ -41,10 +42,8 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
         if (request.command().trimmed().isEmpty())
             throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand, "No command set.");
 
-        executor->setConnectionName(CONNECTION_NAME);
-        qDebug() << "Before you call the procedure:" << executor;
-        result = executor->execute();
-        qDebug() << "After you call the procedure:" << executor;
+        queryExecutor->setConnectionName(CONNECTION_NAME);
+        result = queryExecutor->execute();
     } catch (DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());
@@ -72,7 +71,8 @@ DatabaseThread::DatabaseThread(QObject *parent) :
             connect(worker, &DatabaseWorker::resultReady, this, &DatabaseThread::resultReady);
             connect(this, &DatabaseThread::execute, worker, &DatabaseWorker::execute);
             connect(this, &DatabaseThread::finished, worker, &DatabaseWorker::deleteLater);
-            connect(this, &DatabaseThread::resultReady, &NetworkThread::instance(), &NetworkThread::syncWithServer);
+            connect(this, &DatabaseThread::resultReady,
+                    &NetworkThread::instance(), &NetworkThread::syncWithServer);
 
             worker->moveToThread(this);
             start();
@@ -94,7 +94,8 @@ DatabaseThread::~DatabaseThread()
 DatabaseThread &DatabaseThread::instance()
 {
     static DatabaseThread instance;
-    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &instance, &DatabaseThread::quit);
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+            &instance, &DatabaseThread::quit);
     return instance;
 }
 

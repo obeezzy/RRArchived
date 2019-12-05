@@ -2,7 +2,6 @@
 #define ABSTRACTPUSHER_H
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
@@ -34,7 +33,7 @@ public slots:
     virtual void undoLastCommit();
 private:
     bool m_busy;
-    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
+    QueryExecutor *m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);

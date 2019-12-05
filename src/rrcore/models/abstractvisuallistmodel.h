@@ -5,7 +5,6 @@
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
 #include <QVariant>
-#include <QSharedPointer>
 #include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
@@ -79,7 +78,7 @@ private:
     int m_filterColumn;
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
-    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
+    QueryExecutor *m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *queryExecutor);
     void saveRequest(const QueryResult &result);
