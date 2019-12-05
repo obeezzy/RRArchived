@@ -8,6 +8,7 @@
 #include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
+#include "database/queryexecutor.h"
 
 class QueryRequest;
 class QueryResult;
@@ -78,7 +79,7 @@ private:
     int m_filterColumn;
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
-    QueryExecutor *m_lastQueryExecutor;
+    QueryExecutor m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *queryExecutor);
     void saveRequest(const QueryResult &result);

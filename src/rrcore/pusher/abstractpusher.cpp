@@ -43,31 +43,31 @@ void AbstractPusher::setBusy(bool busy)
 void AbstractPusher::undoLastCommit()
 {
     setBusy(true);
-    m_lastQueryExecutor->undoOnNextExecution();
-    emit execute(m_lastQueryExecutor);
+    m_lastQueryExecutor.undoOnNextExecution();
+    emit execute(new QueryExecutor(m_lastQueryExecutor));
 }
 
 void AbstractPusher::saveRequest(const QueryResult &result)
 {
-    if (!m_lastQueryExecutor)
+    if (!m_lastQueryExecutor.isValid())
         return;
 
-    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor->request()) {
-        if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet()) {
+    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor.request()) {
+        if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet()) {
             qCDebug(abstractPusher) << "Request saved:" << result.request();
             // FIXME: Remove this!
-            QueryRequest &request(m_lastQueryExecutor->request());
+            QueryRequest &request(m_lastQueryExecutor.request());
             request.params().insert("outcome", result.outcome());
 
-            m_lastQueryExecutor->undoOnNextExecution(false);
+            m_lastQueryExecutor.undoOnNextExecution(false);
         } else {
-            m_lastQueryExecutor->deleteLater();
-            m_lastQueryExecutor = nullptr;
+            m_lastQueryExecutor = QueryExecutor();
         }
     }
 }
 
 void AbstractPusher::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    m_lastQueryExecutor = queryExecutor;
+    if (queryExecutor->canUndo())
+        m_lastQueryExecutor = *queryExecutor;
 }

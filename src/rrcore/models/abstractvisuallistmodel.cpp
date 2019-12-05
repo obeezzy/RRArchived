@@ -141,10 +141,10 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
-    if (m_lastQueryExecutor && !m_lastQueryExecutor->request().command().isEmpty() && m_lastQueryExecutor->request().receiver()) {
+    if (m_lastQueryExecutor.isValid() && !m_lastQueryExecutor.request().command().isEmpty() && m_lastQueryExecutor.request().receiver()) {
         setBusy(true);
-        m_lastQueryExecutor->undoOnNextExecution();
-        emit execute(m_lastQueryExecutor);
+        m_lastQueryExecutor.undoOnNextExecution();
+        emit execute(new QueryExecutor(m_lastQueryExecutor));
     } else {
         qCWarning(abstractVisualListModel) << "No request to undo.";
     }
@@ -157,27 +157,27 @@ void AbstractVisualListModel::filter()
 
 void AbstractVisualListModel::saveRequest(const QueryResult &result)
 {
-    if (!m_lastQueryExecutor)
+    if (!m_lastQueryExecutor.isValid())
         return;
 
-    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor->request()) {
-        if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet()) {
+    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor.request()) {
+        if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet()) {
             qInfo(abstractVisualListModel) << "Request saved:" << result.request().command();
             // FIXME: Remove this!
-            QueryRequest &request(m_lastQueryExecutor->request());
+            QueryRequest &request(m_lastQueryExecutor.request());
             request.params().insert("outcome", result.outcome());
 
-            m_lastQueryExecutor->undoOnNextExecution(false);
+            m_lastQueryExecutor.undoOnNextExecution(false);
         } else {
-            m_lastQueryExecutor->deleteLater();
-            m_lastQueryExecutor = nullptr;
+            m_lastQueryExecutor = QueryExecutor();
         }
     }
 }
 
 void AbstractVisualListModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    m_lastQueryExecutor = queryExecutor;
+    if (queryExecutor->canUndo())
+        m_lastQueryExecutor = *queryExecutor;
 }
 
 void AbstractVisualListModel::setBusy(bool busy)

@@ -27,7 +27,7 @@ public:
         SkipSqlTransaction
     };
     explicit QueryExecutor(QObject *parent = nullptr);
-    explicit QueryExecutor(const QueryRequest &request, QObject *parent = nullptr);
+    explicit QueryExecutor(const QueryRequest &request);
     explicit QueryExecutor(const QString &command,
                            const QVariantMap &params,
                            QueryRequest::QueryGroup queryGroup,
@@ -40,6 +40,7 @@ public:
     QueryRequest &request();
     virtual QueryResult execute();
 
+    bool isValid() const;
     bool canUndo() const;
     bool isUndoSet() const;
     void undoOnNextExecution(bool undo = true);

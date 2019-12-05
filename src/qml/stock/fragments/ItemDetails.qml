@@ -262,7 +262,7 @@ Item {
         itemId: itemDetails.itemId
 
         onSuccess: {
-            privateProperties.imageUrl = imageSource;
+            privateProperties.imageUrl = imageUrl;
             categoryComboBox.currentIndex = categoryComboBox.find(category);
             itemTextField.text = item;
             descriptionTextField.text = description;
