@@ -9,7 +9,7 @@ class QueryRequest : public QObject
 {
     Q_OBJECT
 public:
-    enum Type {
+    enum class QueryGroup {
         Unknown,
         Client,
         User,
@@ -20,7 +20,7 @@ public:
         Income,
         Expense,
         Debtor
-    }; Q_ENUM(Type)
+    }; Q_ENUM(QueryGroup)
 
     enum class CommandVerb {
         Create,
@@ -35,16 +35,16 @@ public:
     QueryRequest &operator= (const QueryRequest &other);
 
     inline bool operator ==(const QueryRequest &other) const {
-        return m_command == other.command() && m_type == other.type();
+        return m_command == other.command() && m_queryGroup == other.queryGroup();
     }
 
     QObject *receiver() const;
     void setReceiver(QObject *receiver);
 
-    void setCommand(const QString &command, const QVariantMap &params, const Type type);
+    void setCommand(const QString &command, const QVariantMap &params, const QueryGroup queryGroup);
     QString command() const;
     QVariantMap params() const;
-    Type type() const;
+    QueryGroup queryGroup() const;
     CommandVerb commandVerb() const;
     QByteArray toJson() const;
 
@@ -54,7 +54,8 @@ public:
     {
         debug.nospace() << "QueryRequest(command=" << request.command()
                         << ", params=" << request.params()
-                        << ", type=" << request.type() << ")";
+                        << ", queryGroup=" << request.queryGroup()
+                        << ")";
 
         return debug;
     }
@@ -62,10 +63,10 @@ private:
     QObject *m_receiver;
     QString m_command;
     QVariantMap m_params;
-    Type m_type;
+    QueryGroup m_queryGroup;
 
-    static Type typeStringToEnum(const QString &typeString);
-    static QString typeEnumToString(Type typeEnum);
+    static QueryGroup queryGroupToEnum(const QString &queryGroupString);
+    static QString queryGroupToString(QueryGroup queryGroupEnum);
 };
 
 #endif // QUERYREQUEST_H

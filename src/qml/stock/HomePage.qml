@@ -113,6 +113,8 @@ RRUi.Page {
             bottomMargin: 100
             clip: true
 
+            onModelReset: stockItemCountRecord.refresh();
+
             buttonRow: Row {
                 RRUi.ToolButton {
                     id: viewButton

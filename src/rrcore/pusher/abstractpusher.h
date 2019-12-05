@@ -2,7 +2,7 @@
 #define ABSTRACTPUSHER_H
 
 #include <QObject>
-#include <QSharedPointer>
+#include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
@@ -17,14 +17,12 @@ class AbstractPusher : public QObject
 public:
     explicit AbstractPusher(QObject *parent = nullptr);
     explicit AbstractPusher(DatabaseThread &thread, QObject *parent = nullptr);
-    virtual ~AbstractPusher();
+    virtual ~AbstractPusher() = default;
 
     bool isBusy() const;
 protected:
     void setBusy(bool);
     virtual void processResult(const QueryResult result) = 0;
-
-    QueryExecutor *lastQueryExecutor() const;
 signals:
     void busyChanged();
     void success(int successCode = 0);
@@ -35,10 +33,12 @@ public slots:
     virtual void undoLastCommit();
 private:
     bool m_busy;
-    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
+    QueryExecutor *m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);
 };
+
+Q_DECLARE_LOGGING_CATEGORY(abstractPusher);
 
 #endif // ABSTRACTPUSHER_H

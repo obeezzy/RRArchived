@@ -2,6 +2,8 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 
+#include <QUrl>
+
 using namespace StockQuery;
 
 ViewStockItemDetails::ViewStockItemDetails(int itemId, QObject *receiver) :
@@ -32,7 +34,7 @@ QueryResult ViewStockItemDetails::execute()
         QVariantMap itemInfo;
         if (!records.isEmpty()) {
             itemInfo = recordToMap(records.first());
-            itemInfo.insert("image_source", DatabaseUtils::byteArrayToImage(itemInfo.value("image").toByteArray()));
+            itemInfo.insert("image_url", DatabaseUtils::byteArrayToImageUrl(itemInfo.value("image").toByteArray()));
             itemInfo.remove("image");
         }
         else

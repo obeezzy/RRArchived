@@ -2,6 +2,8 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 
+#include <QUrl>
+
 using namespace StockQuery;
 
 FilterStockItems::FilterStockItems(int categoryId,
@@ -59,7 +61,7 @@ QueryResult FilterStockItems::execute()
         QVariantList items;
         for (const auto &record : records) {
             QVariantMap itemRecord { recordToMap(record) };
-            itemRecord.insert("image_source", DatabaseUtils::byteArrayToImage(record.value("image").toByteArray()));
+            itemRecord.insert("image_url", DatabaseUtils::byteArrayToImageUrl(record.value("image").toByteArray()));
             itemRecord.remove("image");
 
             items.append(itemRecord);

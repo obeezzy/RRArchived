@@ -2,6 +2,10 @@
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
 
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(abstractVisualTableModel, "rrcore.models.abstractvisualtablemodel");
+
 AbstractVisualTableModel::AbstractVisualTableModel(QObject *parent) :
     AbstractVisualTableModel(DatabaseThread::instance(), parent)
 {}
@@ -14,7 +18,7 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     m_sortOrder(Qt::AscendingOrder),
     m_sortColumn(-1),
     m_tableViewWidth(0.0),
-    m_lastQueryExecutor(nullptr, &QueryExecutor::deleteLater)
+    m_lastQueryExecutor(nullptr)
 {
     connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
@@ -26,11 +30,6 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     connect(this, &AbstractVisualTableModel::filterColumnChanged, this, &AbstractVisualTableModel::filter);
     connect(this, &AbstractVisualTableModel::sortOrderChanged, this, &AbstractVisualTableModel::filter);
     connect(this, &AbstractVisualTableModel::sortColumnChanged, this, &AbstractVisualTableModel::filter);
-}
-
-AbstractVisualTableModel::~AbstractVisualTableModel()
-{
-
 }
 
 bool AbstractVisualTableModel::autoQuery() const
@@ -156,9 +155,9 @@ void AbstractVisualTableModel::undoLastCommit()
     if (!m_lastQueryExecutor->request().command().isEmpty() && m_lastQueryExecutor->request().receiver()) {
         setBusy(true);
         m_lastQueryExecutor->undoOnNextExecution();
-        emit execute(m_lastQueryExecutor.data());
+        emit execute(m_lastQueryExecutor);
     } else {
-        qWarning() << "AbstractVisualTableModel-> No request to undo.";
+        qCWarning(abstractVisualTableModel) << "AbstractVisualTableModel-> No request to undo.";
     }
 }
 
@@ -169,19 +168,20 @@ void AbstractVisualTableModel::filter()
 
 void AbstractVisualTableModel::saveRequest(const QueryResult &result)
 {
-    if (m_lastQueryExecutor.isNull())
+    if (!m_lastQueryExecutor)
         return;
 
     if (result.isSuccessful() && result.request().receiver() == this) {
         if (m_lastQueryExecutor->canUndo() && !m_lastQueryExecutor->isUndoSet() && m_lastQueryExecutor->request() == result.request()) {
-            qInfo() << "Request saved:" << result.request().command();
+            qInfo(abstractVisualTableModel) << "Request saved:" << result.request().command();
             // FIXME: Get rid of this
             QueryRequest &request(m_lastQueryExecutor->request());
             request.params().insert("outcome", result.outcome());
 
             m_lastQueryExecutor->undoOnNextExecution(false);
         } else {
-            m_lastQueryExecutor.clear();
+            m_lastQueryExecutor->deleteLater();
+            m_lastQueryExecutor = nullptr;
         }
     }
 }
@@ -197,13 +197,7 @@ void AbstractVisualTableModel::setBusy(bool busy)
 
 void AbstractVisualTableModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
 {
-    if (queryExecutor->canUndo())
-        m_lastQueryExecutor.reset(queryExecutor);
-}
-
-QueryExecutor *AbstractVisualTableModel::lastQueryExecutor() const
-{
-    return m_lastQueryExecutor.data();
+    m_lastQueryExecutor = queryExecutor;
 }
 
 void AbstractVisualTableModel::refresh()

@@ -18,10 +18,13 @@ RRUi.Page {
     }
 
     contentItem: FocusScope {
+        focus: true
+
         RRUi.Card {
             anchors.centerIn: parent
             width: 1024
             height: 960
+            focus: true
 
             RRUi.HorizontalStepper {
                 id: horizontalStepper
@@ -58,6 +61,7 @@ RRUi.Page {
                     top: horizontalStepper.bottom
                 }
 
+                focus: true
                 clip: true
 
                 Component.onCompleted: push(Qt.resolvedUrl("OnlineLoginPage.qml"), { userProfile });
@@ -66,7 +70,10 @@ RRUi.Page {
                     enabled: stackView.currentObjectName === "onlineLoginPage"
                     ignoreUnknownSignals: true
                     target: stackView.currentItem
-                    onLoggedIn: nextButton.enabled = true;
+                    onLoggedIn: {
+                        nextButton.enabled = true;
+                        nextButton.focus = true;
+                    }
                 }
             }
 

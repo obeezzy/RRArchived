@@ -160,5 +160,8 @@
         <file>settings/user/UserTableView.qml</file>
         <file>lottie/Checkmark.qml</file>
         <file>rrui/BusyIndicator.qml</file>
+        <file>stock/fragments/ItemDetails.qml</file>
+        <file>stock/fragments/ItemImage.qml</file>
+        <file>rrui/InputDialog.qml</file>
     </qresource>
 </RCC>

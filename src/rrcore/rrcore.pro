@@ -90,7 +90,6 @@ SOURCES += \
     database/databasethread.cpp \
     database/databaseserver.cpp \
     database/databasecreator.cpp \
-    backup/backupthread.cpp \
     database/databaseexception.cpp \
     database/queryrequest.cpp \
     database/queryresult.cpp \
@@ -257,7 +256,6 @@ HEADERS += \
     database/databasethread.h \
     database/databaseserver.h \
     database/databasecreator.h \
-    backup/backupthread.h \
     database/databaseexception.h \
     database/queryrequest.h \
     database/queryresult.h \

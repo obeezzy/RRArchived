@@ -33,8 +33,8 @@ QVariant QMLDebtorModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("client_id").toInt();
     case DebtorIdRole:
         return m_records.at(index.row()).toMap().value("debtor_id").toInt();
-    case ImageSourceRole:
-        return m_records.at(index.row()).toMap().value("image_source").toString();
+    case ImageUrlRole:
+        return m_records.at(index.row()).toMap().value("image_url").toUrl();
     case PreferredNameRole:
         return m_records.at(index.row()).toMap().value("preferred_name").toString();
     case TotalDebtRole:
@@ -57,7 +57,7 @@ QHash<int, QByteArray> QMLDebtorModel::roleNames() const
     return {
         { ClientIdRole, "client_id" },
         { DebtorIdRole, "debtor_id" },
-        { ImageSourceRole, "image_source" },
+        { ImageUrlRole, "image_url" },
         { PreferredNameRole, "preferred_name" },
         { TotalDebtRole, "total_debt" },
         { NoteRole, "note" },

@@ -23,7 +23,7 @@ public:
 
     void logToFile(const QByteArray &log);
 private:
-    QSettings *m_settings;
+    QSettings m_settings;
     QFile m_logFile;
     bool m_enabled;
     bool m_fileLoggingEnabled;

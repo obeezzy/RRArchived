@@ -181,8 +181,8 @@ void QMLPurchaseTransactionModel::processResult(const QueryResult result)
             removeTransactionFromModel(result.request().params().value("row").toInt());
             emit success(RemoveTransactionSuccess);
         } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::UNDO_COMMAND) {
-            undoRemoveTransactionFromModel(lastQueryExecutor()->request().params().value("row").toInt(),
-                                           lastQueryExecutor()->request().params().value("record").toMap());
+            undoRemoveTransactionFromModel(result.request().params().value("row").toInt(),
+                                           result.request().params().value("record").toMap());
             emit success(UndoRemoveTransactionSuccess);
         } else {
             emit success(UnknownSuccess);

@@ -15,7 +15,7 @@ public:
         ItemRole,
         DescriptionRole,
         DivisibleRole,
-        ImageSourceRole,
+        ImageUrlRole,
         QuantityRole,
         UnitRole,
         UnitIdRole,

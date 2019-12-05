@@ -10,7 +10,7 @@
 PurchaseExecutor::PurchaseExecutor(const QString &command,
                                    const QVariantMap &params,
                                    QObject *receiver) :
-    QueryExecutor(command, params, QueryRequest::Purchase, receiver)
+    QueryExecutor(command, params, QueryRequest::QueryGroup::Purchase, receiver)
 {
 
 }

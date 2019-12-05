@@ -11,7 +11,7 @@
 UserExecutor::UserExecutor(const QString &command,
                            const QVariantMap &params,
                            QObject *receiver) :
-    QueryExecutor(command, params, QueryRequest::User, receiver)
+    QueryExecutor(command, params, QueryRequest::QueryGroup::User, receiver)
 {
 
 }

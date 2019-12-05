@@ -5,7 +5,7 @@
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
 #include <QVariant>
-#include <QSharedPointer>
+#include <QLoggingCategory>
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 
@@ -58,8 +58,6 @@ protected:
     virtual void processResult(const QueryResult result) = 0;
     virtual void filter();
     void setBusy(bool);
-
-    QueryExecutor *lastQueryExecutor() const;
 signals:
     void execute(QueryExecutor *);
     void autoQueryChanged();
@@ -80,10 +78,12 @@ private:
     int m_filterColumn;
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
-    QSharedPointer<QueryExecutor> m_lastQueryExecutor;
+    QueryExecutor *m_lastQueryExecutor;
 
     void cacheQueryExecutor(QueryExecutor *queryExecutor);
     void saveRequest(const QueryResult &result);
 };
+
+Q_DECLARE_LOGGING_CATEGORY(abstractVisualListModel);
 
 #endif // ABSTRACTVISUALLISTMODEL_H

@@ -27,6 +27,8 @@ public:
 
     void classBegin() override final;
     void componentComplete() override final;
+public slots:
+    virtual void refresh();
 protected:
     virtual void tryQuery() = 0;
     virtual void processResult(const QueryResult result) = 0;

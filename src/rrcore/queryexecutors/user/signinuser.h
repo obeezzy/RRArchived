@@ -19,4 +19,6 @@ private:
 };
 }
 
+Q_DECLARE_LOGGING_CATEGORY(signInUser);
+
 #endif // SIGNINUSER_H

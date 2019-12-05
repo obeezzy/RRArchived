@@ -12,8 +12,8 @@ using namespace StockQuery;
 
 RemoveStockItem::RemoveStockItem(int itemId, QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "item_id", itemId },
-                    { "can_undo", true }
+                    { "can_undo", true },
+                    { "item_id", itemId }
                   }, receiver)
 {
 

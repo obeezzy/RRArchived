@@ -363,7 +363,7 @@ void UserSqlManager::addUser(const QueryRequest &request)
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
                                                                "photo",
-                                                               DatabaseUtils::imageToByteArray(params.value("image_url").toString())
+                                                               DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl())
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,

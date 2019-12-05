@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <QString>
+#include <QDebug>
 #include "databaseerror.h"
 
 class DatabaseException : public std::exception
@@ -21,6 +22,17 @@ public:
     QString message() const;
     QString userMessage() const;
     const char *what() const noexcept override final;
+
+    friend QDebug operator<<(QDebug debug, const DatabaseException &databaseException)
+    {
+        debug.nospace() << "DatabaseException("
+                        << "code=" << databaseException.code()
+                        << ", message=" << databaseException.message()
+                        << ", details=" << databaseException.userMessage()
+                        << ")";
+
+        return debug;
+    }
 private:
     int m_code;
     QString m_message;

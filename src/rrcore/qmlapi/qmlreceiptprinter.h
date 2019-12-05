@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSharedPointer>
+#include <QLoggingCategory>
 
 class QQuickItem;
 class QQuickItemGrabResult;
@@ -26,5 +27,7 @@ private:
 
     QQuickItem *createReceipt(const QString &job);
 };
+
+Q_DECLARE_LOGGING_CATEGORY(qmlReceiptPrinter);
 
 #endif // QMLRECEIPTPRINTER_H

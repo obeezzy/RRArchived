@@ -1,6 +1,7 @@
 #include "qmlnotifier.h"
 #include <QVariant>
 #include <QProcess>
+#include <QLoggingCategory>
 #include "network/networkthread.h"
 
 // Urgency (u) - Low, Normal, Critical
@@ -8,6 +9,8 @@
 // App-name (a) - App name for the icon
 // Icon (i) - icon file name
 // Category (c) - Notification category
+
+Q_LOGGING_CATEGORY(qmlNotifier, "rrcore.qmlapi.qmlNotifier", QtWarningMsg);
 
 const int SHORT_DURATION = 5000;
 const int LONG_DURATION = 8000;

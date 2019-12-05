@@ -4,6 +4,7 @@
 #include "detailrecord/abstractdetailrecord.h"
 #include <QVariantMap>
 #include <QDateTime>
+#include <QUrl>
 
 class QMLStockItemDetailRecord : public AbstractDetailRecord
 {
@@ -14,7 +15,7 @@ class QMLStockItemDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(QString item READ item NOTIFY itemChanged)
     Q_PROPERTY(QString description READ description NOTIFY descriptionChanged)
     Q_PROPERTY(bool divisible READ isDivisible NOTIFY divisibleChanged)
-    Q_PROPERTY(QString imageSource READ imageSource NOTIFY imageSourceChanged)
+    Q_PROPERTY(QUrl imageUrl READ imageUrl NOTIFY imageUrlChanged)
     Q_PROPERTY(double quantity READ quantity NOTIFY quantityChanged)
     Q_PROPERTY(int unitId READ unitId NOTIFY unitIdChanged)
     Q_PROPERTY(QString unit READ unit NOTIFY unitChanged)
@@ -41,7 +42,7 @@ public:
 
     bool isDivisible() const;
 
-    QString imageSource() const;
+    QUrl imageUrl() const;
 
     double quantity() const;
 
@@ -64,7 +65,7 @@ signals:
     void itemChanged();
     void descriptionChanged();
     void divisibleChanged();
-    void imageSourceChanged();
+    void imageUrlChanged();
     void quantityChanged();
     void unitIdChanged();
     void unitChanged();
@@ -86,7 +87,7 @@ private:
     QString m_item;
     QString m_description;
     bool m_divisible;
-    QString m_imageSource;
+    QUrl m_imageUrl;
     double m_quantity;
     int m_unitId;
     QString m_unit;
@@ -103,7 +104,7 @@ private:
     void setItem(const QString &item);
     void setDescription(const QString &description);
     void setDivisible(bool divisible);
-    void setImageSource(const QString &imageSource);
+    void setImageUrl(const QUrl &imageUrl);
     void setQuantity(double quantity);
     void setUnitId(int unitId);
     void setUnit(const QString &unit);

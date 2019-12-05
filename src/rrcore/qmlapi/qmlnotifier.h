@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUrl>
+#include <QLoggingCategory>
 #include "network/serverresponse.h"
 
 class QQmlEngine;
@@ -53,4 +54,7 @@ static QObject *notifier_provider (QQmlEngine *, QJSEngine *) {
     QMLNotifier *notifier = new QMLNotifier();
     return notifier;
 }
+
+Q_DECLARE_LOGGING_CATEGORY(qmlNotifier);
+
 #endif // QMLNOTIFIER_H

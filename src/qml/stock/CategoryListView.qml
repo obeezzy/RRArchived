@@ -23,6 +23,7 @@ ListView {
 
     signal success(int successCode)
     signal error(int errorCode)
+    signal modelReset
 
     function refresh() { categoryListView.model.refresh(); }
     function undoLastCommit() { stockCategoryModel.unarchiveItem(privateProperties.lastRemovedItemId); }
@@ -53,6 +54,8 @@ ListView {
                 break;
             }
         }
+
+        onModelReset: categoryListView.modelReset();
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
@@ -118,6 +121,7 @@ ListView {
                     categoryListView.success(successCode);
                 }
                 onError: categoryListView.error(errorCode);
+                onModelReset: categoryListView.modelReset();
             }
         }
     }
