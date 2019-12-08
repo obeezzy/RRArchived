@@ -24,6 +24,10 @@ DatabaseException::DatabaseException(QueryErrorCode errorCode) :
         m_message = QStringLiteral("Not yet implemented");
         m_userMessage = QStringLiteral("Not yet implemented");
         break;
+    case QueryErrorCode::NoCommand:
+        m_message = QStringLiteral("No command set.");
+        m_userMessage = QStringLiteral("No command set.");
+        break;
     default:
         break;
     }

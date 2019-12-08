@@ -40,7 +40,7 @@ RRUi.Page {
 
         width: 800
 
-        transitionComponent: Item {
+        component: Item {
             id: transitionItem
 
             Flickable {

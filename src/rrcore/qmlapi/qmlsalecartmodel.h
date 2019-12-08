@@ -26,7 +26,7 @@ class QMLSaleCartModel : public AbstractVisualListModel
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
     explicit QMLSaleCartModel(DatabaseThread &thread, QObject *parent = nullptr);
-    ~QMLSaleCartModel() override;
+    ~QMLSaleCartModel() override = default;
 
     enum Roles {
         CategoryIdRole = Qt::UserRole,

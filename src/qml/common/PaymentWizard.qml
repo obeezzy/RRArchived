@@ -11,7 +11,7 @@ import "paymentwizard"
 RRUi.Dialog {
     id: paymentWizard
 
-    property var cartModel: null
+    property RRModels.SaleCartModel cartModel: null
     property string action: ""
     property date dueDate: new Date()
     property int reason: PaymentWizard.Sales
@@ -21,6 +21,9 @@ RRUi.Dialog {
         Purchase
     }
 
+    x: (QQC2.ApplicationWindow.contentItem.width - width) / 2
+    y: (QQC2.ApplicationWindow.contentItem.height - height) / 2
+    parent: MainWindow.contentItem
     title: ""
     standardButtons: RRUi.Dialog.NoButton
     width: 600

@@ -69,7 +69,6 @@ ListView {
         }
 
         Row {
-            spacing: 0
             anchors {
                 right: parent.right
                 top: parent.top

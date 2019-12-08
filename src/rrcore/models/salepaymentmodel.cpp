@@ -7,6 +7,7 @@ SalePaymentModel::SalePaymentModel(QObject *parent) :
     m_cashPaymentCount(0),
     m_cardPaymentCount(0)
 {
+    qRegisterMetaType<SalePaymentModel*>();
 }
 
 SalePaymentModel::~SalePaymentModel()

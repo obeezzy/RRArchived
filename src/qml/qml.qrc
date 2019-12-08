@@ -163,5 +163,10 @@
         <file>stock/fragments/ItemDetails.qml</file>
         <file>stock/fragments/ItemImage.qml</file>
         <file>rrui/InputDialog.qml</file>
+        <file>sales/fragments/ItemSelectionSection.qml</file>
+        <file>sales/fragments/CustomerInfo.qml</file>
+        <file>sales/fragments/CartSection.qml</file>
+        <file>sales/fragments/Cart.qml</file>
+        <file>sales/fragments/Checkout.qml</file>
     </qresource>
 </RCC>

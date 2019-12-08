@@ -38,10 +38,6 @@ QMLSaleCartModel::QMLSaleCartModel(DatabaseThread &thread, QObject *parent) :
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
 }
 
-QMLSaleCartModel::~QMLSaleCartModel()
-{
-}
-
 int QMLSaleCartModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())

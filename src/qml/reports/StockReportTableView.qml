@@ -50,6 +50,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: category
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -70,6 +71,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: item
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -90,6 +92,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: opening_stock_quantity + " " + unit
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -110,6 +113,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: quantity_sold + " " + unit
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -130,6 +134,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: quantity_bought + " " + unit
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -150,6 +155,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: quantity_in_stock + " " + unit
+                    elide: Text.ElideRight
                 }
             }
         }

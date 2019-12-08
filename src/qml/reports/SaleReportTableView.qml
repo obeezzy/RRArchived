@@ -50,6 +50,7 @@ RRUi.DataTableView {
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: category
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -67,10 +68,10 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    elide: Qt.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: item
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -88,10 +89,10 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    elide: Qt.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: quantity_sold + " " + unit
+                    elide: Text.ElideRight
                 }
             }
         }
@@ -109,10 +110,10 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    elide: Qt.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(total_amount).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
+                    elide: Text.ElideRight
                 }
             }
         }

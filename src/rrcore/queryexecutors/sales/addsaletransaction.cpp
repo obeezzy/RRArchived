@@ -38,6 +38,8 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
                     { "note", note },
                     { "payments", payments.toVariantList() },
                     { "items", items.toVariantList() },
+                    { "method", "sales" },
+                    { "currency", "NGN" },
                     { "user_id", UserProfile::instance().userId() }
                  }, receiver)
 {
@@ -59,7 +61,6 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
 
     QSqlQuery q(connection);
 
