@@ -42,7 +42,7 @@ RRUi.Page {
     }
 
     RRUi.Card {
-        width: 800
+        width: 840
         anchors {
             horizontalCenter: parent.horizontalCenter
             top: parent.top
