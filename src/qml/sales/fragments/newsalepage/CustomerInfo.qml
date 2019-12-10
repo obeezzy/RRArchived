@@ -1,8 +1,8 @@
 import QtQuick 2.13
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
-import "../../rrui" as RRUi
-import "../../stock" as Stock
+import "../../../rrui" as RRUi
+import "../../../stock" as Stock
 import com.gecko.rr.models 1.0 as RRModels
 import QtQuick.Controls.Material 2.3
 

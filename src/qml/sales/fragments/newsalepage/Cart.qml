@@ -4,10 +4,10 @@ import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../../rrui" as RRUi
-import "../../stock" as Stock
-import "../../common"
-import ".."
+import "../../../rrui" as RRUi
+import "../../../stock" as Stock
+import "../../../common"
+import "../.."
 
 RRUi.Card {
     id: cart
@@ -64,6 +64,9 @@ RRUi.Card {
                 break;
             case CartListView.SubmitTransactionError:
                 errorString = qsTr("Failed to submit transaction.");
+                break;
+            case CartListView.UndoSubmitTransactionError:
+                errorString = qsTr("Failed to undo transaction.");
                 break;
             case CartListView.RetrieveTransactionError:
                 errorString = qsTr("Failed to retrieve transaction.");

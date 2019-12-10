@@ -4,10 +4,10 @@ import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../../rrui" as RRUi
-import "../../stock" as Stock
-import "../../common"
-import ".."
+import "../../../rrui" as RRUi
+import "../../../stock" as Stock
+import "../../../common"
+import "../.."
 
 FocusScope {
     id: cartSection
@@ -68,6 +68,10 @@ FocusScope {
                     transactionId = -1;
                     MainWindow.snackBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
                     break;
+                case RRModels.SaleCartModel.UndoSubmitTransactionSuccess:
+                    customerInfo.clearAll();
+                    transactionId = -1;
+                    MainWindow.snackBar.show(qsTr("Transaction reverted."));
                 }
 
                 cartSection.success(successCode);

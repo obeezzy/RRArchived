@@ -28,7 +28,7 @@ QMLSaleCartModel::QMLSaleCartModel(DatabaseThread &thread, QObject *parent) :
     m_amountPaid(0.0),
     m_balance(0.0),
     m_canAcceptCash(true),
-    m_canAcceptCard(false) // Toggle to disable, genius
+    m_canAcceptCard(false) // NOTE: Toggle to disable, genius
 {
     m_paymentModel = new SalePaymentModel(this);
 
@@ -319,19 +319,19 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transactionInfo)
 
         setBusy(true);
         emit execute(new SaleQuery::AddSaleTransaction(m_transactionId,
-                                                   m_customerName,
-                                                   transactionInfo.value("client_id").toInt(),
-                                                   m_customerPhoneNumber,
-                                                   m_totalCost,
-                                                   m_amountPaid,
-                                                   m_balance,
-                                                   transactionInfo.value("suspended", false).toBool(),
-                                                   transactionInfo.value("due_date", QDateTime()).toDateTime(),
-                                                   transactionInfo.value("action").toString(),
-                                                   transactionInfo.value("note").toString(),
-                                                   m_salePayments,
-                                                   items,
-                                                   this));
+                                                       m_customerName,
+                                                       transactionInfo.value("client_id").toInt(),
+                                                       m_customerPhoneNumber,
+                                                       m_totalCost,
+                                                       m_amountPaid,
+                                                       m_balance,
+                                                       transactionInfo.value("suspended", false).toBool(),
+                                                       transactionInfo.value("due_date", QDateTime()).toDateTime(),
+                                                       transactionInfo.value("action").toString(),
+                                                       transactionInfo.value("note").toString(),
+                                                       m_salePayments,
+                                                       items,
+                                                       this));
     } else {
         emit error(EmptyCartError);
     }
@@ -420,6 +420,12 @@ void QMLSaleCartModel::processResult(const QueryResult result)
                 setClientId(result.outcome().toMap().value("client_id", -1).toInt());
                 emit success(SubmitTransactionSuccess);
             }
+        } else if (result.request().command() == SaleQuery::AddSaleTransaction::UNDO_COMMAND) {
+            setTransactionId(-1);
+            setCustomerName(QString());
+            setCustomerPhoneNumber(QString());
+            setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+            emit success(UndoSubmitTransactionSuccess);
         } else if (result.request().command() == SaleQuery::ViewSaleCart::COMMAND) {
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
@@ -440,6 +446,8 @@ void QMLSaleCartModel::processResult(const QueryResult result)
                 emit error(SuspendTransactionError);
             else
                 emit error(SubmitTransactionError);
+        } else if (result.request().command() == SaleQuery::AddSaleTransaction::UNDO_COMMAND) {
+            emit error(UndoSubmitTransactionError);
         } else if (result.request().command() == SaleQuery::ViewSaleCart::COMMAND) {
             emit error(RetrieveTransactionError);
         } else if (result.request().command() == SaleQuery::UpdateSuspendedSaleTransaction::COMMAND) {
@@ -450,6 +458,20 @@ void QMLSaleCartModel::processResult(const QueryResult result)
     }
 
     connect(this, &QMLSaleCartModel::transactionIdChanged, this, &QMLSaleCartModel::tryQuery);
+}
+
+void QMLSaleCartModel::undoLastCommit()
+{
+    QueryRequest request{ lastSuccessfulRequest() };
+    QVariantMap params{ lastSuccessfulRequest().params() };
+    if (lastSuccessfulRequest().command() == SaleQuery::AddSaleTransaction::COMMAND) {
+        params.insert("transaction_id", params.value("outcome").toMap().value("transaction_id").toInt());
+        request.setParams(params);
+
+        auto addSaleTransaction = new SaleQuery::AddSaleTransaction(request, this);
+        addSaleTransaction->undoOnNextExecution(true);
+        emit execute(addSaleTransaction);
+    }
 }
 
 void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)

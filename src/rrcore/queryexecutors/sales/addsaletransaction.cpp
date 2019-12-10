@@ -46,6 +46,11 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
 
 }
 
+AddSaleTransaction::AddSaleTransaction(const QueryRequest &request, QObject *receiver) :
+    SaleExecutor(COMMAND, request.params(), receiver)
+{
+}
+
 QueryResult AddSaleTransaction::execute()
 {
     if (canUndo() && isUndoSet())
@@ -84,7 +89,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 
@@ -107,7 +112,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 
@@ -130,7 +135,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 
@@ -143,14 +148,16 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
+        } else {
+            throw DatabaseException(DatabaseError::QueryErrorCode::InvalidArguments,
+                                    QStringLiteral("Transaction ID is not valid."),
+                                    QStringLiteral("Transaction ID is not valid."));
         }
 
         DatabaseUtils::commitTransaction(q);
-
-        result.setOutcome(params);
         return result;
     } catch (DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);

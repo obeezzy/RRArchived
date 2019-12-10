@@ -26,6 +26,16 @@ QueryRequest &QueryRequest::operator=(const QueryRequest &other)
     return *this;
 }
 
+bool QueryRequest::canUndo() const
+{
+    return m_params.value("can_undo").toBool();
+}
+
+bool QueryRequest::isUndoSet() const
+{
+    return m_command.startsWith("undo_");
+}
+
 QObject *QueryRequest::receiver() const
 {
     return m_receiver;
@@ -39,6 +49,11 @@ void QueryRequest::setReceiver(QObject *receiver)
 QString QueryRequest::command() const
 {
     return m_command;
+}
+
+void QueryRequest::setParams(const QVariantMap &params)
+{
+    m_params = params;
 }
 
 QVariantMap QueryRequest::params() const

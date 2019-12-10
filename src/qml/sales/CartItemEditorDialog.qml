@@ -46,7 +46,20 @@ RRUi.Dialog {
         focus: cartItemEditorDialog.visible
         onActiveFocusChanged: if (activeFocus) quantityTextField.focus = true;
 
+        FluidControls.SubheadingLabel {
+            id: quantityLeftLabel
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                bottom: grid.top
+                bottomMargin: 32
+            }
+            text: qsTr("This product has %1 %2 left.").arg(cartItemEditorDialog.maximumQuantity).arg(cartItemEditorDialog.unit)
+            font.italic: true
+            color: "darkgray"
+        }
+
         Grid {
+            id: grid
             anchors.centerIn: parent
             rowSpacing: 8
             columnSpacing: 8
@@ -79,10 +92,6 @@ RRUi.Dialog {
                     onActiveFocusChanged: if (activeFocus) selectAll();
                     onTextChanged: cartItemEditorDialog.cost = cartItemEditorDialog.unitPrice * cartItemEditorDialog.quantity;
                     onTextEdited: cartItemEditorDialog.quantity = Number(text);
-
-                    QQC2.ToolTip.visible: activeFocus
-                    QQC2.ToolTip.delay: -1
-                    QQC2.ToolTip.text: qsTr("This product has %1 %2 left.").arg(cartItemEditorDialog.maximumQuantity).arg(cartItemEditorDialog.unit)
                 }
 
                 FluidControls.SubheadingLabel {

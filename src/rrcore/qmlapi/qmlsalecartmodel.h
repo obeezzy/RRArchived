@@ -53,7 +53,8 @@ public:
         UnknownSuccess,
         RetrieveTransactionSuccess,
         SuspendTransactionSuccess,
-        SubmitTransactionSuccess
+        SubmitTransactionSuccess,
+        UndoSubmitTransactionSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
@@ -62,6 +63,7 @@ public:
         SuspendTransactionError,
         RetrieveTransactionError,
         SubmitTransactionError,
+        UndoSubmitTransactionError,
         EmptyCartError,
         NoDueDateSetError
     }; Q_ENUM(ErrorCode)
@@ -107,6 +109,7 @@ public:
 protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
+    void undoLastCommit() override;
 signals:
     void transactionIdChanged();
     void customerNameChanged();

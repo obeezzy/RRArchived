@@ -46,7 +46,6 @@ RRUi.DataTableView {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: category

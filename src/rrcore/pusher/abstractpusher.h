@@ -23,6 +23,7 @@ public:
 protected:
     void setBusy(bool);
     virtual void processResult(const QueryResult result) = 0;
+    const QueryRequest &lastSuccessfulRequest() const;
 signals:
     void busyChanged();
     void success(int successCode = 0);
@@ -33,9 +34,8 @@ public slots:
     virtual void undoLastCommit();
 private:
     bool m_busy;
-    QueryExecutor m_lastQueryExecutor;
+    QueryRequest m_lastSuccessfulRequest;
 
-    void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);
 };
 

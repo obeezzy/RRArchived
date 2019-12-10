@@ -2,8 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Controls.Material 2.3
-import "../../rrui" as RRUi
-import "../../singletons"
+import "../../../rrui" as RRUi
+import "../../../singletons"
 
 RRUi.Card {
     id: checkout
@@ -11,12 +11,12 @@ RRUi.Card {
     signal checkoutRequested
 
     implicitWidth: 300
-    implicitHeight: totalsColumn.height
+    implicitHeight: column.height
     padding: 2
     bottomPadding: 0
 
     Column {
-        id: totalsColumn
+        id: column
         anchors {
             left: parent.left
             right: parent.right

@@ -27,6 +27,7 @@ public:
                                 const SalePaymentList &payments,
                                 const StockItemList &items,
                                 QObject *receiver);
+    explicit AddSaleTransaction(const QueryRequest &request, QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult undoAddSaleTransaction();

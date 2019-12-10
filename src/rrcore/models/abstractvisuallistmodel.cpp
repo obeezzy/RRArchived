@@ -2,6 +2,8 @@
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
 
+#include "queryexecutors/sales.h"
+
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(abstractVisualListModel, "rrcore.models.abstractvisuallistmodel");
@@ -16,13 +18,11 @@ AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread, QObject
     m_busy(false),
     m_filterColumn(-1),
     m_sortOrder(Qt::AscendingOrder),
-    m_sortColumn(-1),
-    m_lastQueryExecutor(nullptr)
+    m_sortColumn(-1)
 {
     connect(this, &AbstractVisualListModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::processResult);
 
-    connect(&thread, &DatabaseThread::execute, this, &AbstractVisualListModel::cacheQueryExecutor);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::saveRequest);
 
     connect(this, &AbstractVisualListModel::filterTextChanged, this, &AbstractVisualListModel::filter);
@@ -141,15 +141,7 @@ void AbstractVisualListModel::componentComplete()
 
 void AbstractVisualListModel::undoLastCommit()
 {
-    if (m_lastQueryExecutor.isValid()
-            && !m_lastQueryExecutor.request().command().isEmpty()
-            && m_lastQueryExecutor.request().receiver()) {
-        setBusy(true);
-        m_lastQueryExecutor.undoOnNextExecution();
-        emit execute(new QueryExecutor(m_lastQueryExecutor));
-    } else {
-        qCWarning(abstractVisualListModel) << "No request to undo.";
-    }
+
 }
 
 void AbstractVisualListModel::filter()
@@ -157,31 +149,22 @@ void AbstractVisualListModel::filter()
 
 }
 
-void AbstractVisualListModel::saveRequest(const QueryResult &result)
+const QueryRequest &AbstractVisualListModel::lastSuccessfulRequest() const
 {
-    if (!m_lastQueryExecutor.isValid())
-        return;
-
-    if (result.isSuccessful()
-            && result.request().receiver() == this
-            && result.request() == m_lastQueryExecutor.request()) {
-        if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet()) {
-            qInfo(abstractVisualListModel) << "Request saved:" << result.request().command();
-            // FIXME: Remove this!
-            QueryRequest &request(m_lastQueryExecutor.request());
-            request.params().insert("outcome", result.outcome());
-
-            m_lastQueryExecutor.undoOnNextExecution(false);
-        } else {
-            m_lastQueryExecutor = QueryExecutor();
-        }
-    }
+    return m_lastSuccessfulRequest;
 }
 
-void AbstractVisualListModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
+void AbstractVisualListModel::saveRequest(const QueryResult &result)
 {
-    if (queryExecutor->canUndo())
-        m_lastQueryExecutor = *queryExecutor;
+    if (result.isSuccessful() && result.request().receiver() == this
+            && result.request().canUndo()
+            && !result.request().isUndoSet()) {
+        m_lastSuccessfulRequest = result.request();
+        QVariantMap params{ result.request().params() };
+        params.insert("outcome", result.outcome());
+        m_lastSuccessfulRequest.setParams(params);
+        qCDebug(abstractVisualListModel) << "Request saved:" << result.request().command() << this;
+    }
 }
 
 void AbstractVisualListModel::setBusy(bool busy)

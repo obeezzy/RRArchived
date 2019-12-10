@@ -6,7 +6,7 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../stock" as Stock
-import "fragments" as Fragments
+import "fragments/newsalepage" as Fragments
 import "../common"
 import "../singletons"
 
@@ -86,7 +86,7 @@ RRUi.Page {
 
     RRUi.AlertDialog {
         id: clearEntryConfirmationDialog
-        title: qsTr("Clear entry")
+        title: Stylesheet.padText(qsTr("Clear entry"))
         text: qsTr("Are you sure you want to clear this entry?")
         standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
         onAccepted: transitionView.currentItem.clearCart();
