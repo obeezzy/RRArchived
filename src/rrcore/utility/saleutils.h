@@ -33,7 +33,7 @@ struct SalePayment {
     QVariantMap toVariantMap() const {
         return {
             { "amount", amount },
-            { "payment_method", paymentMethodAsString(), },
+            { "method", paymentMethodAsString(), },
             { "note", note }
         };
     }

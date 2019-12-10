@@ -126,7 +126,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
                                                                   "method",
-                                                                  params.value("method")
+                                                                  paymentInfo.value("method")
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,

@@ -44,7 +44,6 @@ RRUi.Dialog {
 
     onClosed: {
         privateProperties.resetCustomerDetails();
-
         paymentWizard.cartModel.clearPayments();
         stackView.clear();
     }
