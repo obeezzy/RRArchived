@@ -125,22 +125,4 @@ ListView {
             }
         }
     }
-
-//    add: Transition {
-//        NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
-//        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
-//    }
-
-//    displaced: Transition {
-//        SequentialAnimation {
-//            PauseAnimation { duration: 125 }
-//            NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
-//        }
-//    }
-//    remove: Transition {
-//        SequentialAnimation {
-//            PauseAnimation { duration: 125 }
-//            NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
-//        }
-//    }
 }
