@@ -42,12 +42,11 @@ QVariant SalePaymentModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> SalePaymentModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
-    roles.insert(AmountRole, "amount");
-    roles.insert(MethodRole, "method");
-    roles.insert(NoteRole, "note");
-
-    return roles;
+    return {
+        { AmountRole, "amount" },
+        { MethodRole, "method" },
+        { NoteRole, "note" }
+    };
 }
 
 void SalePaymentModel::addPayment(SalePayment payment)

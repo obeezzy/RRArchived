@@ -18,13 +18,13 @@ RRUi.Card {
     }
 
     implicitWidth: 300
-    implicitHeight: textFieldColumn.height
+    implicitHeight: column.height
     padding: 0
     leftPadding: 4
     rightPadding: 4
 
     Column {
-        id: textFieldColumn
+        id: column
         anchors {
             top: parent.top
             left: parent.left

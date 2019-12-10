@@ -168,5 +168,6 @@
         <file>sales/fragments/newsalepage/Checkout.qml</file>
         <file>sales/fragments/newsalepage/CustomerInfo.qml</file>
         <file>sales/fragments/newsalepage/ItemSelectionSection.qml</file>
+        <file>rrui/PrimaryButton.qml</file>
     </qresource>
 </RCC>

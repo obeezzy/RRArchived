@@ -23,7 +23,6 @@ RRUi.Card {
         }
 
         FluidControls.SubheadingLabel {
-            id: totalCostLabel
             anchors.right: parent.right
             text: qsTr("Total cost: %1").arg(Number(cartListView.totalCost)
                                              .toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)))
@@ -35,10 +34,7 @@ RRUi.Card {
 
             QQC2.Button { text: qsTr("View totals") }
 
-            QQC2.Button {
-                id: checkoutButton
-                Material.background: Material.accent
-                Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
+            RRUi.PrimaryButton {
                 text: qsTr("Proceed to Checkout")
                 onClicked: checkout.checkoutRequested();
             }
