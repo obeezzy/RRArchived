@@ -18,6 +18,7 @@ SaleExecutor::SaleExecutor(const QString &command,
 QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode)
 {
     QueryResult result{ request() };
+    result.setSuccessful(true);
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
     const QVariantList &payments = params.value("payments").toList();
@@ -125,7 +126,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
                                                                   "method",
-                                                                  params.value("method")
+                                                                  paymentInfo.value("method")
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,

@@ -11,6 +11,7 @@ class AddSaleTransaction : public SaleExecutor
     Q_OBJECT
 public:
     static inline const QString COMMAND = "add_sale_transaction";
+    static inline const QString UNDO_COMMAND = "undo_add_sale_transaction";
 
     explicit AddSaleTransaction(qint64 transactionId,
                                 const QString &customerName,
@@ -26,6 +27,7 @@ public:
                                 const SalePaymentList &payments,
                                 const StockItemList &items,
                                 QObject *receiver);
+    explicit AddSaleTransaction(const QueryRequest &request, QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult undoAddSaleTransaction();

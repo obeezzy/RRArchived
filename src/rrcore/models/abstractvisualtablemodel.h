@@ -64,6 +64,7 @@ protected:
     virtual QString columnName(int column) const;
     virtual void filter();
     void setBusy(bool);
+    const QueryRequest &lastSuccessfulRequest() const;
 signals:
     void execute(QueryExecutor *);
     void autoQueryChanged();
@@ -87,9 +88,8 @@ private:
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
     qreal m_tableViewWidth;
-    QueryExecutor m_lastQueryExecutor;
+    QueryRequest m_lastSuccessfulRequest;
 
-    void cacheQueryExecutor(QueryExecutor *);
     void saveRequest(const QueryResult &result);
 };
 

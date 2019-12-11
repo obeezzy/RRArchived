@@ -38,7 +38,7 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 
     try {
         if (request.command().trimmed().isEmpty())
-            throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand, "No command set.");
+            throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand);
 
         queryExecutor->setConnectionName(CONNECTION_NAME);
         result = queryExecutor->execute();

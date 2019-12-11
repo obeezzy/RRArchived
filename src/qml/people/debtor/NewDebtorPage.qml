@@ -33,7 +33,7 @@ RRUi.Page {
             }
             width: 800
 
-            transitionComponent: RRUi.Card {
+            component: RRUi.Card {
                 id: transitionItem
                 padding: 0
                 bottomPadding: 0

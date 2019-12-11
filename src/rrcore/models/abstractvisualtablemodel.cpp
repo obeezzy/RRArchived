@@ -17,13 +17,11 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     m_filterColumn(-1),
     m_sortOrder(Qt::AscendingOrder),
     m_sortColumn(-1),
-    m_tableViewWidth(0.0),
-    m_lastQueryExecutor(nullptr)
+    m_tableViewWidth(0.0)
 {
     connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
 
-    connect(&thread, &DatabaseThread::execute, this, &AbstractVisualTableModel::cacheQueryExecutor);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::saveRequest);
 
     connect(this, &AbstractVisualTableModel::filterTextChanged, this, &AbstractVisualTableModel::filter);
@@ -152,13 +150,6 @@ void AbstractVisualTableModel::componentComplete()
 
 void AbstractVisualTableModel::undoLastCommit()
 {
-    if (m_lastQueryExecutor.isValid() && !m_lastQueryExecutor.request().command().isEmpty() && m_lastQueryExecutor.request().receiver()) {
-        setBusy(true);
-        m_lastQueryExecutor.undoOnNextExecution();
-        emit execute(new QueryExecutor(m_lastQueryExecutor));
-    } else {
-        qCWarning(abstractVisualTableModel) << "No request to undo.";
-    }
 }
 
 void AbstractVisualTableModel::filter()
@@ -168,20 +159,14 @@ void AbstractVisualTableModel::filter()
 
 void AbstractVisualTableModel::saveRequest(const QueryResult &result)
 {
-    if (!m_lastQueryExecutor.isValid())
-        return;
-
-    if (result.isSuccessful() && result.request().receiver() == this) {
-        if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet() && m_lastQueryExecutor.request() == result.request()) {
-            qInfo(abstractVisualTableModel) << "Request saved:" << result.request().command();
-            // FIXME: Get rid of this
-            QueryRequest &request(m_lastQueryExecutor.request());
-            request.params().insert("outcome", result.outcome());
-
-            m_lastQueryExecutor.undoOnNextExecution(false);
-        } else {
-            m_lastQueryExecutor = QueryExecutor();
-        }
+    if (result.isSuccessful() && result.request().receiver() == this
+            && result.request().canUndo()
+            && !result.request().isUndoSet()) {
+        m_lastSuccessfulRequest = result.request();
+        QVariantMap params{ result.request().params() };
+        params.insert("outcome", result.outcome());
+        m_lastSuccessfulRequest.setParams(params);
+        qCDebug(abstractVisualTableModel) << "Request saved:" << result.request().command() << this;
     }
 }
 
@@ -194,10 +179,9 @@ void AbstractVisualTableModel::setBusy(bool busy)
     emit busyChanged();
 }
 
-void AbstractVisualTableModel::cacheQueryExecutor(QueryExecutor *queryExecutor)
+const QueryRequest &AbstractVisualTableModel::lastSuccessfulRequest() const
 {
-    if (queryExecutor->canUndo())
-        m_lastQueryExecutor = *queryExecutor;
+    return m_lastSuccessfulRequest;
 }
 
 void AbstractVisualTableModel::refresh()

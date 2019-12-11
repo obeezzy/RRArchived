@@ -1,9 +1,9 @@
 #include "config.h"
 
-const QString configFile(":/config/config.ini");
+const QString CONFIG_FILE(":/config/config.ini");
 
 Config::Config() :
-    m_settings(configFile, QSettings::IniFormat)
+    m_settings(CONFIG_FILE, QSettings::IniFormat)
 {
 
 }

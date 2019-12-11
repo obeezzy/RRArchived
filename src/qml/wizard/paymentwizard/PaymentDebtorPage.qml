@@ -1,10 +1,12 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import "../../rrui" as RRUi
+import ".."
 
-QQC2.Page {
-    id: paymentCreditorPage
-    objectName: "paymentAmountPage"
+RRUi.WizardPage {
+    id: paymentDebtorPage
+    objectName: "paymentDebtorPage"
 
     property real totalCost: 0
     //property real amountPaid: parseFloat(amountPaidField.text == "" ? 0 : amountPaidField.text)
@@ -13,5 +15,6 @@ QQC2.Page {
     readonly property bool hasCredit: balance < 0
 
     padding: FluidControls.Units.smallSpacing
-    title: qsTr("Enter card details")
+    title: qsTr("Enter ")
+    hasNext: true
 }

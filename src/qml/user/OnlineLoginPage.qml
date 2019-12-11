@@ -64,9 +64,7 @@ RRUi.Page {
                 }
             }
 
-            QQC2.Button {
-                Material.background: Material.accent
-                Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
+            RRUi.PrimaryButton {
                 anchors.right: parent.right
                 text: qsTr("Login")
                 onClicked: onlineLoginPage.userProfile.linkAccount(emailAddressField.textField.text,

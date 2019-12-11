@@ -71,7 +71,6 @@ struct StockItem {
         user(item.value("user").toString())
     {}
 
-
     inline QVariantMap toVariantMap() const {
         return {
             { "category_id", categoryId },
@@ -89,6 +88,10 @@ struct StockItem {
 
 class StockItemList : public QList<StockItem> {
 public:
+    explicit StockItemList() {}
+    explicit StockItemList(std::initializer_list<StockItem> paymentList) :
+        QList<StockItem>(paymentList) {}
+
     QVariantList toVariantList() const {
         QVariantList list;
         for (const auto &stockItem : *this)

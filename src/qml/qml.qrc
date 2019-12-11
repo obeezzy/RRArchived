@@ -14,17 +14,6 @@
         <file>rrui/BusyOverlay.qml</file>
         <file>sales/NewSalePage.qml</file>
         <file>rrui/QuantitySpinBox.qml</file>
-        <file>common/paymentwizard/PaymentMethodPage.qml</file>
-        <file>common/paymentwizard/PaymentByCardPage.qml</file>
-        <file>common/paymentwizard/PaymentBalancePage.qml</file>
-        <file>common/PaymentWizard.qml</file>
-        <file>common/paymentwizard/PaymentFinishPage.qml</file>
-        <file>common/paymentwizard/PaymentByCashPage.qml</file>
-        <file>common/paymentwizard/PaymentDebtorPage.qml</file>
-        <file>common/paymentwizard/PaymentCreditorPage.qml</file>
-        <file>common/paymentwizard/PaymentCustomerDetailPage.qml</file>
-        <file>common/paymentwizard/PaymentDueDatePage.qml</file>
-        <file>common/paymentwizard/PaymentSummaryPage.qml</file>
         <file>rrui/Chip.qml</file>
         <file>rrui/ChipListView.qml</file>
         <file>rrui/RadioButtonDialog.qml</file>
@@ -32,7 +21,6 @@
         <file>singletons/Stylesheet.qml</file>
         <file>singletons/GlobalSettings.qml</file>
         <file>singletons/qmldir</file>
-        <file>common/paymentwizard/PaymentChangePage.qml</file>
         <file>common/SuspendTransactionDialog.qml</file>
         <file>common/RetrieveTransactionDialog.qml</file>
         <file>people/debtor/HomePage.qml</file>
@@ -61,7 +49,6 @@
         <file>sales/SaleTransactionPage.qml</file>
         <file>sales/SaleTransactionTableView.qml</file>
         <file>sales/SaleTransactionDetailDialog.qml</file>
-        <file>common/paymentwizard/PaymentOptionModel.qml</file>
         <file>rrui/DropdownField.qml</file>
         <file>rrui/IconTextField.qml</file>
         <file>rrui/SectionFragment.qml</file>
@@ -79,8 +66,6 @@
         <file>rrui/ErrorDialog.qml</file>
         <file>people/debtor/RemoveDebtorConfirmationDialog.qml</file>
         <file>people/debtor/RemoveDebtConfirmationDialog.qml</file>
-        <file>common/paymentwizard/DebtorOptionModel.qml</file>
-        <file>common/paymentwizard/CreditorOptionModel.qml</file>
         <file>rrui/ChartTableView.qml</file>
         <file>rrui/TableView.qml</file>
         <file>rrui/TableViewColumn.qml</file>
@@ -163,5 +148,26 @@
         <file>stock/fragments/ItemDetails.qml</file>
         <file>stock/fragments/ItemImage.qml</file>
         <file>rrui/InputDialog.qml</file>
+        <file>sales/fragments/newsalepage/Cart.qml</file>
+        <file>sales/fragments/newsalepage/CartSection.qml</file>
+        <file>sales/fragments/newsalepage/Checkout.qml</file>
+        <file>sales/fragments/newsalepage/CustomerInfo.qml</file>
+        <file>sales/fragments/newsalepage/ItemSelectionSection.qml</file>
+        <file>rrui/PrimaryButton.qml</file>
+        <file>wizard/PaymentWizard.qml</file>
+        <file>wizard/paymentwizard/CreditorOptionModel.qml</file>
+        <file>wizard/paymentwizard/DebtorOptionModel.qml</file>
+        <file>wizard/paymentwizard/PaymentBalancePage.qml</file>
+        <file>wizard/paymentwizard/PaymentByCardPage.qml</file>
+        <file>wizard/paymentwizard/PaymentByCashPage.qml</file>
+        <file>wizard/paymentwizard/PaymentChangePage.qml</file>
+        <file>wizard/paymentwizard/PaymentCreditorPage.qml</file>
+        <file>wizard/paymentwizard/PaymentCustomerDetailPage.qml</file>
+        <file>wizard/paymentwizard/PaymentDebtorPage.qml</file>
+        <file>wizard/paymentwizard/PaymentDueDatePage.qml</file>
+        <file>wizard/paymentwizard/PaymentFinishPage.qml</file>
+        <file>wizard/paymentwizard/PaymentMethodPage.qml</file>
+        <file>wizard/paymentwizard/PaymentOptionModel.qml</file>
+        <file>wizard/paymentwizard/PaymentSummaryPage.qml</file>
     </qresource>
 </RCC>

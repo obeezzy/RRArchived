@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QList>
+#include <initializer_list>
 
 struct SalePayment {
     enum class PaymentMethod {
@@ -32,7 +33,7 @@ struct SalePayment {
     QVariantMap toVariantMap() const {
         return {
             { "amount", amount },
-            { "payment_method", paymentMethodAsString(), },
+            { "method", paymentMethodAsString(), },
             { "note", note }
         };
     }
@@ -40,6 +41,10 @@ struct SalePayment {
 
 class SalePaymentList : public QList<SalePayment> {
 public:
+    explicit SalePaymentList() { }
+    explicit SalePaymentList(std::initializer_list<SalePayment> paymentList) :
+        QList<SalePayment>(paymentList) {}
+
     QVariantList toVariantList() const {
         QVariantList list;
         for (const auto &payment : *this)

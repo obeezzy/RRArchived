@@ -38,11 +38,17 @@ public:
         return m_command == other.command() && m_queryGroup == other.queryGroup();
     }
 
+    bool canUndo() const;
+    bool isUndoSet() const;
+
     QObject *receiver() const;
     void setReceiver(QObject *receiver);
 
     void setCommand(const QString &command, const QVariantMap &params, const QueryGroup queryGroup);
     QString command() const;
+
+    void setParams(const QVariantMap &params);
+
     QVariantMap params() const;
     QueryGroup queryGroup() const;
     CommandVerb commandVerb() const;

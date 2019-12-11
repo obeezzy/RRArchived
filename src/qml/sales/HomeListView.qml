@@ -11,7 +11,7 @@ RRUi.HomeListViewBase {
     id: homeListView
 
     topMargin: 40
-    bottomMargin: 40
+    bottomMargin: 100
     spacing: 16
 
     model: RRModels.SaleHomeModel { }

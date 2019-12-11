@@ -103,17 +103,14 @@ RRUi.Page {
                     onClicked: stackView.pop();
                 }
 
-                QQC2.Button {
+                RRUi.PrimaryButton {
                     id: nextButton
                     Material.background: Material.Blue
-                    Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
-
                     anchors {
                         right: parent.right
                         rightMargin: 8
                         verticalCenter: parent.verticalCenter
                     }
-
 
                     enabled: false
                     text: stackView.currentObjectName === "businessDetailPage" ? qsTr("Finish") : qsTr("Next")

@@ -59,6 +59,7 @@ protected:
     virtual void processResult(const QueryResult result) = 0;
     virtual void filter();
     void setBusy(bool);
+    const QueryRequest &lastSuccessfulRequest() const;
 signals:
     void execute(QueryExecutor *);
     void autoQueryChanged();
@@ -79,9 +80,8 @@ private:
     int m_filterColumn;
     Qt::SortOrder m_sortOrder;
     int m_sortColumn;
-    QueryExecutor m_lastQueryExecutor;
+    QueryRequest m_lastSuccessfulRequest;
 
-    void cacheQueryExecutor(QueryExecutor *queryExecutor);
     void saveRequest(const QueryResult &result);
 };
 

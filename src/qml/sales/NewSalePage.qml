@@ -6,8 +6,10 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../stock" as Stock
+import "fragments/newsalepage" as Fragments
 import "../common"
 import "../singletons"
+import "../wizard"
 
 RRUi.Page {
     id: newSalePage
@@ -15,27 +17,15 @@ RRUi.Page {
     leftPadding: 10
     rightPadding: 10
 
-    /*!
-        \qmlsignal void goBack(var event)
-
-        This signal is emitted when the back action is triggered or back key is released.
-
-        By default, the page will be popped from the page stack. To change the default
-        behavior, for example to show a confirmation dialog, listen for this signal using
-        \c onGoBack and set \c event.accepted to \c true. To dismiss the page from your
-        dialog without triggering this signal and re-showing the dialog, call
-        \c page.forcePop().
-    */
+    onGoBack: {
+        if (privateProperties.dirty)
+            event.accepted = true;
+    }
 
     QtObject {
         id: privateProperties
 
-        property int filterIndex: 0
-        property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
-        property var sortModel: ["Sort in ascending order", "Sort in descending order"]
-
-        property int transactionId: -1
+        property bool dirty: false
     }
 
     actions: [
@@ -44,17 +34,14 @@ RRUi.Page {
             toolTip: qsTr("Suspend transaction")
             text: qsTr("Suspend transaction")
             onTriggered: {
-                if (transitionView.currentItem.itemCount === 0) {
-                    failureAlertDialogLoader.title = qsTr("Failed to suspend transaction");
-                    failureAlertDialogLoader.message = qsTr("There are no items in your cart.               ");
-                    failureAlertDialogLoader.create();
-                } else if (transitionView.currentItem.customerName === "") {
-                    failureAlertDialogLoader.title = qsTr("Failed to suspend transaction");
-                    failureAlertDialogLoader.message = qsTr("Customer name cannot be empty.               ");
-                    failureAlertDialogLoader.create();
-                } else {
-                    suspendTransactionDialogLoader.active = true;
-                }
+                if (transitionView.currentItem.itemCount === 0)
+                errorDialog.show(qsTr("There are no items in your cart."),
+                                 qsTr("Failed to suspend transaction"));
+                else if (transitionView.currentItem.customerName === "")
+                errorDialog.show(qsTr("Customer name cannot be empty."),
+                                 qsTr("Failed to suspend transaction"));
+                else
+                suspendTransactionDialog.open();
             }
         },
 
@@ -62,7 +49,7 @@ RRUi.Page {
             icon.source: FluidControls.Utils.iconUrl("content/unarchive")
             toolTip: qsTr("Load suspended transaction")
             text: qsTr("Load suspended transaction")
-            onTriggered: retrieveTransactionDialogLoader.active = true;
+            onTriggered: retrieveTransactionDialog.open();
         },
 
         FluidControls.Action {
@@ -75,58 +62,38 @@ RRUi.Page {
             icon.source: FluidControls.Utils.iconUrl("action/delete")
             toolTip: qsTr("Clear entry")
             text: qsTr("Clear entry")
-            onTriggered: if (!transitionView.currentItem.isCartEmpty) confirmationDialogLoader.active = true;
+            onTriggered: if (!transitionView.currentItem.cartEmpty) clearEntryConfirmationDialog.open();
         }
 
     ]
 
     Connections {
         target: MainWindow.snackBar
-        onClicked: cartListView.undoLastTransaction();
+        onClicked: transitionView.currentItem.undoLastTransaction();
     }
 
-    Loader {
-        id: suspendTransactionDialogLoader
-        active: false
-        sourceComponent: SuspendTransactionDialog {
-            transactionId: transitionView.currentItem.transactionId
-            note: transitionView.currentItem.note
-            onAccepted: transitionView.currentItem.suspendTransaction( { "note": note } );
-            onClosed: suspendTransactionDialogLoader.active = false;
-        }
-        onLoaded: item.open();
+    SuspendTransactionDialog {
+        id: suspendTransactionDialog
+        transactionId: transitionView.currentItem.transactionId
+        note: transitionView.currentItem.note
+        onAccepted: transitionView.currentItem.suspendTransaction( { note } );
     }
 
-    Loader {
-        id: retrieveTransactionDialogLoader
-        active: false
-        sourceComponent: RetrieveTransactionDialog {
-            onClosed: retrieveTransactionDialogLoader.active = false;
-            onAccepted: privateProperties.transactionId = transactionId;
-        }
-        onLoaded: item.open();
+    RetrieveTransactionDialog {
+        id: retrieveTransactionDialog
+        transactionId: transitionView.currentItem.transactionId
+        onAccepted: privateProperties.transactionId = transactionId;
     }
 
-    Loader {
-        id: confirmationDialogLoader
-        active: false
-        sourceComponent: RRUi.AlertDialog {
-            parent: QQC2.ApplicationWindow.contentItem
-            text: qsTr("Clear entry?")
-            standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
-            onAccepted: transitionView.currentItem.clearCart();
-            onClosed: confirmationDialogLoader.active = false;
-
-            FluidControls.BodyLabel { text: qsTr("Are you sure you want to clear this entry?") }
-        }
-        onLoaded: item.open();
+    RRUi.AlertDialog {
+        id: clearEntryConfirmationDialog
+        title: Stylesheet.padText(qsTr("Clear entry"))
+        text: qsTr("Are you sure you want to clear this entry?")
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
+        onAccepted: transitionView.currentItem.clearCart();
     }
 
-    RRUi.FailureAlertDialogLoader {
-        id: failureAlertDialogLoader
-        parent: QQC2.ApplicationWindow.contentItem
-        title: qsTr("Failed to complete transaction")
-    }
+    RRUi.ErrorDialog { id: errorDialog }
 
     Stock.ItemDetailPopup {
         id: itemDetailPopup
@@ -136,410 +103,91 @@ RRUi.Page {
     contentItem: RRUi.TransitionView {
         id: transitionView
 
-        transitionComponent: Item {
+        component: Item {
             id: saleContentItem
 
-            readonly property int itemCount: cartListView.count
-            readonly property string customerName: customerNameField.text
-            readonly property string customerPhoneNumber: customerPhoneNumberField.text
-            readonly property int transactionId: cartListView.transactionId
-            readonly property string note: cartListView.note
-            readonly property bool isCartEmpty: cartListView.count == 0
+            readonly property int itemCount: cartSection.itemCount
+            readonly property string customerName: cartSection.customerName
+            readonly property string customerPhoneNumber: cartSection.customerPhoneNumber
+            readonly property int transactionId: cartSection.transactionId
+            readonly property string note: cartSection.note
+            readonly property bool cartEmpty: cartSection.cartEmpty
+            readonly property alias cartModel: cartSection.model
 
             function clearCart() {
-                cartListView.clearAll();
-                privateProperties.transactionId = -1;
-                customerNameField.clear();
-                newSalePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Entry cleared."));
+                cartSection.clear();
+                MainWindow.snackBar.show(qsTr("Entry cleared."));
             }
 
             function validateUserInput() {
-                if (customerNameField.text.trim() === "") {
-                    failureAlertDialogLoader.title = qsTr("Failed to complete transaction");
-                    failureAlertDialogLoader.message = qsTr("Customer name cannot be empty.                     ");
-                    failureAlertDialogLoader.create();
+                if (cartSection.customerName.trim() === "") {
+                    errorDialog.show(qsTr("Customer name cannot be empty."),
+                                     qsTr("Failed to complete transaction"));
                     return false;
-                } else if (cartListView.count == 0) {
-                    failureAlertDialogLoader.title = qsTr("Failed to complete transaction");
-                    failureAlertDialogLoader.message = qsTr("There are no items in your cart.                   ");
-                    failureAlertDialogLoader.create();
+                } else if (cartSection.cartEmpty) {
+                    errorDialog.show(qsTr("There are no items in your cart."),
+                                     qsTr("Failed to complete transaction"));
                     return false;
                 }
 
                 return true;
             }
 
-            function suspendTransaction(params) { cartListView.suspendTransaction(params); }
+            function suspendTransaction(params) { cartSection.suspendTransaction(params); }
+            function undoLastTransaction() { cartSection.undoLastTransaction(); }
+            function submitTransaction(params) { cartSection.submitTransaction(params); }
 
-            RRUi.Card {
-                id: stockItemCard
-                width: parent.width * .66 - 8
-                anchors {
-                    left: parent.left
-                    top: parent.top
-                    bottom: parent.bottom
+            QQLayouts.RowLayout {
+                anchors.fill: parent
+
+                Fragments.ItemSelectionSection {
+                    id: itemSelectionSection
+                    QQLayouts.Layout.fillWidth: true
+                    QQLayouts.Layout.fillHeight: true
+
+                    padding: 20
+                    bottomPadding: 0
+                    Material.elevation: 2
+
+                    onAddRequested: cartSection.addItem(item);
+                    onViewRequested: itemDetailPopup.show(itemId);
                 }
 
-                padding: 20
-                bottomPadding: 0
-                Material.elevation: 2
+                Fragments.CartSection {
+                    id: cartSection
+                    QQLayouts.Layout.leftMargin: 4
+                    QQLayouts.Layout.fillHeight: true
+                    onSuccess: {
+                        if (paymentWizard.opened)
+                            paymentWizard.accept();
 
-                FocusScope {
-                    anchors.fill: parent
-
-                    RRUi.SearchBar {
-                        id: searchBar
-                        anchors {
-                            top: parent.top
-                            left: parent.left
-                            right: parent.right
-                        }
+                        itemSelectionSection.refresh();
                     }
-
-                    RRUi.ChipListView {
-                        id: filterChipListView
-                        height: 30
-                        anchors {
-                            top: searchBar.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        model: [
-                            privateProperties.filterModel[privateProperties.filterIndex],
-                            privateProperties.sortModel[privateProperties.sortIndex]
-                        ]
-
-                        onClicked: {
-                            switch (index) {
-                            case 0:
-                                filterColumnDialogLoader.active = true;
-                                break;
-                            case 1:
-                                sortOrderDialogLoader.active = true;
+                    onError: {
+                        if (paymentWizard.opened) {
+                            paymentWizard.displayError(errorString);
+                        } else {
+                            switch (errorCode) {
+                            default:
+                                errorDialog.show(qsTr("An unknown error has occurred."),
+                                                 qsTr("Failed to save transaction"));
                                 break;
                             }
                         }
                     }
 
-                    Stock.CategoryListView {
-                        id: categoryListView
-                        anchors {
-                            top: filterChipListView.bottom
-                            left: parent.left
-                            right: parent.right
-                            bottom: parent.bottom
-                        }
-
-                        filterText: searchBar.text
-                        filterColumn: RRModels.StockItemModel.ItemColumn
-
-                        buttonRow: Row {
-                            RRUi.ToolButton {
-                                id: addToCartButton
-                                width: FluidControls.Units.iconSizes.medium
-                                height: width
-                                icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
-                                text: qsTr("Add to cart")
-                                visible: modelData.quantity > 0
-                                onClicked: cartListView.addItem(modelData);
-                            }
-
-                            RRUi.ToolButton {
-                                id: viewButton
-                                width: FluidControls.Units.iconSizes.medium
-                                height: width
-                                icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
-                                text: qsTr("View details")
-                                onClicked: itemDetailPopup.show(modelData.item_id);
-                            }
-                        }
-                    }
-
-                    FluidControls.Placeholder {
-                        visible: categoryListView.count === 0 && categoryListView.model.filterText !== ""
-                        anchors.centerIn: parent
-                        icon.source: FluidControls.Utils.iconUrl("action/search")
-                        text: qsTr("There are no results for this search query.")
-                    }
-
-                    FluidControls.Placeholder {
-                        visible: categoryListView.count === 0
-                        anchors.centerIn: parent
-                        icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
-                        text: qsTr("No products available.")
-                    }
-                }
-            }
-
-            FocusScope {
-                width: parent.width *.33
-                anchors {
-                    left: stockItemCard.right
-                    right: parent.right
-                    top: parent.top
-                    bottom: parent.bottom
-                    leftMargin: 4
-                }
-
-                QQLayouts.ColumnLayout {
-                    anchors.fill: parent
-
-                    RRUi.Card {
-                        id: customerInfoCard
-
-                        QQLayouts.Layout.fillWidth: true
-                        QQLayouts.Layout.preferredHeight: textFieldColumn.height
-
-                        padding: 0
-                        leftPadding: 4
-                        rightPadding: 4
-
-                        Column {
-                            id: textFieldColumn
-                            anchors {
-                                top: parent.top
-                                left: parent.left
-                                right: parent.right
-                                topMargin: 0
-                            }
-
-                            QQLayouts.RowLayout {
-                                spacing: 2
-                                anchors {
-                                    left: parent.left
-                                    right: parent.right
-                                }
-
-                                FluidControls.Icon {
-                                    QQLayouts.Layout.alignment: Qt.AlignVCenter
-                                    source: FluidControls.Utils.iconUrl("social/person")
-                                    size: 20
-                                    QQLayouts.Layout.preferredWidth: size
-                                    QQLayouts.Layout.preferredHeight: size
-                                }
-
-                                Item { QQLayouts.Layout.preferredWidth: 8; QQLayouts.Layout.fillHeight: true }
-
-                                RRUi.TextField {
-                                    id: customerNameField
-                                    focus: true
-                                    QQLayouts.Layout.fillWidth: true
-                                    placeholderText: qsTr("Customer name")
-
-                                    Connections {
-                                        onTextEdited: cartListView.customerName = customerNameField.text;
-                                    }
-                                }
-
-                                RRUi.ToolButton {
-                                    id: customerOptionButton
-                                    icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
-                                    text: qsTr("More")
-                                }
-                            }
-
-                            Row {
-                                visible: false
-                                spacing: 12
-
-                                FluidControls.Icon {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    source: FluidControls.Utils.iconUrl("communication/phone")
-                                    size: 20
-                                }
-
-                                RRUi.TextField {
-                                    id: customerPhoneNumberField
-                                    width: 300
-                                    placeholderText: qsTr("Customer phone number")
-                                }
-                            }
-                        }
-                    }
-
-                    RRUi.Card {
-                        id: cartCard
-
-                        QQLayouts.Layout.fillWidth: true
-                        QQLayouts.Layout.fillHeight: true
-
-                        padding: 0
-                        leftPadding: 8
-                        rightPadding: 8
-                        Material.elevation: 2
-
-                        CartListView {
-                            id: cartListView
-                            anchors.fill: parent
-                            customerName: customerNameField.text
-                            transactionId: privateProperties.transactionId
-
-                            onViewRequested: itemDetailPopup.show(itemId);
-                            onEditRequested: cartItemEditorDialog.show(itemInfo);
-
-                            onSuccess: {
-                                if (paymentWizard.opened)
-                                    paymentWizard.accept();
-
-                                searchBar.clear();
-                                categoryListView.refresh();
-
-                                switch (successCode) {
-                                case RRModels.SaleCartModel.RetrieveTransactionSuccess:
-                                    customerNameField.text = cartListView.customerName;
-                                    newSalePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction retrieved."));
-                                    break;
-                                case RRModels.SaleCartModel.SuspendTransactionSuccess:
-                                    customerNameField.clear();
-                                    privateProperties.transactionId = -1;
-                                    newSalePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction suspended."), qsTr("Undo"));
-                                    break;
-                                case RRModels.SaleCartModel.SubmitTransactionSuccess:
-                                    customerNameField.clear();
-                                    privateProperties.transactionId = -1;
-                                    newSalePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
-                                    break;
-                                }
-                            }
-                            onError: {
-                                var errorString = "";
-                                switch (errorCode) {
-                                case CartListView.ConnectionError:
-                                    errorString = qsTr("Failed to connect to the database.");
-                                    break;
-                                case CartListView.SuspendTransactionError:
-                                    errorString = qsTr("Failed to suspend transaction.");
-                                    break;
-                                case CartListView.SubmitTransactionError:
-                                    errorString = qsTr("Failed to submit transaction.");
-                                    break;
-                                case CartListView.RetrieveTransactionError:
-                                    errorString = qsTr("Failed to retrieve transaction.");
-                                    break;
-                                case CartListView.SuspendTransactionError:
-                                    errorString = qsTr("Failed to suspend transaction.");
-                                    break;
-                                case CartListView.UnknownError:
-                                    errorString = qsTr("An unknown error occurred.");
-                                    break;
-                                }
-
-                                if (paymentWizard.opened) {
-                                    paymentWizard.displayError(errorString);
-                                } else {
-                                    switch (errorCode) {
-                                    default:
-                                        failureAlertDialogLoader.title = qsTr("Failed to save transaction");
-                                        failureAlertDialogLoader.message = qsTr("An unknown error has occurred.                      ");
-                                        break;
-                                    }
-                                    failureAlertDialogLoader.create();
-                                }
-                            }
-                        }
-                    }
-
-                    RRUi.Card {
-                        id: checkoutCard
-
-                        QQLayouts.Layout.fillWidth: true
-                        QQLayouts.Layout.preferredHeight: totalsColumn.height
-
-                        padding: 2
-                        bottomPadding: 0
-
-                        Column {
-                            id: totalsColumn
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            FluidControls.SubheadingLabel {
-                                id: totalCostLabel
-                                anchors.right: parent.right
-                                text: qsTr("Total cost: %1").arg(Number(cartListView.totalCost).toLocaleCurrencyString(Qt.locale("en_NG")))
-                            }
-
-                            Row {
-                                anchors.right: parent.right
-                                spacing: 8
-
-                                QQC2.Button {
-                                    id: viewDetailsButton
-                                    text: qsTr("View totals")
-                                }
-
-                                QQC2.Button {
-                                    id: checkoutButton
-                                    Material.background: Material.accent
-                                    Material.foreground: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
-                                    text: qsTr("Proceed to Checkout")
-                                    onClicked: if (saleContentItem.validateUserInput()) paymentWizard.open();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                RRUi.BusyOverlay { visible: cartListView.busy }
-
-                PaymentWizard {
-                    id: paymentWizard
-                    reason: PaymentWizard.Sales
-                    cartModel: cartListView.model
-                    onAccepted: cartListView.submitTransaction({ "due_date": paymentWizard.dueDate,
-                                                                   "action": paymentWizard.action });
-                }
-
-                Loader {
-                    id: filterColumnDialogLoader
-                    active: false
-                    sourceComponent: RRUi.RadioButtonDialog {
-                        title: qsTr("Choose filter sort")
-                        model: privateProperties.filterModel
-                        currentIndex: privateProperties.filterIndex
-                        onAccepted: {
-                            privateProperties.filterIndex = currentIndex;
-                            filterChipListView.model = [
-                                        privateProperties.filterModel[privateProperties.filterIndex],
-                                        privateProperties.sortModel[privateProperties.sortIndex]
-                                    ];
-                        }
-                        onClosed: filterColumnDialogLoader.active = false;
-                    }
-
-                    onLoaded: item.open();
-                }
-
-                Loader {
-                    id: sortOrderDialogLoader
-                    active: false
-                    sourceComponent: RRUi.RadioButtonDialog {
-                        title: qsTr("Choose sort order")
-                        model: privateProperties.sortModel
-                        currentIndex: privateProperties.sortIndex
-                        onAccepted: {
-                            privateProperties.sortIndex = currentIndex;
-                            filterChipListView.model = [
-                                        privateProperties.filterModel[privateProperties.filterIndex],
-                                        privateProperties.sortModel[privateProperties.sortIndex]
-                                    ];
-                        }
-                        onClosed: sortOrderDialogLoader.active = false;
-                    }
-
-                    onLoaded: item.open();
-                }
-
-                CartItemEditorDialog {
-                    id: cartItemEditorDialog
-                    onAccepted: cartListView.updateItem(itemId, { "quantity": quantity,
-                                                            "unit_price": unitPrice,
-                                                            "cost": cost });
+                    onViewRequested: itemDetailPopup.show(itemId);
+                    onCheckoutRequested: if (saleContentItem.validateUserInput()) paymentWizard.open();
                 }
             }
         }
+    }
+
+    PaymentWizard {
+        id: paymentWizard
+        reason: PaymentWizard.Sales
+        cartModel: transitionView.currentItem.cartModel
+        onAccepted: transitionView.currentItem.submitTransaction({ "due_date": paymentWizard.dueDate,
+                                                                     "action": paymentWizard.action });
     }
 }

@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
 import "../rrui" as RRUi
+import "../singletons"
 
 Flickable {
     id: homeListView
@@ -61,7 +62,7 @@ Flickable {
             HomeRow {
                 title: qsTr("Sign out")
                 subtitle: userProfile.userName
-                onClicked: signOutConfirmationDialog.show();
+                onClicked: signOutConfirmationDialog.open();
             }
         }
 
@@ -140,47 +141,12 @@ Flickable {
                 subtitle: qsTr("Show information about Record Rack")
             }
         }
-        //        populate: Transition {
-        //            id: populateTransition
-
-        //            SequentialAnimation {
-        //                PropertyAction {
-        //                    property: "y"
-        //                    value: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
-        //                }
-
-        //                PropertyAction {
-        //                    property: "opacity"
-        //                    value: .1
-        //                }
-
-        //                PauseAnimation { duration: 300 }
-        //                ParallelAnimation {
-        //                    YAnimator {
-        //                        duration: 300
-        //                        from: (populateTransition.ViewTransition.index + 1) * (populateTransition.ViewTransition.destination.y + 400)
-        //                        to: populateTransition.ViewTransition.destination.y
-        //                        easing.type: Easing.OutCubic
-        //                    }
-
-        //                    NumberAnimation {
-        //                        target: populateTransition.ViewTransition.item
-        //                        property: "opacity"
-        //                        duration: 300
-        //                        to: 1
-        //                        easing.type: Easing.OutCubic
-        //                    }
-        //                }
-        //            }
-        //        }
     }
 
     RRUi.AlertDialog {
         id: signOutConfirmationDialog
 
-        property var modelData: null
-
-        width: 300
+        title: Stylesheet.padText(qsTr("Sign out?"))
         text: qsTr("Are you sure you want to sign out?");
         standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
         onAccepted: userProfile.signOut();

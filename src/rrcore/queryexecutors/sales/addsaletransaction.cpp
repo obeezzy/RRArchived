@@ -38,10 +38,16 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
                     { "note", note },
                     { "payments", payments.toVariantList() },
                     { "items", items.toVariantList() },
+                    { "currency", "NGN" },
                     { "user_id", UserProfile::instance().userId() }
                  }, receiver)
 {
 
+}
+
+AddSaleTransaction::AddSaleTransaction(const QueryRequest &request, QObject *receiver) :
+    SaleExecutor(COMMAND, request.params(), receiver)
+{
 }
 
 QueryResult AddSaleTransaction::execute()
@@ -59,7 +65,6 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
-    const QDateTime currentDateTime = QDateTime::currentDateTime();
 
     QSqlQuery q(connection);
 
@@ -83,7 +88,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 
@@ -106,7 +111,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 
@@ -129,7 +134,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 
@@ -142,14 +147,16 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
+        } else {
+            throw DatabaseException(DatabaseError::QueryErrorCode::InvalidArguments,
+                                    QStringLiteral("Transaction ID is not valid."),
+                                    QStringLiteral("Transaction ID is not valid."));
         }
 
         DatabaseUtils::commitTransaction(q);
-
-        result.setOutcome(params);
         return result;
     } catch (DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);

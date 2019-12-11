@@ -105,7 +105,7 @@ RRUi.Popup {
                 backgroundColor: Qt.lighter("lightgray")
                 foregroundColor: "darkgray"
                 name: itemDetailModel.record.item
-                source: itemDetailModel.record.imageSource
+                source: itemDetailModel.record.imageUrl
                 sourceSize: Qt.size(width, height)
                 font.pixelSize: 24
             }

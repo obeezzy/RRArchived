@@ -81,22 +81,20 @@ bool QueryExecutor::isValid() const
 
 bool QueryExecutor::canUndo() const
 {
-    return request().params().value("can_undo").toBool();
+    return request().canUndo();
 }
 
 bool QueryExecutor::isUndoSet() const
 {
-    return request().command().startsWith("undo");
+    return request().isUndoSet();
 }
 
 void QueryExecutor::undoOnNextExecution(bool undo)
 {
-    if (canUndo() && undo && !isUndoSet()) {
+    if (canUndo() && undo && !isUndoSet())
         m_request.setCommand(QStringLiteral("undo_") + m_request.command(), m_request.params(), m_request.queryGroup());
-    } else if (isUndoSet()) {
+    else if (isUndoSet())
         m_request.setCommand(m_request.command().remove("undo_"), m_request.params(), m_request.queryGroup());
-        m_request.params().remove("can_undo");
-    }
 }
 
 QString QueryExecutor::connectionName() const
@@ -220,7 +218,7 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::in
     }
 
     const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
-    qCDebug(queryExecutor) << "Procedure syntax:" << storedProcedure;
+    qCInfo(queryExecutor) << "Procedure syntax:" << storedProcedure;
     if (!q.exec(storedProcedure)) {
         if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException))
             throw DatabaseException(q.lastError().nativeErrorCode().toInt(),

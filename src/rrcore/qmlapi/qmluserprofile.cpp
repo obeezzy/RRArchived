@@ -127,8 +127,6 @@ void QMLUserProfile::signOut()
 {
     qCInfo(qmlUserProfile) << "signOut";
     setBusy(true);
-    QueryRequest request(this);
-    request.setCommand("sign_out_user", { }, QueryRequest::QueryGroup::User);
     emit execute(new UserQuery::SignOutUser(this));
 }
 

@@ -79,7 +79,7 @@ RRUi.Page {
     contentItem: RRUi.TransitionView {
         id: transitionView
 
-        transitionComponent: Item {
+        component: Item {
             id: purchaseContentItem
 
             readonly property int itemCount: cartListView.count

@@ -141,34 +141,4 @@ RRUi.DataTableView {
             }
         }
     }
-
-    //                add: Transition {
-    //                    PropertyAction { property: "height"; value: 0 }
-    //                    PropertyAction { property: "opacity"; value: 0 }
-
-    //                    SequentialAnimation {
-    //                        NumberAnimation { property: "height"; to: 40; duration: 300; easing.type: Easing.InOutQuad }
-    //                        NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
-    //                    }
-    //                }
-
-    //                displaced: Transition {
-    //                    SequentialAnimation {
-    //                        PauseAnimation { duration: 125 }
-    //                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad }
-    //                    }
-    //                }
-    //                remove: Transition {
-    //                    SequentialAnimation {
-    //                        PauseAnimation { duration: 125 }
-    //                        NumberAnimation { property: "height"; to: 0; easing.type: Easing.InOutQuad }
-    //                    }
-    //                }
-
-    //                Behavior on height {
-    //                    SequentialAnimation {
-    //                        PauseAnimation { duration: 125 }
-    //                        NumberAnimation { }
-    //                    }
-    //                }
 }

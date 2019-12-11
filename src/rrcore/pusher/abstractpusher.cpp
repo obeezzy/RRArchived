@@ -15,14 +15,11 @@ AbstractPusher::AbstractPusher(QObject *parent) :
 
 AbstractPusher::AbstractPusher(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
-    m_busy(false),
-    m_lastQueryExecutor(nullptr)
+    m_busy(false)
 {
     connect(this, &AbstractPusher::execute, &thread, &DatabaseThread::execute);
 
-    connect(&thread, &DatabaseThread::execute, this, &AbstractPusher::cacheQueryExecutor);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::processResult);
-
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractPusher::saveRequest);
 }
 
@@ -40,34 +37,24 @@ void AbstractPusher::setBusy(bool busy)
     emit busyChanged();
 }
 
+const QueryRequest &AbstractPusher::lastSuccessfulRequest() const
+{
+    return m_lastSuccessfulRequest;
+}
+
 void AbstractPusher::undoLastCommit()
 {
-    setBusy(true);
-    m_lastQueryExecutor.undoOnNextExecution();
-    emit execute(new QueryExecutor(m_lastQueryExecutor));
 }
 
 void AbstractPusher::saveRequest(const QueryResult &result)
 {
-    if (!m_lastQueryExecutor.isValid())
-        return;
-
-    if (result.isSuccessful() && result.request().receiver() == this && result.request() == m_lastQueryExecutor.request()) {
-        if (m_lastQueryExecutor.canUndo() && !m_lastQueryExecutor.isUndoSet()) {
-            qCDebug(abstractPusher) << "Request saved:" << result.request();
-            // FIXME: Remove this!
-            QueryRequest &request(m_lastQueryExecutor.request());
-            request.params().insert("outcome", result.outcome());
-
-            m_lastQueryExecutor.undoOnNextExecution(false);
-        } else {
-            m_lastQueryExecutor = QueryExecutor();
-        }
+    if (result.isSuccessful() && result.request().receiver() == this
+            && result.request().canUndo()
+            && !result.request().isUndoSet()) {
+        m_lastSuccessfulRequest = result.request();
+        QVariantMap params{ result.request().params() };
+        params.insert("outcome", result.outcome());
+        m_lastSuccessfulRequest.setParams(params);
+        qCDebug(abstractPusher) << "Request saved:" << result.request().command() << this;
     }
-}
-
-void AbstractPusher::cacheQueryExecutor(QueryExecutor *queryExecutor)
-{
-    if (queryExecutor->canUndo())
-        m_lastQueryExecutor = *queryExecutor;
 }
