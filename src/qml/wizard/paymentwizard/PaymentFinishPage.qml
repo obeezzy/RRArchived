@@ -1,15 +1,20 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import com.gecko.rr.models 1.0 as RRModels
+import "../../rrui" as RRUi
+import ".."
 
-QQC2.Page {
+RRUi.WizardPage {
     id: paymentFinishPage
     objectName: "paymentFinishPage"
 
     property string errorMessage: ""
+    property RRModels.SaleCartModel cartModel: null
 
     title: qsTr("Processing payment")
     padding: FluidControls.Units.smallSpacing
+    hasNext: false
 
     contentItem: FocusScope {
         FluidControls.SubheadingLabel {
@@ -28,4 +33,10 @@ QQC2.Page {
             visible: !paymentFinishPage.errorMessage
         }
     }
-}
+
+    Connections {
+        target: paymentFinishPage.cartModel
+        onError: {
+            paymentFinishPage.errorMessage = "Oops! Something went wrong.";
+        }
+    }

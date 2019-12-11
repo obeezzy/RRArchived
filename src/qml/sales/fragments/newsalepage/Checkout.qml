@@ -8,6 +8,7 @@ import "../../../singletons"
 RRUi.Card {
     id: checkout
 
+    property real totalCost: 0
     signal checkoutRequested
 
     implicitWidth: 300
@@ -24,7 +25,7 @@ RRUi.Card {
 
         FluidControls.SubheadingLabel {
             anchors.right: parent.right
-            text: qsTr("Total cost: %1").arg(Number(cartListView.totalCost)
+            text: qsTr("Total cost: %1").arg(Number(checkout.totalCost)
                                              .toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName)))
         }
 

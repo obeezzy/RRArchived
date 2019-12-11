@@ -84,6 +84,7 @@ FocusScope {
 
         Checkout {
             QQLayouts.Layout.fillWidth: true
+            totalCost: cart.totalCost
             onCheckoutRequested: cartSection.checkoutRequested();
         }
     }

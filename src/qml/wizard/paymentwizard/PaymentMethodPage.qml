@@ -1,18 +1,47 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import com.gecko.rr.models 1.0 as RRModels
+import "../../rrui" as RRUi
+import ".."
 
-QQC2.Page {
+RRUi.WizardPage {
     id: paymentMethodPage
     objectName: "paymentMethodPage"
-
-    leftPadding: 4
 
     property string selectedOption: paymentMethodPage.canAcceptCash ? "cash" : "card"
     property bool canAcceptCash: true
     property bool canAcceptCard: true
+    property RRModels.SaleCartModel cartModel: null
+    property int reason: -1
 
     title: qsTr("Choose payment method")
+    leftPadding: 4
+    hasNext: true
+
+    onNext: {
+        switch (paymentMethodPage.selectedOption) {
+        case "cash":
+            paymentMethodPage.nextPage.component = Qt.resolvedUrl("PaymentByCashPage.qml");
+            paymentMethodPage.nextPage.properties = {
+                "totalCost": paymentMethodPage.cartModel.balance,
+                "reason": paymentMethodPage.reason,
+                "cartModel": paymentMethodPage.cartModel
+            };
+            break;
+        case "card":
+            console.warn("TODO: Handle card payment!");
+            break;
+        default:
+            paymentMethodPage.nextPage.component = Qt.resolvedUrl("PaymentCustomerDetailPage.qml");
+            paymentMethodPage.nextPage.properties = {
+                "customerName": paymentMethodPage.cartModel.customerName,
+                "customerPhoneNumber": paymentMethodPage.cartModel.customerPhoneNumber,
+                "paymentModel": paymentMethodPage.cartModel.paymentModel
+            };
+            break;
+        }
+    }
 
     contentItem: FocusScope {
         QQC2.ButtonGroup { id: buttonGroup }

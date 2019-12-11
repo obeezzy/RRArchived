@@ -9,6 +9,7 @@ import "../stock" as Stock
 import "fragments/newsalepage" as Fragments
 import "../common"
 import "../singletons"
+import "../wizard"
 
 RRUi.Page {
     id: newSalePage

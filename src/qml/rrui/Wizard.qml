@@ -1,61 +1,115 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
-import com.gecko.rr.widgets 1.0 as RRWidgets
-import "."
 
 Dialog {
     id: wizard
 
-    property Component buttonRow: null
-    property alias stackView: stackView
-    property alias backButton: backButton
-    signal finished(var transactionInfo)
+    property Component initialPage: null
+    signal finished
 
+    x: (QQC2.ApplicationWindow.contentItem.width - width) / 2
+    y: (QQC2.ApplicationWindow.contentItem.height - height) / 2
+    parent: MainWindow.contentItem
     title: ""
     standardButtons: Dialog.NoButton
     width: 600
     height: 540
     closePolicy: QQC2.Popup.CloseOnEscape
 
-    contentItem: QQLayouts.ColumnLayout {
-        Row {
-            QQLayouts.Layout.preferredHeight: 25
+    header: Item {
+        implicitHeight: childrenRect.height
+
+        QQLayouts.RowLayout {
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                topMargin: 8
+                leftMargin: 8
+                rightMargin: 8
+            }
+            height: backButton.height
 
             ToolButton {
                 id: backButton
-                anchors.verticalCenter: parent.verticalCenter
-                width: FluidControls.Units.iconSizes.large
-                height: width
+                QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                QQLayouts.Layout.preferredWidth: FluidControls.Units.iconSizes.large
+                QQLayouts.Layout.preferredHeight: width
                 icon.source: FluidControls.Utils.iconUrl("navigation/arrow_back")
-                visible: stackView.depth > 1
+                enabled: stackView.currentItem ? stackView.currentItem.previousEnabled : true
                 text: qsTr("Back")
-                onClicked: stackView.pop();
+                visible: stackView.depth > 1
+                onClicked: {
+                    if (stackView.currentItem) {
+                        stackView.currentItem.previous();
+                        stackView.pop();
+                    }
+                }
             }
 
-            FluidControls.TitleLabel {
-                id: dialogLabel
-                anchors.verticalCenter: parent.verticalCenter
-
-                wrapMode: Text.Wrap
+            FluidControls.DialogLabel {
+                QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                QQLayouts.Layout.fillWidth: true
+                QQLayouts.Layout.leftMargin: backButton.visible ? 0 : 16
+                wrapMode: Text.WordWrap
                 text: stackView.currentItem !== null ? stackView.currentItem.title : ""
             }
         }
+    }
 
-        StackView {
-            id: stackView
+    contentItem: StackView {
+        id: stackView
 
-            QQLayouts.Layout.fillWidth: true
-            QQLayouts.Layout.fillHeight: true
-            clip: true
+        signal finished
+
+        clip: true
+        initialItem: wizard.initialPage
+        onFinished: {
+            wizard.finished();
+            wizard.accept();
         }
+    }
 
-        Loader {
-            id: buttonRowLoader
-            sourceComponent: wizard.buttonRow
-            QQLayouts.Layout.alignment: Qt.AlignRight
+    onAboutToShow: if (stackView.depth === 0) stackView.push(stackView.initialItem);
+    onAboutToHide: stackView.clear();
+
+    footer: Item {
+        implicitHeight: childrenRect.height
+
+        QQLayouts.RowLayout {
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+                leftMargin: 8
+                rightMargin: 8
+                bottomMargin: 8
+            }
+            spacing: 8
+
+            Item {
+                QQLayouts.Layout.fillWidth: true
+                QQLayouts.Layout.fillHeight: true
+            }
+
+            QQC2.Button {
+                flat: true
+                text: qsTr("Cancel")
+                onClicked: wizard.close();
+            }
+
+            QQC2.Button {
+                enabled: stackView.currentItem ? stackView.currentItem.nextEnabled : true
+                text: stackView.currentItem ? stackView.currentItem.nextButtonText : ""
+                onClicked: {
+                    if (stackView.currentItem) {
+                        stackView.currentItem.next();
+                        stackView.push(stackView.currentItem.nextPage.component, stackView.currentItem.nextPage.properties);
+                    }
+                }
+            }
         }
     }
 }

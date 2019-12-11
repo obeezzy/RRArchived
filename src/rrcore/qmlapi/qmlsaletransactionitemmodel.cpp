@@ -2,6 +2,7 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "queryexecutors/sales.h"
+#include "database/databasethread.h"
 
 #include <QDateTime>
 
@@ -11,8 +12,8 @@ QMLSaleTransactionItemModel::QMLSaleTransactionItemModel(QObject *parent) :
 
 }
 
-QMLSaleTransactionItemModel::QMLSaleTransactionItemModel(DatabaseThread &thread) :
-    AbstractTransactionItemModel(thread)
+QMLSaleTransactionItemModel::QMLSaleTransactionItemModel(DatabaseThread &thread, QObject *parent) :
+    AbstractTransactionItemModel(thread, parent)
 {
 
 }
@@ -177,6 +178,8 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
             endResetModel();
 
             emit success(ViewSaleTransactionItemsSuccess);
+        } else {
+            emit success();
         }
     } else {
         emit error(UnknownError);

@@ -50,7 +50,7 @@ public:
     }; Q_ENUM(Columns)
 
     explicit QMLSaleTransactionItemModel(QObject *parent = nullptr);
-    explicit QMLSaleTransactionItemModel(DatabaseThread &thread);
+    explicit QMLSaleTransactionItemModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override final;

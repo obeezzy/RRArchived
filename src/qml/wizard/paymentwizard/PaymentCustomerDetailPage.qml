@@ -4,11 +4,13 @@ import Fluid.Controls 1.0 as FluidControls
 import "../../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 import com.gecko.rr.components 1.0 as RRComponents
+import ".."
 
-QQC2.Page {
+RRUi.WizardPage {
     id: paymentCustomerDetailPage
     objectName: "paymentCustomerDetailPage"
 
+    property RRModels.SaleCartModel cartModel: null
     property string customerName: ""
     property string customerPhoneNumber: ""
     readonly property bool detailValid: customerName.trim() != ""
@@ -21,6 +23,8 @@ QQC2.Page {
 
     padding: FluidControls.Units.smallSpacing
     title: qsTr("Enter customer credentials")
+    hasNext: true
+    nextEnabled: errorLabel.text.length === 0
 
     Column {
         anchors {
@@ -105,6 +109,7 @@ QQC2.Page {
     }
 
     FluidControls.SubheadingLabel {
+        id: errorLabel
         anchors {
             left: parent.left
             right: parent.right
@@ -125,5 +130,23 @@ QQC2.Page {
         color: "red"
         wrapMode: Text.Wrap
         horizontalAlignment: Qt.AlignHCenter
+    }
+
+    onNext: {
+        paymentCustomerDetailPage.cartModel.customerName = paymentCustomerDetailPage.customerName;
+        paymentCustomerDetailPage.cartModel.customerPhoneNumber = paymentCustomerDetailPage.customerPhoneNumber;
+
+        if (paymentCustomerDetailPage.cartModel.balance !== 0) {
+            paymentCustomerDetailPage.nextPage.component = Qt.resolvedUrl("PaymentDueDatePage.qml");
+        } else {
+            paymentCustomerDetailPage.nextPage.component = Qt.resolvedUrl("PaymentSummaryPage.qml");
+            paymentCustomerDetailPage.nextPage.properties = {
+                "customerName": paymentCustomerDetailPage.cartModel.customerName,
+                "customerPhoneNumber": paymentCustomerDetailPage.cartModel.customerPhoneNumber,
+                "totalCost": paymentCustomerDetailPage.cartModel.totalCost,
+                "amountPaid": paymentCustomerDetailPage.cartModel.amountPaid,
+                "paymentModel": paymentCustomerDetailPage.cartModel.paymentModel
+            };
+        }
     }
 }

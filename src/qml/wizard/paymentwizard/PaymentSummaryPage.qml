@@ -2,22 +2,27 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
 import Fluid.Controls 1.0 as FluidControls
+import com.gecko.rr 1.0 as RR
+import com.gecko.rr.models 1.0 as RRModels
 import "../../rrui" as RRUi
 import "../../singletons"
+import ".."
 
-RRUi.Page {
+RRUi.WizardPage {
     id: paymentSummaryPage
     objectName: "paymentSummaryPage"
 
     property string customerName: ""
     property string customerPhoneNumber: ""
     property var paymentModel: null
+    property RRModels.SaleCartModel cartModel: null
     property real totalCost: 0
     property real amountPaid: 0
     readonly property real balance: totalCost - amountPaid
 
     padding: FluidControls.Units.smallSpacing
     title: qsTr("View payment details")
+    hasNext: false
 
     contentItem: Item {
         QQLayouts.GridLayout {
@@ -77,5 +82,23 @@ RRUi.Page {
                 horizontalAlignment: Qt.AlignRight
             }
         }
+
+        QQC2.CheckBox {
+            id: printCheckBox
+            anchors {
+                bottom: parent.bottom
+                horizontalCenter: parent.horizontalCenter
+            }
+            text: qsTr("Print receipt")
+        }
     }
+
+    onNext: {
+        if (printCheckBox.checked)
+            receiptPrinter.print(cartModel.toPrintableFormat());
+        paymentSummaryPage.nextPage.component = Qt.resolvedUrl("PaymentFinishPage.qml");
+        paymentSummaryPage.finish();
+    }
+
+    RR.ReceiptPrinter { id: receiptPrinter }
 }

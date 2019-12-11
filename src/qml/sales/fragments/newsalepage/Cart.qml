@@ -16,6 +16,7 @@ RRUi.Card {
     readonly property int count: cartListView.count
     readonly property bool busy: cartListView.busy
     readonly property alias model: cartListView.model
+    readonly property real totalCost: cartListView.totalCost
 
     property string customerName: ""
     property int transactionId: -1
