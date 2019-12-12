@@ -34,7 +34,7 @@ RRUi.Wizard {
         canAcceptCash: paymentWizard.cartModel.canAcceptCash
         canAcceptCard: paymentWizard.cartModel.canAcceptCard
         cartModel: paymentWizard.cartModel
-        reason: PaymentWizard.Sales
+        reason: paymentWizard.reason
     }
 
     onClosed: {

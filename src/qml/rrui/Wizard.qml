@@ -62,6 +62,7 @@ Dialog {
     contentItem: StackView {
         id: stackView
 
+        readonly property var wizard: wizard
         signal finished
 
         clip: true

@@ -1,7 +1,10 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.12
 import Fluid.Controls 1.1 as FluidControls
+import com.gecko.rr.models 1.0 as RRModels
 import "../../rrui" as RRUi
+import "../../singletons"
 import ".."
 
 RRUi.WizardPage {
@@ -9,6 +12,7 @@ RRUi.WizardPage {
     objectName: "paymentDueDatePage"
 
     property date dueDate: new Date()
+    property RRModels.SaleCartModel cartModel: null
 
     padding: FluidControls.Units.smallSpacing
     title: qsTr("Choose due date")
@@ -31,21 +35,25 @@ RRUi.WizardPage {
             text: qsTr("Choose a date and time that you want the customer to pay.")
         }
 
-        // BUG: This object causes crashes...
-        //        FluidControls.DateTimePicker {
-        //            prefer24Hour: false
-        //        }
+        FluidControls.DateTimePicker {
+            prefer24Hour: false
+            from: new Date(0)
+            to: new Date()
+            selectedDateTime: new Date(2012, 11, 21, 21, 12, 42)
+            onSelectedDateTimeChanged: console.log("New datetime=", selectedDateTime);
+        }
     }
 
     onNext: {
-        paymentDueDatePage.QQC2.StackView.dueDate = paymentDueDatePage.dueDate;
+        paymentDueDatePage.QQC2.StackView.view.wizard.dueDate = paymentDueDatePage.dueDate;
         paymentDueDatePage.nextPage.component = Qt.resolvedUrl("PaymentSummaryPage.qml");
         paymentDueDatePage.nextPage.properties = {
-            "customerName": paymentWizard.cartModel.customerName,
-            "customerPhoneNumber": paymentWizard.cartModel.customerPhoneNumber,
-            "totalCost": paymentWizard.cartModel.totalCost,
-            "amountPaid": paymentWizard.cartModel.amountPaid,
-            "paymentModel": paymentWizard.cartModel.paymentModel
+            "customerName": paymentDueDatePage.cartModel.customerName,
+            "customerPhoneNumber": paymentDueDatePage.cartModel.customerPhoneNumber,
+            "totalCost": paymentDueDatePage.cartModel.totalCost,
+            "amountPaid": paymentDueDatePage.cartModel.amountPaid,
+            "paymentModel": paymentDueDatePage.cartModel.paymentModel,
+            "cartModel": paymentDueDatePage.cartModel
         };
     }
 }

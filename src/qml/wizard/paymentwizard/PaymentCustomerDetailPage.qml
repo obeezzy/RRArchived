@@ -138,6 +138,9 @@ RRUi.WizardPage {
 
         if (paymentCustomerDetailPage.cartModel.balance !== 0) {
             paymentCustomerDetailPage.nextPage.component = Qt.resolvedUrl("PaymentDueDatePage.qml");
+            paymentCustomerDetailPage.nextPage.properties = {
+                "cartModel": paymentCustomerDetailPage.cartModel
+            }
         } else {
             paymentCustomerDetailPage.nextPage.component = Qt.resolvedUrl("PaymentSummaryPage.qml");
             paymentCustomerDetailPage.nextPage.properties = {
