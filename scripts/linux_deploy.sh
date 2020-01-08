@@ -1,0 +1,2 @@
+cqtdeployer -bin rr,rrcore/librrcore.so -qmlDir ../../RecordRackDesktop/src/qml/ -qmake ~/Qt/5.13.1/gcc_64/bin/qmake -targetDir install-root/
+ln -s $PWD/install-root/lib/librrcore.so $PWD/install-root/librrcore.so.1
