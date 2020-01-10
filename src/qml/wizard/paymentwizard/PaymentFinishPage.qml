@@ -40,3 +40,4 @@ RRUi.WizardPage {
             paymentFinishPage.errorMessage = "Oops! Something went wrong.";
         }
     }
+}
