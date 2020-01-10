@@ -37,4 +37,18 @@ win32:Release {
     #INSTALLS += documentation
     INSTALLS += target
 }
+unix: CONFIG(release, debug|release) {
+    RR_INSTALL_ROOT = $$OUT_PWD/../install-root
+
+    target.path = $$RR_INSTALL_ROOT
+    target.files = $$OUT_PWD/rr
+    target.commands += chmod +x $$PWD/../scripts/linux_deploy.sh $$escape_expand(\\n\\t)
+    target.commands += $$PWD/../scripts/linux_deploy.sh --bin $$OUT_PWD/rr,$$OUT_PWD/rrcore/librrcore.so \
+                        --qmlDir $$PWD/qml --qmake $$[QT_INSTALL_BINS]/qmake --targetDir $${RR_INSTALL_ROOT} $$escape_expand(\\n\\t)
+    #documentation.files += readme.txt
+    #documentation.path += $$PWD/docs
+    #INSTALLS += documentation
+    INSTALLS += target
+}
+
 message("COMMANDS" $$target.commands)
