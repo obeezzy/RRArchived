@@ -1,3 +1,6 @@
 [submodule "src/rrcore/schema/rr-schema"]
 	path = src/rrcore/schema/rr-schema
 	url = git@github.com:obeezzy/rr-schema.git
+[submodule "3rdparty/fluid"]
+	path = 3rdparty/fluid
+	url = git@github.com:obeezzy/fluid.git
