@@ -6,9 +6,9 @@ import Fluid.Controls 1.0 as FluidControls
 import Fluid.Core 1.0 as FluidCore
 import com.gecko.rr.models 1.0 as RRModels
 import com.gecko.rr.components 1.0 as RRComponents
-import "../../../rrui" as RRUi
-import "../../../common"
-import "../../../singletons"
+import "../../rrui" as RRUi
+import "../../common"
+import "../../singletons"
 
 RRUi.WizardPage {
     id: debtPage
@@ -21,6 +21,12 @@ RRUi.WizardPage {
 
     title: qsTr("Enter amount owed")
     focus: true
+    nextButtonText: qsTr("Next")
+    hasNext: true
+    onNext: {
+        debtPage.QQC2.StackView.view.wizard.amountOwed = debtPage.amountOwed;
+        debtPage.nextPage.component = Qt.resolvedUrl("DueDatePage.qml");
+    }
 
     Grid {
         anchors.centerIn: parent

@@ -19,9 +19,9 @@ ListView {
 
     signal success(int successCode)
     signal error(int errorCode)
-    signal addPaymentRequested(int debtIndex)
     signal editTransactionRequested(int debtIndex)
     signal removeTransactionRequested(int debtIndex)
+    signal addPaymentRequested(int debtIndex)
     signal editPaymentRequested(int debtIndex, int paymentIndex)
     signal removePaymentRequested(int debtIndex, int paymentIndex)
 

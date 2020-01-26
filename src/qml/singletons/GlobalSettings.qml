@@ -5,6 +5,7 @@ Item {
     readonly property string localeName: "en_NG"
     readonly property string currencyLocaleName: "en_NG"
     readonly property int shortToastDuration: 4000
+    readonly property int _DAYS_IN_A_WEEK: 7
 
     function toCurrencyString(value) {
         return Number(value).toLocaleCurrencyString(Qt.locale(currencyLocaleName));

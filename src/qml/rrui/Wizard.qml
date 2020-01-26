@@ -73,7 +73,7 @@ Dialog {
         }
     }
 
-    onAboutToShow: if (stackView.depth === 0) stackView.push(stackView.initialItem);
+    onAboutToShow: if (stackView.depth === 0 && stackView.initialItem) stackView.push(stackView.initialItem);
     onAboutToHide: stackView.clear();
 
     footer: Item {
@@ -105,10 +105,10 @@ Dialog {
                 enabled: stackView.currentItem ? stackView.currentItem.nextEnabled : true
                 text: stackView.currentItem ? stackView.currentItem.nextButtonText : ""
                 onClicked: {
-                    if (stackView.currentItem) {
+                    if (stackView.currentItem)
                         stackView.currentItem.next();
+                    if (stackView.currentItem && stackView.currentItem.nextEnabled)
                         stackView.push(stackView.currentItem.nextPage.component, stackView.currentItem.nextPage.properties);
-                    }
                 }
             }
         }

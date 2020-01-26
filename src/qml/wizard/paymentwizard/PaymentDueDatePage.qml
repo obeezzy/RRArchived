@@ -37,10 +37,11 @@ RRUi.WizardPage {
 
         FluidControls.DateTimePicker {
             prefer24Hour: false
-            from: new Date(0)
-            to: new Date()
-            selectedDateTime: new Date(2012, 11, 21, 21, 12, 42)
-            onSelectedDateTimeChanged: console.log("New datetime=", selectedDateTime);
+            selectedDateTime: {
+                let date = new Date();
+                date.setDate(date.getDate() + GlobalSettings._DAYS_IN_A_WEEK); // A week later
+                return date;
+            }
         }
     }
 
