@@ -317,6 +317,11 @@ void QMLDebtTransactionModel::updateDebt(int debtIndex, const QDateTime &dueDate
     debtTransaction.state = DebtTransaction::State::Dirty;
     setDirty(m_debtorId > -1);
 
+    if (isExistingRecord(debtIndex))
+        m_existingDebtTransactions.replace(debtIndex, debtTransaction);
+    else
+        m_newDebtTransactions.replace(debtIndex - m_records.count(), debtTransaction);
+
     emit dataChanged(index(debtIndex), index(debtIndex));
 }
 
@@ -517,13 +522,13 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
             endResetModel();
 
             emit success(ViewDebtorTransactionsSuccess);
-        } else if (result.request().command() == "add_new_debtor") {
+        } else if (result.request().command() == DebtorQuery::AddDebtor::COMMAND) {
             clearAll();
             emit success(AddDebtorSuccess);
-        } else if (result.request().command() == "undo_add_new_debtor") {
+        } else if (result.request().command() == DebtorQuery::AddDebtor::UNDO_COMMAND) {
             clearAll();
             emit success(UndoAddDebtorSuccess);
-        } else if (result.request().command() == "update_debtor") {
+        } else if (result.request().command() == DebtorQuery::UpdateDebtor::COMMAND) {
             clearAll();
             emit success(UpdateDebtorSuccess);
         } else {

@@ -34,14 +34,15 @@ RRUi.Page {
             toolTip: qsTr("Suspend transaction")
             text: qsTr("Suspend transaction")
             onTriggered: {
-                if (transitionView.currentItem.itemCount === 0)
-                errorDialog.show(qsTr("There are no items in your cart."),
-                                 qsTr("Failed to suspend transaction"));
-                else if (transitionView.currentItem.customerName === "")
-                errorDialog.show(qsTr("Customer name cannot be empty."),
-                                 qsTr("Failed to suspend transaction"));
-                else
-                suspendTransactionDialog.open();
+                if (transitionView.currentItem.itemCount === 0) {
+                    errorDialog.show(qsTr("There are no items in your cart."),
+                                     qsTr("Failed to suspend transaction"));
+                } else if (transitionView.currentItem.customerName === "") {
+                    errorDialog.show(qsTr("Customer name cannot be empty."),
+                                     qsTr("Failed to suspend transaction"));
+                } else {
+                    suspendTransactionDialog.open();
+                }
             }
         },
 
@@ -164,9 +165,7 @@ RRUi.Page {
                         itemSelectionSection.refresh();
                     }
                     onError: {
-                        if (paymentWizard.opened) {
-                            paymentWizard.displayError(errorString);
-                        } else {
+                        if (!paymentWizard.opened) {
                             switch (errorCode) {
                             default:
                                 errorDialog.show(qsTr("An unknown error has occurred."),
@@ -187,7 +186,10 @@ RRUi.Page {
         id: paymentWizard
         reason: PaymentWizard.Sales
         cartModel: transitionView.currentItem.cartModel
-        onAccepted: transitionView.currentItem.submitTransaction({ "due_date": paymentWizard.dueDate,
+        onAccepted: {
+            console.log(`Due date=${paymentWizard.dueDate}, action=${paymentWizard.action}`);
+            transitionView.currentItem.submitTransaction({ "due_date": paymentWizard.dueDate,
                                                                      "action": paymentWizard.action });
+        }
     }
 }

@@ -11,6 +11,7 @@ Item {
 
     readonly property color black: "black"
     readonly property color white: "white"
+    readonly property color errorRed: "red"
 
     function padText(text) {
         return text + "                                                    ";

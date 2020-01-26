@@ -104,7 +104,8 @@ RRUi.WizardPage {
                 "canAcceptAlternatePaymentMethod": paymentByCashPage.cartModel.canAcceptCash
                                                    || paymentByCashPage.cartModel.canAcceptCard,
                 "isCashPayment": true,
-                "totalCost": paymentByCashPage.cartModel.totalCost
+                "totalCost": paymentByCashPage.cartModel.totalCost,
+                "cartModel": paymentByCashPage.cartModel
             };
         } else if ((paymentByCashPage.cartModel.customerName.trim() === ""
                     || paymentByCashPage.cartModel.customerPhoneNumber.trim() === "")

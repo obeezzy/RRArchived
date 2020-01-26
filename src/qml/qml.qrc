@@ -60,9 +60,6 @@
         <file>rrui/Wizard.qml</file>
         <file>rrui/WizardPage.qml</file>
         <file>people/debtor/AmountPaidDialog.qml</file>
-        <file>people/debtor/newdebttransactionwizard/DebtPage.qml</file>
-        <file>people/debtor/newdebttransactionwizard/DueDatePage.qml</file>
-        <file>people/debtor/newdebttransactionwizard/NewDebtTransactionWizard.qml</file>
         <file>rrui/ErrorDialog.qml</file>
         <file>people/debtor/RemoveDebtorConfirmationDialog.qml</file>
         <file>people/debtor/RemoveDebtConfirmationDialog.qml</file>
@@ -169,5 +166,8 @@
         <file>wizard/paymentwizard/PaymentMethodPage.qml</file>
         <file>wizard/paymentwizard/PaymentOptionModel.qml</file>
         <file>wizard/paymentwizard/PaymentSummaryPage.qml</file>
+        <file>wizard/newdebttransactionwizard/DebtPage.qml</file>
+        <file>wizard/newdebttransactionwizard/DueDatePage.qml</file>
+        <file>wizard/NewDebtTransactionWizard.qml</file>
     </qresource>
 </RCC>

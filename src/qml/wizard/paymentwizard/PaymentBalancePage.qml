@@ -1,10 +1,12 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import "../../rrui" as RRUi
+import com.gecko.rr.models 1.0 as RRModels
 import "../../singletons"
 import ".."
 
-WizardPage {
+RRUi.WizardPage {
     id: paymentBalancePage
     objectName: "paymentBalancePage"
 
@@ -15,6 +17,7 @@ WizardPage {
     property bool hasCredit: false
     property bool canAcceptAlternatePaymentMethod: false
     property bool isCashPayment: false
+    property RRModels.SaleCartModel cartModel: null
 
     title: qsTr("Handle %1").arg(hasCredit ? "credit" : "debt")
     padding: FluidControls.Units.smallSpacing
@@ -100,7 +103,7 @@ WizardPage {
         switch (paymentBalancePage.selectedOption) {
         case "pay_another_way":
             if (paymentBalancePage.cartModel.canAcceptCard || paymentBalancePage.cartModel.canAcceptCash) {
-                paymentBalancePage.action = paymentBalancePage.selectedOption;
+                paymentBalancePage.QQC2.StackView.view.wizard.action = paymentBalancePage.selectedOption;
                 paymentBalancePage.nextPage.component = Qt.resolvedUrl("PaymentMethodPage.qml");
                 paymentBalancePage.nextPage.properties = {
                     "canAcceptCash": paymentBalancePage.cartModel.canAcceptCash,
@@ -109,41 +112,49 @@ WizardPage {
             }
             break;
         case "overlook_balance":
-            paymentBalancePage.action = paymentBalancePage.selectedOption;
+            paymentBalancePage.QQC2.StackView.view.wizard.action = paymentBalancePage.selectedOption;
             paymentBalancePage.nextPage.component = Qt.resolvedUrl("PaymentFinishPage.qml");
             break;
         case "give_change":
-            paymentBalancePage.action = paymentBalancePage.selectedOption;
+            paymentBalancePage.QQC2.StackView.view.wizard.action = paymentBalancePage.selectedOption;
             paymentBalancePage.nextPage.component = Qt.resolvedUrl("PaymentChangePage.qml");
             paymentBalancePage.nextPage.properties = { "changeDue": paymentBalancePage.balance };
             break;
         case "create_debtor":
-            paymentBalancePage.action = paymentBalancePage.selectedOption;
+            paymentBalancePage.QQC2.StackView.view.wizard.action = paymentBalancePage.selectedOption;
             if (paymentBalancePage.cartModel.customerName.trim() === ""
                     || paymentBalancePage.cartModel.customerPhoneNumber.trim() === "") {
                 paymentBalancePage.nextPage.component = Qt.resolvedUrl("PaymentCustomerDetailPage.qml");
                 paymentBalancePage.nextPage.properties = {
                     "customerName": paymentBalancePage.cartModel.customerName,
                     "customerPhoneNumber": paymentBalancePage.cartModel.customerPhoneNumber,
-                    "paymentModel": paymentBalancePage.cartModel.paymentModel
+                    "paymentModel": paymentBalancePage.cartModel.paymentModel,
+                    "cartModel": paymentBalancePage.cartModel
                 };
             }
             else {
                 paymentBalancePage.nextPage.component = Qt.resolvedUrl("PaymentDueDatePage.qml");
+                paymentBalancePage.nextPage.properties = {
+                    "cartModel": paymentBalancePage.cartModel
+                }
             }
             break;
         case "create_creditor":
-            paymentBalancePage.action = paymentBalancePage.selectedOption;
+            paymentBalancePage.QQC2.StackView.view.wizard.action = paymentBalancePage.selectedOption;
             if (paymentBalancePage.cartModel.customerName.trim() === ""
                     || paymentBalancePage.cartModel.customerPhoneNumber.trim() === "") {
                 paymentBalancePage.nextPage.component = Qt.resolvedUrl("PaymentCustomerDetailPage.qml");
                 paymentBalancePage.nextPage.properties = {
                     "customerName": paymentBalancePage.cartModel.customerName,
                     "customerPhoneNumber": paymentBalancePage.cartModel.customerPhoneNumber,
-                    "paymentModel": paymentBalancePage.cartModel.paymentModel
+                    "paymentModel": paymentBalancePage.cartModel.paymentModel,
+                    "cartModel": paymentBalancePage.cartModel
                 };
             } else {
                 paymentBalancePage.component = Qt.resolvedUrl("PaymentDueDatePage.qml");
+                paymentBalancePage.nextPage.properties = {
+                    "cartModel": paymentBalancePage.cartModel
+                }
             }
             break;
         }

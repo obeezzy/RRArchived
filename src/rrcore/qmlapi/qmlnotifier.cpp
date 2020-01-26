@@ -14,7 +14,7 @@ Q_LOGGING_CATEGORY(qmlNotifier, "rrcore.qmlapi.qmlNotifier", QtWarningMsg);
 
 const int SHORT_DURATION = 5000;
 const int LONG_DURATION = 8000;
-const QString LOGO_FILE("/home/obeezzy/Documents/AllCodes/QtProjects/RecordRackDesktop/logo.png");
+const QString LOGO_FILE(":/images/rr_logo.png");
 
 QMLNotifier::QMLNotifier(QObject *parent) :
     QObject(parent)

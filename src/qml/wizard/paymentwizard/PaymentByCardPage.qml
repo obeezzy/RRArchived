@@ -34,7 +34,8 @@ RRUi.WizardPage {
                 "canAcceptAlternatePaymentMethod": paymentByCardPage.cartModel.canAcceptCash
                                                    || paymentByCardPage.canAcceptCard,
                 "isCashPayment": false,
-                "totalCost": paymentByCardPage.cartModel.totalCost
+                "totalCost": paymentByCardPage.cartModel.totalCost,
+                "cartModel": paymentByCardPage.cartModel
             };
         } else if (paymentByCardPage.cartModel.customerName.trim() === ""
                    || paymentByCardPage.cartModel.customerPhoneNumber.trim() === "") {
@@ -42,7 +43,8 @@ RRUi.WizardPage {
             paymentByCardPage.nextPage.properties = {
                 "customerName": paymentByCardPage.cartModel.customerName,
                 "customerPhoneNumber": paymentByCardPage.cartModel.customerPhoneNumber,
-                "paymentModel": paymentByCardPage.cartModel.paymentModel
+                "paymentModel": paymentByCardPage.cartModel.paymentModel,
+                "cartModel": paymentByCardPage.cartModel
             };
         } else {
             paymentByCardPage.nextPage.component = Qt.resolvedUrl("PaymentSummaryPage.qml");

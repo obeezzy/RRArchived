@@ -37,7 +37,8 @@ RRUi.WizardPage {
             paymentMethodPage.nextPage.properties = {
                 "customerName": paymentMethodPage.cartModel.customerName,
                 "customerPhoneNumber": paymentMethodPage.cartModel.customerPhoneNumber,
-                "paymentModel": paymentMethodPage.cartModel.paymentModel
+                "paymentModel": paymentMethodPage.cartModel.paymentModel,
+                "cartModel": paymentMethodPage.cartModel
             };
             break;
         }
