@@ -25,6 +25,10 @@ RRUi.ApplicationWindow {
     RR.UserProfile { id: userProfile }
     RR.Settings { id: settings }
 
+    FluidControls.DateTimePicker {
+        anchors.centerIn: parent
+    }
+
     Component {
         id: onboardingPage
 
