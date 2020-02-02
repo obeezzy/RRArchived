@@ -172,18 +172,18 @@ void QMLStockCategoryModel::tryQuery()
 
     if (!m_itemFilterText.trimmed().isEmpty()) {
         emit execute(new StockQuery::FilterStockCategoriesByItem(m_itemFilterText,
-                                                             sortOrder(),
-                                                             false,
-                                                             this));
+                                                                 sortOrder(),
+                                                                 false,
+                                                                 this));
     } else if (!filterText().trimmed().isEmpty()) {
         emit execute(new StockQuery::FilterStockCategories(filterText(),
-                                                       sortOrder(),
-                                                       false,
-                                                       this));
+                                                           sortOrder(),
+                                                           false,
+                                                           this));
     } else {
         emit execute(new StockQuery::ViewStockCategories(sortOrder(),
-                                                     false,
-                                                     this));
+                                                         false,
+                                                         this));
     }
 }
 

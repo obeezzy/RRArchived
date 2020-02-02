@@ -2,6 +2,8 @@
 #include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
+#include "database/exceptions/exceptions.h"
+#include "singletons/settings.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -9,26 +11,21 @@
 
 using namespace DebtorQuery;
 
-AddDebtor::AddDebtor(const QString &preferredName,
-                     const QString &firstName,
-                     const QString &lastName,
-                     const QString &primaryPhoneNumber,
-                     const QUrl &imageUrl,
-                     const DebtTransactionList &newDebtTransactions,
-                     const QString &note,
+AddDebtor::AddDebtor(const DebtorDetails &debtorDetails,
+                     const DebtTransactionList &debtTransactions,
                      QObject *receiver) :
     DebtorExecutor(COMMAND, {
                         { "can_undo", true },
-                        { "preferred_name", preferredName },
-                        { "first_name", firstName },
-                        { "last_name", lastName },
-                        { "image", DatabaseUtils::imageUrlToByteArray(imageUrl) },
-                        { "primary_phone_number", primaryPhoneNumber },
-                        { "new_debt_transactions", newDebtTransactions.toVariantList() },
-                        { "note", note }
+                        { "preferred_name", debtorDetails.preferredName },
+                        { "first_name", debtorDetails.firstName },
+                        { "last_name", debtorDetails.lastName },
+                        { "image_url", debtorDetails.imageUrl },
+                        { "primary_phone_number", debtorDetails.phoneNumber },
+                        { "note_id", debtorDetails.note.id },
+                        { "note", debtorDetails.note.note }
                    }, receiver)
 {
-
+    DebtorExecutor::arrangeDebtTransactions(debtTransactions);
 }
 
 QueryResult AddDebtor::execute()
@@ -44,26 +41,28 @@ QueryResult AddDebtor::addDebtor()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
-    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
     int noteId = 0;
     int debtorId = 0;
     int clientId = 0;
+    //const QByteArray &image = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
     QVariantList debtTransactionIds;
     QVector<int> debtTransactionNoteIds;
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
-        QueryExecutor::enforceArguments({ "preferred_name", "primary_phone_number" }, params);
+        QueryExecutor::enforceArguments({ "preferred_name",
+                                          "primary_phone_number" },
+                                        params);
 
         DatabaseUtils::beginTransaction(q);
 
         // STEP: Check if debt transactions exist
         if (newDebtTransactions.count() == 0)
-            throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments,
-                                    q.lastError().text(),
-                                    QString("No new debt transactions for debtor %1.")
+            throw MissingArgumentException(QString("No new debt transactions for debtor %1.")
                                     .arg(params.value("preferred_name").toString()));
 
         // STEP: Ensure that debtor doesn't already exist
@@ -77,8 +76,7 @@ QueryResult AddDebtor::addDebtor()
                                                           }));
 
             if (records.first().value("id").toBool())
-                throw DatabaseException(DatabaseError::QueryErrorCode::DuplicateEntryFailure, q.lastError().text(),
-                                        "Failed to insert debtor because debtor already exists.");
+                throw DuplicateEntryException(QStringLiteral("Debtor already exists."));
         }
 
         noteId = addNote(params.value("note").toString(), "debtor");
@@ -90,8 +88,7 @@ QueryResult AddDebtor::addDebtor()
         }
 
         if (newDebtTransactions.count() != debtTransactionNoteIds.count())
-            throw DatabaseException(DatabaseError::QueryErrorCode::AddDebtorFailure, "",
-                                    "Failed to match note ID count with transaction count.");
+            throw ArgumentMismatchException(QStringLiteral("Failed to match note ID count with transaction count."));
 
         // STEP: Add client
         QList<QSqlRecord> records(callProcedure("AddClient", {
@@ -192,8 +189,7 @@ QueryResult AddDebtor::addDebtor()
             double newDebt = totalDebt;
 
             if (dueDateTime <= QDateTime::currentDateTime())
-                throw DatabaseException(DatabaseError::QueryErrorCode::InvalidDueDate, q.lastError().text(),
-                                        QStringLiteral("Due date is earlier than the current date."));
+                throw InvalidDueDateException();
 
             debtTransactionIds.append(debtTransactionId);
 
@@ -228,7 +224,7 @@ QueryResult AddDebtor::addDebtor()
                                             ProcedureArgument {
                                                 ProcedureArgument::Type::In,
                                                 "currency",
-                                                QStringLiteral("NGN")
+                                                Settings::DEFAULT_CURRENCY
                                             },
                                             ProcedureArgument {
                                                 ProcedureArgument::Type::In,
@@ -249,8 +245,7 @@ QueryResult AddDebtor::addDebtor()
 
                 newDebt -= amountPaid;
                 if (newDebt < 0.0)
-                    throw DatabaseException(DatabaseError::QueryErrorCode::AmountOverpaid, q.lastError().text(),
-                                            QStringLiteral("Total amount paid is greater than total debt."));
+                    throw AmountOverpaidException(newDebt);
             }
         }
 
@@ -270,5 +265,5 @@ QueryResult AddDebtor::addDebtor()
 
 QueryResult AddDebtor::undoAddDebtor()
 {
-    throw DatabaseException(DatabaseError::QueryErrorCode::NotYetImplementedError);
+    throw MissingImplementationException();
 }

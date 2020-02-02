@@ -5,29 +5,33 @@ import Fluid.Controls 1.0 as FluidControls
 import "../../rrui" as RRUi
 
 RRUi.AlertDialog {
-    id: removeConfirmationDialog
+    id: removeDebtConfirmationDialog
 
     property int debtIndex: -1
     property int paymentIndex: -1
+    property var paymentModel: null
     readonly property bool isPayment: debtIndex > -1 && paymentIndex > -1
 
     onClosed: {
         debtIndex = -1;
         paymentIndex = -1;
+        paymentModel = null;
     }
 
-    title: qsTr("Remove item?                                                  ")
-    text: qsTr("Are you sure you would like to remove this item?")
+    title: qsTr("Remove payment?                                                  ")
+    text: qsTr("Are you sure you would like to remove this payment?")
     standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
     closePolicy: QQC2.Popup.CloseOnEscape
 
-    function show(itemName, debtIndex, paymentIndex) {
-        if (itemName !== undefined)
-            text = qsTr("Are you sure you would like to remove %1?").arg(itemName);
+    function show(paymentName, debtIndex, paymentIndex, paymentModel) {
+        if (paymentName !== undefined)
+            text = qsTr("Are you sure you would like to remove %1?").arg(paymentName);
         if (debtIndex !== undefined)
-            removeConfirmationDialog.debtIndex = debtIndex;
+            removeDebtConfirmationDialog.debtIndex = debtIndex;
         if (paymentIndex !== undefined)
-            removeConfirmationDialog.paymentIndex = paymentIndex;
+            removeDebtConfirmationDialog.paymentIndex = paymentIndex;
+        if (paymentModel !== undefined)
+            removeDebtConfirmationDialog.paymentModel = paymentModel;
 
         open();
     }

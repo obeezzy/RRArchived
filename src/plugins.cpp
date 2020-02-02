@@ -43,6 +43,7 @@
 #include "rrcore/qmlapi/qmlexpensetransactionmodel.h"
 #include "rrcore/qmlapi/qmlstockitemmodel.h"
 #include "rrcore/qmlapi/qmlstockitemcountrecord.h"
+#include "rrcore/qmlapi/qmldebtpaymentmodel.h"
 
 #include "rrcore/widgets/dialogs.h"
 #include "rrcore/user/businessdetails.h"
@@ -103,6 +104,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLExpenseTransactionModel>("com.gecko.rr.models", 1, 0, "ExpenseTransactionModel");
     qmlRegisterType<QMLStockItemModel>("com.gecko.rr.models", 1, 0, "StockItemModel");
     qmlRegisterType<QMLStockItemCountRecord>("com.gecko.rr.models", 1, 0, "StockItemCountRecord");
+    qmlRegisterType<QMLDebtPaymentModel>("com.gecko.rr.models", 1, 0, "DebtPaymentModel");
 
     // Components
     qmlRegisterType<QMLDoubleValidator>("com.gecko.rr.components", 1, 0, "DoubleValidator");

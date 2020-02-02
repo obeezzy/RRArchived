@@ -30,7 +30,7 @@ public:
         Authenticate
     }; Q_ENUM(CommandVerb)
 
-    explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The parent parameter is mandatory!
+    explicit QueryRequest(QObject *receiver = nullptr); // NOTE: The "receiver" parameter is mandatory!
     QueryRequest(const QueryRequest &other);
     QueryRequest &operator= (const QueryRequest &other);
 
@@ -50,6 +50,7 @@ public:
     void setParams(const QVariantMap &params);
 
     QVariantMap params() const;
+    QVariantMap &params();
     QueryGroup queryGroup() const;
     CommandVerb commandVerb() const;
     QByteArray toJson() const;

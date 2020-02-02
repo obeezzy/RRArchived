@@ -13,6 +13,11 @@ public:
     explicit ViewDebtTransactions(int debtorId,
                                   QObject *receiver);
     QueryResult execute() override;
+private:
+    void fetchDebtorDetails(const QVariantMap &params,
+                            QVariantMap &debtorDetails);
+    void fetchDebtTransactions(const QVariantMap &params,
+                               QVariantList &debtTransactions);
 };
 }
 

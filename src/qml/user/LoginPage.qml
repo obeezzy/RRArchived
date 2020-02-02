@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
 import "../rrui" as RRUi
+import "../singletons"
 
 RRUi.Page {
     id: loginPage
@@ -33,7 +34,7 @@ RRUi.Page {
                     verticalAlignment: Qt.AlignVCenter
                     leftPadding: 10
                     text: qsTr("Welcome to Record Rack")
-                    color: "white"
+                    color: Material.theme === Material.Dark ? Stylesheet.black : Stylesheet.white
                     background: Rectangle { color: Material.color(Material.LightGreen) }
                     font.weight: Font.Light
                 }

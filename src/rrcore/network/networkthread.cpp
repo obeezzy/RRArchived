@@ -2,6 +2,10 @@
 #include "serverresponse.h"
 #include "networkexception.h"
 #include "requestlogger.h"
+#include "networkurl.h"
+#include "networkerror.h"
+#include "exceptions/exceptions.h"
+#include "database/queryexecutor.h"
 #include "user/userprofile.h"
 
 #include <QElapsedTimer>
@@ -12,9 +16,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QEventLoop>
-#include "networkurl.h"
-#include "networkerror.h"
-#include "database/queryexecutor.h"
 
 Q_LOGGING_CATEGORY(networkThread, "rrcore.network.networkthread");
 
@@ -122,6 +123,8 @@ QUrl NetworkWorker::determineUrl(const QueryRequest &request) const
         return QUrl(NetworkUrl::STOCK_API_URL);
     } else if (request.queryGroup() == QueryRequest::QueryGroup::Sales) {
         return QUrl(NetworkUrl::SALES_API_URL);
+    } else if (request.queryGroup() == QueryRequest::QueryGroup::Debtor) {
+        return QUrl(NetworkUrl::DEBTOR_API_URL);
     } else if (request.queryGroup() == QueryRequest::QueryGroup::User) {
         if (request.commandVerb() == QueryRequest::CommandVerb::Authenticate) {
             if (request.command() == "sign_in_user")
@@ -137,8 +140,7 @@ QUrl NetworkWorker::determineUrl(const QueryRequest &request) const
         }
     }
 
-    throw NetworkException(NetworkError::ServerErrorCode::UnableToDetermineDestinationUrl,
-                           QStringLiteral("Unable to determine destination URL for command '%1'").arg(request.command()));
+    throw IndeterminateDestinationUrlException(request.command());
 }
 
 QUrl NetworkWorker::determineUrl(const ServerRequest &request) const
@@ -148,8 +150,7 @@ QUrl NetworkWorker::determineUrl(const ServerRequest &request) const
     else if (request.action() == "link_business_store")
         return QUrl(NetworkUrl::LINK_BUSINESS_STORE_URL);
 
-    throw NetworkException(NetworkError::ServerErrorCode::UnableToDetermineDestinationUrl,
-                           QStringLiteral("Unable to determine destination URL for action '%1'").arg(request.action()));
+    throw IndeterminateDestinationUrlException(request.action());
 }
 
 void NetworkWorker::waitForFinished(QNetworkReply *reply)

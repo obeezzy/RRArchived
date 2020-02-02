@@ -9,17 +9,17 @@ import com.gecko.rr.components 1.0 as RRComponents
 import "../../rrui" as RRUi
 import "../../common"
 
-QQC2.Control {
+RRUi.SubView {
     id: clientDetailSubView
 
     property int debtorId: -1
-    property string imageSource: ""
-    property string preferredName: ""
-    property string firstName: ""
-    property string lastName: ""
+    property url imageUrl: debtorDetailRecord.imageUrl
+    property string preferredName: debtorDetailRecord.preferredName
+    property string primaryPhoneNumber: debtorDetailRecord.phoneNumber
+    property string firstName: debtorDetailRecord.firstName
+    property string lastName: debtorDetailRecord.lastName
     property string middleName: ""
     property string title: ""
-    property string primaryPhoneNumber: ""
     property ListModel phoneNumberModel: ListModel { }
     property ListModel addressModel: ListModel { }
     property ListModel emailModel: ListModel { }
@@ -65,6 +65,7 @@ QQC2.Control {
                         height: width
                         font.pixelSize: 30
                         name: "Name"
+                        source: clientDetailSubView.imageUrl
 
                         FluidControls.Icon {
                             anchors.centerIn: parent

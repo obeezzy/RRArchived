@@ -27,4 +27,6 @@ FluidControls.AlertDialog {
         title = qsTr("Error                                                                                ");
         text = qsTr("Unknown error occurred (%1).").arg(errorCode);
     }
+
+    onAboutToShow: footer.contentItem.focus = true;
 }

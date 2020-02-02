@@ -28,8 +28,8 @@ private:
     QNetworkAccessManager *m_networkManager;
     RequestLogger *m_requestLogger;
 
-    QUrl determineUrl(const QueryRequest &request) const; // throws NetworkException
-    QUrl determineUrl(const ServerRequest &request) const; // throws NetworkException
+    QUrl determineUrl(const QueryRequest &request) const; // throws IndeterminateUrlException
+    QUrl determineUrl(const ServerRequest &request) const; // throws IndeterminateUrlException
     void waitForFinished(QNetworkReply *reply);
     void flushLoggedRequests(); // throws NetworkException
 };

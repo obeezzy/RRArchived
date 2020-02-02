@@ -7,5 +7,6 @@
 #include "debtor/adddebtor.h"
 #include "debtor/updatedebtor.h"
 #include "debtor/viewdebtordetails.h"
+#include "debtor/viewdebtpayments.h"
 
 #endif // DEBTOR_H

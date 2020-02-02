@@ -13,18 +13,29 @@ class UpdateDebtor : public DebtorExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("update_debtor");
 
-    explicit UpdateDebtor(int debtorId,
-                          int clientId,
-                          const QString &preferredName,
-                          const QString &firstName,
-                          const QString &lastName,
-                          const QString &primaryPhoneNumber,
-                          const QUrl &imageUrl,
-                          const DebtTransactionList &newDebtTransactions,
-                          const DebtTransactionList &updatedDebtTransactions,
-                          const QString &note,
+    explicit UpdateDebtor(const DebtorDetails &debtorDetails,
+                          const DebtTransactionList &debtTransactions,
                           QObject *receiver);
     QueryResult execute() override;
+private:
+    void addNotesForNewTransactions(const QVariantList &newDebtTransactions,
+                                    QVariantList &newDebtTransactionNoteIds);
+    void updateNotesForExistingTransactions(const QVariantList &updatedDebtTransactions);
+    void updateClientDetails(int clientId, const QVariantMap &params);
+    void addNewTransactions(int debtorId,
+                            const QVariantList &newDebtTransactions,
+                            const QVariantList &newDebtTransactionNoteIds,
+                            QVariantList &newDebtTransactionIds);
+    void updateExistingTransactions(const QVariantList &updatedDebtTransactions,
+                                    QVariantList &updatedDebtTransactionIds);
+    void archiveDeletedTransactions(const QVariantList &archivedDebtTransactions,
+                                    QVariantList &archivedDebtTransactionIds);
+    void addNewPayments(const QVariantList &newDebtPayments,
+                        QVariantList &newDebtPaymentIds);
+    void updateExistingPayments(const QVariantList &updatedDebtPayments,
+                                QVariantList &updatedDebtPaymentIds);
+    void archiveDeletedPayments(const QVariantList &archivedDebtPayments,
+                                QVariantList &archivedDebtPaymentIds);
 };
 }
 

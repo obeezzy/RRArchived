@@ -10,17 +10,16 @@ RRUi.Wizard {
     id: newDebtTransactionWizard
 
     property real amountOwed: 0
-    property int debtIndex: -1
     property date dueDate: new Date()
-    readonly property bool isExistingDebt: debtIndex >= 0
+    property var debtModelData: null
+    readonly property bool isExistingDebt: debtModelData !== null
 
-    function show(debtIndex, dueDate) {
-        if (debtIndex !== undefined && dueDate !== undefined) {
-            newDebtTransactionWizard.debtIndex = debtIndex;
-            newDebtTransactionWizard.dueDate = dueDate;
+    function show(debtModelData) {
+        if (debtModelData !== undefined && Object(debtModelData).hasOwnProperty("due_date")) {
+            newDebtTransactionWizard.debtModelData = debtModelData;
+            newDebtTransactionWizard.dueDate = debtModelData.due_date;
         }
 
-        console.log("debtIndex===", debtIndex, ", dueDate=", dueDate);
         newDebtTransactionWizard.open();
     }
 
@@ -37,6 +36,7 @@ RRUi.Wizard {
     onClosed: {
         amountOwed = 0;
         dueDate = new Date();
+        debtModelData = null;
         newDebtTransactionWizard.contentItem.clear();
     }
 }

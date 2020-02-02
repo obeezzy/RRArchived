@@ -2,6 +2,7 @@
 
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
+#include "database/exceptions/exceptions.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -12,14 +13,14 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(queryExecutor, "rrcore.database.queryexecutor");
+Q_LOGGING_CATEGORY(lcqueryexecutor, "rrcore.database.queryexecutor");
 
 QueryExecutor::QueryExecutor(QObject *parent) :
     QObject(nullptr)
 {
     Q_UNUSED(parent)
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
-    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command() << this;
+    qCDebug(lcqueryexecutor) << "QueryExecutor created:" << m_request.command() << this;
 }
 
 QueryExecutor::QueryExecutor(const QueryRequest &request) :
@@ -27,7 +28,7 @@ QueryExecutor::QueryExecutor(const QueryRequest &request) :
     m_request(request)
 {
     qRegisterMetaType<QueryExecutor>("QueryExecutor");
-    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command() << this;
+    qCDebug(lcqueryexecutor) << "QueryExecutor created:" << m_request.command() << this;
 }
 
 QueryExecutor::QueryExecutor(const QString &command,
@@ -38,7 +39,7 @@ QueryExecutor::QueryExecutor(const QString &command,
 {
     m_request.setCommand(command, params, queryGroup);
     m_request.setReceiver(receiver);
-    qCDebug(queryExecutor) << "QueryExecutor created:" << m_request.command() << this;
+    qCDebug(lcqueryexecutor) << "QueryExecutor created:" << m_request.command() << this;
 }
 
 QueryExecutor::QueryExecutor(const QueryExecutor &other) :
@@ -56,7 +57,7 @@ QueryExecutor &QueryExecutor::operator=(const QueryExecutor &other)
 
 QueryExecutor::~QueryExecutor()
 {
-    qCDebug(queryExecutor) << "QueryExecutor destroyed:" << m_request.command() << this;
+    qCDebug(lcqueryexecutor) << "QueryExecutor destroyed:" << m_request.command() << this;
 }
 
 QueryRequest QueryExecutor::request() const
@@ -141,9 +142,8 @@ void QueryExecutor::enforceArguments(QStringList argumentsToEnforce, const QVari
     }
 
     if (!argumentsToEnforce.isEmpty())
-        throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments,
-                                QString(),
-                                QString("The following mandatory parameters are not set: %1").arg(argumentsToEnforce.join(", ")));
+        throw MissingArgumentException(QStringLiteral("The following mandatory parameters are not set: %1")
+                                       .arg(argumentsToEnforce.join(", ")));
 }
 
 QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments)
@@ -218,7 +218,7 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::in
     }
 
     const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
-    qCInfo(queryExecutor) << "Procedure syntax:" << storedProcedure;
+    qCInfo(lcqueryexecutor) << "Procedure syntax:" << storedProcedure;
     if (!q.exec(storedProcedure)) {
         if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException))
             throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
@@ -251,56 +251,101 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::in
     return records;
 }
 
-int QueryExecutor::addNote(const QString &note, const QString &tableName) {
-    if (note.trimmed().isEmpty() || tableName.trimmed().isEmpty())
-        return 0;
+int QueryExecutor::addNote(const QString &note,
+                           const QString &tableName,
+                           ExceptionPolicy policy)
+{
+    try {
+        if (note.trimmed().isEmpty())
+            throw InvalidArgumentException("Cannot add empty string as note.");
+        if (tableName.trimmed().isEmpty())
+            throw InvalidArgumentException("Cannot add note with no table name.");
 
-    const QList<QSqlRecord> &records(callProcedure("AddNote", {
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "note",
-                                                          note
-                                                      },
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "table_name",
-                                                          "debtor"
-                                                      },
-                                                      ProcedureArgument {
-                                                          ProcedureArgument::Type::In,
-                                                          "user_id",
-                                                          UserProfile::instance().userId()
-                                                      }
-                                                  }));
+        const QList<QSqlRecord> &records(callProcedure("AddNote", {
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "note",
+                                                               note
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "table_name",
+                                                               "debtor"
+                                                           },
+                                                           ProcedureArgument {
+                                                               ProcedureArgument::Type::In,
+                                                               "user_id",
+                                                               UserProfile::instance().userId()
+                                                           }
+                                                       }));
 
-    return records.first().value("id").toInt();
+        return records.first().value("id").toInt();
+    } catch (DatabaseException &) {
+        if (policy == ExceptionPolicy::AllowExceptions)
+            throw;
+    }
+
+    return 0;
 }
 
-void QueryExecutor::updateNote(int noteId, const QString &note, const QString &tableName) {
-    if (noteId <= 0 || note.trimmed().isEmpty())
-        throw DatabaseException(DatabaseError::QueryErrorCode::MissingArguments,
-                                "Missing arguments for updateNote().");
+void QueryExecutor::updateNote(int noteId,
+                               const QString &note,
+                               const QString &tableName,
+                               ExceptionPolicy policy)
+{
+    try {
+        if (noteId <= 0)
+            throw InvalidArgumentException(QStringLiteral("Cannot update note with invalid ID %1")
+                                           .arg(noteId));
+        if (note.trimmed().isEmpty())
+            throw InvalidArgumentException("Cannot update note with empty string.");
 
-    callProcedure("UpdateNote", {
-                      ProcedureArgument {
-                          ProcedureArgument::Type::In,
-                          "note_id",
-                          noteId
-                      },
-                      ProcedureArgument {
-                          ProcedureArgument::Type::In,
-                          "note",
-                          note
-                      },
-                      ProcedureArgument {
-                          ProcedureArgument::Type::In,
-                          "table_name",
-                          tableName
-                      },
-                      ProcedureArgument {
-                          ProcedureArgument::Type::In,
-                          "user_id",
-                          UserProfile::instance().userId()
-                      }
-                  });
+        callProcedure("UpdateNote", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "note_id",
+                              noteId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "note",
+                              note
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "table_name",
+                              tableName
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
+    } catch (DatabaseException &) {
+        if (policy == ExceptionPolicy::AllowExceptions)
+            throw;
+    }
+}
+
+int QueryExecutor::addOrUpdateNote(int noteId,
+                                   const QString &note,
+                                   const QString &tableName,
+                                   ExceptionPolicy policy)
+{
+    try {
+        if (!note.trimmed().isEmpty()) {
+            if (noteId <= 0)
+                noteId = addNote(note, tableName);
+            else
+                updateNote(noteId, note, tableName);
+        }
+
+        return noteId;
+    } catch (DatabaseException &) {
+        if (policy == ExceptionPolicy::AllowExceptions)
+            throw;
+    }
+
+    return 0;
 }

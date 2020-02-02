@@ -5,40 +5,51 @@ import Fluid.Controls 1.0 as FluidControls
 import "../../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
 import com.gecko.rr.components 1.0 as RRComponents
-
 import "../../singletons"
 
 RRUi.Dialog {
     id: amountPaidDialog
 
-    property real totalDebt: 0
-    property int debtIndex: -1
-    property int paymentIndex: -1
+    property real maxPayableAmount: 0
+    property var paymentModelData: null
+    property var paymentModel: null
     readonly property real amountPaid: amountPaidTextField.text === "" ? 0 : parseFloat(amountPaidTextField.text)
-    readonly property bool isExistingPayment: paymentIndex >= 0
+    readonly property bool isExistingPayment: paymentModelData !== null
 
-    function show(debtIndex, paymentIndex, totalDebt) {
-        if (debtIndex !== undefined)
-            amountPaidDialog.debtIndex = debtIndex;
-        if (paymentIndex !== undefined)
-            amountPaidDialog.paymentIndex = paymentIndex;
-        if (totalDebt !== undefined)
-            amountPaidDialog.totalDebt = totalDebt;
+    function show(paymentModelData, paymentModel) {
+        if (paymentModelData !== undefined)
+            amountPaidDialog.paymentModelData = paymentModelData;
+        if (paymentModel !== undefined)
+            amountPaidDialog.paymentModel = paymentModel;
+
+        if (paymentModelData && Object(paymentModelData).hasOwnProperty("amount_paid"))
+            amountPaidTextField.text = Number(paymentModelData.amount_paid).toFixed(2);
+        else
+            amountPaidTextField.text = Number(0).toFixed(2);
+
+        if (paymentModelData && Object(paymentModelData).hasOwnProperty("max_payable_amount")) {
+            amountPaidDialog.totalDebt = paymentModelData.max_payable_amount;
+        } else if (paymentModel && paymentModel.rowCount() > 0
+                 && Object(paymentModel.get(paymentModel.rowCount() - 1)).hasOwnProperty("max_payable_amount")) {
+            amountPaidDialog.maxPayableAmount = paymentModel.get(paymentModel.rowCount() - 1).max_payable_amount;
+        }
 
         amountPaidDialog.open();
     }
 
     width: 480
-
-    onClosed: {
-        totalDebt = 0;
-        debtIndex = -1;
-        paymentIndex = -1;
-    }
-
     title: isExistingPayment ? qsTr("Edit payment") : qsTr("New payment")
 
-    contentItem: Item {
+    onAboutToShow: amountPaidTextField.selectAll();
+    onClosed: {
+        maxPayableAmount = 0;
+        paymentModelData = null;
+        paymentModel = null;
+    }
+
+    contentItem: FocusScope {
+        focus: amountPaidDialog.activeFocus
+
         Row {
             anchors.centerIn: parent
             spacing: 16
@@ -52,11 +63,12 @@ RRUi.Dialog {
 
             RRUi.TextField {
                 id: amountPaidTextField
-                text: "0.00"
+                text: Number(0).toFixed(2)
+                focus: amountPaidDialog.activeFocus
                 horizontalAlignment: Qt.AlignRight
                 verticalAlignment: Qt.AlignVCenter
                 bottomPadding: 12
-                validator: RRComponents.DoubleValidator { bottom: 0; top: amountPaidDialog.totalDebt }
+                validator: RRComponents.DoubleValidator { bottom: 0; top: amountPaidDialog.maxPayableAmount }
             }
         }
     }

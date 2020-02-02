@@ -25,7 +25,12 @@ public:
     enum class TransactionMode {
         UseSqlTransaction,
         SkipSqlTransaction
-    };
+    }; Q_ENUM(TransactionMode)
+
+    enum class ExceptionPolicy {
+        AllowExceptions,
+        DisallowExceptions
+    }; Q_ENUM(ExceptionPolicy)
     explicit QueryExecutor(QObject *parent = nullptr);
     explicit QueryExecutor(const QueryRequest &request);
     explicit QueryExecutor(const QString &command,
@@ -61,15 +66,25 @@ protected:
     QSqlRecord mapToRecord(const QVariantMap &);
 
     void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
-    QList<QSqlRecord> callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments); // throw DatabaseException
+    QList<QSqlRecord> callProcedure(const QString &procedure,
+                                    std::initializer_list<ProcedureArgument> arguments); // throw DatabaseException
 
-    int addNote(const QString &note, const QString &tableName); // throw DatabaseException
-    void updateNote(int noteId, const QString &note, const QString &tableName = QString()); // throw DatabaseException
+    int addNote(const QString &note,
+                const QString &tableName,
+                ExceptionPolicy policy = ExceptionPolicy::AllowExceptions); // throw DatabaseException
+    void updateNote(int noteId,
+                    const QString &note,
+                    const QString &tableName = QString(),
+                    ExceptionPolicy policy = ExceptionPolicy::AllowExceptions); // throw DatabaseException
+    int addOrUpdateNote(int noteId,
+                        const QString &note,
+                        const QString &tableName,
+                        ExceptionPolicy policy = ExceptionPolicy::AllowExceptions); // throw DatabaseException
 private:
     QueryRequest m_request;
     QString m_connectionName;
 };
 
-Q_DECLARE_LOGGING_CATEGORY(queryExecutor);
+Q_DECLARE_LOGGING_CATEGORY(lcqueryexecutor);
 
 #endif // QUERYEXECUTOR_H

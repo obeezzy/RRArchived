@@ -11,12 +11,22 @@ RESOURCES += config/config.qrc \
 INCLUDEPATH += .
 
 SOURCES += \
+    database/exceptions/amountoverpaidexception.cpp \
+    database/exceptions/argumentmismatchexception.cpp \
+    database/exceptions/duplicateentryexception.cpp \
+    database/exceptions/invalidargumentexception.cpp \
+    database/exceptions/invalidduedateexception.cpp \
+    database/exceptions/missingargumentexception.cpp \
+    database/exceptions/missingimplementationexception.cpp \
+    database/exceptions/unexpectedresultexception.cpp \
     database/queryexecutor.cpp \
+    network/exceptions/indeterminatedestinationurlexception.cpp \
     network/networkexception.cpp \
     network/networkthread.cpp \
     network/requestlogger.cpp \
     network/serverrequest.cpp \
     network/serverresponse.cpp \
+    qmlapi/qmldebtpaymentmodel.cpp \
     qmlapi/qmlexpensetransactionmodel.cpp \
     qmlapi/qmlstockitemcountrecord.cpp \
     qmlapi/qmlstockitemmodel.cpp \
@@ -31,6 +41,7 @@ SOURCES += \
     queryexecutors/debtor/updatedebtor.cpp \
     queryexecutors/debtor/viewdebtordetails.cpp \
     queryexecutors/debtor/viewdebtors.cpp \
+    queryexecutors/debtor/viewdebtpayments.cpp \
     queryexecutors/debtor/viewdebttransactions.cpp \
     queryexecutors/expense/addexpensetransaction.cpp \
     queryexecutors/expense/expenseexecutor.cpp \
@@ -120,11 +131,11 @@ SOURCES += \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
     user/businessdetails.cpp \
+    utility/debtor/debtpayment.cpp \
     widgets/dialogs.cpp \
     qmlapi/qmlclientmodel.cpp \
     sqlmanager/clientsqlmanager.cpp \
     qmlapi/qmldebttransactionmodel.cpp \
-    models/debtpaymentmodel.cpp \
     qmlapi/qmldebtordetailrecord.cpp \
     models/salepaymentmodel.cpp \
     qmlapi/qmldatabasecreator.cpp \
@@ -165,7 +176,18 @@ SOURCES += \
 
 HEADERS += \
     database/databaseerror.h \
+    database/exceptions/amountoverpaidexception.h \
+    database/exceptions/argumentmismatchexception.h \
+    database/exceptions/duplicateentryexception.h \
+    database/exceptions/exceptions.h \
+    database/exceptions/invalidargumentexception.h \
+    database/exceptions/invalidduedateexception.h \
+    database/exceptions/missingargumentexception.h \
+    database/exceptions/missingimplementationexception.h \
+    database/exceptions/unexpectedresultexception.h \
     database/queryexecutor.h \
+    network/exceptions/exceptions.h \
+    network/exceptions/indeterminatedestinationurlexception.h \
     network/networkerror.h \
     network/networkexception.h \
     network/networkthread.h \
@@ -173,6 +195,7 @@ HEADERS += \
     network/requestlogger.h \
     network/serverrequest.h \
     network/serverresponse.h \
+    qmlapi/qmldebtpaymentmodel.h \
     qmlapi/qmlexpensetransactionmodel.h \
     qmlapi/qmlstockitemcountrecord.h \
     qmlapi/qmlstockitemmodel.h \
@@ -190,6 +213,7 @@ HEADERS += \
     queryexecutors/debtor/updatedebtor.h \
     queryexecutors/debtor/viewdebtordetails.h \
     queryexecutors/debtor/viewdebtors.h \
+    queryexecutors/debtor/viewdebtpayments.h \
     queryexecutors/debtor/viewdebttransactions.h \
     queryexecutors/expense.h \
     queryexecutors/expense/addexpensetransaction.h \
@@ -286,13 +310,19 @@ HEADERS += \
     models/abstracttransactionmodel.h \
     models/abstracttransactionitemmodel.h \
     user/businessdetails.h \
+    utility/commonutils.h \
+    utility/debtor/debtordetails.h \
+    utility/debtor/debtpayment.h \
+    utility/debtor/debttransaction.h \
+    utility/purchase/purchasepayment.h \
     utility/purchaseutils.h \
+    utility/sales/salepayment.h \
+    utility/stock/stockitem.h \
     utility/stockutils.h \
     widgets/dialogs.h \
     qmlapi/qmlclientmodel.h \
     sqlmanager/clientsqlmanager.h \
     qmlapi/qmldebttransactionmodel.h \
-    models/debtpaymentmodel.h \
     qmlapi/qmldebtordetailrecord.h \
     utility/debtorutils.h \
     utility/saleutils.h \
