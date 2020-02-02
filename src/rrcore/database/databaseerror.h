@@ -57,7 +57,9 @@ namespace DatabaseError
         AddUserFailed,
         OldPasswordWrong,
         UserAccountIsLocked,
-        UserPreviouslyArchived
+        UserPreviouslyArchived,
+        ArgumentMismatch,
+        UnexpectedResultError
     };
 
     enum class MySqlErrorCode {

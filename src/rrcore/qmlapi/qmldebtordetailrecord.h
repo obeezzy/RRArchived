@@ -3,6 +3,7 @@
 
 #include "detailrecord/abstractdetailrecord.h"
 #include <QDateTime>
+#include <QUrl>
 
 class DatabaseThread;
 
@@ -16,19 +17,12 @@ class QMLDebtorDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(QString phoneNumber READ phoneNumber NOTIFY phoneNumberChanged)
     Q_PROPERTY(QStringList addressModel READ addressModel NOTIFY addressModelChanged)
     Q_PROPERTY(QStringList emailModel READ emailModel NOTIFY emailModelChanged)
+    Q_PROPERTY(QUrl imageUrl READ imageUrl NOTIFY imageUrlChanged)
     Q_PROPERTY(QDateTime created READ created NOTIFY createdChanged)
     Q_PROPERTY(QDateTime lastEdited READ lastEdited NOTIFY lastEditedChanged)
     Q_PROPERTY(int userId READ userId NOTIFY userIdChanged)
     Q_PROPERTY(QString user READ user NOTIFY userChanged)
 public:
-    enum SuccessCode {
-        UnknownSuccess
-    }; Q_ENUM(SuccessCode)
-
-    enum ErrorCode {
-        UnknownError
-    }; Q_ENUM(ErrorCode)
-
     explicit QMLDebtorDetailRecord(QObject *parent = nullptr);
     explicit QMLDebtorDetailRecord(DatabaseThread &thread, QObject *parent = nullptr);
 
@@ -39,6 +33,7 @@ public:
     QString firstName() const;
     QString lastName() const;
     QString phoneNumber() const;
+    QUrl imageUrl() const;
 
     QStringList addressModel() const;
     QStringList emailModel() const;
@@ -56,6 +51,7 @@ signals:
     void phoneNumberChanged();
     void addressModelChanged();
     void emailModelChanged();
+    void imageUrlChanged();
     void createdChanged();
     void lastEditedChanged();
     void userIdChanged();
@@ -71,6 +67,7 @@ private:
     QString m_phoneNumber;
     QStringList m_addressModel;
     QStringList m_emailModel;
+    QUrl m_imageUrl;
     QDateTime m_created;
     QDateTime m_lastEdited;
     int m_userId;
@@ -82,6 +79,7 @@ private:
     void setPhoneNumber(const QString &phoneNumber);
     void setAddressModel(const QStringList &addressModel);
     void setEmailModel(const QStringList &emailModel);
+    void setImageUrl(const QUrl &imageUrl);
 
     void setCreated(const QDateTime &created);
     void setLastEdited(const QDateTime &lastEdited);

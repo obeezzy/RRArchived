@@ -3,6 +3,8 @@
 
 #include "database/queryexecutor.h"
 
+class DebtTransactionList;
+
 class DebtorExecutor : public QueryExecutor
 {
     Q_OBJECT
@@ -11,6 +13,8 @@ public:
                             const QVariantMap &params,
                             QObject *receiver);
     virtual ~DebtorExecutor() = default;
+protected:
+    void arrangeDebtTransactions(const DebtTransactionList &debtTransactions);
 };
 
 #endif // DEBTOREXECUTOR_H

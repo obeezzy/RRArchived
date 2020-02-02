@@ -14,13 +14,8 @@ public:
     static inline const QString COMMAND = QStringLiteral("add_new_debtor");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_add_new_debtor");
 
-    explicit AddDebtor(const QString &preferredName,
-                       const QString &firstName,
-                       const QString &lastName,
-                       const QString &primaryPhoneNumber,
-                       const QUrl &imageUrl,
-                       const DebtTransactionList &newDebtTransactions,
-                       const QString &note,
+    explicit AddDebtor(const DebtorDetails &debtorDetails,
+                       const DebtTransactionList &debtTransactions,
                        QObject *receiver);
     QueryResult execute() override;
 private:

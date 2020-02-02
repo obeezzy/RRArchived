@@ -6,6 +6,7 @@ Item {
 
     readonly property color creditorYellow: "#b68c29"
     readonly property color debtorRed: "#c0392b"
+    readonly property color paidFullGreen: "green"
     readonly property color tableViewDivider: "lightgray"
     // Green - #27ae60
 

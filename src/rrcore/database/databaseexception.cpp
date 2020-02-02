@@ -60,3 +60,9 @@ const char *DatabaseException::what() const noexcept
             .arg(QString::number(static_cast<int>(m_code)),
                  m_message, m_userMessage).toStdString().c_str();
 }
+
+QString DatabaseException::toString() const
+{
+    return QStringLiteral("DatabaseException(code=%1, message=%2, details=%3")
+            .arg(QString::number(m_code), m_message, m_userMessage);
+}

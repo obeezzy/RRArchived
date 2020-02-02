@@ -19,11 +19,11 @@ ListView {
 
     signal success(int successCode)
     signal error(int errorCode)
-    signal editTransactionRequested(int debtIndex)
+    signal editTransactionRequested(var debtModelData)
     signal removeTransactionRequested(int debtIndex)
-    signal addPaymentRequested(int debtIndex)
-    signal editPaymentRequested(int debtIndex, int paymentIndex)
-    signal removePaymentRequested(int debtIndex, int paymentIndex)
+    signal addPaymentRequested(var paymentModel)
+    signal editPaymentRequested(var paymentModelData)
+    signal removePaymentRequested(int debtIndex, int paymentIndex, var paymentModel)
 
     function addAlternatePhoneNumber(alternatePhoneNumber) { debtTransactionListView.model.addAlternatePhoneNumber(alternatePhoneNumber); }
     function removeAlternatePhoneNumber(row) { debtTransactionListView.model.removeAlternatePhoneNumber(row); }
@@ -35,11 +35,7 @@ ListView {
     function removeEmailAddress(row) { debtTransactionListView.model.removeEmailAddress(row); }
 
     function addDebt(totalDebt, dueDateTime, note) { debtTransactionListView.model.addDebt(totalDebt, dueDateTime, note); }
-    function updateDebt(debtIndex, dueDateTime, note) { debtTransactionListView.model.updateDebt(debtIndex, dueDateTime, note); }
     function removeDebt(debtIndex) { debtTransactionListView.model.removeDebt(debtIndex); }
-    function addPayment(debtIndex, amount, note) { debtTransactionListView.model.addPayment(debtIndex, amount, note); }
-    function updatePayment(debtIndex, paymentIndex, amount, note) { debtTransactionListView.model.updatePayment(debtIndex, paymentIndex, amount, note); }
-    function removePayment(debtIndex, paymentIndex) { debtTransactionListView.model.removePayment(debtIndex, paymentIndex); }
 
     function submit() { return debtTransactionListView.model.submit(); }
     function refresh() { debtTransactionListView.model.refresh(); }
@@ -73,7 +69,17 @@ ListView {
     }
 
     delegate: Item {
+        id: transactionDelegate
         property bool isLastItem: index === ListView.view.count - 1
+        readonly property bool paidInFull: (total_debt - debtPaymentListView.model.totalAmountPaid) === 0
+        readonly property bool dueDateExceeded: {
+            var today = new Date();
+            return due_date.getTime() <= today.getTime();
+        }
+        readonly property bool dueDateHighlighted: dirty && dueDateExceeded
+        readonly property var modelData: model
+        readonly property int debtIndex: index
+
 
         width: ListView.view.width
         height: transactionColumn.height + transactionColumn.anchors.topMargin
@@ -93,197 +99,49 @@ ListView {
             spacing: 0
             leftPadding: 24
 
-            FluidControls.HeadlineLabel {
-                text: qsTr("Transaction #%1").arg(index + 1)
+            Row {
+                spacing: 8
+
+                FluidControls.HeadlineLabel {
+                    text: qsTr("Transaction #%1").arg(index + 1)
+                }
+
+                FluidControls.Icon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: transactionDelegate.paidInFull ? Stylesheet.paidFullGreen : Stylesheet.debtorRed
+                    source: transactionDelegate.paidInFull ? FluidControls.Utils.iconUrl("action/check_circle")
+                                                           : FluidControls.Utils.iconUrl("alert/error")
+                }
             }
 
             Item { width: 1; height: 4 } // Spacer
 
             FluidControls.SubheadingLabel {
-                text: qsTr("Owes %1").arg(Number(current_balance)
+                text: qsTr("Owes %1").arg(Number(total_debt - debtPaymentListView.model.totalAmountPaid)
                                           .toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)))
             }
 
             FluidControls.SubheadingLabel {
-                text: qsTr("Due on %1").arg(Qt.formatDateTime(due_date, "ddd MMM d, yyyy"))
-                font.italic: true
+                text: transactionDelegate.dueDateHighlighted ? qsTr("Due on %1 (Exceeded)").arg(Qt.formatDateTime(due_date, "ddd MMM d, yyyy"))
+                                                             : qsTr("Due on %1").arg(Qt.formatDateTime(due_date, "ddd MMM d, yyyy"))
+                font {
+                    italic: true
+                    bold: transactionDelegate.dueDateHighlighted
+                }
+                color: transactionDelegate.dueDateHighlighted ? Stylesheet.errorRed
+                                                              : Material.theme === Material.Dark ? Stylesheet.white
+                                                                                                 : Stylesheet.black
             }
 
             Item { width: 1; height: 16 }
 
-            ListView {
-                id: paymentListView
-
-                readonly property int topPadding: 4
-                readonly property int bottomPadding: 8
-                readonly property bool canScrollLeft: contentX > 0
-                readonly property bool canScrollRight: contentX < (contentWidth - width)
-                property bool animationEnabled: true
-
-                function scrollRight() {
-                    if (!moving && canScrollRight) {
-                        var pos = contentX;
-                        positionViewAtIndex(indexAt(contentX + width, height / 2), ListView.Beginning);
-                        var dest = contentX;
-                        animationEnabled = false;
-                        contentX = pos;
-                        animationEnabled = true;
-                        contentX = dest;
-                    }
-                }
-
-                function scrollLeft() {
-                    if (!moving && canScrollLeft) {
-                        var pos = contentX;
-                        positionViewAtIndex(indexAt(contentX, height / 2), ListView.End);
-                        var dest = contentX;
-                        animationEnabled = false;
-                        contentX = pos;
-                        animationEnabled = true;
-                        contentX = dest;
-                    }
-                }
-
-                function scrollToEnd() {
-                    if (!moving && canScrollRight) {
-                        var pos = contentX;
-                        positionViewAtIndex(indexAt(contentX + contentWidth, height / 2), ListView.End);
-                        var dest = contentX;
-                        animationEnabled = false;
-                        contentX = pos;
-                        animationEnabled = true;
-                        contentX = dest;
-                    }
-                }
-
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                }
-
-                leftMargin: 24
-                rightMargin: 24
-                spacing: 16
-                orientation: ListView.Horizontal
-                height: contentItem.childrenRect.height + topPadding + bottomPadding
-                model: payment_model
-                visible: debtTransactionListView.count > 0
-                delegate: RRUi.Card {
-                    id: paymentDelegate
-
-                    readonly property bool isFirstItem: index === 0
-                    readonly property bool isLastItem: index === ListView.view.count - 1
-                    readonly property int paymentIndex: index
-
-                    padding: 4
-                    width: 220
-                    height: 220
-
-                    Column {
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        FluidControls.SubheadingLabel {
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-                            horizontalAlignment: Qt.AlignHCenter
-                            text: qsTr("Payment #%1").arg(index + 1)
-                            font.bold: true
-                        }
-
-                        FluidControls.SubheadingLabel {
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-                            horizontalAlignment: Qt.AlignHCenter
-                            text: qsTr("Made on %1").arg(Qt.formatDateTime(created, "ddd MMM d, yyyy"))
-                            font.italic: true
-                        }
-
-                        FluidControls.SubheadingLabel {
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-                            horizontalAlignment: Qt.AlignHCenter
-                            text: qsTr("Paid %1").arg(Number(amount_paid)
-                                                      .toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)))
-                        }
-                    }
-
-                    Row {
-                        spacing: 0
-                        anchors {
-                            right: parent.right
-                            bottom: parent.bottom
-                        }
-
-                        RRUi.ToolButton {
-                            icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            text: qsTr("View payment details")
-                        }
-
-                        RRUi.ToolButton {
-                            icon.source: FluidControls.Utils.iconUrl("image/edit")
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            visible: paymentDelegate.isLastItem
-                            text: qsTr("Edit payment")
-                            onClicked: debtTransactionListView.editPaymentRequested(transactionColumn.debtIndex, paymentDelegate.paymentIndex);
-                        }
-
-                        RRUi.ToolButton {
-                            icon.source: FluidControls.Utils.iconUrl("action/delete")
-                            width: FluidControls.Units.iconSizes.medium
-                            height: width
-                            visible: !paymentDelegate.isFirstItem && paymentDelegate.isLastItem
-                            text: qsTr("Remove payment")
-                            onClicked: debtTransactionListView.removePaymentRequested(transactionColumn.debtIndex, paymentDelegate.paymentIndex);
-                        }
-                    }
-                }
-
-                RRUi.PlaceholderLabel {
-                    anchors {
-                        verticalCenter: parent.verticalCenter
-                        left: parent.left
-                        right: parent.right
-                    }
-                    visible: payment_model.count === 0 && !debtTransactionListView.model.busy
-                    text: qsTr("No payment made for this transaction.");
-                }
-
-                add: Transition {
-                    SequentialAnimation {
-                        ParallelAnimation {
-                            NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
-                            NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
-                        }
-
-                        ScriptAction { script: paymentListView.scrollToEnd(); }
-                    }
-                }
-
-                remove: Transition {
-                    NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
-                }
-
-                removeDisplaced: Transition {
-                    NumberAnimation { properties: "x,y"; duration: 300 }
-                }
-
-                Behavior on contentX {
-                    enabled: !paymentListView.dragging && !paymentListView.flicking && paymentListView.animationEnabled
-                    NumberAnimation { easing.type: Easing.OutCubic }
-                }
+            DebtPaymentListView {
+                id: debtPaymentListView
+                parentDelegate: transactionDelegate
+                onEditPaymentRequested: debtTransactionListView.editPaymentRequested(paymentModelData);
+                onRemovePaymentRequested: debtTransactionListView.removePaymentRequested(debtIndex,
+                                                                                         paymentIndex,
+                                                                                         paymentModel);
             }
 
             FluidControls.ThinDivider { visible: !isLastItem }
@@ -296,9 +154,9 @@ ListView {
                 left: parent.left
             }
 
-            opacity: paymentListView.canScrollLeft ? 1 : 0
+            opacity: debtPaymentListView.canScrollLeft ? 1 : 0
             direction: "left"
-            onClicked: paymentListView.scrollLeft();
+            onClicked: debtPaymentListView.scrollLeft();
         }
 
         RRUi.ArrowButton {
@@ -308,9 +166,9 @@ ListView {
                 right: parent.right
             }
 
-            opacity: paymentListView.canScrollRight ? 1 : 0
+            opacity: debtPaymentListView.canScrollRight ? 1 : 0
             direction: "right"
-            onClicked: paymentListView.scrollRight();
+            onClicked: debtPaymentListView.scrollRight();
         }
 
         Row {
@@ -321,9 +179,10 @@ ListView {
             }
 
             RRUi.ToolButton {
+                visible: !transactionDelegate.paidInFull
                 icon.source: FluidControls.Utils.iconUrl("content/add")
                 text: qsTr("Add payment")
-                onClicked: debtTransactionListView.addPaymentRequested(transactionColumn.debtIndex);
+                onClicked: debtTransactionListView.addPaymentRequested(debtPaymentListView.model);
             }
 
             RRUi.ToolButton {
@@ -334,7 +193,7 @@ ListView {
             RRUi.ToolButton {
                 icon.source: FluidControls.Utils.iconUrl("image/edit")
                 text: qsTr("Edit transaction")
-                onClicked: debtTransactionListView.editTransactionRequested(transactionColumn.debtIndex);
+                onClicked: debtTransactionListView.editTransactionRequested(transactionDelegate.modelData);
             }
 
             RRUi.ToolButton {

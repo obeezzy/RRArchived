@@ -61,6 +61,11 @@ QVariantMap QueryRequest::params() const
     return m_params;
 }
 
+QVariantMap &QueryRequest::params()
+{
+    return m_params;
+}
+
 QueryRequest::QueryGroup QueryRequest::queryGroup() const
 {
     return m_queryGroup;

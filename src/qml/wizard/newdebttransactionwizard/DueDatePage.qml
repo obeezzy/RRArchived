@@ -59,8 +59,8 @@ RRUi.WizardPage {
                 right: parent.right
             }
             visible: {
-                var date = new Date();
-                return dueDatePage.dueDate.getDate() <= date.getDate();
+                var today = new Date();
+                return dueDatePage.dueDate.getTime() <= today.getTime();
             }
 
             text: qsTr("Due date must be set beyond today's date.")

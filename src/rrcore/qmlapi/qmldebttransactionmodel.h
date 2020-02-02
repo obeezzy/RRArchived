@@ -4,13 +4,15 @@
 #include "models/abstractvisuallistmodel.h"
 #include "utility/debtorutils.h"
 
+#include <QUrl>
+
 class DebtPaymentModel;
 
 class QMLDebtTransactionModel : public AbstractVisualListModel
 {
     Q_OBJECT
     Q_PROPERTY(int debtorId READ debtorId WRITE setDebtorId NOTIFY debtorIdChanged)
-    Q_PROPERTY(QString imageSource READ imageSource WRITE setImageSource NOTIFY imageSourceChanged)
+    Q_PROPERTY(QUrl imageUrl READ imageUrl WRITE setImageUrl NOTIFY imageUrlChanged)
     Q_PROPERTY(QString firstName READ firstName WRITE setFirstName NOTIFY firstNameChanged)
     Q_PROPERTY(QString lastName READ lastName WRITE setLastName NOTIFY lastNameChanged)
     Q_PROPERTY(QString preferredName READ preferredName WRITE setPreferredName NOTIFY preferredNameChanged)
@@ -32,8 +34,7 @@ public:
         UnknownError,
         NoPreferredNameError,
         NoPrimaryPhoneNumberError,
-        NoDebtError,
-        NoPaymentError,
+        DataUnchangedError,
         DuplicateEntryError,
         AmountOverpaidError,
         InvalidDueDateError
@@ -44,19 +45,20 @@ public:
         RelatedTransactionRole,
         RelatedTransactionIdRole,
         DueDateRole,
+        DirtyRole,
         NoteRole,
         CreatedRole,
-        PaymentModelRole,
-        CurrentBalanceRole
+        RefRole,
+        TotalDebtRole
     };
 
     explicit QMLDebtTransactionModel(QObject *parent = nullptr);
     explicit QMLDebtTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
-    ~QMLDebtTransactionModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     bool isDirty() const;
 
@@ -65,8 +67,8 @@ public:
 
     int clientId() const;
 
-    QString imageSource() const;
-    void setImageSource(const QString &imageSource);
+    QUrl imageUrl() const;
+    void setImageUrl(const QUrl &imageUrl);
 
     QString firstName() const;
     void setFirstName(const QString &firstName);
@@ -96,18 +98,13 @@ public:
     Q_INVOKABLE void addEmailAddress(const QString &emailAddress);
     Q_INVOKABLE void removeEmailAddress(int row);
 
-    Q_INVOKABLE int addDebt(double totalDebt, const QDateTime &dueDateTime, const QString &note = QString());
-    Q_INVOKABLE void updateDebt(int debtIndex, const QDateTime &dueDateTime, const QString &note = QString());
-    Q_INVOKABLE void removeDebt(int debtIndex);
-
-    Q_INVOKABLE void addPayment(int debtIndex, double amount, const QString &note = QString());
-    Q_INVOKABLE void updatePayment(int debtIndex, int paymentIndex, double amount, const QString &note = QString());
-    Q_INVOKABLE void removePayment(int debtIndex, int paymentIndex);
+    Q_INVOKABLE void addDebt(double totalDebt, const QDateTime &dueDateTime, const QString &note = QString());
+    Q_INVOKABLE void removeDebt(int row);
 public slots:
     bool submit() override;
 signals:
     void debtorIdChanged();
-    void imageSourceChanged();
+    void imageUrlChanged();
     void firstNameChanged();
     void lastNameChanged();
     void preferredNameChanged();
@@ -116,8 +113,6 @@ signals:
     void addressModelChanged();
     void emailAddressModelChanged();
     void noteChanged();
-
-    void dirtyChanged();
     void clientIdChanged();
 protected:
     void tryQuery() override;
@@ -126,7 +121,7 @@ private:
     int m_debtorId;
     int m_clientId;
     bool m_dirty;
-    QString m_imageSource;
+    QUrl m_imageUrl;
     QString m_firstName;
     QString m_lastName;
     QString m_preferredName;
@@ -134,25 +129,18 @@ private:
     QStringList m_alternatePhoneNumberModel;
     QStringList m_addressModel;
     QStringList m_emailAddressModel;
-    QString m_note;
-    QVariantList m_records;
-    QList<DebtPaymentModel *> m_debtPaymentModels;
-    DebtTransactionList m_existingDebtTransactions;
-    DebtTransactionList m_newDebtTransactions;
-
-    QVector<int> m_archivedDebtTransactionIds;
-    QVector<int> m_archivedDebtPaymentIds;
-
-    QVariant convertToVariant(const DebtTransactionList &debtTransactions);
-    QVariant convertToVariant(const QVector<int> &archivedDebtTransactionIds);
+    Note m_note;
+    DebtTransactionList m_transactions;
 
     void clearAll();
-    void clearDebtTransactions();
-    void clearPayments();
-
-    bool isExistingRecord(int row) const;
-    void setDirty(bool dirty);
+    bool isExistingDebtor() const;
+    bool paymentsDirty() const;
+    bool paymentsDueDateValid() const;
     void setClientId(int clientId);
+
+    QString tableNameNormalized(const QString &tableName) const;
 };
+
+Q_DECLARE_LOGGING_CATEGORY(lcqmldebttransactionmodel);
 
 #endif // QMLDEBTTRANSACTIONMODEL_H
