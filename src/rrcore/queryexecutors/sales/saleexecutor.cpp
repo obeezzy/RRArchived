@@ -41,7 +41,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
         // STEP: Add client, if client does not exist.
         if (!params.value("customer_phone_number").toString().trimmed().isEmpty()
                 && !params.value("suspended").toBool()) {
-            const QList<QSqlRecord> records(callProcedure("AddClientQuick", {
+            const QList<QSqlRecord> records(callProcedure("AddClientLite", {
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
                                                                   "preferred_name",

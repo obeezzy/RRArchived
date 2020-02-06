@@ -41,31 +41,18 @@ QueryResult ViewClients::execute()
                                                               ProcedureArgument::Type::In,
                                                               "archived",
                                                               params.value("archived")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "client_id",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "preferred_name",
-                                                              {}
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::Out,
-                                                              "phone_number",
-                                                              {}
                                                           }
                                                       }));
 
 
         QVariantList clients;
-        for (const QSqlRecord &record : records) {
+        for (const QSqlRecord &record : records)
             clients.append(recordToMap(record));
-        }
 
-        result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
+        result.setOutcome(QVariantMap {
+                              { "clients", clients },
+                              { "record_count", clients.count() }
+                          });
         return result;
     } catch (DatabaseException &) {
         throw;
