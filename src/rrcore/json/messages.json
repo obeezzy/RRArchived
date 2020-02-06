@@ -4,7 +4,7 @@
         "short_description": "You have not set up any products for sale. Press the button below to get started!",
         "long_description": "Long description",
         "icon_url": "qrc:/icons/truck.svg",
-        "breadcrumbs": ["stock/HomePage.qml", "stock/NewItemPage.qml"],
+        "breadcrumbs": ["stock/HomePage.qml", "stock/NewProductPage.qml"],
         "actions": [
             "view",
             "cancel"

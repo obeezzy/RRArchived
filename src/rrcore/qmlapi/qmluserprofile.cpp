@@ -35,7 +35,8 @@ QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
 
     connect(this, &QMLUserProfile::executeRequest,
             &NetworkThread::instance(), QOverload<ServerRequest>::of(&NetworkThread::execute));
-    connect(&NetworkThread::instance(), &NetworkThread::responseReady, this, &QMLUserProfile::processServerResponse);
+    connect(&NetworkThread::instance(), &NetworkThread::responseReady,
+            this, &QMLUserProfile::processServerResponse);
 
     connect(m_businessStoreModel, &BusinessStoreModel::currentIndexChanged,
             this, &QMLUserProfile::populateBusinessDetails);

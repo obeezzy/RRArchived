@@ -19,10 +19,10 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+
     const QVariantMap &params = request().params();
     const QVariantList &payments = params.value("payments").toList();
-    const QVariantList &items = params.value("items").toList();
+    const QVariantList &products = params.value("products").toList();
     int clientId = 0;
     int vendorId = 0;
     int purchaseTransactionNoteId = 0;
@@ -32,6 +32,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
     int creditorId = 0;
     int creditTransactionId = 0;
 
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
@@ -85,7 +86,8 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
 
         // STEP: Insert note, if available.
         if (!params.value("note").toString().trimmed().isEmpty())
-            purchaseTransactionNoteId = addNote(params.value("note", QVariant::String).toString(), QStringLiteral("purchase_transaction"));
+            purchaseTransactionNoteId = QueryExecutor::addNote(params.value("note", QVariant::String).toString(),
+                                                               QStringLiteral("purchase_transaction"));
 
         // STEP: Insert purchase transaction.
         const QList<QSqlRecord> &records(callProcedure("AddPurchaseTransaction", {
@@ -166,8 +168,8 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                           });
         }
 
-        for (const QVariant &item : items) {
-            QVariantMap itemInfo = item.toMap();
+        for (const QVariant &productAsVariant : products) {
+            QVariantMap product = productAsVariant.toMap();
             // STEP: Deduct quantity if:
             // 1. This is a non-suspended transaction.
             // 2. This is a suspended transaction and you want to reserve the goods for this customer.
@@ -175,18 +177,18 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                 callProcedure("AddStockQuantity", {
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
-                                      "item_id",
-                                      itemInfo.value("item_id")
+                                      "product_id",
+                                      product.value("product_id")
                                   },
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
                                       "quantity",
-                                      itemInfo.value("quantity").toDouble()
+                                      product.value("quantity").toDouble()
                                   },
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
                                       "unit_id",
-                                      itemInfo.value("unit_id")
+                                      product.value("product_unit_id")
                                   },
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
@@ -201,7 +203,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                               });
             }
 
-            callProcedure("AddPurchaseItem", {
+            callProcedure("AddPurchaseProduct", {
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "purchase_transaction_id",
@@ -209,38 +211,38 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
-                                  "item_id",
-                                  itemInfo.value("item_id")
+                                  "product_id",
+                                  product.value("product_id")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
-                                  "unit_id",
-                                  itemInfo.value("unit_id")
+                                  "product_unit_id",
+                                  product.value("unit_id")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "unit_price",
-                                  itemInfo.value("unit_price")
+                                  product.value("unit_price")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "quantity",
-                                  itemInfo.value("quantity")
+                                  product.value("quantity")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "cost",
-                                  itemInfo.value("cost")
+                                  product.value("cost")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "discount",
-                                  itemInfo.value("discount")
+                                  product.value("discount")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "currency",
-                                  QStringLiteral("NGN")
+                                  product.value("currency")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
@@ -251,7 +253,9 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
         }
 
         // STEP: Insert debt or credit.
-        if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() > 0.0) {
+        if (!params.value("overlook_balance").toBool()
+                && !params.value("suspended").toBool()
+                && params.value("balance").toDouble() > 0.0) {
             QList<QSqlRecord> records(callProcedure("AddDebtor", {
                                                         ProcedureArgument {
                                                             ProcedureArgument::Type::In,
@@ -269,7 +273,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                                             UserProfile::instance().userId()
                                                         }
                                                     }));
-            debtorId = records.first().value("id").toInt();
+            debtorId = records.first().value("debtor_id").toInt();
 
             records = callProcedure("AddDebtTransaction", {
                                         ProcedureArgument {
@@ -280,7 +284,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "transaction_table",
-                                            "purchase_transaction"
+                                            QStringLiteral("purchase_transaction")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
@@ -299,7 +303,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                         }
                                     });
 
-            debtTransactionId = records.first().value("id").toInt();
+            debtTransactionId = records.first().value("debt_transaction_id").toInt();
 
             records = callProcedure("AddDebtPayment", {
                                         ProcedureArgument {
@@ -343,7 +347,9 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                             UserProfile::instance().userId()
                                         }
                                     });
-        } else if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() < 0.0) {
+        } else if (!params.value("overlook_balance").toBool()
+                   && !params.value("suspended").toBool()
+                   && params.value("balance").toDouble() < 0.0) {
             QList<QSqlRecord> records(callProcedure("AddCreditor", {
                                                         ProcedureArgument {
                                                             ProcedureArgument::Type::In,
@@ -361,7 +367,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                                             UserProfile::instance().userId()
                                                         }
                                                     }));
-            creditorId = records.first().value("id").toInt();
+            creditorId = records.first().value("creditor_id").toInt();
 
             records = callProcedure("AddCreditTransaction", {
                                         ProcedureArgument {
@@ -391,7 +397,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                         }
                                     });
 
-            creditTransactionId = records.first().value("id").toInt();
+            creditTransactionId = records.first().value("credit_transaction_id").toInt();
 
             records = callProcedure("AddCreditPayment", {
                                         ProcedureArgument {
@@ -417,7 +423,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "currency",
-                                            QStringLiteral("NGN")
+                                            params.value("currency")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,

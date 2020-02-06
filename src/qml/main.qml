@@ -63,8 +63,9 @@ RRUi.ApplicationWindow {
     }
 
     Connections {
-        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ?
-                    mainWindow.pageStack.currentItem : null
+        target: mainWindow.pageStack.currentItem !== null
+                && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ? mainWindow.pageStack.currentItem
+                                                                                   : null
         onPushRequested: {
             sidebar.currentIndex = sidebar.findIndexFromFileName(Array.isArray(link) ? link[0] : link);
             mainWindow.pageStack.replace(null, page, properties, operation);
@@ -72,8 +73,9 @@ RRUi.ApplicationWindow {
     }
 
     Connections {
-        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "passwordChangePage" ?
-                    mainWindow.pageStack.currentItem : null
+        target: mainWindow.pageStack.currentItem !== null
+                && mainWindow.pageStack.currentItem.objectName === "passwordChangePage" ? mainWindow.pageStack.currentItem
+                                                                                        : null
         onAccepted: {
             mainWindow.pageStack.pop();
             mainWindow.snackBar.show(qsTr("Password change successful."));
@@ -81,8 +83,9 @@ RRUi.ApplicationWindow {
     }
 
     Connections {
-        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "settingsHomePage" ?
-                    mainWindow.pageStack.currentItem : null
+        target: mainWindow.pageStack.currentItem !== null
+                && mainWindow.pageStack.currentItem.objectName === "settingsHomePage" ? mainWindow.pageStack.currentItem
+                                                                                      : null
         onSignedOut: {
             mainWindow.appBar.visible = false;
             sidebar.expanded = false;

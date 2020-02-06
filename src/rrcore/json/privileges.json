@@ -3,31 +3,31 @@
         "title": "Stock",
         "privileges": [
             {
-                "key": "can_add_stock_item",
+                "key": "can_add_stock_product",
                 "short_description": "User can add products",
                 "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
                 "value": false
             },
             {
-                "key": "can_update_stock_item",
+                "key": "can_update_stock_product",
                 "short_description": "User can update products",
                 "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
                 "value": false
             },
             {
-                "key": "can_view_stock_item",
+                "key": "can_view_stock_product",
                 "short_description": "User can view products",
                 "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
                 "value": false
             },
             {
-                "key": "can_delete_stock_item",
+                "key": "can_delete_stock_product",
                 "short_description": "User can delete products",
                 "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
                 "value": false
             },
             {
-                "key": "can_view_deleted_stock_item",
+                "key": "can_view_deleted_stock_product",
                 "short_description": "User can view deleted products",
                 "long_description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description ",
                 "value": false

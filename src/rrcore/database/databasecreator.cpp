@@ -21,13 +21,14 @@
 #include "user/userprofile.h"
 #include "user/businessdetails.h"
 
-Q_LOGGING_CATEGORY(databaseCreator, "rrcore.database.databasecreator");
+Q_LOGGING_CATEGORY(lcdatabasecreator, "rrcore.database.databasecreator");
 
 const QString CONNECTION_NAME("databasecreator");
 
 const QString PROCEDURE_SEPARATOR("---");
 const QString SPACES_AND_TABS_PATTERN("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)"); // Replace comments and tabs and new lines with space
 const QString DATABASE_NAME_PATTERN("###DATABASENAME###");
+const QString REMOVE_BEGIN_COMMIT_PATTERN("(\\bbegin.transaction.*;|\\bcommit.*;|\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)");
 
 DatabaseCreator::DatabaseCreator(QSqlDatabase connection) :
     m_connection(connection)
@@ -38,16 +39,15 @@ DatabaseCreator::DatabaseCreator(QSqlDatabase connection) :
         else
             m_connection = QSqlDatabase::database(CONNECTION_NAME);
 
-        // Disconnect and connect to 'mysql'
         if (m_connection.isOpen())
             m_connection.close();
 
-        m_connection.setDatabaseName("mysql");
+        m_connection.setDatabaseName(QStringLiteral("mysql"));
         m_connection.setHostName(Config::instance().hostName());
         m_connection.setPort(Config::instance().port());
         m_connection.setUserName(Config::instance().userName());
         m_connection.setPassword(Config::instance().password());
-        m_connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+        m_connection.setConnectOptions(QStringLiteral("MYSQL_OPT_RECONNECT = 1"));
 
         m_connection.open();
     }
@@ -59,7 +59,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
         return;
 
     QFile file(fileName);
-    if (QFileInfo(fileName).suffix() != "sql")
+    if (QFileInfo(fileName).suffix() != QStringLiteral("sql"))
         throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
                                 QString("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
@@ -74,15 +74,18 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
     if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
         throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                q.lastError().text(), "Database name cannot be mysql.");
+                                q.lastError().text(),
+                                QStringLiteral("Database name cannot be mysql."));
 
     // Inject database name
     sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
 
     if(m_connection.driver()->hasFeature(QSqlDriver::Transactions)) {
         // Replace comments and tabs and new lines with space
-        sqlData = sqlData.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",
-                                                     QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption), " ");
+        sqlData = sqlData.replace(QRegularExpression(SPACES_AND_TABS_PATTERN,
+                                                     QRegularExpression::CaseInsensitiveOption
+                                                     | QRegularExpression::MultilineOption),
+                                  QStringLiteral(" "));
         // Remove waste spaces
         sqlData = sqlData.trimmed();
 
@@ -107,7 +110,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
             else {
                 q.exec(s);                        //<== execute normal query
                 if(q.lastError().type() != QSqlError::NoError) {
-                    qCInfo(databaseCreator) << q.lastError().text();
+                    qCInfo(lcdatabasecreator) << q.lastError().text();
                     m_connection.rollback();                    //<== rollback the transaction if there is any problem
                 }
             }
@@ -127,7 +130,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
         for (const QString &s : extractedQueries) {
             q.exec(s);
             if(q.lastError().type() != QSqlError::NoError)
-                qCInfo(databaseCreator) << q.lastError().text();
+                qCInfo(lcdatabasecreator) << q.lastError().text();
         }
     }
 }
@@ -144,7 +147,7 @@ bool DatabaseCreator::start()
         createProcedures();
         updateBusinessDetails();
     } catch (DatabaseException &e) {
-        qCCritical(databaseCreator) << "Exception caught:" << e.code() << e.message() << e.userMessage();
+        qCCritical(lcdatabasecreator) << "Exception caught:" << e.code() << e.message() << e.userMessage();
         return false;
     }
 
@@ -154,7 +157,8 @@ bool DatabaseCreator::start()
 void DatabaseCreator::dropDatabase()
 {
     QSqlQuery q(m_connection);
-    q.prepare(QStringLiteral("DROP DATABASE IF EXISTS %1").arg(Config::instance().databaseName()));
+    q.prepare(QStringLiteral("DROP DATABASE IF EXISTS %1")
+              .arg(Config::instance().databaseName()));
 
     if (!q.exec())
         throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
@@ -172,7 +176,7 @@ void DatabaseCreator::createProcedures()
     QDirIterator iter(Schema::Common::PROCEDURE_DIR);
     while (iter.hasNext()) {
         QFile file(iter.next());
-        if (QFileInfo(file).suffix() != "sql")
+        if (QFileInfo(file).suffix() != QStringLiteral("sql"))
             continue;
         if (!file.open(QFile::ReadOnly))
             throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
@@ -206,7 +210,7 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
         return;
 
     QFile file(fileName);
-    if (QFileInfo(fileName).suffix() != "sql")
+    if (QFileInfo(fileName).suffix() != QStringLiteral("sql"))
         throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
                                 QStringLiteral("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
@@ -222,7 +226,8 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
 
     if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
         throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                q.lastError().text(), "Database name cannot be mysql.");
+                                q.lastError().text(),
+                                QStringLiteral("Database name cannot be mysql."));
 
     // Inject database name
     sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
@@ -234,12 +239,13 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
 
         // Replace comments and tabs and new lines with space
         statement = statement.replace(QRegularExpression(SPACES_AND_TABS_PATTERN,
-                                                     QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption), " ");
+                                                         QRegularExpression::CaseInsensitiveOption
+                                                         | QRegularExpression::MultilineOption), " ");
         // Remove waste spaces
         statement = statement.trimmed();
 
         if (!q.exec(statement)) {
-            qCCritical(databaseCreator) << "Invalid statement=====" << statement;
+            qCCritical(lcdatabasecreator) << "Invalid statement:" << statement;
             throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
                                     QString("Failed to execute query: %1").arg(statement));
         }

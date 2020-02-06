@@ -4,7 +4,9 @@
 #include <QString>
 
 namespace NetworkUrl {
-    inline static const QString SERVER_URL = QStringLiteral("http://localhost:3000");
+    inline static const QString SERVER_URL = QStringLiteral("http://localhost:4200");
+    inline static const QString VERSION = QStringLiteral("/v1");
+    inline static const QString URL_PREFIX = SERVER_URL + VERSION;
 
     inline namespace Auth {
         inline static const QString SIGN_IN_API_URL = SERVER_URL + QStringLiteral("/api/auth/sign-in");

@@ -18,13 +18,13 @@ namespace DatabaseError
         CommandNotFound,
         RequestTypeNotFound,
         NoValidConnection,
-        AddItemFailure,
-        UpdateItemFailure,
+        AddProductFailure,
+        UpdateProductFailure,
         BeginTransactionFailed,
         CommitTransationFailed,
-        ViewStockItemsFailed,
-        ViewStockCategoriesFailed,
-        ViewStockItemDetailsFailed,
+        ViewStockProductsFailed,
+        ViewStockProductCategoriesFailed,
+        ViewStockProductDetailsFailed,
         AddTransactionFailure,
         UpdateTransactionFailure,
         UndoAddTransactionFailure,
@@ -39,7 +39,7 @@ namespace DatabaseError
         ViewDebtTransactionsFailure,
         UndoAddDebtorFailure,
         ViewSaleHomeFailure,
-        RemoveStockItemFailed,
+        RemoveStockProductFailed,
         CreateTableFailed,
         CreateUserFailed,
         InvalidArguments,
@@ -59,7 +59,8 @@ namespace DatabaseError
         UserAccountIsLocked,
         UserPreviouslyArchived,
         ArgumentMismatch,
-        UnexpectedResultError
+        UnexpectedResultError,
+        NoExistingRecordError
     };
 
     enum class MySqlErrorCode {

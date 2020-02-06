@@ -44,10 +44,10 @@ QVariant QMLPurchaseTransactionItemModel::data(const QModelIndex &index, int rol
         return m_records.at(index.row()).toMap().value("category_id").toInt();
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-    case ItemIdRole:
-        return m_records.at(index.row()).toMap().value("item_id").toInt();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductIdRole:
+        return m_records.at(index.row()).toMap().value("product_id").toInt();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case UnitPriceRole:
         return m_records.at(index.row()).toMap().value("unit_price").toDouble();
     case QuantityRole:
@@ -87,8 +87,8 @@ QHash<int, QByteArray> QMLPurchaseTransactionItemModel::roleNames() const
         { TransactionItemIdRole, "transaction_item_id" },
         { CategoryIdRole, "category_id" },
         { CategoryRole, "category" },
-        { ItemIdRole, "item_id" },
-        { ItemRole, "item" },
+        { ProductIdRole, "product_id" },
+        { ProductRole, "product" },
         { UnitPriceRole, "unit_price" },
         { QuantityRole, "quantity" },
         { UnitIdRole, "unit_id" },
@@ -113,7 +113,7 @@ QVariant QMLPurchaseTransactionItemModel::headerData(int section, Qt::Orientatio
             switch (section) {
             case CategoryColumn:
                 return tr("Category");
-            case ItemColumn:
+            case ProductColumn:
                 return tr("Item");
             case QuantityColumn:
                 return tr("Qty");
@@ -125,7 +125,7 @@ QVariant QMLPurchaseTransactionItemModel::headerData(int section, Qt::Orientatio
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-            case ItemColumn:
+            case ProductColumn:
                 return Qt::AlignLeft;
             case QuantityColumn:
             case UnitPriceColumn:
@@ -136,7 +136,7 @@ QVariant QMLPurchaseTransactionItemModel::headerData(int section, Qt::Orientatio
             switch (section) {
             case CategoryColumn:
                 return 120;
-            case ItemColumn:
+            case ProductColumn:
                 return tableViewWidth() - 120 - 120 - 120 - 120;
             case QuantityColumn:
                 return 120;
@@ -157,8 +157,8 @@ void QMLPurchaseTransactionItemModel::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new PurchaseQuery::ViewPurchaseTransactionItems(transactionId(),
-                                                                 this));
+    emit execute(new PurchaseQuery::ViewPurchasedProducts(transactionId(),
+                                                          this));
 }
 
 void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
@@ -169,9 +169,9 @@ void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == PurchaseQuery::ViewPurchaseTransactionItems::COMMAND) {
+        if (result.request().command() == PurchaseQuery::ViewPurchasedProducts::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("items").toList();
+            m_records = result.outcome().toMap().value("products").toList();
             endResetModel();
 
             emit success(ViewPurchaseTransactionItemsSuccess);
@@ -186,8 +186,8 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
     switch (column) {
     case CategoryColumn:
         return "category";
-    case ItemColumn:
-        return "item";
+    case ProductColumn:
+        return "product";
     case QuantityColumn:
         return "quantity";
     case UnitPriceColumn:
@@ -199,11 +199,11 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
     return QString();
 }
 
-void QMLPurchaseTransactionItemModel::removeTransactionItem(int row)
+void QMLPurchaseTransactionItemModel::removeSoldProduct(int row)
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::RemovePurchaseTransactionItem(transactionId(),
-                                                                  data(index(row, 0), TransactionItemIdRole).toInt(),
-                                                                  this));
+    emit execute(new PurchaseQuery::RemovePurchasedProduct(transactionId(),
+                                                           data(index(row, 0), TransactionItemIdRole).toInt(),
+                                                           this));
 }
 

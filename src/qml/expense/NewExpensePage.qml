@@ -192,11 +192,11 @@ RRUi.Page {
                         onSuccess: {
                             switch (successCode) {
                             case RRModels.ExpensePusher.AddExpenseSuccess:
-                                newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully added!"));
+                                newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your entry was successfully added!"));
                                 transitionView.trigger();
                                 break;
                             case RRModels.ExpensePusher.UpdateExpenseSuccess:
-                                newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully updated!"));
+                                newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your entry was successfully updated!"));
                                 newExpensePage.pop();
                                 break;
                             }
@@ -218,7 +218,7 @@ RRUi.Page {
                     RRUi.FailureAlertDialogLoader {
                         id: failureAlertDialogLoader
                         parent: QQC2.ApplicationWindow.contentItem
-                        title: qsTr("Failed to add item")
+                        title: qsTr("Failed to add entry")
                     }
 
                     RRUi.BusyOverlay { visible: expensePusher.busy }
@@ -277,7 +277,7 @@ RRUi.Page {
                     }
 
                     QQC2.Button {
-                        id: addItemButton
+                        id: submitButton
                         Material.elevation: 1
                         text: qsTr("Submit")
                         onClicked: if (detailCard.validateUserInput()) expensePusher.push();

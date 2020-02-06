@@ -2,6 +2,7 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
+#include "singletons/settings.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -19,9 +20,9 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
                                        bool suspended,
                                        const QDateTime &dueDate,
                                        const QString &action,
-                                       const QString &note,
+                                       const Note &note,
                                        const SalePaymentList &payments,
-                                       const StockItemList &items,
+                                       const SaleCartProductList &products,
                                        QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "can_undo", true },
@@ -35,10 +36,10 @@ AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
                     { "suspended", suspended },
                     { "due_date", dueDate },
                     { "action", action },
-                    { "note", note },
+                    { "note", note.note },
                     { "payments", payments.toVariantList() },
-                    { "items", items.toVariantList() },
-                    { "currency", "NGN" },
+                    { "products", products.toVariantList() },
+                    { "currency", Settings::DEFAULT_CURRENCY },
                     { "user_id", UserProfile::instance().userId() }
                  }, receiver)
 {

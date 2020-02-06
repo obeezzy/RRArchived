@@ -36,8 +36,8 @@ QVariant QMLSaleReportModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case QuantitySoldRole:
         return m_records.at(index.row()).toMap().value("quantity_sold").toDouble();
     case UnitRole:
@@ -53,7 +53,7 @@ QHash<int, QByteArray> QMLSaleReportModel::roleNames() const
 {
     return {
         { CategoryRole, "category" },
-        { ItemRole, "item" },
+        { ProductRole, "product" },
         { QuantitySoldRole, "quantity_sold" },
         { UnitRole, "unit" },
         { TotalAmountRole, "total_amount" }
@@ -67,8 +67,8 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
             switch (section) {
             case CategoryColumn:
                 return tr("Category");
-            case ItemColumn:
-                return tr("Item");
+            case ProductColumn:
+                return tr("Product");
             case QuantitySoldColumn:
                 return tr("Qty sold");
             case TotalAmountColumn:
@@ -77,7 +77,7 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-            case ItemColumn:
+            case ProductColumn:
                 return Qt::AlignLeft;
             case QuantitySoldColumn:
             case TotalAmountColumn:
@@ -87,7 +87,7 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
             switch (section) {
             case CategoryColumn:
                 return 180;
-            case ItemColumn:
+            case ProductColumn:
                 return tableViewWidth() - 180 - 180 - 180;
             case QuantitySoldColumn:
                 return 180;
@@ -115,7 +115,7 @@ void QMLSaleReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == SaleQuery::ViewSaleReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("items").toList();
+            m_records = result.outcome().toMap().value("products").toList();
             endResetModel();
             emit success(ViewSalesReportSuccess);
         } else {

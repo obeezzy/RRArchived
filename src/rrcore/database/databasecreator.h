@@ -24,6 +24,6 @@ private:
     void executeStoredProcedures(const QString &fileName); // throws DatabaseException!
 };
 
-Q_DECLARE_LOGGING_CATEGORY(databaseCreator);
+Q_DECLARE_LOGGING_CATEGORY(lcdatabasecreator);
 
 #endif // DATABASECREATOR_H

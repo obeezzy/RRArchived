@@ -9,5 +9,6 @@
 #include "database/exceptions/missingimplementationexception.h"
 #include "database/exceptions/argumentmismatchexception.h"
 #include "database/exceptions/unexpectedresultexception.h"
+#include "database/exceptions/noexistingrecordexception.h"
 
 #endif // EXCEPTIONS_H

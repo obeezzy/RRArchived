@@ -9,7 +9,7 @@ using namespace PurchaseQuery;
 
 ViewPurchaseReport::ViewPurchaseReport(QObject *receiver) :
     PurchaseExecutor(COMMAND, {
-                        { "sort_column", QStringLiteral("category") },
+                        { "sort_column", "category" },
                         { "sort_order", "ascending" }
                      }, receiver)
 {
@@ -57,13 +57,13 @@ QueryResult ViewPurchaseReport::execute()
                                                            }
                                                        }));
 
-        QVariantList items;
-        for (const QSqlRecord &record : records) {
-            items.append(recordToMap(record));
-        }
+        QVariantList products;
+        for (const auto &record : records)
+            products.append(recordToMap(record));
 
-        result.setOutcome(QVariantMap { { "items", items },
-                                        { "record_count", items.count() },
+        result.setOutcome(QVariantMap {
+                              { "products", products },
+                              { "record_count", products.count() },
                           });
         return result;
     } catch (DatabaseException &) {

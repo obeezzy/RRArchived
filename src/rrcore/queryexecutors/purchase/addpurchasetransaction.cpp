@@ -19,7 +19,7 @@ AddPurchaseTransaction::AddPurchaseTransaction(qint64 transactionId,
                                                const QDateTime &dueDate,
                                                const QString &action,
                                                const PurchasePaymentList &payments,
-                                               const StockItemList &items,
+                                               const PurchaseCartProductList &products,
                                                const QString &note,
                                                QObject *receiver) :
     PurchaseExecutor(COMMAND, {
@@ -35,7 +35,7 @@ AddPurchaseTransaction::AddPurchaseTransaction(qint64 transactionId,
                         { "due_date", dueDate },
                         { "action", action },
                         { "payments", payments.toVariantList() },
-                        { "items", items.toVariantList() },
+                        { "products", products.toVariantList() },
                         { "note", note },
                         { "transaction_table", QStringLiteral("purchase_transaction") },
                         { "user_id", UserProfile::instance().userId() }
@@ -79,7 +79,7 @@ QueryResult AddPurchaseTransaction::undoAddPurchaseTransaction()
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "user_id",
-                                  UserProfile::instance().userId()
+                                  params.value("user_id")
                               }
                           });
 

@@ -3,7 +3,6 @@
 
 #include "saleexecutor.h"
 #include "utility/saleutils.h"
-#include "utility/stockutils.h"
 
 namespace SaleQuery {
 class AddSaleTransaction : public SaleExecutor
@@ -23,9 +22,9 @@ public:
                                 bool suspended,
                                 const QDateTime &dueDate,
                                 const QString &action,
-                                const QString &note,
+                                const Note &note,
                                 const SalePaymentList &payments,
-                                const StockItemList &items,
+                                const SaleCartProductList &products,
                                 QObject *receiver);
     explicit AddSaleTransaction(const QueryRequest &request, QObject *receiver);
     QueryResult execute() override;

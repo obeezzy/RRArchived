@@ -2,7 +2,7 @@
 #define UPDATESUSPENDEDPURCHASETRANSACTION_H
 
 #include "purchaseexecutor.h"
-#include "utility/stockutils.h"
+#include "utility/purchaseutils.h"
 
 namespace PurchaseQuery {
 class UpdateSuspendedPurchaseTransaction : public PurchaseExecutor
@@ -19,8 +19,8 @@ public:
                                                 qreal amountPaid,
                                                 qreal balance,
                                                 bool suspended,
-                                                const StockItemList &items,
-                                                const QString &note,
+                                                const PurchaseCartProductList &products,
+                                                const Note &note,
                                                 QObject *receiver);
     QueryResult execute() override;
 };

@@ -40,16 +40,16 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
         return QVariant();
 
     switch (role) {
-    case TransactionItemIdRole:
-        return m_records.at(index.row()).toMap().value("id").toInt();
+    case PurchasedProductIdRole:
+        return m_records.at(index.row()).toMap().value("purchased_product_id").toInt();
     case CategoryIdRole:
         return m_records.at(index.row()).toMap().value("category_id").toInt();
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-    case ItemIdRole:
-        return m_records.at(index.row()).toMap().value("item_id").toInt();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductIdRole:
+        return m_records.at(index.row()).toMap().value("product_id").toInt();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case UnitPriceRole:
         return m_records.at(index.row()).toMap().value("unit_price").toDouble();
     case QuantityRole:
@@ -86,11 +86,11 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
 QHash<int, QByteArray> QMLSaleTransactionItemModel::roleNames() const
 {
     return {
-        { TransactionItemIdRole, "transaction_item_id" },
+        { PurchasedProductIdRole, "purchased_product_id" },
         { CategoryIdRole, "category_id" },
         { CategoryRole, "category" },
-        { ItemIdRole, "item_id" },
-        { ItemRole, "item" },
+        { ProductIdRole, "product_id" },
+        { ProductRole, "product" },
         { UnitPriceRole, "unit_price" },
         { QuantityRole, "quantity" },
         { UnitIdRole, "unit_id" },
@@ -116,7 +116,7 @@ QVariant QMLSaleTransactionItemModel::headerData(int section, Qt::Orientation or
             switch (section) {
             case CategoryColumn:
                 return tr("Category");
-            case ItemColumn:
+            case ProductColumn:
                 return tr("Item");
             case QuantityColumn:
                 return tr("Qty");
@@ -128,7 +128,7 @@ QVariant QMLSaleTransactionItemModel::headerData(int section, Qt::Orientation or
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-            case ItemColumn:
+            case ProductColumn:
                 return Qt::AlignLeft;
             case QuantityColumn:
             case UnitPriceColumn:
@@ -139,7 +139,7 @@ QVariant QMLSaleTransactionItemModel::headerData(int section, Qt::Orientation or
             switch (section) {
             case CategoryColumn:
                 return 120;
-            case ItemColumn:
+            case ProductColumn:
                 return tableViewWidth() - 120 - 120 - 120 - 120;
             case QuantityColumn:
                 return 120;
@@ -160,8 +160,8 @@ void QMLSaleTransactionItemModel::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new SaleQuery::ViewSaleTransactionItems(transactionId(),
-                                                         this));
+    emit execute(new SaleQuery::ViewSoldProducts(transactionId(),
+                                                 this));
 }
 
 void QMLSaleTransactionItemModel::processResult(const QueryResult result)
@@ -172,9 +172,9 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == SaleQuery::ViewSaleTransactionItems::COMMAND) {
+        if (result.request().command() == SaleQuery::ViewSoldProducts::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("items").toList();
+            m_records = result.outcome().toMap().value("products").toList();
             endResetModel();
 
             emit success(ViewSaleTransactionItemsSuccess);
@@ -191,8 +191,8 @@ QString QMLSaleTransactionItemModel::columnName(int column) const
     switch (column) {
     case CategoryColumn:
         return "category";
-    case ItemColumn:
-        return "item";
+    case ProductColumn:
+        return "product";
     case QuantityColumn:
         return "quantity";
     case UnitPriceColumn:
@@ -207,7 +207,7 @@ QString QMLSaleTransactionItemModel::columnName(int column) const
 void QMLSaleTransactionItemModel::removeTransactionItem(int row)
 {
     setBusy(true);
-    emit execute(new SaleQuery::RemoveSaleTransactionItem(transactionId(),
-                                                          data(index(row, 0), TransactionItemIdRole).toInt(),
-                                                          this));
+    emit execute(new SaleQuery::RemoveSoldProduct(transactionId(),
+                                                  data(index(row, 0), PurchasedProductIdRole).toInt(),
+                                                  this));
 }

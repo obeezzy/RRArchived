@@ -3,7 +3,6 @@
 
 #include "purchaseexecutor.h"
 #include "utility/purchaseutils.h"
-#include "utility/stockutils.h"
 
 namespace PurchaseQuery {
 class AddPurchaseTransaction : public PurchaseExecutor
@@ -24,7 +23,7 @@ public:
                                     const QDateTime &dueDate,
                                     const QString &action,
                                     const PurchasePaymentList &payments,
-                                    const StockItemList &items,
+                                    const PurchaseCartProductList &products,
                                     const QString &note,
                                     QObject *receiver);
     QueryResult execute() override;

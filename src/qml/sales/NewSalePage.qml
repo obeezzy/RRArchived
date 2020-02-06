@@ -96,8 +96,8 @@ RRUi.Page {
 
     RRUi.ErrorDialog { id: errorDialog }
 
-    Stock.ItemDetailPopup {
-        id: itemDetailPopup
+    Stock.ProductDetailPopup {
+        id: productDetailPopup
         editButtonVisible: false
     }
 
@@ -141,8 +141,8 @@ RRUi.Page {
             QQLayouts.RowLayout {
                 anchors.fill: parent
 
-                Fragments.ItemSelectionSection {
-                    id: itemSelectionSection
+                Fragments.ProductSelectionSection {
+                    id: productSelectionSection
                     QQLayouts.Layout.fillWidth: true
                     QQLayouts.Layout.fillHeight: true
 
@@ -150,8 +150,8 @@ RRUi.Page {
                     bottomPadding: 0
                     Material.elevation: 2
 
-                    onAddRequested: cartSection.addItem(item);
-                    onViewRequested: itemDetailPopup.show(itemId);
+                    onAddRequested: cartSection.addProduct(product);
+                    onViewRequested: productDetailPopup.show(productId);
                 }
 
                 Fragments.CartSection {
@@ -162,7 +162,7 @@ RRUi.Page {
                         if (paymentWizard.opened)
                             paymentWizard.accept();
 
-                        itemSelectionSection.refresh();
+                        productSelectionSection.refresh();
                     }
                     onError: {
                         if (!paymentWizard.opened) {
@@ -175,7 +175,7 @@ RRUi.Page {
                         }
                     }
 
-                    onViewRequested: itemDetailPopup.show(itemId);
+                    onViewRequested: productDetailPopup.show(productId);
                     onCheckoutRequested: if (saleContentItem.validateUserInput()) paymentWizard.open();
                 }
             }
@@ -186,10 +186,7 @@ RRUi.Page {
         id: paymentWizard
         reason: PaymentWizard.Sales
         cartModel: transitionView.currentItem.cartModel
-        onAccepted: {
-            console.log(`Due date=${paymentWizard.dueDate}, action=${paymentWizard.action}`);
-            transitionView.currentItem.submitTransaction({ "due_date": paymentWizard.dueDate,
+        onAccepted: transitionView.currentItem.submitTransaction({ "due_date": paymentWizard.dueDate,
                                                                      "action": paymentWizard.action });
-        }
     }
 }

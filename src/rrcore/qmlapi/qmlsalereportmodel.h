@@ -10,7 +10,7 @@ class QMLSaleReportModel : public AbstractVisualTableModel
 public:
     enum Roles {
         CategoryRole = Qt::UserRole,
-        ItemRole,
+        ProductRole,
         QuantitySoldRole,
         TotalAmountRole,
         UnitRole
@@ -18,7 +18,7 @@ public:
 
     enum Columns {
         CategoryColumn,
-        ItemColumn,
+        ProductColumn,
         QuantitySoldColumn,
         TotalAmountColumn,
         ColumnCount

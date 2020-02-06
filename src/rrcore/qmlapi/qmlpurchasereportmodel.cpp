@@ -20,8 +20,8 @@ QVariant QMLPurchaseReportModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case QuantityBoughtRole:
         return m_records.at(index.row()).toMap().value("quantity_bought").toDouble();
     case UnitRole:
@@ -53,7 +53,7 @@ QHash<int, QByteArray> QMLPurchaseReportModel::roleNames() const
 {
     return {
         { CategoryRole, "category" },
-        { ItemRole, "item" },
+        { ProductRole, "product" },
         { QuantityBoughtRole, "quantity_bought" },
         { TotalAmountRole, "total_amount" },
         { UnitRole, "unit" }
@@ -67,8 +67,8 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
             switch (section) {
             case CategoryColumn:
                 return tr("Category");
-            case ItemColumn:
-                return tr("Item");
+            case ProductColumn:
+                return tr("Product");
             case QuantityBoughtColumn:
                 return tr("Qty bought");
             case TotalAmountColumn:
@@ -77,7 +77,7 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-            case ItemColumn:
+            case ProductColumn:
                 return Qt::AlignLeft;
             case QuantityBoughtColumn:
             case TotalAmountColumn:
@@ -87,7 +87,7 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
             switch (section) {
             case CategoryColumn:
                 return 180;
-            case ItemColumn:
+            case ProductColumn:
                 return tableViewWidth() - 180 - 180 - 180;
             case QuantityBoughtColumn:
                 return 180;
@@ -115,7 +115,7 @@ void QMLPurchaseReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == PurchaseQuery::ViewPurchaseReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("items").toList();
+            m_records = result.outcome().toMap().value("products").toList();
             endResetModel();
             emit success(ViewPurchaseReportSuccess);
         } else {

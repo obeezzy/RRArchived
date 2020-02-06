@@ -18,8 +18,10 @@ SOURCES += \
     database/exceptions/invalidduedateexception.cpp \
     database/exceptions/missingargumentexception.cpp \
     database/exceptions/missingimplementationexception.cpp \
+    database/exceptions/noexistingrecordexception.cpp \
     database/exceptions/unexpectedresultexception.cpp \
     database/queryexecutor.cpp \
+    models/salemostsoldproductmodel.cpp \
     network/exceptions/indeterminatedestinationurlexception.cpp \
     network/networkexception.cpp \
     network/networkthread.cpp \
@@ -28,8 +30,11 @@ SOURCES += \
     network/serverresponse.cpp \
     qmlapi/qmldebtpaymentmodel.cpp \
     qmlapi/qmlexpensetransactionmodel.cpp \
-    qmlapi/qmlstockitemcountrecord.cpp \
-    qmlapi/qmlstockitemmodel.cpp \
+    qmlapi/qmlstockproductcategorymodel.cpp \
+    qmlapi/qmlstockproductcountrecord.cpp \
+    qmlapi/qmlstockproductdetailrecord.cpp \
+    qmlapi/qmlstockproductmodel.cpp \
+    qmlapi/qmlstockproductpusher.cpp \
     qmlapi/qmluserprofile.cpp \
     queryexecutors/client/clientexecutor.cpp \
     queryexecutors/client/viewclients.cpp \
@@ -53,36 +58,36 @@ SOURCES += \
     queryexecutors/income/viewincometransactions.cpp \
     queryexecutors/purchase/addpurchasetransaction.cpp \
     queryexecutors/purchase/purchaseexecutor.cpp \
+    queryexecutors/purchase/removepurchasedproduct.cpp \
     queryexecutors/purchase/removepurchasetransaction.cpp \
-    queryexecutors/purchase/removepurchasetransactionitem.cpp \
     queryexecutors/purchase/updatesuspendedpurchasetransaction.cpp \
     queryexecutors/purchase/viewpurchasecart.cpp \
+    queryexecutors/purchase/viewpurchasedproducts.cpp \
     queryexecutors/purchase/viewpurchasehome.cpp \
     queryexecutors/purchase/viewpurchasereport.cpp \
     queryexecutors/purchase/viewpurchasetransactions.cpp \
     queryexecutors/sales/addsaletransaction.cpp \
     queryexecutors/sales/removesaletransaction.cpp \
-    queryexecutors/sales/removesaletransactionitem.cpp \
+    queryexecutors/sales/removesoldproduct.cpp \
     queryexecutors/sales/saleexecutor.cpp \
     queryexecutors/sales/updatesuspendedsaletransaction.cpp \
     queryexecutors/sales/viewsalecart.cpp \
     queryexecutors/sales/viewsalehome.cpp \
     queryexecutors/sales/viewsalereport.cpp \
-    queryexecutors/sales/viewsaletransactionitems.cpp \
+    queryexecutors/sales/viewsaletransactionproducts.cpp \
     queryexecutors/sales/viewsaletransactions.cpp \
-    queryexecutors/stock/addstockitem.cpp \
+    queryexecutors/stock/addstockproduct.cpp \
+    queryexecutors/stock/fetchstockproductcount.cpp \
     queryexecutors/stock/filterstockcategories.cpp \
-    queryexecutors/stock/filterstockcategoriesbyitem.cpp \
-    queryexecutors/stock/filterstockitemcount.cpp \
-    queryexecutors/stock/filterstockitems.cpp \
-    queryexecutors/stock/removestockitem.cpp \
+    queryexecutors/stock/filterstockcategoriesbyproduct.cpp \
+    queryexecutors/stock/filterstockproductcount.cpp \
+    queryexecutors/stock/filterstockproducts.cpp \
+    queryexecutors/stock/removestockproduct.cpp \
     queryexecutors/stock/stockexecutor.cpp \
-    queryexecutors/stock/updatestockitem.cpp \
-    queryexecutors/purchase/viewpurchasetransactionitems.cpp \
-    queryexecutors/stock/viewstockcategories.cpp \
-    queryexecutors/stock/viewstockitemcount.cpp \
-    queryexecutors/stock/viewstockitemdetails.cpp \
-    queryexecutors/stock/viewstockitems.cpp \
+    queryexecutors/stock/updatestockproduct.cpp \
+    queryexecutors/stock/viewstockproductcategories.cpp \
+    queryexecutors/stock/viewstockproductdetails.cpp \
+    queryexecutors/stock/viewstockproducts.cpp \
     queryexecutors/stock/viewstockreport.cpp \
     queryexecutors/user/activateuser.cpp \
     queryexecutors/user/adduser.cpp \
@@ -96,8 +101,6 @@ SOURCES += \
     queryexecutors/user/viewuserdetails.cpp \
     queryexecutors/user/viewuserprivileges.cpp \
     queryexecutors/user/viewusers.cpp \
-    sqlmanager/usersqlmanager.cpp \
-    sqlmanager/abstractsqlmanager.cpp \
     database/databasethread.cpp \
     database/databaseserver.cpp \
     database/databasecreator.cpp \
@@ -105,9 +108,6 @@ SOURCES += \
     database/queryrequest.cpp \
     database/queryresult.cpp \
     qmlapi/qmldashboardhomemodel.cpp \
-    sqlmanager/dashboardsqlmanager.cpp \
-    qmlapi/qmlstockitempusher.cpp \
-    sqlmanager/stocksqlmanager.cpp \
     user/businessadmin.cpp \
     user/businessstore.cpp \
     user/businessstoremodel.cpp \
@@ -116,25 +116,25 @@ SOURCES += \
     models/abstractvisuallistmodel.cpp \
     pusher/abstractpusher.cpp \
     qmlapi/qmlsalecartmodel.cpp \
-    sqlmanager/salesqlmanager.cpp \
     qmlapi/qmlsaletransactionmodel.cpp \
     qmlapi/qmldoublevalidator.cpp \
     qmlapi/qmlsaletransactionitemmodel.cpp \
-    qmlapi/qmlstockcategorymodel.cpp \
     qmlapi/qmldebtormodel.cpp \
-    sqlmanager/debtorsqlmanager.cpp \
     qmlapi/qmlsalehomemodel.cpp \
     models/saletotalrevenuemodel.cpp \
-    models/salemostsolditemmodel.cpp \
     detailrecord/abstractdetailrecord.cpp \
-    qmlapi/qmlstockitemdetailrecord.cpp \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
     user/businessdetails.cpp \
     utility/debtor/debtpayment.cpp \
+    utility/purchase/purchasecartproduct.cpp \
+    utility/sales/salecartproduct.cpp \
+    utility/stock/stockproduct.cpp \
+    utility/stock/stockproductcategory.cpp \
+    utility/stock/stockproductunit.cpp \
+    utility/user/user.cpp \
     widgets/dialogs.cpp \
     qmlapi/qmlclientmodel.cpp \
-    sqlmanager/clientsqlmanager.cpp \
     qmlapi/qmldebttransactionmodel.cpp \
     qmlapi/qmldebtordetailrecord.cpp \
     models/salepaymentmodel.cpp \
@@ -144,7 +144,6 @@ SOURCES += \
     models/abstracthomemodel.cpp \
     qmlapi/qmlnotifier.cpp \
     qmlapi/qmlpurchasehomemodel.cpp \
-    sqlmanager/purchasesqlmanager.cpp \
     qmlapi/qmlpurchasecartmodel.cpp \
     models/purchasepaymentmodel.cpp \
     qmlapi/qmlincomehomemodel.cpp \
@@ -152,8 +151,6 @@ SOURCES += \
     qmlapi/qmlexpensepusher.cpp \
     qmlapi/qmlexpensehomemodel.cpp \
     qmlapi/qmlcreditormodel.cpp \
-    sqlmanager/incomesqlmanager.cpp \
-    sqlmanager/expensesqlmanager.cpp \
     models/abstractvisualtablemodel.cpp \
     qmlapi/qmlincometransactionmodel.cpp \
     qmlapi/qmlusermodel.cpp \
@@ -184,8 +181,10 @@ HEADERS += \
     database/exceptions/invalidduedateexception.h \
     database/exceptions/missingargumentexception.h \
     database/exceptions/missingimplementationexception.h \
+    database/exceptions/noexistingrecordexception.h \
     database/exceptions/unexpectedresultexception.h \
     database/queryexecutor.h \
+    models/salemostsoldproductmodel.h \
     network/exceptions/exceptions.h \
     network/exceptions/indeterminatedestinationurlexception.h \
     network/networkerror.h \
@@ -197,8 +196,11 @@ HEADERS += \
     network/serverresponse.h \
     qmlapi/qmldebtpaymentmodel.h \
     qmlapi/qmlexpensetransactionmodel.h \
-    qmlapi/qmlstockitemcountrecord.h \
-    qmlapi/qmlstockitemmodel.h \
+    qmlapi/qmlstockproductcategorymodel.h \
+    qmlapi/qmlstockproductcountrecord.h \
+    qmlapi/qmlstockproductdetailrecord.h \
+    qmlapi/qmlstockproductmodel.h \
+    qmlapi/qmlstockproductpusher.h \
     qmlapi/qmluserprofile.h \
     queryexecutors/client.h \
     queryexecutors/client/clientexecutor.h \
@@ -228,38 +230,38 @@ HEADERS += \
     queryexecutors/purchase.h \
     queryexecutors/purchase/addpurchasetransaction.h \
     queryexecutors/purchase/purchaseexecutor.h \
+    queryexecutors/purchase/removepurchasedproduct.h \
     queryexecutors/purchase/removepurchasetransaction.h \
-    queryexecutors/purchase/removepurchasetransactionitem.h \
     queryexecutors/purchase/updatesuspendedpurchasetransaction.h \
     queryexecutors/purchase/viewpurchasecart.h \
+    queryexecutors/purchase/viewpurchasedproducts.h \
     queryexecutors/purchase/viewpurchasehome.h \
     queryexecutors/purchase/viewpurchasereport.h \
     queryexecutors/purchase/viewpurchasetransactions.h \
     queryexecutors/sales.h \
     queryexecutors/sales/addsaletransaction.h \
     queryexecutors/sales/removesaletransaction.h \
-    queryexecutors/sales/removesaletransactionitem.h \
+    queryexecutors/sales/removesoldproduct.h \
     queryexecutors/sales/saleexecutor.h \
     queryexecutors/sales/updatesuspendedsaletransaction.h \
     queryexecutors/sales/viewsalecart.h \
     queryexecutors/sales/viewsalehome.h \
     queryexecutors/sales/viewsalereport.h \
-    queryexecutors/sales/viewsaletransactionitems.h \
+    queryexecutors/sales/viewsaletransactionproducts.h \
     queryexecutors/sales/viewsaletransactions.h \
     queryexecutors/stock.h \
-    queryexecutors/stock/addstockitem.h \
+    queryexecutors/stock/addstockproduct.h \
+    queryexecutors/stock/fetchstockproductcount.h \
     queryexecutors/stock/filterstockcategories.h \
-    queryexecutors/stock/filterstockcategoriesbyitem.h \
-    queryexecutors/stock/filterstockitemcount.h \
-    queryexecutors/stock/filterstockitems.h \
-    queryexecutors/stock/removestockitem.h \
+    queryexecutors/stock/filterstockcategoriesbyproduct.h \
+    queryexecutors/stock/filterstockproductcount.h \
+    queryexecutors/stock/filterstockproducts.h \
+    queryexecutors/stock/removestockproduct.h \
     queryexecutors/stock/stockexecutor.h \
-    queryexecutors/stock/updatestockitem.h \
-    queryexecutors/purchase/viewpurchasetransactionitems.h \
-    queryexecutors/stock/viewstockcategories.h \
-    queryexecutors/stock/viewstockitemcount.h \
-    queryexecutors/stock/viewstockitemdetails.h \
-    queryexecutors/stock/viewstockitems.h \
+    queryexecutors/stock/updatestockproduct.h \
+    queryexecutors/stock/viewstockproductcategories.h \
+    queryexecutors/stock/viewstockproductdetails.h \
+    queryexecutors/stock/viewstockproducts.h \
     queryexecutors/stock/viewstockreport.h \
     queryexecutors/user.h \
     queryexecutors/user/activateuser.h \
@@ -275,8 +277,6 @@ HEADERS += \
     queryexecutors/user/viewuserprivileges.h \
     queryexecutors/user/viewusers.h \
     schema/schema.h \
-    sqlmanager/usersqlmanager.h \
-    sqlmanager/abstractsqlmanager.h \
     database/databasethread.h \
     database/databaseserver.h \
     database/databasecreator.h \
@@ -284,9 +284,6 @@ HEADERS += \
     database/queryrequest.h \
     database/queryresult.h \
     qmlapi/qmldashboardhomemodel.h \
-    sqlmanager/dashboardsqlmanager.h \
-    qmlapi/qmlstockitempusher.h \
-    sqlmanager/stocksqlmanager.h \
     user/businessadmin.h \
     user/businessstore.h \
     user/businessstoremodel.h \
@@ -295,18 +292,13 @@ HEADERS += \
     models/abstractvisuallistmodel.h \
     pusher/abstractpusher.h \
     qmlapi/qmlsalecartmodel.h \
-    sqlmanager/salesqlmanager.h \
     qmlapi/qmlsaletransactionmodel.h \
     qmlapi/qmldoublevalidator.h \
     qmlapi/qmlsaletransactionitemmodel.h \
-    qmlapi/qmlstockcategorymodel.h \
     qmlapi/qmldebtormodel.h \
-    sqlmanager/debtorsqlmanager.h \
     qmlapi/qmlsalehomemodel.h \
     models/saletotalrevenuemodel.h \
-    models/salemostsolditemmodel.h \
     detailrecord/abstractdetailrecord.h \
-    qmlapi/qmlstockitemdetailrecord.h \
     models/abstracttransactionmodel.h \
     models/abstracttransactionitemmodel.h \
     user/businessdetails.h \
@@ -314,14 +306,18 @@ HEADERS += \
     utility/debtor/debtordetails.h \
     utility/debtor/debtpayment.h \
     utility/debtor/debttransaction.h \
+    utility/purchase/purchasecartproduct.h \
     utility/purchase/purchasepayment.h \
     utility/purchaseutils.h \
+    utility/sales/salecartproduct.h \
     utility/sales/salepayment.h \
-    utility/stock/stockitem.h \
+    utility/stock/stockproduct.h \
+    utility/stock/stockproductcategory.h \
+    utility/stock/stockproductunit.h \
     utility/stockutils.h \
+    utility/user/user.h \
     widgets/dialogs.h \
     qmlapi/qmlclientmodel.h \
-    sqlmanager/clientsqlmanager.h \
     qmlapi/qmldebttransactionmodel.h \
     qmlapi/qmldebtordetailrecord.h \
     utility/debtorutils.h \
@@ -333,7 +329,6 @@ HEADERS += \
     models/abstracthomemodel.h \
     qmlapi/qmlnotifier.h \
     qmlapi/qmlpurchasehomemodel.h \
-    sqlmanager/purchasesqlmanager.h \
     qmlapi/qmlpurchasecartmodel.h \
     models/purchasepaymentmodel.h \
     qmlapi/qmlincomehomemodel.h \
@@ -341,8 +336,6 @@ HEADERS += \
     qmlapi/qmlexpensepusher.h \
     qmlapi/qmlexpensehomemodel.h \
     qmlapi/qmlcreditormodel.h \
-    sqlmanager/incomesqlmanager.h \
-    sqlmanager/expensesqlmanager.h \
     models/abstractvisualtablemodel.h \
     qmlapi/qmlincometransactionmodel.h \
     qmlapi/qmlusermodel.h \

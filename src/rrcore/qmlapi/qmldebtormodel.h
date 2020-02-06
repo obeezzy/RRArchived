@@ -55,8 +55,8 @@ private:
     int debtorRowFromId(int debtorId);
     QString filterColumnName() const;
 
-    void removeItemFromModel(int debtorId);
-    void undoRemoveItemFromModel(int row, int debtorId, const QVariantMap &debtorInfo);
+    void removeDebtorFromModel(int debtorId);
+    void undoRemoveDebtorFromModel(int row, int debtorId, const QVariantMap &debtor);
 };
 
 #endif // QMLDEBTORMODEL_H

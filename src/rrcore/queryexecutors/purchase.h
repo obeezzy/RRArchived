@@ -7,8 +7,8 @@
 #include "purchase/viewpurchasecart.h"
 #include "purchase/viewpurchasetransactions.h"
 #include "purchase/removepurchasetransaction.h"
-#include "purchase/viewpurchasetransactionitems.h"
-#include "purchase/removepurchasetransactionitem.h"
+#include "purchase/viewpurchasedproducts.h"
+#include "purchase/removepurchasedproduct.h"
 #include "purchase/viewpurchasereport.h"
 
 #endif // PURCHASE_H

@@ -11,7 +11,6 @@
 #include "queryexecutors/sales.h"
 #include "queryexecutors/stock.h"
 #include "utility/saleutils.h"
-#include "utility/stockutils.h"
 
 const int CASH_PAYMENT_LIMIT = 1;
 const int CARD_PAYMENT_LIMIT = 2;
@@ -56,10 +55,10 @@ QVariant QMLSaleCartModel::data(const QModelIndex &index, int role) const
         return m_records.at(index.row()).toMap().value("category_id").toInt();
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-    case ItemIdRole:
-        return m_records.at(index.row()).toMap().value("item_id").toInt();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductIdRole:
+        return m_records.at(index.row()).toMap().value("product_id").toInt();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case AvailableQuantityRole:
         return m_records.at(index.row()).toMap().value("available_quantity").toDouble();
     case QuantityRole:
@@ -86,8 +85,8 @@ QHash<int, QByteArray> QMLSaleCartModel::roleNames() const
     return {
         { CategoryIdRole, "category_id" },
         { CategoryRole, "category" },
-        { ItemIdRole, "item_id" },
-        { ItemRole, "item" },
+        { ProductIdRole, "product_id" },
+        { ProductRole, "product" },
         { AvailableQuantityRole, "available_quantity" },
         { QuantityRole, "quantity" },
         { UnitRole, "unit" },
@@ -299,60 +298,85 @@ QString QMLSaleCartModel::toPrintableFormat() const
     return QJsonDocument(rootObject).toJson();
 }
 
-void QMLSaleCartModel::addTransaction(const QVariantMap &transactionInfo)
+void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
 {
     if (!m_records.isEmpty()) {
-        StockItemList items;
+        SaleCartProductList products;
         for (const QVariant &record : m_records) {
-            items.append(StockItem{
-                             record.toMap().value("category_id").toInt(),
-                             record.toMap().value("item_id").toInt(),
-                             record.toMap().value("quantity").toDouble(),
-                             record.toMap().value("unit_id").toInt(),
-                             record.toMap().value("retail_price").toDouble(),
-                             record.toMap().value("unit_price").toDouble(),
-                             record.toMap().value("cost").toDouble(),
-                             record.toMap().value("amount_paid").toDouble(),
-                             record.toMap().value("note").toString()
-                         });
+            products.append(SaleCartProduct {
+                                record.toMap().value("product_id").toInt(),
+                                record.toMap().value("product").toString(),
+                                StockProductCategory {
+                                    record.toMap().value("product_category_id").toInt(),
+                                    record.toMap().value("category").toString()
+                                },
+                                record.toMap().value("quantity").toDouble(),
+                                StockProductUnit {
+                                    record.toMap().value("product_unit_id").toInt(),
+                                    record.toMap().value("unit").toString()
+                                },
+                                record.toMap().value("retail_price").toDouble(),
+                                record.toMap().value("unit_price").toDouble(),
+                                record.toMap().value("cost").toDouble(),
+                                record.toMap().value("amount_paid").toDouble(),
+                                Note{ record.toMap().value("note").toString() }
+                            });
         }
 
         setBusy(true);
         emit execute(new SaleQuery::AddSaleTransaction(m_transactionId,
                                                        m_customerName,
-                                                       transactionInfo.value("client_id").toInt(),
+                                                       transaction.value("client_id").toInt(),
                                                        m_customerPhoneNumber,
                                                        m_totalCost,
                                                        m_amountPaid,
                                                        m_balance,
-                                                       transactionInfo.value("suspended", false).toBool(),
-                                                       transactionInfo.value("due_date", QDateTime()).toDateTime(),
-                                                       transactionInfo.value("action").toString(),
-                                                       transactionInfo.value("note").toString(),
+                                                       transaction.value("suspended", false).toBool(),
+                                                       transaction.value("due_date", QDateTime()).toDateTime(),
+                                                       transaction.value("action").toString(),
+                                                       Note{transaction.value("note").toString()},
                                                        m_salePayments,
-                                                       items,
+                                                       products,
                                                        this));
     } else {
         emit error(EmptyCartError);
     }
 }
 
-void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transactionInfo)
+void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction)
 {
     if (!m_records.isEmpty()) {
-        StockItemList items;
+        SaleCartProductList products;
         for (const QVariant &record : m_records) {
-            items.append(StockItem{
-                             record.toMap().value("category_id").toInt(),
-                             record.toMap().value("item_id").toInt(),
-                             record.toMap().value("quantity").toDouble(),
-                             record.toMap().value("unit_id").toInt(),
-                             record.toMap().value("retail_price").toDouble(),
-                             record.toMap().value("unit_price").toDouble(),
-                             record.toMap().value("cost").toDouble(),
-                             record.toMap().value("amount_paid").toDouble(),
-                             record.toMap().value("note").toString()
-                         });
+            //            products.append(SaleCartProduct {
+            //                                record.toMap().value("product_category_id").toInt(),
+            //                                record.toMap().value("product").toInt(),
+            //                                record.toMap().value("quantity").toDouble(),
+            //                                record.toMap().value("unit_id").toInt(),
+            //                                record.toMap().value("retail_price").toDouble(),
+            //                                record.toMap().value("unit_price").toDouble(),
+            //                                record.toMap().value("cost").toDouble(),
+            //                                record.toMap().value("amount_paid").toDouble(),
+            //                                record.toMap().value("note").toString()
+            //                            });
+            products.append(SaleCartProduct {
+                                record.toMap().value("product_id").toInt(),
+                                record.toMap().value("product").toString(),
+                                StockProductCategory {
+                                    record.toMap().value("product_category_id").toInt(),
+                                    record.toMap().value("category").toString()
+                                },
+                                record.toMap().value("quantity").toDouble(),
+                                StockProductUnit {
+                                    record.toMap().value("product_unit_id").toInt(),
+                                    record.toMap().value("unit").toString()
+                                },
+                                record.toMap().value("retail_price").toDouble(),
+                                record.toMap().value("unit_price").toDouble(),
+                                record.toMap().value("cost").toDouble(),
+                                record.toMap().value("amount_paid").toDouble(),
+                                Note{ record.toMap().value("note").toString() }
+                            });
         }
 
         setBusy(true);
@@ -364,7 +388,7 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction
                          m_totalCost,
                          m_amountPaid,
                          m_balance,
-                         transactionInfo.value("note", QVariant(QVariant::String)).toString(),
+                         transaction.value("note", QVariant(QVariant::String)).toString(),
                          true,
                          this));
     } else {
@@ -401,7 +425,7 @@ void QMLSaleCartModel::processResult(const QueryResult result)
         beginResetModel();
 
         clearPayments();
-        m_records = result.outcome().toMap().value("items").toList();
+        m_records = result.outcome().toMap().value("products").toList();
         calculateTotal();
 
         endResetModel();
@@ -474,31 +498,31 @@ void QMLSaleCartModel::undoLastCommit()
     }
 }
 
-void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
+void QMLSaleCartModel::addProduct(const QVariantMap &product)
 {
-    const int categoryId = itemInfo.value("category_id").toInt();
-    const QString &category = itemInfo.value("category").toString();
-    const int itemId = itemInfo.value("item_id").toInt();
-    const QString &item = itemInfo.value("item").toString();
-    const double availableQuantity = itemInfo.value("available_quantity",
-                                                    itemInfo.value("quantity").toDouble()).toDouble(); // TODO: Simplify
-    const int unitId = itemInfo.value("unit_id").toInt();
-    const QString &unit = itemInfo.value("unit").toString();
-    const double costPrice = itemInfo.value("cost_price").toDouble();
-    const double retailPrice = itemInfo.value("retail_price").toDouble();
-    const double unitPrice = itemInfo.value("unit_price", retailPrice).toDouble();
+    const int categoryId = product.value("category_id").toInt();
+    const QString &category = product.value("category").toString();
+    const int productId = product.value("product_id").toInt();
+    const QString &productName = product.value("product").toString();
+    const double availableQuantity = product.value("available_quantity",
+                                                         product.value("quantity").toDouble()).toDouble(); // TODO: Simplify
+    const int unitId = product.value("unit_id").toInt();
+    const QString &unit = product.value("unit").toString();
+    const double costPrice = product.value("cost_price").toDouble();
+    const double retailPrice = product.value("retail_price").toDouble();
+    const double unitPrice = product.value("unit_price", retailPrice).toDouble();
 
     if (availableQuantity == 0.0)
         return;
 
-    if (!containsItem(itemId)) {
+    if (!containsProduct(productId)) {
         beginInsertRows(QModelIndex(), m_records.count(), m_records.count());
 
         QVariantMap record;
         record.insert("category_id", categoryId);
         record.insert("category", category);
-        record.insert("item_id", itemId);
-        record.insert("item", item);
+        record.insert("product_id", productId);
+        record.insert("product", productName);
         record.insert("available_quantity", availableQuantity);
         record.insert("quantity", qMin(1.0, availableQuantity));
         record.insert("unit_id", unitId);
@@ -511,7 +535,7 @@ void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
 
         endInsertRows();
     } else {
-        const int row = indexOfItem(itemId);
+        const int row = indexOfProduct(productId);
         QVariantMap record(m_records.at(row).toMap());
         const double oldQuantity = record.value("quantity").toDouble();
         const double newQuantity = oldQuantity + 1;
@@ -526,27 +550,27 @@ void QMLSaleCartModel::addItem(const QVariantMap &itemInfo)
     calculateTotal();
 }
 
-void QMLSaleCartModel::updateItem(int itemId, const QVariantMap &itemInfo)
+void QMLSaleCartModel::updateProduct(int productId, const QVariantMap &product)
 {
-    if (itemId <= 0 || itemInfo.isEmpty())
+    if (productId <= 0 || product.isEmpty())
         return;
 
-    const int row = indexOfItem(itemId);
+    const int row = indexOfProduct(productId);
     QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double availableQuantity = record.value("available_quantity").toDouble();
-    const double quantity = itemInfo.value("quantity").toDouble();
+    const double quantity = product.value("quantity").toDouble();
     const double oldUnitPrice = record.value("unit_price").toDouble();
     const double oldCost = record.value("cost").toDouble();
     const double newQuantity = qMin(quantity, availableQuantity);
-    const double newUnitPrice = itemInfo.value("unit_price").toDouble();
-    const double newCost = itemInfo.value("cost").toDouble();
+    const double newUnitPrice = product.value("unit_price").toDouble();
+    const double newCost = product.value("cost").toDouble();
 
-    if (itemInfo.contains("quantity"))
+    if (product.contains("quantity"))
         record.insert("quantity", newQuantity);
-    if (itemInfo.contains("cost"))
+    if (product.contains("cost"))
         record.insert("cost", newCost);
-    if (itemInfo.contains("unit_price"))
+    if (product.contains("unit_price"))
         record.insert("unit_price", newUnitPrice);
     m_records.replace(row, record);
 
@@ -556,12 +580,12 @@ void QMLSaleCartModel::updateItem(int itemId, const QVariantMap &itemInfo)
     }
 }
 
-void QMLSaleCartModel::setItemQuantity(int itemId, double quantity)
+void QMLSaleCartModel::setProductQuantity(int productId, double quantity)
 {
-    if (itemId <= 0 || quantity <= 0.0)
+    if (productId <= 0 || quantity <= 0.0)
         return;
 
-    const int row = indexOfItem(itemId);
+    const int row = indexOfProduct(productId);
     QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double availableQuantity = record.value("available_quantity").toDouble();
@@ -578,12 +602,12 @@ void QMLSaleCartModel::setItemQuantity(int itemId, double quantity)
     }
 }
 
-void QMLSaleCartModel::incrementItemQuantity(int itemId, double quantity)
+void QMLSaleCartModel::incrementProductQuantity(int productId, double quantity)
 {
     if (quantity <= 0.0)
         return;
 
-    const int row = indexOfItem(itemId);
+    const int row = indexOfProduct(productId);
     QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double availableQuantity = record.value("available_quantity").toDouble();
@@ -599,12 +623,12 @@ void QMLSaleCartModel::incrementItemQuantity(int itemId, double quantity)
     calculateTotal();
 }
 
-void QMLSaleCartModel::decrementItemQuantity(int itemId, double quantity)
+void QMLSaleCartModel::decrementProductQuantity(int productId, double quantity)
 {
     if (quantity <= 0.0)
         return;
 
-    const int row = indexOfItem(itemId);
+    const int row = indexOfProduct(productId);
     QVariantMap record(m_records[row].toMap());
     const double oldQuantity = record.value("quantity").toDouble();
     const double newQuantity = qMax(oldQuantity - quantity, 0.0);
@@ -637,9 +661,9 @@ void QMLSaleCartModel::updateCanAcceptCard()
     }
 }
 
-void QMLSaleCartModel::removeItem(int itemId)
+void QMLSaleCartModel::removeProduct(int productId)
 {
-    const int row = indexOfItem(itemId);
+    const int row = indexOfProduct(productId);
     beginRemoveRows(QModelIndex(), row, row);
     m_records.removeAt(row);
     endRemoveRows();
@@ -647,22 +671,22 @@ void QMLSaleCartModel::removeItem(int itemId)
     calculateTotal();
 }
 
-bool QMLSaleCartModel::containsItem(int itemId)
+bool QMLSaleCartModel::containsProduct(int productId)
 {
     for (const QVariant &record : m_records)
-        if (record.toMap().value("item_id").toInt() == itemId)
+        if (record.toMap().value("product_id").toInt() == productId)
             return true;
 
     return false;
 }
 
-int QMLSaleCartModel::indexOfItem(int itemId)
+int QMLSaleCartModel::indexOfProduct(int productId)
 {
-    if (itemId <= 0)
+    if (productId <= 0)
         return -1;
 
     for (int i = 0; i < m_records.count(); ++i)
-        if (m_records.at(i).toMap().value("item_id").toInt() == itemId)
+        if (m_records.at(i).toMap().value("product_id").toInt() == productId)
             return i;
 
     return -1;

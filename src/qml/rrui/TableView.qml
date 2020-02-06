@@ -11,23 +11,23 @@ Item {
     property Component headerDelegate: null
     property Component cellDelegate: null
     property Component rowDelegate: FluidControls.ListItem { showDivider: true }
-    property alias interactive: itemListView.interactive
-    property alias headerPositioning: itemListView.headerPositioning
+    property alias interactive: listView.interactive
+    property alias headerPositioning: listView.headerPositioning
     property real cellSpacing: 0
 
-    property alias model: itemListView.model
+    property alias model: listView.model
 
     ListView {
         id: rowListView
         anchors.fill: parent
 
         model: tableView.model
-        contentY: itemListView.contentY
+        contentY: listView.contentY
         interactive: false
 
         header: Item {
             width: ListView.view.width
-            height: itemListView.headerItem.height
+            height: listView.headerItem.height
 
             Loader {
                 anchors.fill: parent
@@ -37,13 +37,13 @@ Item {
 
         delegate: Loader {
             width: ListView.view.width
-            height: itemListView.contentItem.children.length > 0 ? itemListView.contentItem.children[0].height : 0
+            height: listView.contentItem.children.length > 0 ? listView.contentItem.children[0].height : 0
             sourceComponent: tableView.rowDelegate
         }
     }
 
     ListView {
-        id: itemListView
+        id: listView
         anchors.fill: parent
 
         header: Row {
@@ -63,7 +63,7 @@ Item {
         }
 
         delegate: Row {
-            id: itemListViewDelegate
+            id: listViewDelegate
 
             readonly property int row: index
 
@@ -74,12 +74,12 @@ Item {
                 delegate: Loader {
                     readonly property int column: index
                     readonly property var cellData: {
-                        "modelData": itemListView.model.get(itemListViewDelegate.row)[tableView.columns[column].role],
-                                "row": itemListViewDelegate.row,
+                        "modelData": listView.model.get(listViewDelegate.row)[tableView.columns[column].role],
+                                "row": listViewDelegate.row,
                                 "column": column,
                                 "textRole": tableView.columns[column].role
                     }
-                    width: itemListViewDelegate.ListView.view.headerItem.children[column].width
+                    width: listViewDelegate.ListView.view.headerItem.children[column].width
                     sourceComponent: tableView.cellDelegate
                 }
             }

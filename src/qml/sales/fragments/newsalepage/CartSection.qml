@@ -22,12 +22,12 @@ FocusScope {
 
     signal success(int successCode)
     signal error(int errorCode, string errorMessage)
-    signal viewRequested(int itemId)
+    signal viewRequested(int productId)
     signal checkoutRequested
 
-    function addItem(modelData) { cart.addItem(modelData); }
+    function addProduct(modelData) { cart.addProduct(modelData); }
     function suspendTransaction(params) { cart.suspendTransaction(params); }
-    function submitTransaction(paymentInfo) { cart.submitTransaction(paymentInfo); }
+    function submitTransaction(payment) { cart.submitTransaction(payment); }
     function undoLastTransaction() { cart.undoLastTransaction(); }
 
     function clear() {
@@ -78,8 +78,8 @@ FocusScope {
             }
 
             onError: cartSection.error(errorCode, errorMessage);
-            onEditRequested: cartItemEditorDialog.show(itemInfo);
-            onViewRequested: cartSection.viewRequested(itemId);
+            onEditRequested: cartProductEditorDialog.show(product);
+            onViewRequested: cartSection.viewRequested(productId);
         }
 
         Checkout {
@@ -99,12 +99,12 @@ FocusScope {
         title: qsTr("Choose sort order")
     }
 
-    CartItemEditorDialog {
-        id: cartItemEditorDialog
-        onAccepted: cart.updateItem(itemId, {
-                                        "quantity": quantity,
-                                        "unit_price": unitPrice,
-                                        "cost": cost
-                                    });
+    CartProductEditorDialog {
+        id: cartProductEditorDialog
+        onAccepted: cart.updateProduct(productId, {
+                                           "quantity": quantity,
+                                           "unit_price": unitPrice,
+                                           "cost": cost
+                                       });
     }
 }

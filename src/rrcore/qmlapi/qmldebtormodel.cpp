@@ -87,10 +87,10 @@ void QMLDebtorModel::processResult(const QueryResult result)
             endResetModel();
             emit success(ViewDebtorsSuccess);
         } else if (result.request().command() == DebtorQuery::RemoveDebtor::COMMAND) {
-            removeItemFromModel(result.outcome().toMap().value("debtor_id").toInt());
+            removeDebtorFromModel(result.outcome().toMap().value("debtor_id").toInt());
             emit success(RemoveDebtorSuccess);
         } else if (result.request().command() == DebtorQuery::RemoveDebtor::UNDO_COMMAND) {
-            undoRemoveItemFromModel(result.outcome().toMap().value("debtor_row").toInt(),
+            undoRemoveDebtorFromModel(result.outcome().toMap().value("debtor_row").toInt(),
                                     result.outcome().toMap().value("debtor_id").toInt(),
                                     result.outcome().toMap().value("debtor").toMap());
             emit success(UndoRemoveDebtorSuccess);
@@ -140,7 +140,7 @@ int QMLDebtorModel::debtorRowFromId(int debtorId)
     return -1;
 }
 
-void QMLDebtorModel::removeItemFromModel(int debtorId)
+void QMLDebtorModel::removeDebtorFromModel(int debtorId)
 {
     if (debtorId <= 0)
         return;
@@ -156,13 +156,13 @@ void QMLDebtorModel::removeItemFromModel(int debtorId)
     }
 }
 
-void QMLDebtorModel::undoRemoveItemFromModel(int row, int debtorId, const QVariantMap &debtorInfo)
+void QMLDebtorModel::undoRemoveDebtorFromModel(int row, int debtorId, const QVariantMap &debtor)
 {
     if (debtorId <= 0)
         return;
 
     beginInsertRows(QModelIndex(), row, row);
-    m_records.insert(row, debtorInfo);
+    m_records.insert(row, debtor);
     endInsertRows();
 }
 

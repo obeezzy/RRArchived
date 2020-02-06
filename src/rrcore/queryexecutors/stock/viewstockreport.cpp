@@ -51,13 +51,13 @@ QueryResult ViewStockReport::execute()
                                                            }
                                                        }));
 
-        QVariantList items;
+        QVariantList products;
         for (const QSqlRecord &record : records) {
-            items.append(recordToMap(record));
+            products.append(recordToMap(record));
         }
 
-        result.setOutcome(QVariantMap { { "items", items },
-                                        { "record_count", items.count() },
+        result.setOutcome(QVariantMap { { "products", products },
+                                        { "record_count", products.count() },
                           });
         return result;
     } catch (DatabaseException &) {

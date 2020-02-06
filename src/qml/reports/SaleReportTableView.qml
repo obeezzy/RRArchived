@@ -55,7 +55,7 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.SaleReportModel.ItemColumn
+            column: RRModels.SaleReportModel.ProductColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: saleReportTableView.columnHeader.children[column].width
                 implicitHeight: saleReportTableView.rowHeader.children[row].height
@@ -69,7 +69,7 @@ RRUi.DataTableView {
 
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
-                    text: item
+                    text: product
                     elide: Text.ElideRight
                 }
             }

@@ -71,7 +71,7 @@ RRUi.DataTableView {
                     elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
-                    text: item
+                    text: product
                 }
             }
         }

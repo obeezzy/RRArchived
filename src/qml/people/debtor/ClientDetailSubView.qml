@@ -56,7 +56,7 @@ RRUi.SubView {
                     spacing: 4
 
                     RRUi.LetterCircleImage {
-                        id: itemImage
+                        id: clientImage
                         anchors {
                             left: parent.left
                             right: parent.right
@@ -69,7 +69,7 @@ RRUi.SubView {
 
                         FluidControls.Icon {
                             anchors.centerIn: parent
-                            visible: itemImage.name === ""
+                            visible: clientImage.name === ""
                             color: "white"
                             source: FluidControls.Utils.iconUrl("image/photo_camera")
                         }

@@ -1,19 +1,18 @@
+#include "plugins.h"
+#include "singletons/logger.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QQmlContext>
 #include <QIcon>
 #include <QDir>
-#include "plugins.h"
-#include "rrcore/database/databaseserver.h"
-#include "singletons/logger.h"
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
 #if defined(Q_OS_WIN) || defined(Q_OS_ANDROID)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-    //qputenv("QT_SCALE_FACTOR", "1.4");
     QApplication app(argc, argv);
 
     Logger::instance().start();
@@ -37,5 +36,6 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("MainWindow", engine.rootObjects().last());
 
+    qDebug() << "Right here!";
     return app.exec();
 }

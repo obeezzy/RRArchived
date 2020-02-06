@@ -35,8 +35,8 @@ QVariant QMLStockReportModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryRole:
         return m_records.at(index.row()).toMap().value("category").toString();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case OpeningStockQuantityRole:
         return m_records.at(index.row()).toMap().value("opening_stock_quantity").toString();
     case QuantitySoldRole:
@@ -56,7 +56,7 @@ QHash<int, QByteArray> QMLStockReportModel::roleNames() const
 {
     return {
         { CategoryRole, "category" },
-        { ItemRole, "item" },
+        { ProductRole, "product" },
         { OpeningStockQuantityRole, "opening_stock_quantity" },
         { QuantitySoldRole, "quantity_sold" },
         { QuantityBoughtRole, "quantity_bought" },
@@ -72,8 +72,8 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
             switch (section) {
             case CategoryColumn:
                 return tr("Category");
-            case ItemColumn:
-                return tr("Item");
+            case ProductColumn:
+                return tr("Product");
             case OpeningStockQuantityColumn:
                 return tr("Opening stock qty");
             case QuantitySoldColumn:
@@ -86,7 +86,7 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
             case CategoryColumn:
-            case ItemColumn:
+            case ProductColumn:
                 return Qt::AlignLeft;
             case OpeningStockQuantityColumn:
             case QuantitySoldColumn:
@@ -98,7 +98,7 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
             switch (section) {
             case CategoryColumn:
                 return 130;
-            case ItemColumn:
+            case ProductColumn:
                 return tableViewWidth() - 130 -130 -130 - 130 - 130;
             case OpeningStockQuantityColumn:
                 return 130;
@@ -130,7 +130,7 @@ void QMLStockReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == StockQuery::ViewStockReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("items").toList();
+            m_records = result.outcome().toMap().value("products").toList();
             endResetModel();
             emit success(ViewStockReportSuccess);
         }
