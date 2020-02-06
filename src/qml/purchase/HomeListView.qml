@@ -22,7 +22,7 @@ RRUi.HomeListViewBase {
 
         source: {
             switch (data_type) {
-            case "last_purchased_items":
+            case "last_purchased_products":
                 Qt.resolvedUrl("homecards/LastPurchasedItemCard.qml")
                 break;
             default:

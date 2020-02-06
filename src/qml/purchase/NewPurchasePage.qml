@@ -6,6 +6,7 @@ import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
 import "../stock" as Stock
+import "../wizard" as RRWizard
 import "../common"
 import "../singletons"
 
@@ -27,7 +28,7 @@ RRUi.Page {
 
         property int filterIndex: 0
         property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
+        property var filterModel: ["Search by product name", "Search by category name"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
 
         property int transactionId: -1
@@ -40,7 +41,7 @@ RRUi.Page {
             text: qsTr("Suspend transaction")
             onTriggered: {
                 if (transitionView.currentItem.itemCount === 0) {
-                    errorDialog.show(qsTr("There are no items in your cart."), qsTr("Failed to suspend transaction"));
+                    errorDialog.show(qsTr("There are no products in your cart."), qsTr("Failed to suspend transaction"));
                 } else if (transitionView.currentItem.customerName === "") {
                     errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to suspend transaction"));
                 } else {
@@ -162,7 +163,7 @@ RRUi.Page {
                         }
                     }
 
-                    Stock.CategoryListView {
+                    Stock.ProductCategoryListView {
                         id: categoryListView
                         anchors {
                             top: filterChipListView.bottom
@@ -172,7 +173,7 @@ RRUi.Page {
                         }
 
                         filterText: searchBar.text
-                        filterColumn: RRModels.StockItemModel.ItemColumn
+                        filterColumn: RRModels.StockProductModel.ProductColumn
 
                         buttonRow: Row {
                             spacing: 0
@@ -182,14 +183,14 @@ RRUi.Page {
                                 icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
                                 text: qsTr("Add to cart")
                                 visible: parent.parent.modelData.quantity > 0
-                                onClicked: cartListView.addItem(parent.parent.modelData);
+                                onClicked: cartListView.addProduct(parent.parent.modelData);
                             }
 
                             RRUi.ToolButton {
                                 id: viewButton
                                 icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                                 text: qsTr("View details")
-                                onClicked: itemDetailPopup.show(parent.parent.modelData.item_id);
+                                onClicked: productDetailPopup.show(parent.parent.modelData.product_id);
                             }
                         }
                     }
@@ -296,8 +297,8 @@ RRUi.Page {
                             customerName: customerNameField.text
                             transactionId: privateProperties.transactionId
 
-                            onViewRequested: itemDetailPopup.show(itemId);
-                            onEditRequested: cartItemEditorDialog.show(itemInfo);
+                            onViewRequested: productDetailPopup.show(productId);
+                            onEditRequested: cartProductEditorDialog.show(product);
 
                             onSuccess: {
                                 if (paymentWizard.opened)
@@ -396,7 +397,7 @@ RRUi.Page {
 
                 RRUi.BusyOverlay { visible: cartListView.busy }
 
-                PaymentWizard {
+                RRWizard.PaymentWizard {
                     id: paymentWizard
                     reason: PaymentWizard.Purchase
                     cartModel: cartListView.model
@@ -432,9 +433,9 @@ RRUi.Page {
                     }
                 }
 
-                CartItemEditorDialog {
-                    id: cartItemEditorDialog
-                    onAccepted: cartListView.updateItem(itemId, { "quantity": quantity,
+                CartProductEditorDialog {
+                    id: cartProductEditorDialog
+                    onAccepted: cartListView.updateItem(productId, { "quantity": quantity,
                                                             "unit_price": unitPrice,
                                                             "cost": cost });
                 }
@@ -480,8 +481,8 @@ RRUi.Page {
 
     RRUi.ErrorDialog { id: errorDialog }
 
-    Stock.ItemDetailPopup {
-        id: itemDetailPopup
+    Stock.ProductDetailPopup {
+        id: productDetailPopup
         editButtonVisible: false
     }
 }

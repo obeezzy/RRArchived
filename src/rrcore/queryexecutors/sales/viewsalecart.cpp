@@ -9,11 +9,12 @@
 
 using namespace SaleQuery;
 
-ViewSaleCart::ViewSaleCart(qint64 transactionId, QObject *receiver) :
+ViewSaleCart::ViewSaleCart(qint64 transactionId,
+                           QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "transaction_id", transactionId },
                     { "sale_transaction_archived", false },
-                    { "sale_item_archived", false }
+                    { "sold_product_archived", false }
                  }, receiver)
 {
 
@@ -23,8 +24,10 @@ QueryResult ViewSaleCart::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+
     const QVariantMap &params = request().params();
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
@@ -41,21 +44,22 @@ QueryResult ViewSaleCart::execute()
                                                           },
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
-                                                              "sale_item_archived",
-                                                              params.value("sale_item_archived")
+                                                              "sold_product_archived",
+                                                              params.value("sold_product_archived")
                                                           }
                                                       }));
 
-        QVariantList items;
-        for (const QSqlRecord &record : records)
-            items.append(recordToMap(record));
+        QVariantList products;
+        for (const auto &record : records)
+            products.append(recordToMap(record));
 
-        if (!items.isEmpty()) {
-            QVariantMap outcome { items.first().toMap() };
-            outcome.insert("items", items);
-            outcome.insert("record_count", items.count());
+        if (!products.isEmpty()) {
+            QVariantMap outcome{ products.first().toMap() };
+            outcome.insert("products", products);
+            outcome.insert("record_count", products.count());
             result.setOutcome(outcome);
         }
+
         return result;
     } catch (DatabaseException &) {
         throw;

@@ -22,10 +22,10 @@ private Q_SLOTS:
     void testSetNote();
     void testClearAll();
 
-    void testAddItem();
-    void testAddSameItem();
-    void testAddDifferentItems();
-    void testUpdateItem();
+    void testAddProduct();
+    void testAddSameProduct();
+    void testAddDifferentProducts();
+    void testUpdateProduct();
 
     void testGetTotalCost();
     void testGetAmountPaid();
@@ -42,8 +42,8 @@ private Q_SLOTS:
     void testRetrieveSuspendedTransaction();
     void testSubmitEmptyTransaction();
     void testSuspendEmptyTransaction();
-    void testRemoveItem();
-    void testSetItemQuantity();
+    void testRemoveProduct();
+    void testSetProductQuantity();
 private:
     QMLSaleCartModel *m_saleCartModel;
     MockDatabaseThread m_thread;
@@ -127,11 +127,11 @@ void QMLSaleCartModelTest::testSetNote()
 
 void QMLSaleCartModelTest::testClearAll()
 {
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -141,29 +141,29 @@ void QMLSaleCartModelTest::testClearAll()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add an item to the model.
+    // STEP: Add an product to the model.
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("123456789");
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(productInfo);
 
-    // STEP: Clear all items in the model.
+    // STEP: Clear all products in the model.
     m_saleCartModel->clearAll();
 
-    // STEP: Ensure all items are cleared from the model.
+    // STEP: Ensure all products are cleared from the model.
     QCOMPARE(m_saleCartModel->customerName(), QString());
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), QString());
     QCOMPARE(m_saleCartModel->rowCount(), 0);
 }
 
-void QMLSaleCartModelTest::testAddItem()
+void QMLSaleCartModelTest::testAddProduct()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
 
-    const QVariantMap itemInfo {
+    const QVariantMap product {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -173,23 +173,23 @@ void QMLSaleCartModelTest::testAddItem()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add item to model.
-    m_saleCartModel->addItem(itemInfo);
+    // STEP: Add product to model.
+    m_saleCartModel->addProduct(product);
 
-    // STEP: Ensure item was added and user was notified.
+    // STEP: Ensure product was added and user was notified.
     QCOMPARE(rowsInsertedSpy.count(), 1);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 }
 
-void QMLSaleCartModelTest::testAddSameItem()
+void QMLSaleCartModelTest::testAddSameProduct()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
     QSignalSpy dataChangedSpy(m_saleCartModel, &QMLSaleCartModel::dataChanged);
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 2.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -199,27 +199,27 @@ void QMLSaleCartModelTest::testAddSameItem()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add an item to the model.
-    m_saleCartModel->addItem(itemInfo);
+    // STEP: Add an product to the model.
+    m_saleCartModel->addProduct(productInfo);
 
-    // STEP: Add the same item to the model.
-    m_saleCartModel->addItem(itemInfo);
+    // STEP: Add the same product to the model.
+    m_saleCartModel->addProduct(productInfo);
 
-    // STEP: Ensure one row was added to the model, and the item has its quantity set to 2.
+    // STEP: Ensure one row was added to the model, and the product has its quantity set to 2.
     QCOMPARE(rowsInsertedSpy.count(), 1);
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 2.0);
 }
 
-void QMLSaleCartModelTest::testAddDifferentItems()
+void QMLSaleCartModelTest::testAddDifferentProducts()
 {
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
-    const QVariantMap itemInfo1 {
+    const QVariantMap productInfo1 {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -228,11 +228,11 @@ void QMLSaleCartModelTest::testAddDifferentItems()
         { "unit_price", 13.0 },
         { "available_quantity", 10.0 }
     };
-    const QVariantMap itemInfo2 {
+    const QVariantMap productInfo2 {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 2 },
-        { "item", "Item2" },
+        { "product_id", 2 },
+        { "product", "Item2" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -242,12 +242,12 @@ void QMLSaleCartModelTest::testAddDifferentItems()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add the same item twice to the model.
-    m_saleCartModel->addItem(itemInfo1);
-    m_saleCartModel->addItem(itemInfo1);
+    // STEP: Add the same product twice to the model.
+    m_saleCartModel->addProduct(productInfo1);
+    m_saleCartModel->addProduct(productInfo1);
 
-    // STEP: Add a different item to the model.
-    m_saleCartModel->addItem(itemInfo2);
+    // STEP: Add a different product to the model.
+    m_saleCartModel->addProduct(productInfo2);
 
     // STEP: Ensure that there are two rows: one row with a quantity of 2, and the other with a quantity of 1.
     QCOMPARE(rowsInsertedSpy.count(), 2);
@@ -256,15 +256,15 @@ void QMLSaleCartModelTest::testAddDifferentItems()
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(1), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
 }
 
-void QMLSaleCartModelTest::testUpdateItem()
+void QMLSaleCartModelTest::testUpdateProduct()
 {
     QSignalSpy dataChangedSpy(m_saleCartModel, &QMLSaleCartModel::dataChanged);
 
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category" },
-        { "item_id", 1 },
-        { "item", "Item" },
+        { "product_id", 1 },
+        { "product", "Item" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -272,27 +272,27 @@ void QMLSaleCartModelTest::testUpdateItem()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add item to the model
+    // STEP: Add product to the model
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("1234567890");
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(productInfo);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
-    const QVariantMap itemUpdateInfo {
+    const QVariantMap productUpdateInfo {
         { "quantity", 4.0 },
         { "unit_price", 30.0 },
         { "cost", 120.0 }
     };
 
-    // STEP: Update item details.
-    m_saleCartModel->updateItem(1, itemUpdateInfo);
+    // STEP: Update product details.
+    m_saleCartModel->updateProduct(1, productUpdateInfo);
     QCOMPARE(dataChangedSpy.count(), 1);
 
     // STEP: Ensure model is updated properly.
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), "1234567890");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ItemIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ItemRole).toString(), QStringLiteral("Item"));
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductRole).toString(), QStringLiteral("Product"));
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 4.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitPriceRole).toDouble(), 30.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostRole).toDouble(), 120.0);
@@ -301,11 +301,11 @@ void QMLSaleCartModelTest::testUpdateItem()
 void QMLSaleCartModelTest::testGetTotalCost()
 {
     QSignalSpy totalCostChangedSpy(m_saleCartModel, &QMLSaleCartModel::totalCostChanged);
-    const QVariantMap itemInfo1 {
+    const QVariantMap productInfo1 {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -314,11 +314,11 @@ void QMLSaleCartModelTest::testGetTotalCost()
         { "unit_price", 22.0 },
         { "available_quantity", 10.0 }
     };
-    const QVariantMap itemInfo2 {
+    const QVariantMap productInfo2 {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 2 },
-        { "item", "Item2" },
+        { "product_id", 2 },
+        { "product", "Item2" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -328,9 +328,9 @@ void QMLSaleCartModelTest::testGetTotalCost()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add 2 distinct items to the model.
-    m_saleCartModel->addItem(itemInfo1);
-    m_saleCartModel->addItem(itemInfo2);
+    // STEP: Add 2 distinct products to the model.
+    m_saleCartModel->addProduct(productInfo1);
+    m_saleCartModel->addProduct(productInfo2);
 
     // STEP: Ensure that the total cost is updated properly.
     QCOMPARE(totalCostChangedSpy.count(), 2);
@@ -352,11 +352,11 @@ void QMLSaleCartModelTest::testGetAmountPaid()
 
 void QMLSaleCartModelTest::testGetClientId()
 {
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category" },
-        { "item_id", 1 },
-        { "item", "Item" },
+        { "product_id", 1 },
+        { "product", "Item" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -370,7 +370,7 @@ void QMLSaleCartModelTest::testGetClientId()
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
     };
-    auto databaseWillReturnSubmittedTransaction = [this, &itemInfo]() {
+    auto databaseWillReturnSubmittedTransaction = [this, &productInfo]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -378,7 +378,7 @@ void QMLSaleCartModelTest::testGetClientId()
                                 { "client_id", 1 },
                                 { "customer_name", QStringLiteral("Customer") },
                                 { "customer_phone_number", QStringLiteral("123456789") },
-                                { "items", QVariantList { { itemInfo } } }
+                                { "products", QVariantList { { productInfo } } }
                             });
     };
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
@@ -392,8 +392,8 @@ void QMLSaleCartModelTest::testGetClientId()
     m_saleCartModel->setCustomerName("Customer");
     m_saleCartModel->setCustomerPhoneNumber("123456789");
 
-    // STEP: Sell one item to the client.
-    m_saleCartModel->addItem(itemInfo);
+    // STEP: Sell one product to the client.
+    m_saleCartModel->addProduct(productInfo);
     m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
 
     databaseWillReturnEmptyResult();
@@ -426,8 +426,8 @@ void QMLSaleCartModelTest::testGetClientId()
     QCOMPARE(m_saleCartModel->rowCount(), 1);
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::CategoryIdRole).toInt(), 1);
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::CategoryRole).toString(), QStringLiteral("Category"));
-    QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::ItemIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::ItemRole).toString(), QStringLiteral("Item"));
+    QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::ProductIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::ProductRole).toString(), QStringLiteral("Product"));
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::AvailableQuantityRole).toDouble(), 10.0);
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::UnitIdRole).toInt(), 1);
@@ -513,11 +513,11 @@ void QMLSaleCartModelTest::testClearPayments()
 
 void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 {
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit1" },
@@ -530,7 +530,7 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
     };
-    auto databaseWillReturnSubmittedTransaction = [this, &itemInfo]() {
+    auto databaseWillReturnSubmittedTransaction = [this, &productInfo]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -538,7 +538,7 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
                                 { "client_id", 1 },
                                 { "customer_name", QStringLiteral("Customer") },
                                 { "customer_phone_number", QStringLiteral("123456789") },
-                                { "items", QVariantList { { itemInfo } } }
+                                { "products", QVariantList { { productInfo } } }
                             });
     };
 
@@ -546,9 +546,9 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
     QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
-    // STEP: Add item to the model.
+    // STEP: Add product to the model.
     m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(productInfo);
 
     databaseWillReturnEmptyResult();
 
@@ -580,8 +580,8 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     QCOMPARE(m_saleCartModel->customerName(), "Customer");
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryIdRole).toInt(), 1);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryRole).toString(), "Category1");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ItemIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ItemRole).toString(), "Item1");
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductIdRole).toInt(), 1);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductRole).toString(), "Product1");
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitIdRole).toInt(), 1);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitRole).toString(), "Unit1");
@@ -591,13 +591,13 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::AvailableQuantityRole).toDouble(), 10.0);
 }
 
-void QMLSaleCartModelTest::testRemoveItem()
+void QMLSaleCartModelTest::testRemoveProduct()
 {
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit1" },
@@ -607,22 +607,22 @@ void QMLSaleCartModelTest::testRemoveItem()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add item to the model.
-    m_saleCartModel->addItem(itemInfo);
+    // STEP: Add product to the model.
+    m_saleCartModel->addProduct(productInfo);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
-    // STEP: Remove item from the model.
-    m_saleCartModel->removeItem(1);
+    // STEP: Remove product from the model.
+    m_saleCartModel->removeProduct(1);
     QCOMPARE(m_saleCartModel->rowCount(), 0);
 }
 
-void QMLSaleCartModelTest::testSetItemQuantity()
+void QMLSaleCartModelTest::testSetProductQuantity()
 {
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit1" },
@@ -632,26 +632,26 @@ void QMLSaleCartModelTest::testSetItemQuantity()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add item to the model.
-    m_saleCartModel->addItem(itemInfo);
+    // STEP: Add product to the model.
+    m_saleCartModel->addProduct(productInfo);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
     // STEP: Ensure a quantity of 1 is set.
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
 
     // STEP: Set the quantity to an invalid value.
-    m_saleCartModel->setItemQuantity(1, 0.0);
+    m_saleCartModel->setProductQuantity(1, 0.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
-    m_saleCartModel->setItemQuantity(1, -1.0);
+    m_saleCartModel->setProductQuantity(1, -1.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
 
     // STEP: Set the quantity to a value greater than the available quantity. Ensure the value caps at
     // the available quantity.
-    m_saleCartModel->setItemQuantity(1, 11.0);
+    m_saleCartModel->setProductQuantity(1, 11.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 10.0);
 
     // STEP: Set the quantity to an valid value.
-    m_saleCartModel->setItemQuantity(1, 5.5);
+    m_saleCartModel->setProductQuantity(1, 5.5);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
 }
 
@@ -665,11 +665,11 @@ void QMLSaleCartModelTest::testNoDueDateSet()
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
     QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
-    const QVariantMap itemInfo {
+    const QVariantMap product {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -679,9 +679,9 @@ void QMLSaleCartModelTest::testNoDueDateSet()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add item to the model.
+    // STEP: Add product to the model.
     m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(product);
 
     databaseWillReturnEmptyResult();
 
@@ -704,11 +704,11 @@ void QMLSaleCartModelTest::testSubmitTransaction()
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
     QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -718,9 +718,9 @@ void QMLSaleCartModelTest::testSubmitTransaction()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add item to the model.
+    // STEP: Add product to the model.
     m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(productInfo);
     m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
     QCOMPARE(rowsInsertedSpy.count(), 1);
     rowsInsertedSpy.clear();
@@ -745,11 +745,11 @@ void QMLSaleCartModelTest::testSuspendTransaction()
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
 
-    const QVariantMap itemInfo {
+    const QVariantMap productInfo {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -759,9 +759,9 @@ void QMLSaleCartModelTest::testSuspendTransaction()
         { "available_quantity", 10.0 }
     };
 
-    // STEP: Add an item to the model.
+    // STEP: Add an product to the model.
     m_saleCartModel->setCustomerName(QStringLiteral("Customer"));
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(productInfo);
 
     databaseWillReturnEmptyResult();
 
@@ -778,11 +778,11 @@ void QMLSaleCartModelTest::testSuspendTransaction()
 
 void QMLSaleCartModelTest::testSetTransactionId()
 {
-    const QVariantMap itemInfo {
+    const QVariantMap product {
         { "category_id", 1 },
         { "category", "Category1" },
-        { "item_id", 1 },
-        { "item", "Item1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
@@ -793,7 +793,7 @@ void QMLSaleCartModelTest::testSetTransactionId()
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
     };
-    auto databaseWillReturnSubmittedTransaction = [this, &itemInfo]() {
+    auto databaseWillReturnSubmittedTransaction = [this, &product]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
@@ -801,7 +801,7 @@ void QMLSaleCartModelTest::testSetTransactionId()
                                 { "client_id", 1 },
                                 { "customer_name", QStringLiteral("Customer") },
                                 { "customer_phone_number", QStringLiteral("123456789") },
-                                { "items", QVariantList { { itemInfo } } }
+                                { "products", QVariantList { { product } } }
                             });
     };
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
@@ -812,10 +812,10 @@ void QMLSaleCartModelTest::testSetTransactionId()
     // STEP: Ensure transaction ID is not set.
     QCOMPARE(m_saleCartModel->transactionId(), -1);
 
-    // STEP: Add item to the model.
+    // STEP: Add product to the model.
     m_saleCartModel->setCustomerName(QStringLiteral("Customer"));
     m_saleCartModel->setCustomerPhoneNumber(QStringLiteral("123456789"));
-    m_saleCartModel->addItem(itemInfo);
+    m_saleCartModel->addProduct(product);
     m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
 
     databaseWillReturnEmptyResult();

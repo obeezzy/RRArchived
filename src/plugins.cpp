@@ -7,15 +7,15 @@
 #include "rrcore/qmlapi/qmldatabasecreator.h"
 
 #include "rrcore/qmlapi/qmldashboardhomemodel.h"
-#include "rrcore/qmlapi/qmlstockitempusher.h"
+#include "rrcore/qmlapi/qmlstockproductpusher.h"
 #include "rrcore/qmlapi/qmlsalecartmodel.h"
 #include "rrcore/qmlapi/qmlsaletransactionmodel.h"
 #include "rrcore/qmlapi/qmlsaletransactionitemmodel.h"
 #include "rrcore/qmlapi/qmldoublevalidator.h"
-#include "rrcore/qmlapi/qmlstockcategorymodel.h"
+#include "rrcore/qmlapi/qmlstockproductcategorymodel.h"
 #include "rrcore/qmlapi/qmldebtormodel.h"
 #include "rrcore/qmlapi/qmlsalehomemodel.h"
-#include "rrcore/qmlapi/qmlstockitemdetailrecord.h"
+#include "rrcore/qmlapi/qmlstockproductdetailrecord.h"
 #include "rrcore/qmlapi/qmlclientmodel.h"
 #include "rrcore/qmlapi/qmldebttransactionmodel.h"
 #include "rrcore/qmlapi/qmldebtordetailrecord.h"
@@ -41,8 +41,8 @@
 #include "rrcore/qmlapi/qmlincomereportmodel.h"
 #include "rrcore/qmlapi/qmlexpensereportmodel.h"
 #include "rrcore/qmlapi/qmlexpensetransactionmodel.h"
-#include "rrcore/qmlapi/qmlstockitemmodel.h"
-#include "rrcore/qmlapi/qmlstockitemcountrecord.h"
+#include "rrcore/qmlapi/qmlstockproductmodel.h"
+#include "rrcore/qmlapi/qmlstockproductcountrecord.h"
 #include "rrcore/qmlapi/qmldebtpaymentmodel.h"
 
 #include "rrcore/widgets/dialogs.h"
@@ -72,14 +72,14 @@ void Plugins::registerTypes()
 
     // Models
     qmlRegisterType<QMLDashboardHomeModel>("com.gecko.rr.models", 1, 0, "DashboardHomeModel");
-    qmlRegisterType<QMLStockItemPusher>("com.gecko.rr.models", 1, 0, "StockItemPusher");
+    qmlRegisterType<QMLStockProductPusher>("com.gecko.rr.models", 1, 0, "StockProductPusher");
     qmlRegisterType<QMLSaleCartModel>("com.gecko.rr.models", 1, 0, "SaleCartModel");
     qmlRegisterType<QMLSaleTransactionModel>("com.gecko.rr.models", 1, 0, "SaleTransactionModel");
     qmlRegisterType<QMLSaleTransactionItemModel>("com.gecko.rr.models", 1, 0, "SaleTransactionItemModel");
-    qmlRegisterType<QMLStockCategoryModel>("com.gecko.rr.models", 1, 0, "StockCategoryModel");
+    qmlRegisterType<QMLStockProductCategoryModel>("com.gecko.rr.models", 1, 0, "StockProductCategoryModel");
     qmlRegisterType<QMLDebtorModel>("com.gecko.rr.models", 1, 0, "DebtorModel");
     qmlRegisterType<QMLSaleHomeModel>("com.gecko.rr.models", 1, 0, "SaleHomeModel");
-    qmlRegisterType<QMLStockItemDetailRecord>("com.gecko.rr.models", 1, 0, "StockItemDetailRecord");
+    qmlRegisterType<QMLStockProductDetailRecord>("com.gecko.rr.models", 1, 0, "StockProductDetailRecord");
     qmlRegisterType<QMLClientModel>("com.gecko.rr.models", 1, 0, "ClientModel");
     qmlRegisterType<QMLDebtTransactionModel>("com.gecko.rr.models", 1, 0, "DebtTransactionModel");
     qmlRegisterType<QMLDebtorDetailRecord>("com.gecko.rr.models", 1, 0, "DebtorDetailRecord");
@@ -102,8 +102,8 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLIncomeReportModel>("com.gecko.rr.models", 1, 0, "IncomeReportModel");
     qmlRegisterType<QMLExpenseReportModel>("com.gecko.rr.models", 1, 0, "ExpenseReportModel");
     qmlRegisterType<QMLExpenseTransactionModel>("com.gecko.rr.models", 1, 0, "ExpenseTransactionModel");
-    qmlRegisterType<QMLStockItemModel>("com.gecko.rr.models", 1, 0, "StockItemModel");
-    qmlRegisterType<QMLStockItemCountRecord>("com.gecko.rr.models", 1, 0, "StockItemCountRecord");
+    qmlRegisterType<QMLStockProductModel>("com.gecko.rr.models", 1, 0, "StockProductModel");
+    qmlRegisterType<QMLStockProductCountRecord>("com.gecko.rr.models", 1, 0, "StockProductCountRecord");
     qmlRegisterType<QMLDebtPaymentModel>("com.gecko.rr.models", 1, 0, "DebtPaymentModel");
 
     // Components

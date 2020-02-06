@@ -4,7 +4,7 @@
 #include "database/databasethread.h"
 
 #include "models/saletotalrevenuemodel.h"
-#include "models/salemostsolditemmodel.h"
+#include "models/salemostsoldproductmodel.h"
 #include "queryexecutors/sales.h"
 
 QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
@@ -76,8 +76,8 @@ void QMLSaleHomeModel::processResult(const QueryResult result)
             if (record.value("data_type").toString() == "total_revenue") {
                 SaleTotalRevenueModel *model = new SaleTotalRevenueModel(record.value("data_model").toList(), this);
                 m_dataModels.append(model);
-            } else if (record.value("data_type").toString() == "most_sold_items") {
-                SaleMostSoldItemModel *model = new SaleMostSoldItemModel(record.value("data_model").toList(), this);
+            } else if (record.value("data_type").toString() == "most_sold_products") {
+                SaleMostSoldProductModel *model = new SaleMostSoldProductModel(record.value("data_model").toList(), this);
                 m_dataModels.append(model);
             }
         }

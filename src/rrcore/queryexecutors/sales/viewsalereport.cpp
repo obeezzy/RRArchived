@@ -5,7 +5,7 @@ using namespace SaleQuery;
 
 ViewSaleReport::ViewSaleReport(QObject *receiver) :
     SaleExecutor(COMMAND, {
-                    { "sort_column", QStringLiteral("category") },
+                    { "sort_column", "category" },
                     { "sort_order", "ascending" }
                  }, receiver)
 {
@@ -53,14 +53,13 @@ QueryResult ViewSaleReport::execute()
                                                            }
                                                        }));
 
-        QVariantList items;
-        for (const QSqlRecord &record : records) {
-            items.append(recordToMap(record));
-        }
+        QVariantList products;
+        for (const auto &record : records)
+            products.append(recordToMap(record));
 
         result.setOutcome(QVariantMap {
-                              { "items", items },
-                              { "record_count", items.count() },
+                              { "products", products },
+                              { "record_count", products.count() },
                           });
         return result;
     } catch (DatabaseException &) {

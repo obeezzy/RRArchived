@@ -23,11 +23,11 @@ RRUi.Card {
 
     signal success(int successCode)
     signal error(int errorCode, string errorMessage)
-    signal editRequested(var itemInfo)
-    signal viewRequested(int itemId)
+    signal editRequested(var product)
+    signal viewRequested(int productId)
 
-    function addItem(itemInfo) { cartListView.addItem(itemInfo); }
-    function updateItem(itemId, itemInfo) { cartListView.updateItem(itemId, itemInfo); }
+    function addProduct(product) { cartListView.addProduct(product); }
+    function updateProduct(productId, product) { cartListView.updateProduct(productId, product); }
     function suspendTransaction(params) { cartListView.suspendTransaction(params); }
     function undoLastTransaction() { cartListView.undoLastTransaction(); }
     function submitTransaction(paymentInfo) { cartListView.submitTransaction(paymentInfo); }
@@ -49,8 +49,8 @@ RRUi.Card {
         customerName: cart.customerName
         transactionId: cart.transactionId
 
-        onViewRequested: cart.viewRequested(itemId);
-        onEditRequested: cart.editRequested(itemInfo);
+        onViewRequested: cart.viewRequested(productId);
+        onEditRequested: cart.editRequested(product);
 
         onSuccess: cart.success(successCode);
 

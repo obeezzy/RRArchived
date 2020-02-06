@@ -26,10 +26,12 @@ QueryResult ViewSaleHome::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    QVariantMap params = request().params();
-    QSqlQuery q(connection);
+
+    const QVariantMap &params = request().params();
     QVariantList homeRecords;
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+    QSqlQuery q(connection);
 
     try {
         /* Total Revenue */ {
@@ -47,9 +49,8 @@ QueryResult ViewSaleHome::execute()
                                                           }));
 
             QVariantList revenues;
-            for (const QSqlRecord &record : records) {
+            for (const QSqlRecord &record : records)
                 revenues.append(recordToMap(record));
-            }
 
             QVariantMap totalRevenueInfo;
             totalRevenueInfo.insert("data_type", "total_revenue");
@@ -58,8 +59,8 @@ QueryResult ViewSaleHome::execute()
             if (!revenues.isEmpty())
                 homeRecords.append(totalRevenueInfo);
         }
-        /* Most Sold Items */ {
-            const QList<QSqlRecord> records(callProcedure("GetMostSoldItems", {
+        /* Most Sold Products */ {
+            const QList<QSqlRecord> records(callProcedure("GetMostSoldProducts", {
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
                                                                   "from_date_time",
@@ -77,17 +78,16 @@ QueryResult ViewSaleHome::execute()
                                                               }
                                                           }));
 
-            QVariantList mostSoldItems;
-            for (const QSqlRecord &record : records) {
-                mostSoldItems.append(recordToMap(record));
-            }
+            QVariantList mostSoldProducts;
+            for (const QSqlRecord &record : records)
+                mostSoldProducts.append(recordToMap(record));
 
-            QVariantMap mostSoldItemsInfo;
-            mostSoldItemsInfo.insert("data_type", "most_sold_items");
-            mostSoldItemsInfo.insert("data_model", mostSoldItems);
+            QVariantMap mostSoldProductsInfo;
+            mostSoldProductsInfo.insert("data_type", "most_sold_products");
+            mostSoldProductsInfo.insert("data_model", mostSoldProducts);
 
-            if (!mostSoldItems.isEmpty())
-                homeRecords.append(mostSoldItemsInfo);
+            if (!mostSoldProducts.isEmpty())
+                homeRecords.append(mostSoldProductsInfo);
         }
 
         QVariantMap outcome;

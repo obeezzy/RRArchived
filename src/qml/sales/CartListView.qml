@@ -17,17 +17,17 @@ ListView {
     readonly property real totalCost: model.totalCost
     property real amountPaid: model.amountPaid
 
-    signal viewRequested(int itemId)
-    signal editRequested(var itemInfo)
+    signal viewRequested(int productId)
+    signal editRequested(var product)
     signal success(int successCode)
     signal error(int errorCode)
 
-    function addItem(itemInfo) { cartListView.model.addItem(itemInfo); }
+    function addProduct(product) { cartListView.model.addProduct(product); }
     function submitTransaction(paymentInfo) { cartListView.model.submitTransaction(paymentInfo); }
     function suspendTransaction(params) { cartListView.model.suspendTransaction(params); }
     function undoLastTransaction() { cartListView.model.undoLastCommit(); }
     function clearAll() { cartListView.model.clearAll(); }
-    function updateItem(itemId, itemInfo) { cartListView.model.updateItem(itemId, itemInfo); }
+    function updateProduct(productId, product) { cartListView.model.updateProduct(productId, product); }
     function addPayment(amount, method) { cartListView.model.addPayment(amount, method); }
     function clearPayments() { cartListView.model.clearPayments(); }
 
@@ -57,7 +57,7 @@ ListView {
             spacing: 2
 
             FluidControls.HeadlineLabel {
-                text: item
+                text: product
             }
 
             FluidControls.SubheadingLabel {
@@ -78,16 +78,16 @@ ListView {
                 id: viewButton
                 icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                 text: qsTr("View details")
-                onClicked: cartListView.viewRequested(item_id);
+                onClicked: cartListView.viewRequested(product_id);
             }
 
             RRUi.ToolButton {
                 id: editButton
                 icon.source: FluidControls.Utils.iconUrl("image/edit")
-                text: qsTr("Edit item")
-                onClicked: cartListView.editRequested({ "item_index": index,
-                                                          "item_id": item_id,
-                                                          "item": item,
+                text: qsTr("Edit product")
+                onClicked: cartListView.editRequested({ "product_index": index,
+                                                          "product_id": product_id,
+                                                          "product": product,
                                                           "quantity": quantity,
                                                           "unit_price": unit_price,
                                                           "cost": cost,
@@ -98,8 +98,8 @@ ListView {
             RRUi.ToolButton {
                 id: deleteButton
                 icon.source: FluidControls.Utils.iconUrl("action/delete")
-                text: qsTr("Delete item")
-                onClicked: cartListView.model.removeItem(item_id);
+                text: qsTr("Delete product")
+                onClicked: cartListView.model.removeItem(product_id);
             }
         }
 
@@ -122,7 +122,7 @@ ListView {
                 bottom: parent.bottom
             }
 
-            onQuantityUpdated: cartListView.model.setItemQuantity(model.item_id, newQuantity);
+            onQuantityUpdated: cartListView.model.setProductQuantity(model.product_id, newQuantity);
         }
 
         Rectangle {
@@ -141,6 +141,6 @@ ListView {
         anchors.centerIn: parent
         visible: cartListView.count == 0
         icon.source: Qt.resolvedUrl("qrc:/icons/cart-outline.svg")
-        text: qsTr("Your cart is empty.\nAdd items from the view in the left to get started.");
+        text: qsTr("Your cart is empty.\nAdd products from the view in the left to get started.");
     }
 }

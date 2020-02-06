@@ -17,7 +17,7 @@ RRUi.Page {
     actions: [
         FluidControls.Action {
             icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
-            text: qsTr("Add a new item.")
+            text: qsTr("Add a new entry.")
             onTriggered: bottomSheet.open();
             toolTip: qsTr("More options")
         }

@@ -7,9 +7,9 @@ import Fluid.Controls 1.0 as FluidControls
 import "../../rrui" as RRUi
 
 RRUi.HomeCard {
-    id: mostSoldItemCard
+    id: mostSoldProductCard
 
-    cardTitle: qsTr("Top sold items today")
+    cardTitle: qsTr("Top sold products today")
     subtitle: qsTr("Top 5")
     bottomPadding: 4
 
@@ -43,7 +43,7 @@ RRUi.HomeCard {
                 useOpenGL: true
 
                 QCharts.VPieModelMapper {
-                    model: mostSoldItemCard.model
+                    model: mostSoldProductCard.model
                     labelsColumn: 0
                     valuesColumn: 1
                 }
@@ -69,11 +69,11 @@ RRUi.HomeCard {
             QQLayouts.Layout.fillWidth: true
             QQLayouts.Layout.alignment: Qt.AlignHCenter
             height: contentHeight
-            model: mostSoldItemCard.model
+            model: mostSoldProductCard.model
             interactive: false
             headerData: [
                 { "width": 20, "type": "color"},
-                { "title": qsTr("Product"), "width": 130, "role": "item" },
+                { "title": qsTr("Product"), "width": 130, "role": "product" },
                 { "title": qsTr("Total quantity"), "width": 100, "horizontalAlignment": Qt.AlignHCenter, "role": "total_quantity" }
             ]
             colorModel: pieSeries.colorModel

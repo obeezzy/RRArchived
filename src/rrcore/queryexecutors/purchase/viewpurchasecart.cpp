@@ -12,7 +12,7 @@ ViewPurchaseCart::ViewPurchaseCart(qint64 transactionId,
     PurchaseExecutor(COMMAND, {
                         { "transaction_id", transactionId },
                         { "purchase_transaction_archived", false },
-                        { "purchase_item_archived", false }
+                        { "purchased_product_archived", false }
                      }, receiver)
 {
 
@@ -22,8 +22,10 @@ QueryResult ViewPurchaseCart::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+
     const QVariantMap &params = request().params();
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
@@ -40,25 +42,24 @@ QueryResult ViewPurchaseCart::execute()
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
-                                                               "purchase_item_archived",
-                                                               params.value("purchase_item_archived")
+                                                               "purchased_product_archived",
+                                                               params.value("purchased_product_archived")
                                                            }
                                                        }));
 
         QVariantMap outcome;
-        QVariantList items;
-        for (const QSqlRecord &record : records) {
-            items.append(recordToMap(record));
-        }
+        QVariantList products;
+        for (const auto &record : records)
+            products.append(recordToMap(record));
 
-        if (!items.isEmpty()) {
+        if (!products.isEmpty()) {
             outcome.insert("transaction_id", params.value("transaction_id"));
-            outcome.insert("client_id", items.first().toMap().value("client_id"));
-            outcome.insert("customer_name", items.first().toMap().value("customer_name"));
-            outcome.insert("customer_phone_number", items.first().toMap().value("customer_phone_number"));
-            outcome.insert("total_cost", items.first().toMap().value("total_cost"));
-            outcome.insert("items", items);
-            outcome.insert("record_count", items.count());
+            outcome.insert("client_id", products.first().toMap().value("client_id"));
+            outcome.insert("customer_name", products.first().toMap().value("customer_name"));
+            outcome.insert("customer_phone_number", products.first().toMap().value("customer_phone_number"));
+            outcome.insert("total_cost", products.first().toMap().value("total_cost"));
+            outcome.insert("products", products);
+            outcome.insert("record_count", products.count());
 
             result.setOutcome(outcome);
         }

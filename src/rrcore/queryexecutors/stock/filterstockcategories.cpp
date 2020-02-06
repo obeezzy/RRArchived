@@ -43,9 +43,9 @@ QueryResult FilterStockCategories::execute()
         QVector<int> categoryIds;
         QVariantList categories;
         for (const auto &record : records) {
-            if (!categoryIds.contains(record.value("category_id").toInt())) {
+            if (!categoryIds.contains(record.value("product_category_id").toInt())) {
                 categories.append(recordToMap(record));
-                categoryIds.append(record.value("category_id").toInt());
+                categoryIds.append(record.value("product_category_id").toInt());
             }
         }
 

@@ -18,12 +18,12 @@ public:
     }; Q_ENUM(ErrorCode)
 
     enum Roles {
-        TransactionItemIdRole = Qt::UserRole,
+        PurchasedProductIdRole = Qt::UserRole,
         CategoryIdRole,
         CategoryRole,
-        ItemIdRole,
+        ProductIdRole,
         UnitPriceRole,
-        ItemRole,
+        ProductRole,
         QuantityRole,
         UnitIdRole,
         UnitRole,
@@ -42,7 +42,7 @@ public:
 
     enum Columns {
         CategoryColumn,
-        ItemColumn,
+        ProductColumn,
         QuantityColumn,
         UnitPriceColumn,
         CostColumn,

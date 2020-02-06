@@ -30,7 +30,7 @@ RRUi.Page {
 
         property int filterIndex: 0
         property int sortIndex: 0
-        property var filterModel: ["Search by item name", "Search by category name"]
+        property var filterModel: ["Search by product name", "Search by category name"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
 

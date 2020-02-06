@@ -21,9 +21,9 @@ public:
         TransactionItemIdRole = Qt::UserRole,
         CategoryIdRole,
         CategoryRole,
-        ItemIdRole,
+        ProductIdRole,
         UnitPriceRole,
-        ItemRole,
+        ProductRole,
         QuantityRole,
         UnitIdRole,
         UnitRole,
@@ -42,7 +42,7 @@ public:
 
     enum Columns {
         CategoryColumn,
-        ItemColumn,
+        ProductColumn,
         QuantityColumn,
         UnitPriceColumn,
         CostColumn,
@@ -62,7 +62,7 @@ protected:
     void processResult(const QueryResult result) override final;
     QString columnName(int column) const override;
 public slots:
-    void removeTransactionItem(int row);
+    void removeSoldProduct(int row);
 private:
     QVariantList m_records;
 };

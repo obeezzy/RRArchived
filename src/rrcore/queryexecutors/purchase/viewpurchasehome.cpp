@@ -28,8 +28,8 @@ QueryResult ViewPurchaseHome::execute()
     QVariantList homeRecords;
 
     try {
-        /* Last Purchased Items */ {
-            const QList<QSqlRecord> &records(callProcedure("GetLastPurchasedItems", {
+        /* Last Purchased Products */ {
+            const QList<QSqlRecord> &records(callProcedure("GetLastPurchasedProducts", {
                                                                ProcedureArgument {
                                                                    ProcedureArgument::Type::In,
                                                                    "from_date_time",
@@ -47,17 +47,16 @@ QueryResult ViewPurchaseHome::execute()
                                                                }
                                                            }));
 
-            QVariantList lastPurchasedItems;
-            for (const QSqlRecord &record : records) {
-                lastPurchasedItems.append(recordToMap(record));
-            }
+            QVariantList lastPurchasedProducts;
+            for (const auto &record : records)
+                lastPurchasedProducts.append(recordToMap(record));
 
-            QVariantMap lastPurchasedItemsInfo;
-            lastPurchasedItemsInfo.insert("chart_type", "last_purchased_items");
-            lastPurchasedItemsInfo.insert("chart_model", lastPurchasedItems);
+            QVariantMap lastPurchasedProductsInfo;
+            lastPurchasedProductsInfo.insert("chart_type", "last_purchased_products");
+            lastPurchasedProductsInfo.insert("chart_model", lastPurchasedProductsInfo);
 
-            if (!lastPurchasedItems.isEmpty())
-                homeRecords.append(lastPurchasedItems);
+            if (!lastPurchasedProducts.isEmpty())
+                homeRecords.append(lastPurchasedProducts);
         }
 
         QVariantMap outcome;

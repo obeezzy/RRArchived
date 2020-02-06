@@ -8,7 +8,7 @@ import "../common"
 import "../singletons"
 
 RRUi.Dialog {
-    id: saleTransactionItemDialog
+    id: saleTransactionDetailDialog
 
     property int transactionId: -1
     property string customerName: ""
@@ -19,11 +19,11 @@ RRUi.Dialog {
     title: qsTr("Transaction details")
     standardButtons: RRUi.Dialog.Ok
 
-    function show(transactionInfo) {
+    function show(transaction) {
         if (Object(transactionInfo).hasOwnProperty("transaction_id"))
-            saleTransactionItemDialog.transactionId = transactionInfo.transaction_id;
+            saleTransactionDetailDialog.transactionId = transaction.transaction_id;
         if (Object(transactionInfo).hasOwnProperty("customer_name"))
-            saleTransactionItemDialog.customerName = transactionInfo.customer_name;
+            saleTransactionDetailDialog.customerName = transaction.customer_name;
 
         open();
     }
@@ -48,7 +48,7 @@ RRUi.Dialog {
                 }
 
                 FluidControls.SubheadingLabel {
-                    text: saleTransactionItemDialog.transactionId
+                    text: saleTransactionDetailDialog.transactionId
                 }
             }
 
@@ -65,7 +65,7 @@ RRUi.Dialog {
                 FluidControls.SubheadingLabel {
                     anchors.verticalCenter: parent.verticalCenter
                     verticalAlignment: Qt.AlignVCenter
-                    text: saleTransactionItemDialog.customerName
+                    text: saleTransactionDetailDialog.customerName
                 }
 
                 Item { width: 16; height: 1 } // Spacer
@@ -80,7 +80,7 @@ RRUi.Dialog {
             }
 
             Row {
-                visible: saleTransactionItemDialog.customerPhoneNumber !== ""
+                visible: saleTransactionDetailDialog.customerPhoneNumber !== ""
 
                 FluidControls.SubheadingLabel {
                     anchors.verticalCenter: parent.verticalCenter
@@ -94,7 +94,7 @@ RRUi.Dialog {
                 FluidControls.SubheadingLabel {
                     anchors.verticalCenter: parent.verticalCenter
                     verticalAlignment: Qt.AlignVCenter
-                    text: saleTransactionItemDialog.customerPhoneNumber
+                    text: saleTransactionDetailDialog.customerPhoneNumber
                 }
 
                 Item { width: 16; height: 1 } // Spacer
@@ -117,7 +117,7 @@ RRUi.Dialog {
                 bottom: parent.bottom
                 topMargin: 24
             }
-            transactionId: saleTransactionItemDialog.transactionId
+            transactionId: saleTransactionDetailDialog.transactionId
         }
     }
 }

@@ -26,8 +26,8 @@ QVariant ReceiptCartModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case QuantityRole:
         return m_records.at(index.row()).toMap().value("quantity").toDouble();
-    case ItemRole:
-        return m_records.at(index.row()).toMap().value("item").toString();
+    case ProductRole:
+        return m_records.at(index.row()).toMap().value("product").toString();
     case PriceRole:
         return m_records.at(index.row()).toMap().value("price").toDouble();
     case TotalRole:
@@ -57,7 +57,7 @@ QHash<int, QByteArray> ReceiptCartModel::roleNames() const
 {
     return {
         { QuantityRole, "quantity" },
-        { ItemRole, "item" },
+        { ProductRole, "product" },
         { PriceRole, "price" },
         { TotalRole, "total" }
     };
@@ -91,8 +91,8 @@ QString ReceiptCartModel::columnName(int column) const
     switch (static_cast<Columns>(column)) {
     case Columns::QuantityColumn:
         return "quantity";
-    case Columns::ItemColumn:
-        return "item";
+    case Columns::ProductColumn:
+        return "product";
     case Columns::PriceColumn:
         return "price";
     case Columns::TotalColumn:

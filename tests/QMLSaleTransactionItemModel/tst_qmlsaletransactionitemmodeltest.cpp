@@ -97,11 +97,11 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
     QCOMPARE(successSpy.takeFirst().first().value<QMLSaleTransactionItemModel::SuccessCode>(),
              QMLSaleTransactionItemModel::ViewSaleTransactionItemsSuccess);
     QCOMPARE(m_saleTransactionItemModel->rowCount(), 1);
-    QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::TransactionItemIdRole).toInt(), 1);
+    QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::PurchasedProductIdRole).toInt(), 1);
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::CategoryIdRole).toInt(), 1);
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::CategoryRole).toString(), QStringLiteral("Category"));
-    QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::ItemIdRole).toInt(), 1);
-    QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::ItemRole).toString(), QStringLiteral("Item"));
+    QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::ProductIdRole).toInt(), 1);
+    QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::ProductRole).toString(), QStringLiteral("Product"));
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::UnitPriceRole).toDouble(), 1.10);
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::QuantityRole).toDouble(), 8.5);
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::UnitIdRole).toInt(), 1);

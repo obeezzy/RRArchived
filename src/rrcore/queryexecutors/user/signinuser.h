@@ -19,6 +19,6 @@ private:
 };
 }
 
-Q_DECLARE_LOGGING_CATEGORY(signInUser);
+Q_DECLARE_LOGGING_CATEGORY(lcsigninuser);
 
 #endif // SIGNINUSER_H

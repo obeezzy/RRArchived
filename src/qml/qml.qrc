@@ -7,7 +7,7 @@
         <file>common/DashboardPage.qml</file>
         <file>rrui/Sidebar.qml</file>
         <file>models/NavMenuModel.qml</file>
-        <file>stock/NewItemPage.qml</file>
+        <file>stock/NewProductPage.qml</file>
         <file>stock/HomePage.qml</file>
         <file>sales/HomePage.qml</file>
         <file>rrui/FailureAlertDialogLoader.qml</file>
@@ -33,7 +33,7 @@
         <file>rrui/AlertDialog.qml</file>
         <file>sales/CartListView.qml</file>
         <file>sales/HomeListView.qml</file>
-        <file>stock/CategoryListView.qml</file>
+        <file>stock/ProductCategoryListView.qml</file>
         <file>people/debtor/DebtorListView.qml</file>
         <file>rrui/ApplicationWindow.qml</file>
         <file>rrui/LetterCircleImage.qml</file>
@@ -42,9 +42,9 @@
         <file>rrui/ToolButton.qml</file>
         <file>rrui/FloatingActionButton.qml</file>
         <file>rrui/Popup.qml</file>
-        <file>stock/ItemDetailPopup.qml</file>
-        <file>stock/ItemDetailModel.qml</file>
-        <file>sales/CartItemEditorDialog.qml</file>
+        <file>stock/ProductDetailPopup.qml</file>
+        <file>stock/ProductDetailModel.qml</file>
+        <file>sales/CartProductEditorDialog.qml</file>
         <file>rrui/Dialog.qml</file>
         <file>sales/SaleTransactionPage.qml</file>
         <file>sales/SaleTransactionTableView.qml</file>
@@ -78,8 +78,8 @@
         <file>purchase/NewPurchasePage.qml</file>
         <file>purchase/PurchaseTransactionPage.qml</file>
         <file>purchase/HomeListView.qml</file>
-        <file>purchase/homecards/LastPurchasedItemCard.qml</file>
-        <file>purchase/CartItemEditorDialog.qml</file>
+        <file>purchase/homecards/LastPurchasedProductCard.qml</file>
+        <file>purchase/CartProductEditorDialog.qml</file>
         <file>purchase/CartListView.qml</file>
         <file>income/HomePage.qml</file>
         <file>income/HomeListView.qml</file>
@@ -135,21 +135,21 @@
         <file>rrui/DataTableView.qml</file>
         <file>rrui/TableDelegate.qml</file>
         <file>expense/ExpenseTransactionTableView.qml</file>
-        <file>stock/ItemTableView.qml</file>
+        <file>stock/ProductTableView.qml</file>
         <file>rrui/ViewPreferences.qml</file>
         <file>sales/SaleTransactionDetailTableView.qml</file>
         <file>purchase/PurchaseTransactionDetailTableView.qml</file>
         <file>settings/user/UserTableView.qml</file>
         <file>lottie/Checkmark.qml</file>
         <file>rrui/BusyIndicator.qml</file>
-        <file>stock/fragments/ItemDetails.qml</file>
-        <file>stock/fragments/ItemImage.qml</file>
+        <file>stock/fragments/ProductDetails.qml</file>
+        <file>stock/fragments/ProductImage.qml</file>
         <file>rrui/InputDialog.qml</file>
         <file>sales/fragments/newsalepage/Cart.qml</file>
         <file>sales/fragments/newsalepage/CartSection.qml</file>
         <file>sales/fragments/newsalepage/Checkout.qml</file>
         <file>sales/fragments/newsalepage/CustomerInfo.qml</file>
-        <file>sales/fragments/newsalepage/ItemSelectionSection.qml</file>
+        <file>sales/fragments/newsalepage/ProductSelectionSection.qml</file>
         <file>rrui/PrimaryButton.qml</file>
         <file>wizard/PaymentWizard.qml</file>
         <file>wizard/paymentwizard/CreditorOptionModel.qml</file>

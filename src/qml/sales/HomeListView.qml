@@ -25,8 +25,8 @@ RRUi.HomeListViewBase {
             case "total_revenue":
                 Qt.resolvedUrl("homecards/TotalRevenueCard.qml")
                 break;
-            case "most_sold_items":
-                Qt.resolvedUrl("homecards/MostSoldItemCard.qml")
+            case "most_sold_products":
+                Qt.resolvedUrl("homecards/MostSoldProductCard.qml")
                 break;
             default:
                 undefined

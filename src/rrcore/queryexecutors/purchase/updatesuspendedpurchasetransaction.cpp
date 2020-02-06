@@ -17,8 +17,8 @@ UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(qint64 tr
                                                                        qreal amountPaid,
                                                                        qreal balance,
                                                                        bool suspended,
-                                                                       const StockItemList &items,
-                                                                       const QString &note,
+                                                                       const PurchaseCartProductList &products,
+                                                                       const Note &note,
                                                                        QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                             { "transaction_id", transactionId },
@@ -29,8 +29,8 @@ UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(qint64 tr
                             { "amount_paid", amountPaid },
                             { "balance", balance },
                             { "suspended", suspended },
-                            { "items", items.toVariantList() },
-                            { "note", note }
+                            { "products", products.toVariantList() },
+                            { "note", note.note }
                      }, receiver)
 {
 

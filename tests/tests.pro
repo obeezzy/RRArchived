@@ -1,12 +1,12 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    QMLStockItemModel \
-    QMLStockItemPusher \
+    QMLStockProductModel \
+    QMLStockProductPusher \
     QMLDebtorModel \
     QMLSaleCartModel \
     QMLUserProfile \
-    QMLStockItemDetailRecord \
+    QMLStockProductDetailRecord \
     QMLDebtTransactionModel \
     QMLClientModel \
     QMLDashboardHomeModel \
@@ -14,7 +14,7 @@ SUBDIRS += \
     QMLSaleHomeModel \
     QMLSaleTransactionItemModel \
     QMLSaleTransactionModel \
-    QMLStockCategoryModel \
+    QMLStockProductCategoryModel \
     QMLPurchaseHomeModel \
     QMLPurchaseCartModel \
     QMLIncomeHomeModel \

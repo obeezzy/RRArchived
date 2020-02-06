@@ -6,7 +6,7 @@ TableView {
 
     enum Columns {
         QuantityColumn,
-        ItemColumn,
+        ProductColumn,
         PriceColumn,
         TotalColumn
     }
@@ -25,11 +25,11 @@ TableView {
         }
 
         QQModels.DelegateChoice {
-            column: ReceiptCartTableView.ItemColumn
+            column: ReceiptCartTableView.ProductColumn
             delegate: Text {
                 horizontalAlignment: Qt.AlignLeft
                 verticalAlignment: Qt.AlignVCenter
-                text: item
+                text: product
             }
         }
 

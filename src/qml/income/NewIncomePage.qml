@@ -72,10 +72,10 @@ RRUi.Page {
                             right: parent.right
                         }
 
-                        height: itemInfoColumn.height + 12
+                        height: productColumn.height + 12
 
                         Column {
-                            id: itemInfoColumn
+                            id: productColumn
                             anchors {
                                 left: parent.left
                                 right: parent.right
@@ -192,11 +192,11 @@ RRUi.Page {
                         onSuccess: {
                             switch (successCode) {
                             case RRModels.IncomePusher.AddIncomeSuccess:
-                                newIncomePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully added!"));
+                                newIncomePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your entry was successfully added!"));
                                 transitionView.trigger();
                                 break;
                             case RRModels.IncomePusher.UpdateIncomeSuccess:
-                                newIncomePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your item was successfully updated!"));
+                                newIncomePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your entry was successfully updated!"));
                                 newIncomePage.pop();
                                 break;
                             }
@@ -204,7 +204,7 @@ RRUi.Page {
                         onError: {
                             switch (errorCode) {
                             case RRModels.IncomePusher.AddIncomeError:
-                                failureAlertDialogLoader.message = qsTr("Failed to add income.");
+                                failureAlertDialogLoader.message = qsTr("Failed to add entry.");
                                 break;
                             default:
                                 failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");
@@ -218,7 +218,7 @@ RRUi.Page {
                     RRUi.FailureAlertDialogLoader {
                         id: failureAlertDialogLoader
                         parent: QQC2.ApplicationWindow.contentItem
-                        title: qsTr("Failed to add item")
+                        title: qsTr("Failed to add entry")
                     }
 
                     RRUi.BusyOverlay { visible: incomePusher.busy }
@@ -277,7 +277,7 @@ RRUi.Page {
                     }
 
                     QQC2.Button {
-                        id: addItemButton
+                        id: submitButton
                         Material.elevation: 1
                         text: qsTr("Submit")
                         onClicked: if (detailCard.validateUserInput()) incomePusher.push();

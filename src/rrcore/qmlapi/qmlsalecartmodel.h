@@ -31,8 +31,8 @@ public:
     enum Roles {
         CategoryIdRole = Qt::UserRole,
         CategoryRole,
-        ItemIdRole,
-        ItemRole,
+        ProductIdRole,
+        ProductRole,
         QuantityRole,
         AvailableQuantityRole,
         UnitRole,
@@ -124,10 +124,10 @@ signals:
 
     void paymentModelChanged();
 public slots:
-    void addItem(const QVariantMap &itemInfo);
-    void updateItem(int itemId, const QVariantMap &itemInfo);
-    void setItemQuantity(int itemId, double quantity);
-    void removeItem(int itemId);
+    void addProduct(const QVariantMap &product);
+    void updateProduct(int productId, const QVariantMap &product);
+    void setProductQuantity(int productId, double quantity);
+    void removeProduct(int productId);
 private:
     qint64 m_transactionId;
     QString m_customerName;
@@ -143,10 +143,10 @@ private:
     SalePaymentList m_salePayments;
     SalePaymentModel *m_paymentModel;
 
-    bool containsItem(int itemId);
-    int indexOfItem(int itemId);
-    void addTransaction(const QVariantMap &transactionInfo);
-    void updateSuspendedTransaction(const QVariantMap &transactionInfo);
+    bool containsProduct(int productId);
+    int indexOfProduct(int productId);
+    void addTransaction(const QVariantMap &transaction);
+    void updateSuspendedTransaction(const QVariantMap &transaction);
 
     void setTotalCost(double totalCost);
     void setAmountPaid(double amountPaid);
@@ -156,8 +156,8 @@ private:
 
     void setClientId(int clientId);
 
-    void incrementItemQuantity(int itemId, double quantity = 1.0);
-    void decrementItemQuantity(int itemId, double quantity = 1.0);
+    void incrementProductQuantity(int productId, double quantity = 1.0);
+    void decrementProductQuantity(int productId, double quantity = 1.0);
 
     void updateCanAcceptCash();
     void updateCanAcceptCard();

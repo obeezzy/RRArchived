@@ -22,7 +22,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
     const QVariantList &payments = params.value("payments").toList();
-    const QVariantList &items = params.value("items").toList();
+    const QVariantList &products = params.value("products").toList();
     int clientId = 0;
     int saleTransactionId = 0;
     int debtorId = 0;
@@ -39,7 +39,8 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
             DatabaseUtils::beginTransaction(q);
 
         // STEP: Add client, if client does not exist.
-        if (!params.value("customer_phone_number").toString().trimmed().isEmpty() && !params.value("suspended").toBool()) {
+        if (!params.value("customer_phone_number").toString().trimmed().isEmpty()
+                && !params.value("suspended").toBool()) {
             const QList<QSqlRecord> records(callProcedure("AddClientQuick", {
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
@@ -58,13 +59,13 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                               }
                                                           }));
 
-            clientId = records.first().value("id").toInt();
+            clientId = records.first().value("client_id").toInt();
         }
 
         // STEP: Insert note, if available.
         if (!params.value("note").toString().trimmed().isEmpty()) {
-            addNote(params.value("note", QVariant::String).toString(),
-                    QStringLiteral("sale_transaction"));
+            QueryExecutor::addNote(params.value("note", QVariant::String).toString(),
+                                   QStringLiteral("sale_transaction"));
         }
 
         // STEP: Insert sale transaction.
@@ -107,7 +108,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                           }
                                                       }));
 
-        saleTransactionId = records.first().value("id").toInt();
+        saleTransactionId = records.first().value("sale_transaction_id").toInt();
 
         // STEP: Insert sale payments.
         for (const QVariant &payment : payments) {
@@ -125,8 +126,8 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
-                                                                  "method",
-                                                                  paymentInfo.value("method")
+                                                                  "payment_method",
+                                                                  paymentInfo.value("payment_method")
                                                               },
                                                               ProcedureArgument {
                                                                   ProcedureArgument::Type::In,
@@ -146,8 +147,8 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                           }));
         }
 
-        for (const QVariant &item : items) {
-            QVariantMap itemInfo = item.toMap();
+        for (const QVariant &productAsVariant : products) {
+            const QVariantMap &product = productAsVariant.toMap();
             // STEP: Deduct quantity if:
             // 1. This is a non-suspended transaction.
             // 2. This is a suspended transaction and you want to reserve the goods for this customer.
@@ -155,18 +156,18 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                 callProcedure("DeductStockQuantity", {
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
-                                      "item_id",
-                                      itemInfo.value("item_id")
+                                      "product_id",
+                                      product.value("product_id")
                                   },
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
                                       "quantity",
-                                      itemInfo.value("quantity").toDouble()
+                                      product.value("quantity").toDouble()
                                   },
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
-                                      "unit_id",
-                                      itemInfo.value("unit_id")
+                                      "product_unit_id",
+                                      product.value("product_unit_id")
                                   },
                                   ProcedureArgument {
                                       ProcedureArgument::Type::In,
@@ -186,7 +187,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                               });
             }
 
-            callProcedure("AddSaleItem", {
+            callProcedure("AddSaleProduct", {
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "sale_transaction_id",
@@ -194,38 +195,38 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
-                                  "item_id",
-                                  itemInfo.value("item_id")
+                                  "product_id",
+                                  product.value("product_id")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
-                                  "unit_id",
-                                  itemInfo.value("unit_id")
+                                  "product_unit_id",
+                                  product.value("product_unit_id")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "unit_price",
-                                  itemInfo.value("unit_price")
+                                  product.value("unit_price")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "quantity",
-                                  itemInfo.value("quantity")
+                                  product.value("quantity")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "cost",
-                                  itemInfo.value("cost")
+                                  product.value("cost")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "discount",
-                                  itemInfo.value("discount")
+                                  product.value("discount")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
                                   "currency",
-                                  QStringLiteral("NGN")
+                                  product.value("currency")
                               },
                               ProcedureArgument {
                                   ProcedureArgument::Type::In,
@@ -236,7 +237,9 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
         }
 
         // STEP: Insert debt or credit.
-        if (!params.value("overlook_balance").toBool() && !params.value("suspended").toBool() && params.value("balance").toDouble() > 0.0) {
+        if (!params.value("overlook_balance").toBool()
+                && !params.value("suspended").toBool()
+                && params.value("balance").toDouble() > 0.0) {
             QList<QSqlRecord> records(callProcedure("AddDebtor", {
                                                         ProcedureArgument {
                                                             ProcedureArgument::Type::In,
@@ -254,7 +257,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                                             UserProfile::instance().userId()
                                                         }
                                                     }));
-            debtorId = records.first().value("id").toInt();
+            debtorId = records.first().value("debtor_id").toInt();
 
             records = callProcedure("AddDebtTransaction", {
                                         ProcedureArgument {
@@ -265,7 +268,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "transaction_table",
-                                            "sale_transaction"
+                                            QStringLiteral("sale_transaction")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
@@ -284,7 +287,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                         }
                                     });
 
-            debtTransactionId = records.first().value("id").toInt();
+            debtTransactionId = records.first().value("debt_transaction_id").toInt();
 
             records = callProcedure("AddDebtPayment", {
                                         ProcedureArgument {
@@ -310,7 +313,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "currency",
-                                            QStringLiteral("NGN")
+                                            params.value("currency")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
@@ -359,7 +362,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "transaction_table",
-                                            "sale_transaction"
+                                            QStringLiteral("sale_transaction")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
@@ -378,7 +381,7 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                         }
                                     });
 
-            creditTransactionId = records.first().value("id").toInt();
+            creditTransactionId = records.first().value("credit_transaction_id").toInt();
 
             records = callProcedure("AddCreditPayment", {
                                         ProcedureArgument {
@@ -404,12 +407,12 @@ QueryResult SaleExecutor::addSaleTransaction(QueryExecutor::TransactionMode mode
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
                                             "currency",
-                                            QStringLiteral("NGN")
+                                            params.value("currency")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,
-                                            "due_date",
-                                            params.value("due_date")
+                                            "due_date_time",
+                                            params.value("due_date_time")
                                         },
                                         ProcedureArgument {
                                             ProcedureArgument::Type::In,

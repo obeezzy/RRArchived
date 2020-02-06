@@ -48,11 +48,11 @@ RRUi.Page {
         id: viewPreferences
 
         filterModel: [
-            "Filter by item",
+            "Filter by product",
             "Filter by category"
         ]
         sortColumnModel: [
-            "Sort by item",
+            "Sort by product",
             "Sort by category"
         ]
     }

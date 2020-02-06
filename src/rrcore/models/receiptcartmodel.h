@@ -10,19 +10,19 @@ class ReceiptCartModel : public AbstractVisualTableModel
 public:
     enum Roles {
         QuantityRole = Qt::UserRole,
-        ItemRole,
+        ProductRole,
         PriceRole,
         TotalRole
     };
     enum class Columns {
         QuantityColumn,
-        ItemColumn,
+        ProductColumn,
         PriceColumn,
         TotalColumn
     }; Q_ENUM(Columns)
 
     explicit ReceiptCartModel(QObject *parent = nullptr);
-    explicit ReceiptCartModel(const ReceiptCartModel &other) = default;
+    explicit ReceiptCartModel(const ReceiptCartModel &other) = delete;
     explicit ReceiptCartModel(DatabaseThread &thread);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
