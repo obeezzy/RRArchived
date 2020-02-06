@@ -41,8 +41,9 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
             DatabaseUtils::beginTransaction(q);
 
         // STEP: Add client, if client does not exist.
-        if (!params.value("customer_phone_number").toString().trimmed().isEmpty() && !params.value("suspended").toBool()) {
-            QList<QSqlRecord> records(callProcedure("AddClientQuick", {
+        if (!params.value("customer_phone_number").toString().trimmed().isEmpty()
+                && !params.value("suspended").toBool()) {
+            QList<QSqlRecord> records(callProcedure("AddClientLite", {
                                                         ProcedureArgument {
                                                             ProcedureArgument::Type::In,
                                                             "preferred_name",
@@ -60,7 +61,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(PurchaseExecutor::Transacti
                                                         }
                                                     }));
 
-            clientId = records.first().value("id").toInt();
+            clientId = records.first().value("client_id").toInt();
 
             records = callProcedure("AddVendor", {
                                         ProcedureArgument {
