@@ -202,8 +202,10 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
 void QMLPurchaseTransactionItemModel::removeSoldProduct(int row)
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::RemovePurchasedProduct(transactionId(),
-                                                           data(index(row, 0), TransactionItemIdRole).toInt(),
+    emit execute(new PurchaseQuery::RemovePurchasedProduct(PurchasedProduct {
+                                                               transactionId(),
+                                                               data(index(row, 0), TransactionItemIdRole).toInt()
+                                                           },
                                                            this));
 }
 

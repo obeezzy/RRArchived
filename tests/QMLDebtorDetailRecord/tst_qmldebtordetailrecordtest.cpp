@@ -14,7 +14,7 @@ public:
 private slots:
     void init();
     void cleanup();
-    void testViewDebtorDetails();
+    void testFetchDebtor();
 
 private:
     QMLDebtorDetailRecord *m_debtorDetailRecord;
@@ -37,7 +37,7 @@ void QMLDebtorDetailRecordTest::cleanup()
 {
 }
 
-void QMLDebtorDetailRecordTest::testViewDebtorDetails()
+void QMLDebtorDetailRecordTest::testFetchDebtor()
 {
     const QDateTime &currentDateTime(QDateTime::currentDateTime());
     auto databaseWillReturnSingleDebtor = [this, currentDateTime]() {

@@ -1,6 +1,5 @@
 #include "qmlstockproductmodel.h"
 #include "database/databasethread.h"
-
 #include <QDateTime>
 #include "queryexecutors/stock.h"
 
@@ -80,7 +79,7 @@ QVariant QMLStockProductModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> QMLStockProductModel::roleNames() const
 {
     return {
-        { CategoryIdRole, "category_id" },
+        { CategoryIdRole, "product_category_id" },
         { CategoryRole, "category" },
         { ProductIdRole, "product_id" },
         { ProductRole, "product" },
@@ -89,7 +88,7 @@ QHash<int, QByteArray> QMLStockProductModel::roleNames() const
         { ImageUrlRole, "image_url" },
         { QuantityRole, "quantity" },
         { UnitRole, "unit" },
-        { UnitIdRole, "unit_id" },
+        { UnitIdRole, "product_unit_id" },
         { CostPriceRole, "cost_price" },
         { RetailPriceRole, "retail_price" },
         { CurrencyRole, "currency" },
@@ -167,8 +166,9 @@ void QMLStockProductModel::removeProduct(int row)
         return;
 
     setBusy(true);
-    emit execute(new StockQuery::RemoveStockProduct(row,
-                                                    m_products.at(row),
+    StockProduct product{ m_products[row] };
+    product.row = row;
+    emit execute(new StockQuery::RemoveStockProduct(product,
                                                     this));
 }
 
@@ -179,16 +179,19 @@ void QMLStockProductModel::tryQuery()
 
     setBusy(true);
     if (!filterText().trimmed().isEmpty() && sortColumn() > -1 && filterColumn() > -1) {
-        emit execute(new StockQuery::FilterStockProducts(m_categoryId,
-                                                         filterText(),
-                                                         columnName(filterColumn()),
-                                                         sortOrder(),
-                                                         columnName(sortColumn()),
+        emit execute(new StockQuery::FilterStockProducts(FilterCriteria {
+                                                             columnName(filterColumn()),
+                                                             filterText(),
+                                                         }, SortCriteria {
+                                                             columnName(sortColumn()),
+                                                             sortOrder()
+                                                         },
+                                                         m_categoryId,
                                                          this));
 
     } else {
         emit execute(new StockQuery::ViewStockProducts(m_categoryId,
-                                                       sortOrder(),
+                                                       SortCriteria{ sortOrder() },
                                                        this));
     }
 }

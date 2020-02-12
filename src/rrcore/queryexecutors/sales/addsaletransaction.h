@@ -1,4 +1,4 @@
-#ifndef ADDSALETRANSACTION_H
+﻿#ifndef ADDSALETRANSACTION_H
 #define ADDSALETRANSACTION_H
 
 #include "saleexecutor.h"
@@ -12,24 +12,19 @@ public:
     static inline const QString COMMAND = "add_sale_transaction";
     static inline const QString UNDO_COMMAND = "undo_add_sale_transaction";
 
-    explicit AddSaleTransaction(qint64 transactionId,
-                                const QString &customerName,
-                                int clientId,
-                                const QString &customerPhoneNumber,
-                                qreal totalCost,
-                                qreal amountPaid,
-                                qreal balance,
-                                bool suspended,
-                                const QDateTime &dueDate,
-                                const QString &action,
-                                const Note &note,
-                                const SalePaymentList &payments,
-                                const SaleCartProductList &products,
+    explicit AddSaleTransaction(const SaleTransaction &transaction,
                                 QObject *receiver);
-    explicit AddSaleTransaction(const QueryRequest &request, QObject *receiver);
+    explicit AddSaleTransaction(const QueryRequest &request,
+                                QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult undoAddSaleTransaction();
+
+    void affirmSaleTransactionIdIsValid();
+    void archiveSaleTransaction();
+    void archiveDebtTransaction();
+    void archiveCreditTransaction();
+    void revertProductQuantityUpdate();
 };
 }
 

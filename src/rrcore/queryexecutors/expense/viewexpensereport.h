@@ -3,6 +3,8 @@
 
 #include "expenseexecutor.h"
 
+class DateTimeSpan;
+
 namespace ExpenseQuery {
 class ViewExpenseReport : public ExpenseExecutor
 {
@@ -10,7 +12,8 @@ class ViewExpenseReport : public ExpenseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_expense_report");
 
-    explicit ViewExpenseReport(QObject *receiver);
+    explicit ViewExpenseReport(const DateTimeSpan &dateTimeSpan,
+                               QObject *receiver);
     QueryResult execute() override;
 };
 }

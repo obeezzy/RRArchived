@@ -1,19 +1,18 @@
 #include "qmlsaletransactionmodel.h"
-#include <QSqlRecord>
-#include <QDateTime>
-
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
-
 #include "qmlsaletransactionmodel.h"
 #include "queryexecutors/sales.h"
+#include <QSqlRecord>
+#include <QDateTime>
 
 QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
     QMLSaleTransactionModel(DatabaseThread::instance(), parent)
 {}
 
-QMLSaleTransactionModel::QMLSaleTransactionModel(DatabaseThread &thread, QObject *parent) :
+QMLSaleTransactionModel::QMLSaleTransactionModel(DatabaseThread &thread,
+                                                 QObject *parent) :
     AbstractTransactionModel(thread, parent)
 {
 
@@ -140,28 +139,22 @@ QVariant QMLSaleTransactionModel::headerData(int section, Qt::Orientation orient
 void QMLSaleTransactionModel::tryQuery()
 {
     setBusy(true);
-    bool suspended = false;
-    bool archived = false;
+    RecordGroup::Flags flags;
 
-    if (keys() == Completed) {
-        suspended = false;
-        archived = false;
-    } else if (keys() == Suspended) {
-        suspended = true;
-        archived = false;
-    } else if (keys() == Archived) {
-        suspended = false;
-        archived = true;
-    } else if (keys() == All) {
-        suspended = true;
-        archived = true;
-    }
+    if (keys() == Suspended)
+        flags.setFlag(RecordGroup::Suspended);
+    else if (keys() == Archived)
+        flags.setFlag(RecordGroup::Suspended);
+    else if (keys() == All)
+        flags = RecordGroup::Flags(RecordGroup::Suspended
+                                   | RecordGroup::Archived);
 
-    emit execute(new SaleQuery::ViewSaleTransactions(from(),
-                                                 to(),
-                                                 suspended,
-                                                 archived,
-                                                 this));
+    emit execute(new SaleQuery::ViewSaleTransactions(DateTimeSpan {
+                                                         from(),
+                                                         to()
+                                                     },
+                                                     flags,
+                                                     this));
 }
 
 void QMLSaleTransactionModel::processResult(const QueryResult result)
@@ -171,7 +164,7 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "view_sale_transactions") {
+        if (result.request().command() == SaleQuery::ViewSaleTransactions::COMMAND) {
             beginResetModel();
             m_records = result.outcome().toMap().value("transactions").toList();
             endResetModel();
@@ -188,6 +181,7 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
 void QMLSaleTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-    emit execute(new SaleQuery::RemoveSaleTransaction(data(index(row, 0), TransactionIdRole).toInt(),
-                                                  this));
+    emit execute(new SaleQuery::RemoveSaleTransaction(SaleTransaction {
+                                                          data(index(row, 0), TransactionIdRole).toInt()
+                                                      }, this));
 }

@@ -103,7 +103,11 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
 void QMLSaleReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new SaleQuery::ViewSaleReport(this));
+    emit execute(new SaleQuery::ViewSaleReport(
+                     DateTimeSpan {
+                         QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
+                         QDateTime::currentDateTime()
+                     }, this));
 }
 
 void QMLSaleReportModel::processResult(const QueryResult result)

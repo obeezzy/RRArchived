@@ -2,15 +2,17 @@
 #include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-
+#include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
 using namespace UserQuery;
 
-ChangePassword::ChangePassword(const QString &oldPassword, const QString &newPassword, QObject *receiver) :
+ChangePassword::ChangePassword(const QString &oldPassword,
+                               const QString &newPassword,
+                               QObject *receiver) :
     UserExecutor(COMMAND, {
-                { "user_name", UserProfile::instance().userName() },
+                { "user", UserProfile::instance().userName() },
                 { "rack_id", UserProfile::instance().rackId() },
                 { "old_password", oldPassword },
                 { "new_password", newPassword }
@@ -35,8 +37,8 @@ QueryResult ChangePassword::execute()
         callProcedure("ChangePassword", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "user_name",
-                              params.value("user_name").toString()
+                              "user",
+                              params.value("user").toString()
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -51,7 +53,8 @@ QueryResult ChangePassword::execute()
 
         switch (e.code()) {
         case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::UserDefinedException):
-            throw DatabaseException(DatabaseError::QueryErrorCode::OldPasswordWrong, e.message(), e.userMessage());
+            throw IncorrectPasswordException(QStringLiteral("The old password provided is wrong."),
+                                             e.message());
         default:
             throw;
         }

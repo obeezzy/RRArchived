@@ -9,7 +9,7 @@ using namespace PurchaseQuery;
 ViewPurchasedProducts::ViewPurchasedProducts(qint64 transactionId,
                                              QObject *receiver) :
     PurchaseExecutor(COMMAND, {
-                        { "transaction_id", transactionId }
+                        { "purchase_transaction_id", transactionId }
                      }, receiver)
 {
 
@@ -25,13 +25,13 @@ QueryResult ViewPurchasedProducts::execute()
     QSqlQuery q(connection);
 
     try {
-        QueryExecutor::enforceArguments({ "transaction_id" }, params);
+        QueryExecutor::enforceArguments({ "purchase_transaction_id" }, params);
 
         const QList<QSqlRecord> &records(callProcedure("ViewPurchasedProducts", {
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
-                                                               "transaction_id",
-                                                               params.value("transaction_id")
+                                                               "purchase_transaction_id",
+                                                               params.value("purchase_transaction_id")
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,

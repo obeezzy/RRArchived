@@ -14,13 +14,27 @@ SOURCES += \
     database/exceptions/amountoverpaidexception.cpp \
     database/exceptions/argumentmismatchexception.cpp \
     database/exceptions/duplicateentryexception.cpp \
+    database/exceptions/failedtocreateuserexception.cpp \
+    database/exceptions/incorrectcredentialsexception.cpp \
+    database/exceptions/incorrectpasswordexception.cpp \
     database/exceptions/invalidargumentexception.cpp \
     database/exceptions/invalidduedateexception.cpp \
     database/exceptions/missingargumentexception.cpp \
     database/exceptions/missingimplementationexception.cpp \
     database/exceptions/noexistingrecordexception.cpp \
+    database/exceptions/sqlstatementfailedexception.cpp \
     database/exceptions/unexpectedresultexception.cpp \
+    database/exceptions/useraccountlockedexception.cpp \
+    database/exceptions/userpreviouslyarchivedexception.cpp \
     database/queryexecutor.cpp \
+    queryexecutors/client/filterclients.cpp \
+    queryexecutors/debtor/filterdebtors.cpp \
+    queryexecutors/expense/filterexpensereport.cpp \
+    queryexecutors/income/filterincomereport.cpp \
+    queryexecutors/purchase/filterpurchasereport.cpp \
+    queryexecutors/sales/filtersalereport.cpp \
+    queryexecutors/stock/filterstockreport.cpp \
+    queryexecutors/transaction/transactionexecutor.cpp \
     models/salemostsoldproductmodel.cpp \
     network/exceptions/indeterminatedestinationurlexception.cpp \
     network/networkexception.cpp \
@@ -42,9 +56,9 @@ SOURCES += \
     queryexecutors/dashboard/viewdashboard.cpp \
     queryexecutors/debtor/adddebtor.cpp \
     queryexecutors/debtor/debtorexecutor.cpp \
+    queryexecutors/debtor/fetchdebtor.cpp \
     queryexecutors/debtor/removedebtor.cpp \
     queryexecutors/debtor/updatedebtor.cpp \
-    queryexecutors/debtor/viewdebtordetails.cpp \
     queryexecutors/debtor/viewdebtors.cpp \
     queryexecutors/debtor/viewdebtpayments.cpp \
     queryexecutors/debtor/viewdebttransactions.cpp \
@@ -77,6 +91,7 @@ SOURCES += \
     queryexecutors/sales/viewsaletransactionproducts.cpp \
     queryexecutors/sales/viewsaletransactions.cpp \
     queryexecutors/stock/addstockproduct.cpp \
+    queryexecutors/stock/fetchstockproduct.cpp \
     queryexecutors/stock/fetchstockproductcount.cpp \
     queryexecutors/stock/filterstockcategories.cpp \
     queryexecutors/stock/filterstockcategoriesbyproduct.cpp \
@@ -86,20 +101,19 @@ SOURCES += \
     queryexecutors/stock/stockexecutor.cpp \
     queryexecutors/stock/updatestockproduct.cpp \
     queryexecutors/stock/viewstockproductcategories.cpp \
-    queryexecutors/stock/viewstockproductdetails.cpp \
     queryexecutors/stock/viewstockproducts.cpp \
     queryexecutors/stock/viewstockreport.cpp \
     queryexecutors/user/activateuser.cpp \
     queryexecutors/user/adduser.cpp \
     queryexecutors/user/changepassword.cpp \
+    queryexecutors/user/fetchuser.cpp \
+    queryexecutors/user/fetchuserprivileges.cpp \
     queryexecutors/user/removeuser.cpp \
     queryexecutors/user/signinuser.cpp \
     queryexecutors/user/signoutuser.cpp \
     queryexecutors/user/signupuser.cpp \
     queryexecutors/user/updateuserprivileges.cpp \
     queryexecutors/user/userexecutor.cpp \
-    queryexecutors/user/viewuserdetails.cpp \
-    queryexecutors/user/viewuserprivileges.cpp \
     queryexecutors/user/viewusers.cpp \
     database/databasethread.cpp \
     database/databaseserver.cpp \
@@ -126,13 +140,19 @@ SOURCES += \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
     user/businessdetails.cpp \
+    utility/debtor/debtor.cpp \
     utility/debtor/debtpayment.cpp \
     utility/purchase/purchasecartproduct.cpp \
+    utility/purchase/purchasedproduct.cpp \
+    utility/purchase/purchasetransaction.cpp \
     utility/sales/salecartproduct.cpp \
+    utility/sales/saletransaction.cpp \
+    utility/sales/soldproduct.cpp \
     utility/stock/stockproduct.cpp \
     utility/stock/stockproductcategory.cpp \
     utility/stock/stockproductunit.cpp \
     utility/user/user.cpp \
+    utility/user/userprivilege.cpp \
     widgets/dialogs.cpp \
     qmlapi/qmlclientmodel.cpp \
     qmlapi/qmldebttransactionmodel.cpp \
@@ -177,13 +197,27 @@ HEADERS += \
     database/exceptions/argumentmismatchexception.h \
     database/exceptions/duplicateentryexception.h \
     database/exceptions/exceptions.h \
+    database/exceptions/failedtocreateuserexception.h \
+    database/exceptions/incorrectcredentialsexception.h \
+    database/exceptions/incorrectpasswordexception.h \
     database/exceptions/invalidargumentexception.h \
     database/exceptions/invalidduedateexception.h \
     database/exceptions/missingargumentexception.h \
     database/exceptions/missingimplementationexception.h \
     database/exceptions/noexistingrecordexception.h \
+    database/exceptions/sqlstatementfailedexception.h \
     database/exceptions/unexpectedresultexception.h \
+    database/exceptions/useraccountlockedexception.h \
+    database/exceptions/userpreviouslyarchivedexception.h \
     database/queryexecutor.h \
+    queryexecutors/client/filterclients.h \
+    queryexecutors/debtor/filterdebtors.h \
+    queryexecutors/expense/filterexpensereport.h \
+    queryexecutors/income/filterincomereport.h \
+    queryexecutors/purchase/filterpurchasereport.h \
+    queryexecutors/sales/filtersalereport.h \
+    queryexecutors/stock/filterstockreport.h \
+    queryexecutors/transaction/transactionexecutor.h \
     models/salemostsoldproductmodel.h \
     network/exceptions/exceptions.h \
     network/exceptions/indeterminatedestinationurlexception.h \
@@ -211,9 +245,9 @@ HEADERS += \
     queryexecutors/debtor.h \
     queryexecutors/debtor/adddebtor.h \
     queryexecutors/debtor/debtorexecutor.h \
+    queryexecutors/debtor/fetchdebtor.h \
     queryexecutors/debtor/removedebtor.h \
     queryexecutors/debtor/updatedebtor.h \
-    queryexecutors/debtor/viewdebtordetails.h \
     queryexecutors/debtor/viewdebtors.h \
     queryexecutors/debtor/viewdebtpayments.h \
     queryexecutors/debtor/viewdebttransactions.h \
@@ -251,6 +285,7 @@ HEADERS += \
     queryexecutors/sales/viewsaletransactions.h \
     queryexecutors/stock.h \
     queryexecutors/stock/addstockproduct.h \
+    queryexecutors/stock/fetchstockproduct.h \
     queryexecutors/stock/fetchstockproductcount.h \
     queryexecutors/stock/filterstockcategories.h \
     queryexecutors/stock/filterstockcategoriesbyproduct.h \
@@ -260,21 +295,20 @@ HEADERS += \
     queryexecutors/stock/stockexecutor.h \
     queryexecutors/stock/updatestockproduct.h \
     queryexecutors/stock/viewstockproductcategories.h \
-    queryexecutors/stock/viewstockproductdetails.h \
     queryexecutors/stock/viewstockproducts.h \
     queryexecutors/stock/viewstockreport.h \
     queryexecutors/user.h \
     queryexecutors/user/activateuser.h \
     queryexecutors/user/adduser.h \
     queryexecutors/user/changepassword.h \
+    queryexecutors/user/fetchuser.h \
+    queryexecutors/user/fetchuserprivileges.h \
     queryexecutors/user/removeuser.h \
     queryexecutors/user/signinuser.h \
     queryexecutors/user/signoutuser.h \
     queryexecutors/user/signupuser.h \
     queryexecutors/user/updateuserprivileges.h \
     queryexecutors/user/userexecutor.h \
-    queryexecutors/user/viewuserdetails.h \
-    queryexecutors/user/viewuserprivileges.h \
     queryexecutors/user/viewusers.h \
     schema/schema.h \
     database/databasethread.h \
@@ -303,19 +337,25 @@ HEADERS += \
     models/abstracttransactionitemmodel.h \
     user/businessdetails.h \
     utility/commonutils.h \
-    utility/debtor/debtordetails.h \
+    utility/debtor/debtor.h \
     utility/debtor/debtpayment.h \
     utility/debtor/debttransaction.h \
     utility/purchase/purchasecartproduct.h \
+    utility/purchase/purchasedproduct.h \
     utility/purchase/purchasepayment.h \
+    utility/purchase/purchasetransaction.h \
     utility/purchaseutils.h \
     utility/sales/salecartproduct.h \
     utility/sales/salepayment.h \
+    utility/sales/saletransaction.h \
+    utility/sales/soldproduct.h \
     utility/stock/stockproduct.h \
     utility/stock/stockproductcategory.h \
     utility/stock/stockproductunit.h \
     utility/stockutils.h \
     utility/user/user.h \
+    utility/user/userprivilege.h \
+    utility/userutils.h \
     widgets/dialogs.h \
     qmlapi/qmlclientmodel.h \
     qmlapi/qmldebttransactionmodel.h \

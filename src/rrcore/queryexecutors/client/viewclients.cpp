@@ -1,19 +1,22 @@
 #include "viewclients.h"
 #include "database/databaseexception.h"
+#include "utility/commonutils.h"
 
 using namespace ClientQuery;
 
 ViewClients::ViewClients(QObject *receiver) :
-    ClientExecutor(COMMAND, { }, receiver)
+    ClientExecutor(COMMAND, {
+                    { "archived", false }
+                   },
+                   receiver)
 {
 
 }
 
-ViewClients::ViewClients(const QString &filterText, const QString &filterColumn, QObject *receiver) :
+ViewClients::ViewClients(const RecordGroup::Flags &flags,
+                         QObject *receiver) :
     ClientExecutor(COMMAND, {
-                        { "filter_text", filterText },
-                        { "filter_column", filterColumn },
-                        { "archived", false }
+                    { "archived", flags.testFlag(RecordGroup::Archived) }
                    }, receiver)
 {
 
@@ -26,27 +29,17 @@ QueryResult ViewClients::execute()
     const QVariantMap &params = request().params();
 
     try {
-        const QList<QSqlRecord> records(callProcedure("ViewClients", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "filter_column",
-                                                              params.value("filter_column")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "filter_text",
-                                                              params.value("filter_text")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "archived",
-                                                              params.value("archived")
-                                                          }
-                                                      }));
+        const auto &records(callProcedure("ViewClients", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "archived",
+                                                  params.value("archived")
+                                              }
+                                          }));
 
 
         QVariantList clients;
-        for (const QSqlRecord &record : records)
+        for (const auto &record : records)
             clients.append(recordToMap(record));
 
         result.setOutcome(QVariantMap {

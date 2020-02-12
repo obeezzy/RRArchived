@@ -1,6 +1,5 @@
 #include "viewsaletransactionproducts.h"
 #include "database/databaseexception.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -22,35 +21,36 @@ QueryResult ViewSoldProducts::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+
     const QVariantMap &params = request().params();
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
-        QueryExecutor::enforceArguments({ "transaction_id" }, params);
+        QueryExecutor::enforceArguments({ "sale_transaction_id" }, params);
 
-        const QList<QSqlRecord> records(callProcedure("ViewSoldProducts", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "transaction_id",
-                                                              params.value("transaction_id")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "suspended",
-                                                              params.value("suspended")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "archived",
-                                                              params.value("archived")
-                                                          }
-                                                      }));
+        const auto &records(callProcedure("ViewSoldProducts", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "sale_transaction_id",
+                                                  params.value("sale_transaction_id")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "suspended",
+                                                  params.value("suspended")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "archived",
+                                                  params.value("archived")
+                                              }
+                                          }));
 
         QVariantList products;
-        for (const QSqlRecord &record : records) {
+        for (const auto &record : records)
             products.append(recordToMap(record));
-        }
 
         result.setOutcome(QVariantMap {
                               { "products", products },

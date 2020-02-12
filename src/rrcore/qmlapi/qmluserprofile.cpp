@@ -1,7 +1,4 @@
 #include "qmluserprofile.h"
-#include <QDebug>
-#include <QSettings>
-
 #include "database/databasethread.h"
 #include "database/databaseerror.h"
 #include "network/networkurl.h"
@@ -16,8 +13,10 @@
 #include "user/businessstore.h"
 #include "user/businessstoremodel.h"
 #include "queryexecutors/user.h"
+#include <QDebug>
+#include <QSettings>
 
-Q_LOGGING_CATEGORY(qmlUserProfile, "rrcore.qmlapi.qmluserprofile");
+Q_LOGGING_CATEGORY(lcqmluserprofile, "rrcore.qmlapi.qmluserprofile");
 
 QMLUserProfile::QMLUserProfile(QObject *parent) :
     QMLUserProfile(DatabaseThread::instance(), parent)
@@ -91,49 +90,59 @@ BusinessStoreModel *QMLUserProfile::businessStoreModel() const
     return m_businessStoreModel;
 }
 
-void QMLUserProfile::signIn(const QString &userName, const QString &password)
+void QMLUserProfile::signIn(const QString &userName,
+                            const QString &password)
 {
-    qCInfo(qmlUserProfile) << "signIn" << userName << password;
+    qCInfo(lcqmluserprofile) << "signIn" << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else if (password.isEmpty()) {
         emit error(NoPasswordProvided);
     } else {
         setBusy(true);
-        emit execute(new UserQuery::SignInUser(userName, password, this));
+        emit execute(new UserQuery::SignInUser(User {
+                                                   userName,
+                                                   password
+                                               }, this));
     }
 }
 
-void QMLUserProfile::signInOnline(const QString &emailAddress, const QString &password)
+void QMLUserProfile::signInOnline(const QString &emailAddress,
+                                  const QString &password)
 {
     Q_UNUSED(emailAddress)
     Q_UNUSED(password)
     setBusy(true);
 }
 
-void QMLUserProfile::signUp(const QString &userName, const QString &password)
+void QMLUserProfile::signUp(const QString &userName,
+                            const QString &password)
 {
-    qCInfo(qmlUserProfile) << "signUp" << userName << password;
+    qCInfo(lcqmluserprofile) << "signUp" << userName << password;
     if (userName.trimmed().isEmpty()) {
         emit error(NoUserNameProvided);
     } else if (password.isEmpty()) {
         emit error(NoPasswordProvided);
     } else {
         setBusy(true);
-        emit execute(new UserQuery::SignUpUser(userName, password, this));
+        emit execute(new UserQuery::SignUpUser(User {
+                                                   userName,
+                                                   password
+                                               }, this));
     }
 }
 
 void QMLUserProfile::signOut()
 {
-    qCInfo(qmlUserProfile) << "signOut";
+    qCInfo(lcqmluserprofile) << "signOut";
     setBusy(true);
     emit execute(new UserQuery::SignOutUser(this));
 }
 
-void QMLUserProfile::linkAccount(const QString &emailAddress, const QString &password)
+void QMLUserProfile::linkAccount(const QString &emailAddress,
+                                 const QString &password)
 {
-    qCInfo(qmlUserProfile) << "linkAccount" << emailAddress << password;
+    qCInfo(lcqmluserprofile) << "linkAccount" << emailAddress << password;
     if (emailAddress.trimmed().isEmpty()) {
         emit error(NoEmailAddressProvided);
     } else if (password.isEmpty()) {

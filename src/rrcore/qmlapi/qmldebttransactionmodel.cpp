@@ -3,7 +3,6 @@
 #include "database/databasethread.h"
 #include "queryexecutors/debtor.h"
 #include "utility/debtorutils.h"
-
 #include <QDateTime>
 
 Q_LOGGING_CATEGORY(lcqmldebttransactionmodel, "rrcore.models.qmldebttransactionmodel");
@@ -327,7 +326,9 @@ void QMLDebtTransactionModel::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new DebtorQuery::ViewDebtTransactions(m_debtorId, this));
+    emit execute(new DebtorQuery::ViewDebtTransactions(Debtor {
+                                                           m_debtorId
+                                                       }, this));
 }
 
 void QMLDebtTransactionModel::processResult(const QueryResult result)
@@ -441,28 +442,32 @@ bool QMLDebtTransactionModel::submit()
         setBusy(true);
 
         if (isExistingDebtor()) {
-            emit execute(new DebtorQuery::UpdateDebtor(DebtorDetails {
+            emit execute(new DebtorQuery::UpdateDebtor(Debtor {
                                                            m_debtorId,
-                                                           m_clientId,
-                                                           m_preferredName,
-                                                           m_firstName,
-                                                           m_lastName,
-                                                           m_primaryPhoneNumber,
-                                                           m_imageUrl,
+                                                           Client {
+                                                               m_clientId,
+                                                               m_preferredName,
+                                                               m_primaryPhoneNumber,
+                                                               m_firstName,
+                                                               m_lastName,
+                                                               m_imageUrl
+                                                           },
+                                                           m_transactions,
                                                            m_note
                                                        },
-                                                       m_transactions,
                                                        this));
         } else {
-            emit execute(new DebtorQuery::AddDebtor(DebtorDetails {
-                                                        m_preferredName,
-                                                        m_firstName,
-                                                        m_lastName,
-                                                        m_primaryPhoneNumber,
-                                                        m_imageUrl,
+            emit execute(new DebtorQuery::AddDebtor(Debtor {
+                                                        Client {
+                                                            m_preferredName,
+                                                            m_primaryPhoneNumber,
+                                                            m_firstName,
+                                                            m_lastName,
+                                                            m_imageUrl
+                                                        },
+                                                        m_transactions,
                                                         m_note
                                                     },
-                                                    m_transactions,
                                                     this));
         }
     }

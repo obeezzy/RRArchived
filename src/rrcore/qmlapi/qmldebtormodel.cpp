@@ -3,6 +3,7 @@
 #include "database/queryresult.h"
 #include "database/databasethread.h"
 #include "queryexecutors/debtor.h"
+#include "utility/commonutils.h"
 #include <QDateTime>
 
 QMLDebtorModel::QMLDebtorModel(QObject *parent) :
@@ -106,11 +107,11 @@ void QMLDebtorModel::filter()
         return;
 
     setBusy(true);
-    emit execute(new DebtorQuery::ViewDebtors(
-                     filterText(),
-                     filterColumnName(),
-                     this)
-                 );
+    emit execute(new DebtorQuery::FilterDebtors(
+                     FilterCriteria {
+                         filterText(),
+                         filterColumnName()
+                     }, this));
 }
 
 void QMLDebtorModel::removeDebtor(int debtorId)
@@ -121,10 +122,11 @@ void QMLDebtorModel::removeDebtor(int debtorId)
     }
 
     setBusy(true);
-    emit execute(new DebtorQuery::RemoveDebtor(
-                     debtorId,
-                     debtorRowFromId(debtorId),
-                     this));
+    emit execute(new DebtorQuery::RemoveDebtor(Debtor {
+                                                   debtorId,
+                                                   debtorRowFromId(debtorId)
+                                               },
+                                               this));
 }
 
 int QMLDebtorModel::debtorRowFromId(int debtorId)

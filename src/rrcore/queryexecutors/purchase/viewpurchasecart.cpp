@@ -29,23 +29,23 @@ QueryResult ViewPurchaseCart::execute()
     QSqlQuery q(connection);
 
     try {
-        const QList<QSqlRecord> &records(callProcedure("ViewPurchaseCart", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "transaction_id",
-                                                               params.value("transaction_id")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "purchase_transaction_archived",
-                                                               params.value("purchase_transaction_archived")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "purchased_product_archived",
-                                                               params.value("purchased_product_archived")
-                                                           }
-                                                       }));
+        const auto &records(callProcedure("ViewPurchaseCart", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "transaction_id",
+                                                  params.value("transaction_id")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "purchase_transaction_archived",
+                                                  params.value("purchase_transaction_archived")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "purchased_product_archived",
+                                                  params.value("purchased_product_archived")
+                                              }
+                                          }));
 
         QVariantMap outcome;
         QVariantList products;
@@ -55,8 +55,8 @@ QueryResult ViewPurchaseCart::execute()
         if (!products.isEmpty()) {
             outcome.insert("transaction_id", params.value("transaction_id"));
             outcome.insert("client_id", products.first().toMap().value("client_id"));
-            outcome.insert("customer_name", products.first().toMap().value("customer_name"));
-            outcome.insert("customer_phone_number", products.first().toMap().value("customer_phone_number"));
+            outcome.insert("customer_name", products.first().toMap().value("client_preferred_name"));
+            outcome.insert("customer_phone_number", products.first().toMap().value("client_phone_number"));
             outcome.insert("total_cost", products.first().toMap().value("total_cost"));
             outcome.insert("products", products);
             outcome.insert("record_count", products.count());

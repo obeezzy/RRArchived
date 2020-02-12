@@ -215,21 +215,25 @@ void QMLStockProductPusher::push()
 
     if (isExistingProduct())
         emit execute(new StockQuery::UpdateStockProduct(
-                         m_productId,
-                         m_category,
-                         m_product,
-                         m_description,
-                         m_unit,
-                         m_tracked,
-                         m_divisible,
-                         m_costPrice,
-                         m_retailPrice,
-                         m_baseUnitEquivalent,
-                         true,
-                         Settings::DEFAULT_CURRENCY,
-                         QUrl(),
-                         QString(),
-                         QString(),
+                         StockProduct {
+                             m_productId,
+                             StockProductCategory {
+                                m_category
+                             },
+                             m_product,
+                             m_description,
+                             QUrl(),
+                             StockProductUnit {
+                                 m_unit,
+                                 m_baseUnitEquivalent,
+                             },
+                             m_tracked,
+                             m_divisible,
+                             m_costPrice,
+                             m_retailPrice,
+                             Settings::DEFAULT_CURRENCY,
+                             Note { m_productNote }
+                         },
                          this));
     else
         emit execute(new StockQuery::AddStockProduct(StockProduct {

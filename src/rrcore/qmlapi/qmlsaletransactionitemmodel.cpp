@@ -207,7 +207,8 @@ QString QMLSaleTransactionItemModel::columnName(int column) const
 void QMLSaleTransactionItemModel::removeTransactionItem(int row)
 {
     setBusy(true);
-    emit execute(new SaleQuery::RemoveSoldProduct(transactionId(),
-                                                  data(index(row, 0), PurchasedProductIdRole).toInt(),
-                                                  this));
+    emit execute(new SaleQuery::RemoveSoldProduct(SoldProduct {
+                                                      transactionId(),
+                                                      data(index(row, 0), PurchasedProductIdRole).toInt()
+                                                  }, this));
 }

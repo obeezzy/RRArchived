@@ -190,8 +190,8 @@ void QMLDebtorDetailRecord::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new DebtorQuery::ViewDebtorDetails(m_debtorId,
-                                                    this));
+    emit execute(new DebtorQuery::FetchDebtor(m_debtorId,
+                                              this));
 }
 
 void QMLDebtorDetailRecord::processResult(const QueryResult result)
@@ -202,22 +202,22 @@ void QMLDebtorDetailRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == DebtorQuery::ViewDebtorDetails::COMMAND) {
-            const QVariantMap &record = result.outcome().toMap().value("debtor").toMap();
-            setPreferredName(record.value("preferred_name").toString());
-            setFirstName(record.value("first_name").toString());
-            setLastName(record.value("last_name").toString());
-            setImageUrl(record.value("image_url").toString());
-            setPhoneNumber(record.value("phone_number").toString());
-            setAddressModel(record.value("addresses").toStringList());
-            setEmailModel(record.value("emails").toStringList());
-            setCreated(record.value("created").toDateTime());
-            setLastEdited(record.value("last_edited").toDateTime());
-            setUserId(record.value("user_id").toInt());
-            setUser(record.value("user").toString());
+//        if (result.request().command() == DebtorQuery::ViewDebtorDetails::COMMAND) {
+//            const QVariantMap &record = result.outcome().toMap().value("debtor").toMap();
+//            setPreferredName(record.value("preferred_name").toString());
+//            setFirstName(record.value("first_name").toString());
+//            setLastName(record.value("last_name").toString());
+//            setImageUrl(record.value("image_url").toString());
+//            setPhoneNumber(record.value("phone_number").toString());
+//            setAddressModel(record.value("addresses").toStringList());
+//            setEmailModel(record.value("emails").toStringList());
+//            setCreated(record.value("created").toDateTime());
+//            setLastEdited(record.value("last_edited").toDateTime());
+//            setUserId(record.value("user_id").toInt());
+//            setUser(record.value("user").toString());
 
-            emit success();
-        }
+//            emit success();
+//        }
     } else {
         emit error();
     }

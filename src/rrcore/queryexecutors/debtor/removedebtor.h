@@ -3,6 +3,8 @@
 
 #include "debtorexecutor.h"
 
+class Debtor;
+
 namespace DebtorQuery {
 class RemoveDebtor : public DebtorExecutor
 {
@@ -11,13 +13,21 @@ public:
     static inline const QString COMMAND = QStringLiteral("remove_debtor");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_remove_debtor");
 
-    explicit RemoveDebtor(int debtorId,
-                          int debtorRow,
+    explicit RemoveDebtor(const Debtor &debtor,
                           QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult removeDebtor();
     QueryResult undoRemoveDebtor();
+
+    void archiveDebtor();
+    void archiveDebtTransactions();
+    void fetchArchivedDebtTransactionIds(QVariantList &archivedDebtTransactionIds);
+
+    // Undo
+    void unarchiveDebtor();
+    void unarchiveDebtTransactions(const QVariantList &debtTransactionIds);
+    void fetchDebtor(QVariantMap &debtor);
 };
 }
 

@@ -10,5 +10,11 @@
 #include "database/exceptions/argumentmismatchexception.h"
 #include "database/exceptions/unexpectedresultexception.h"
 #include "database/exceptions/noexistingrecordexception.h"
+#include "database/exceptions/userpreviouslyarchivedexception.h"
+#include "database/exceptions/failedtocreateuserexception.h"
+#include "database/exceptions/incorrectpasswordexception.h"
+#include "database/exceptions/incorrectcredentialsexception.h"
+#include "database/exceptions/useraccountlockedexception.h"
+#include "database/exceptions/sqlstatementfailedexception.h"
 
 #endif // EXCEPTIONS_H

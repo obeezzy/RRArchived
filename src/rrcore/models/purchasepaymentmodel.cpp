@@ -92,7 +92,7 @@ void PurchasePaymentModel::calculatePaymentCount()
     m_cardPaymentCount = 0;
 
     for (const PurchasePayment &payment : m_purchasePayments) {
-        if (payment.method == PurchasePayment::PaymentMethod::Cash)
+        if (payment.method == Utility::PaymentMethod::Cash)
             m_cashPaymentCount++;
         else
             m_cardPaymentCount++;

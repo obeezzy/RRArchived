@@ -9,15 +9,13 @@
 
 using namespace PurchaseQuery;
 
-RemovePurchaseTransaction::RemovePurchaseTransaction(qint64 transactionId,
-                                                     int row,
-                                                     const PurchaseTransaction &transaction,
+RemovePurchaseTransaction::RemovePurchaseTransaction(const PurchaseTransaction &transaction,
                                                      QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                             { "can_undo", true },
-                            { "transaction_id", transactionId },
-                            { "row", row },
-                            { "record", transaction.toVariantMap() }
+                            { "purchase_transaction_id", transaction.id },
+                            { "row", transaction.row },
+                            { "transaction", transaction.toVariantMap() }
                      }, receiver)
 {
 
@@ -36,8 +34,9 @@ QueryResult RemovePurchaseTransaction::removePurchaseTransaction()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
@@ -45,85 +44,16 @@ QueryResult RemovePurchaseTransaction::removePurchaseTransaction()
 
         DatabaseUtils::beginTransaction(q);
 
-        callProcedure("ArchivePurchaseTransaction", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "archived",
-                              true
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_id",
-                              params.value("transaction_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
-
-        callProcedure("ArchiveDebtTransaction1", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "archived",
-                              true
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_table",
-                              QStringLiteral("purchase_transaction")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_id",
-                              params.value("transaction_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
-
-        callProcedure("ArchiveCreditTransaction", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "archived",
-                              true
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_table",
-                              QStringLiteral("purchase_transaction")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_id",
-                              params.value("transaction_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
-
-        callProcedure("RevertPurchaseQuantityUpdate", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_id",
-                              params.value("transaction_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
+        archivePurchaseTransaction();
+        archiveDebtTransaction();
+        archiveCreditTransaction();
+        revertProductQuantityUpdate();
 
         DatabaseUtils::commitTransaction(q);
-        result.setOutcome(QVariantMap { { "transaction_id", params.value("transaction_id").toInt() }, { "record_count", 1 } });
+        result.setOutcome(QVariantMap {
+                              { "transaction_id", params.value("transaction_id").toInt() },
+                              { "record_count", 1 }
+                          });
         return result;
     } catch (DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
@@ -134,4 +64,101 @@ QueryResult RemovePurchaseTransaction::removePurchaseTransaction()
 QueryResult RemovePurchaseTransaction::undoRemovePurchaseTransaction()
 {
     throw DatabaseException(DatabaseError::QueryErrorCode::NotYetImplementedError);
+}
+
+void RemovePurchaseTransaction::archivePurchaseTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchivePurchaseTransaction", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          true
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_id",
+                          params.value("transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void RemovePurchaseTransaction::archiveDebtTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchiveDebtTransactionByTransactionTable", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          true
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_table",
+                          QStringLiteral("purchase_transaction")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_id",
+                          params.value("transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void RemovePurchaseTransaction::archiveCreditTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchiveCreditTransaction", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          true
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_table",
+                          QStringLiteral("purchase_transaction")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_id",
+                          params.value("transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void RemovePurchaseTransaction::revertProductQuantityUpdate()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("RevertPurchaseQuantityUpdate", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_id",
+                          params.value("transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
 }

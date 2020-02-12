@@ -14,8 +14,14 @@ public:
     explicit AddStockProduct(const StockProduct &product,
                              QObject *receiver);
     QueryResult execute() override;
-
 private:
+    int addStockProductCategory();
+    int addStockProduct(int productCategoryId);
+    int addStockProductUnit(int productId);
+    void addInitialProductQuantity(int productId,
+                                   int productUnitId);
+    void addCurrentProductQuantity(int productId,
+                                   int productUnitId);
 };
 }
 

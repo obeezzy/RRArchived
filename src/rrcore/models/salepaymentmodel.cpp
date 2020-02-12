@@ -1,5 +1,4 @@
 #include "salepaymentmodel.h"
-
 #include "utility/saleutils.h"
 
 SalePaymentModel::SalePaymentModel(QObject *parent) :
@@ -95,7 +94,7 @@ void SalePaymentModel::calculatePaymentCount()
     m_cardPaymentCount = 0;
 
     for (const SalePayment &payment : m_salePayments) {
-        if (payment.method == SalePayment::PaymentMethod::Cash)
+        if (payment.method == Utility::PaymentMethod::Cash)
             m_cashPaymentCount++;
         else
             m_cardPaymentCount++;

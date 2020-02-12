@@ -4,6 +4,13 @@
 #include <QVariantMap>
 #include <QDateTime>
 
+StockProduct::StockProduct(int id) :
+    id(id),
+    row(-1)
+{
+
+}
+
 StockProduct::StockProduct(const StockProductCategory &category,
                            const QString &product,
                            const QString &description,
@@ -16,6 +23,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
                            qreal retailPrice,
                            const QString &currency,
                            const Note &note) :
+    id(-1),
     category(category),
     product(product),
     description(description),
@@ -27,7 +35,36 @@ StockProduct::StockProduct(const StockProductCategory &category,
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
-    note(note)
+    note(note),
+    row(-1)
+{ }
+
+StockProduct::StockProduct(int id,
+                           const StockProductCategory &category,
+                           const QString &product,
+                           const QString &description,
+                           const QUrl &imageUrl,
+                           const StockProductUnit &unit,
+                           bool tracked,
+                           bool divisible,
+                           qreal costPrice,
+                           qreal retailPrice,
+                           const QString &currency,
+                           const Note &note) :
+    id(id),
+    category(category),
+    product(product),
+    description(description),
+    imageUrl(imageUrl),
+    quantity(0.0),
+    unit(unit),
+    tracked(tracked),
+    divisible(divisible),
+    costPrice(costPrice),
+    retailPrice(retailPrice),
+    currency(currency),
+    note(note),
+    row(-1)
 { }
 
 StockProduct::StockProduct(int id,
@@ -45,7 +82,8 @@ StockProduct::StockProduct(int id,
     divisible(true),
     retailPrice(retailPrice),
     unitPrice(unitPrice),
-    note(note)
+    note(note),
+    row(-1)
 { }
 
 StockProduct::StockProduct(const QVariantMap &product) :
@@ -80,7 +118,8 @@ StockProduct::StockProduct(const QVariantMap &product) :
     user(User{
          product.value("user_id").toInt(),
          product.value("user").toString()
-         })
+         }),
+    row(-1)
 {}
 
 QVariantMap StockProduct::toVariantMap() const

@@ -3,6 +3,8 @@
 
 #include "stockexecutor.h"
 
+class FilterCriteria;
+
 namespace StockQuery {
 class FilterStockProductCount : public StockExecutor
 {
@@ -10,9 +12,8 @@ class FilterStockProductCount : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("filter_stock_product_count");
 
-    explicit FilterStockProductCount(int categoryId,
-                                     const QString &filterText,
-                                     const QString &filterColumn,
+    explicit FilterStockProductCount(const FilterCriteria &filterCriteria,
+                                     int categoryId,
                                      QObject *receiver);
     QueryResult execute() override;
 };

@@ -13,54 +13,26 @@ namespace DatabaseError
         DatabaseInitializationFailed,
         SignInFailure,
         SignUpFailure,
-        RemoveUserFailure,
         NoCommand,
-        CommandNotFound,
-        RequestTypeNotFound,
-        NoValidConnection,
-        AddProductFailure,
-        UpdateProductFailure,
         BeginTransactionFailed,
         CommitTransationFailed,
-        ViewStockProductsFailed,
-        ViewStockProductCategoriesFailed,
-        ViewStockProductDetailsFailed,
-        AddTransactionFailure,
-        UpdateTransactionFailure,
-        UndoAddTransactionFailure,
-        ViewSaleTransactionFailure,
-        ConnectToTestDatabaseFailed,
-        RunSqlOnTestDatabaseFailed,
-        AddDebtorFailure,
-        UpdateDebtorFailure,
-        RemoveDebtorFailure,
-        UndoRemoveDebtorFailure,
-        ViewDebtorsFailure,
-        ViewDebtTransactionsFailure,
-        UndoAddDebtorFailure,
-        ViewSaleHomeFailure,
-        RemoveStockProductFailed,
-        CreateTableFailed,
+        SqlStatementFailedError,
         CreateUserFailed,
         InvalidArguments,
         MissingArguments,
-        UndoFailed,
         DuplicateEntryFailure,
         AmountOverpaid,
         InvalidDueDate,
         ResultMismatch,
-        ViewClientsFailure,
         ProcedureFailed,
-        EmptyResultSet,
         ImageTooLarge,
-        InsufficientUserPrivileges,
-        AddUserFailed,
-        OldPasswordWrong,
+        IncorrectPasswordError,
         UserAccountIsLocked,
         UserPreviouslyArchived,
         ArgumentMismatch,
         UnexpectedResultError,
-        NoExistingRecordError
+        NoExistingRecordError,
+        InvalidCredentialsError
     };
 
     enum class MySqlErrorCode {
@@ -72,7 +44,7 @@ namespace DatabaseError
     };
 
     static QHash<QString, QueryErrorCode> queryErrorHash = {
-        { "invalid-credentials", QueryErrorCode::SignInFailure }
+        { "invalid-credentials", QueryErrorCode::InvalidCredentialsError }
     };
 
     template <typename Enumeration>

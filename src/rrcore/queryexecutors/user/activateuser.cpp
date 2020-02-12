@@ -1,18 +1,18 @@
 #include "activateuser.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
-
+#include "utility/userutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace UserQuery;
 
-ActivateUser::ActivateUser(const QString &userName,
-                           bool active,
+ActivateUser::ActivateUser(bool active,
+                           const User &user,
                            QObject *receiver) :
     UserExecutor(COMMAND, {
-                    { "user_name", userName },
+                    { "user", user.user },
                     { "active", active }
                  }, receiver)
 {
@@ -33,8 +33,8 @@ QueryResult ActivateUser::execute()
         callProcedure("ActivateUser", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "user_name",
-                              params.value("user_name")
+                              "user",
+                              params.value("user")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,

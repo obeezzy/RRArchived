@@ -1,20 +1,19 @@
 #include "filterstockproductcount.h"
 #include "database/databaseexception.h"
-
+#include "utility/commonutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace StockQuery;
 
-FilterStockProductCount::FilterStockProductCount(int categoryId,
-                                           const QString &filterText,
-                                           const QString &filterColumn,
-                                           QObject *receiver) :
+FilterStockProductCount::FilterStockProductCount(const FilterCriteria &filterCriteria,
+                                                 int categoryId,
+                                                 QObject *receiver) :
     StockExecutor(COMMAND, {
-                        { "category_id", categoryId },
-                        { "filter_text", filterText },
-                        { "filter_column", filterColumn }
+                        { "filter_column", filterCriteria.column },
+                        { "filter_text", filterCriteria.text },
+                        { "category_id", categoryId }
                   }, receiver)
 {
 
@@ -27,23 +26,23 @@ QueryResult FilterStockProductCount::execute()
     const QVariantMap &params = request().params();
 
     try {
-        const QList<QSqlRecord> &records(callProcedure("FilterStockProductCount", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "filter_text",
-                                                               params.value("filter_text")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "filter_column",
-                                                               params.value("filter_column")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "archived",
-                                                               params.value("archived")
-                                                           }
-                                                       }));
+        const auto &records(callProcedure("FilterStockProductCount", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "filter_text",
+                                                  params.value("filter_text")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "filter_column",
+                                                  params.value("filter_column")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "archived",
+                                                  params.value("archived")
+                                              }
+                                          }));
 
         int productCount = 0;
         if (!records.isEmpty())

@@ -84,7 +84,12 @@ QVariant QMLIncomeReportModel::headerData(int section, Qt::Orientation orientati
 void QMLIncomeReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new IncomeQuery::ViewIncomeReport(this));
+    emit execute(new IncomeQuery::ViewIncomeReport(
+                     DateTimeSpan {
+                         QDateTime::currentDateTime().addDays(-1),
+                         QDateTime::currentDateTime()
+                     },
+                     this));
 }
 
 void QMLIncomeReportModel::processResult(const QueryResult result)

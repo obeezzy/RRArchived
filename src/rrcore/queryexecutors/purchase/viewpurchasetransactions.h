@@ -2,6 +2,7 @@
 #define VIEWPURCHASETRANSACTIONS_H
 
 #include "purchaseexecutor.h"
+#include "utility/commonutils.h"
 
 namespace PurchaseQuery {
 class ViewPurchaseTransactions : public PurchaseExecutor
@@ -10,10 +11,8 @@ class ViewPurchaseTransactions : public PurchaseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_purchase_transactions");
 
-    explicit ViewPurchaseTransactions(const QDateTime &from,
-                                      const QDateTime &to,
-                                      bool suspended,
-                                      bool archived,
+    explicit ViewPurchaseTransactions(const DateTimeSpan &dateTimeSpan,
+                                      const RecordGroup::Flags &flags,
                                       QObject *receiver);
     QueryResult execute() override;
 };

@@ -2,6 +2,7 @@
 #define VIEWUSERS_H
 
 #include "userexecutor.h"
+#include "utility/commonutils.h"
 
 namespace UserQuery {
 class ViewUsers : public UserExecutor
@@ -10,7 +11,7 @@ class ViewUsers : public UserExecutor
 public:
     static inline const  QString COMMAND = QStringLiteral("view_users");
 
-    explicit ViewUsers(bool archived,
+    explicit ViewUsers(const RecordGroup::Flags &flags,
                        QObject *receiver);
     QueryResult execute() override;
 };

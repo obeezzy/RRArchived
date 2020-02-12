@@ -1,12 +1,13 @@
 #include "viewusers.h"
 #include "database/databaseexception.h"
+#include "utility/commonutils.h"
 
 using namespace UserQuery;
 
-ViewUsers::ViewUsers(bool archived,
+ViewUsers::ViewUsers(const RecordGroup::Flags &flags,
                      QObject *receiver) :
     UserExecutor(COMMAND, {
-                    { "archived", archived }
+                    { "archived", flags.testFlag(RecordGroup::Archived) }
                  }, receiver)
 {
 
@@ -19,18 +20,17 @@ QueryResult ViewUsers::execute()
     const QVariantMap &params = request().params();
 
     try {
-        const QList<QSqlRecord> &records(callProcedure("ViewUsers", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "archived",
-                                                               params.value("archived")
-                                                           }
-                                                       }));
+        const auto &records(callProcedure("ViewUsers", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "archived",
+                                                  params.value("archived")
+                                              }
+                                          }));
 
         QVariantList users;
-        for (const QSqlRecord &record : records) {
+        for (const auto &record : records)
             users.append(recordToMap(record));
-        }
 
         result.setOutcome(QVariantMap {
                               { "users", users },

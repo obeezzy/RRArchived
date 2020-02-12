@@ -6,7 +6,7 @@ using namespace StockQuery;
 FetchStockProductCount::FetchStockProductCount(int categoryId,
                                                QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "category_id", categoryId <= 0 ? QVariant(QVariant::Int) : categoryId },
+                    { "category_id", categoryId },
                     { "archived", false }
                   }, receiver)
 {
@@ -17,6 +17,7 @@ QueryResult FetchStockProductCount::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
+
     const QVariantMap &params = request().params();
 
     try {
@@ -24,7 +25,7 @@ QueryResult FetchStockProductCount::execute()
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
                                                               "category_id",
-                                                              params.value("category_id")
+                                                              params.value("product_category_id")
                                                           },
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,

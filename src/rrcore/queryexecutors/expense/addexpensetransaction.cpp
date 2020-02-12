@@ -2,23 +2,25 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
-
+#include "singletons/settings.h"
+#include "utility/commonutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace ExpenseQuery;
 
-AddExpenseTransaction::AddExpenseTransaction(const QString &clientName,
+AddExpenseTransaction::AddExpenseTransaction(const Client &client,
                                              const QString &purpose,
                                              qreal amount,
-                                             const QString &paymentMethod,
+                                             const Utility::PaymentMethod &paymentMethod,
                                              QObject *receiver) :
     ExpenseExecutor(COMMAND, {
-                        { "client_name", clientName },
-                        { "purpose", purpose },
-                        { "amount", amount },
-                        { "payment_method", paymentMethod }
+                    { "name", client.preferredName },
+                    { "purpose", purpose },
+                    { "amount", amount },
+                    { "payment_method", Utility::asString(paymentMethod) },
+                    { "currency", Settings::DEFAULT_CURRENCY },
                     }, receiver)
 {
 
@@ -29,31 +31,30 @@ QueryResult AddExpenseTransaction::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
     int noteId = 0;
+    const QString &note = params.value("note").toString();
 
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
         DatabaseUtils::beginTransaction(q);
 
-        if (params.contains("note")) {
-            // STEP: Insert note
-            noteId = addNote(params.value("note").toString(), "expense");
-        }
+        noteId = QueryExecutor::addNote(note,
+                                        QStringLiteral("expense"),
+                                        ExceptionPolicy::DisallowExceptions);
 
-        // STEP: Insert expense transaction
         callProcedure("AddExpenseTransaction", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "client_id",
-                              params.value("client_id", QVariant::Int)
+                              params.value("client_id")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "name",
-                              params.value("client_name")
+                              params.value("name")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -73,7 +74,7 @@ QueryResult AddExpenseTransaction::execute()
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "currency",
-                              params.value("currency", "NGN")
+                              params.value("currency")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,

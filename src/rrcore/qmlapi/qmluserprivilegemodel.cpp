@@ -1,5 +1,4 @@
 #include "qmluserprivilegemodel.h"
-
 #include "models/userprivilegemodel.h"
 #include "database/databaseerror.h"
 #include "database/databasethread.h"
@@ -213,15 +212,18 @@ bool QMLUserPrivilegeModel::submit()
 
         if (isExistingUser()) {
             emit execute(new UserQuery::UpdateUserPrivileges(m_userId,
+                                                             UserPrivilegeList { },
                                                              this));
         } else {
-            emit execute(new UserQuery::AddUser(m_firstName,
-                                                m_lastName,
-                                                m_userName,
-                                                m_password,
-                                                m_phoneNumber,
-                                                m_emailAddress,
-                                                m_imageUrl,
+            emit execute(new UserQuery::AddUser(User {
+                                                    m_firstName,
+                                                    m_lastName,
+                                                    m_userName,
+                                                    m_password,
+                                                    m_phoneNumber,
+                                                    m_emailAddress,
+                                                    m_imageUrl
+                                                },
                                                 this));
         }
 
@@ -234,8 +236,8 @@ bool QMLUserPrivilegeModel::submit()
 void QMLUserPrivilegeModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new UserQuery::ViewUserPrivileges(m_userId,
-                                                   this));
+    emit execute(new UserQuery::FetchUserPrivileges(m_userId,
+                                                    this));
 }
 
 void QMLUserPrivilegeModel::processResult(const QueryResult result)
@@ -245,7 +247,7 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == UserQuery::ViewUserPrivileges::COMMAND) {
+        if (result.request().command() == UserQuery::FetchUserPrivileges::COMMAND) {
             beginResetModel();
             QMapIterator<QString, QVariant> mapIter(result.outcome().toMap().value("user_privileges").toMap());
             while (mapIter.hasNext()) {
@@ -253,7 +255,9 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
 
                 UserPrivilegeModel *model = new UserPrivilegeModel(this);
                 QVariantMap privilegeDetails = pair.value().toMap();
-                model->setPrivileges(pair.key(), privilegeDetails.value("title").toString(), privilegeDetails.value("privileges").toList());
+                model->setPrivileges(pair.key(),
+                                     privilegeDetails.value("title").toString(),
+                                     privilegeDetails.value("privileges").toList());
 
                 m_titles.append(privilegeDetails.value("title").toString());
                 m_privilegeGroups.append(pair.key());

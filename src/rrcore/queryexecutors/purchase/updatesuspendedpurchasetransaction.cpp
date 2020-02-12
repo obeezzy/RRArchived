@@ -1,36 +1,29 @@
 #include "updatesuspendedpurchasetransaction.h"
 #include "database/databaseutils.h"
 #include "database/databaseexception.h"
+#include "utility/purchaseutils.h"
 #include "user/userprofile.h"
-
+#include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 
 using namespace PurchaseQuery;
 
-UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(qint64 transactionId,
-                                                                       int clientId,
-                                                                       const QString &customerName,
-                                                                       const QString &customerPhoneNumber,
-                                                                       qreal totalCost,
-                                                                       qreal amountPaid,
-                                                                       qreal balance,
-                                                                       bool suspended,
-                                                                       const PurchaseCartProductList &products,
-                                                                       const Note &note,
+UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(const PurchaseTransaction &transaction,
                                                                        QObject *receiver) :
     PurchaseExecutor(COMMAND, {
-                            { "transaction_id", transactionId },
-                            { "client_id", clientId },
-                            { "customer_name", customerName },
-                            { "customer_phone_number", customerPhoneNumber },
-                            { "total_cost", totalCost },
-                            { "amount_paid", amountPaid },
-                            { "balance", balance },
-                            { "suspended", suspended },
-                            { "products", products.toVariantList() },
-                            { "note", note.note }
+                            { "transaction_id", transaction.id },
+                            { "client_id", transaction.vendor.id },
+                            { "vendor_name", transaction.vendor.client.preferredName },
+                            { "phone_number", transaction.vendor.client.phoneNumber },
+                            { "total_cost", transaction.totalCost },
+                            { "amount_paid", transaction.amountPaid },
+                            { "balance", transaction.balance },
+                            { "suspended", transaction.flags.testFlag(RecordGroup::Suspended) },
+                            { "products", transaction.products.toVariantList() },
+                            { "note_id", transaction.note.id },
+                            { "note", transaction.note.note }
                      }, receiver)
 {
 
@@ -42,40 +35,14 @@ QueryResult UpdateSuspendedPurchaseTransaction::execute()
     result.setSuccessful(true);
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    const QVariantMap &params = request().params();
-
     QSqlQuery q(connection);
 
     try {
         DatabaseUtils::beginTransaction(q);
 
-        const QList<QSqlRecord> &records(callProcedure("IsPurchaseTransactionSuspended", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "transaction_id",
-                                                               params.value("transaction_id")
-                                                           }
-                                                       }));
-
-        if (!records.first().value("suspended").toBool())
-            throw DatabaseException(DatabaseError::QueryErrorCode::UpdateTransactionFailure,
-                                    QString(),
-                                    "Transaction must be suspended.");
-
+        affirmTransactionHasBeenSuspended();
         PurchaseExecutor::addPurchaseTransaction(TransactionMode::SkipSqlTransaction);
-
-        callProcedure("ArchivePurchaseTransaction", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "transaction_id",
-                              params.value("transaction_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              UserProfile::instance().userId()
-                          }
-                      });
+        archivePurchaseTransaction();
 
         DatabaseUtils::commitTransaction(q);
         return result;
@@ -83,4 +50,42 @@ QueryResult UpdateSuspendedPurchaseTransaction::execute()
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
+}
+
+void UpdateSuspendedPurchaseTransaction::affirmTransactionHasBeenSuspended()
+{
+    const QVariantMap &params = request().params();
+
+    const auto &records(callProcedure("IsPurchaseTransactionSuspended", {
+                                                       ProcedureArgument {
+                                                           ProcedureArgument::Type::In,
+                                                           "transaction_id",
+                                                           params.value("transaction_id")
+                                                       }
+                                                   }));
+
+    if (records.isEmpty())
+        throw UnexpectedResultException(QStringLiteral("Expected a boolean for 'suspended', received nothing"));
+
+    const bool suspended = records.first().value("suspended").toBool();
+    if (!suspended)
+        throw UnexpectedResultException(QStringLiteral("Transaction must be suspended."));
+}
+
+void UpdateSuspendedPurchaseTransaction::archivePurchaseTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchivePurchaseTransaction", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_id",
+                          params.value("transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
 }

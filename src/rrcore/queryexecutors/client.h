@@ -1,6 +1,7 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef CLIENTQUERY_H // NOTE: Intentionally CLIENTQUERY instead of CLIENT to avoid clashes
+#define CLIENTQUERY_H
 
 #include "client/viewclients.h"
+#include "client/filterclients.h"
 
-#endif // CLIENT_H
+#endif // CLIENTQUERY_H

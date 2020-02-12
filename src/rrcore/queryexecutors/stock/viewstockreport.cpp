@@ -1,11 +1,14 @@
 #include "viewstockreport.h"
 #include "database/databaseexception.h"
+#include "utility/commonutils.h"
 
 using namespace StockQuery;
 
-ViewStockReport::ViewStockReport(QObject *receiver) :
+ViewStockReport::ViewStockReport(const DateTimeSpan &dateTimeSpan,
+                                 QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "sort_column", QStringLiteral("category") }
+                    { "from", dateTimeSpan.from },
+                    { "to", dateTimeSpan.to }
                   }, receiver)
 {
 
@@ -18,46 +21,26 @@ QueryResult ViewStockReport::execute()
     const QVariantMap &params = request().params();
 
     try {
-        const QList<QSqlRecord> &records(callProcedure("ViewStockReport", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "from",
-                                                               params.value("from")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "to",
-                                                               params.value("to")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "filter_column",
-                                                               params.value("filter_column")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "filter_text",
-                                                               params.value("filter_text")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "sort_column",
-                                                               params.value("sort_column")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "sort_order",
-                                                               params.value("sort_order")
-                                                           }
-                                                       }));
+        const auto &records(callProcedure("ViewStockReport", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "from",
+                                                  params.value("from")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "to",
+                                                  params.value("to")
+                                              }
+                                          }));
 
         QVariantList products;
-        for (const QSqlRecord &record : records) {
+        for (const auto &record : records)
             products.append(recordToMap(record));
-        }
 
-        result.setOutcome(QVariantMap { { "products", products },
-                                        { "record_count", products.count() },
+        result.setOutcome(QVariantMap {
+                              { "products", products },
+                              { "record_count", products.count() },
                           });
         return result;
     } catch (DatabaseException &) {

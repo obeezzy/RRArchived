@@ -1,17 +1,16 @@
 #include "viewstockproducts.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
-
 #include <QUrl>
 
 using namespace StockQuery;
 
-ViewStockProducts::ViewStockProducts(int categoryId,
-                               Qt::SortOrder sortOrder,
-                               QObject *receiver) :
+ViewStockProducts::ViewStockProducts(int productCategoryId,
+                                     const SortCriteria &sortCriteria,
+                                     QObject *receiver) :
     StockExecutor(COMMAND, {
-                        { "category_id", categoryId },
-                        { "sort_order", sortOrder == Qt::DescendingOrder ? "descending" : "ascending" }
+                        { "category_id", productCategoryId },
+                        { "sort_order", sortCriteria.orderAsString() }
                   }, receiver)
 {
 
@@ -21,6 +20,7 @@ QueryResult ViewStockProducts::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
+
     const QVariantMap &params = request().params();
 
     try {

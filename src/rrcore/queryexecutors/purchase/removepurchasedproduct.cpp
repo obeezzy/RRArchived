@@ -1,14 +1,14 @@
 #include "removepurchasedproduct.h"
+#include "utility/purchaseutils.h"
 
 using namespace PurchaseQuery;
 
-RemovePurchasedProduct::RemovePurchasedProduct(qint64 transactionId,
-                                               int purchasedProductId,
+RemovePurchasedProduct::RemovePurchasedProduct(const PurchasedProduct &product,
                                                QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "can_undo", true },
-                        { "transaction_id", transactionId },
-                        { "purchased_product_id", purchasedProductId }
+                        { "purchase_transaction_id", product.purchaseTransactionId },
+                        { "purchased_product_id", product.id }
                      }, receiver)
 {
 

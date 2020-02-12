@@ -1,6 +1,6 @@
-#ifndef DASHBOARD_H
-#define DASHBOARD_H
+#ifndef DASHBOARDQUERY_H // NOTE: Intentionally DASHBOARDQUERY instead of DASHBOARD to avoid clashes
+#define DASHBOARDQUERY_H
 
 #include "dashboard/viewdashboard.h"
 
-#endif // DASHBOARD_H
+#endif // DASHBOARDQUERY_H

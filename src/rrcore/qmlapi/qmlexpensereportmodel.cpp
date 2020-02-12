@@ -84,7 +84,12 @@ QVariant QMLExpenseReportModel::headerData(int section, Qt::Orientation orientat
 void QMLExpenseReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new ExpenseQuery::ViewExpenseReport(this));
+    emit execute(new ExpenseQuery::ViewExpenseReport(
+                     DateTimeSpan {
+                         QDateTime::currentDateTime().addDays(-1),
+                         QDateTime::currentDateTime()
+                     },
+                     this));
 }
 
 void QMLExpenseReportModel::processResult(const QueryResult result)

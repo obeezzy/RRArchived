@@ -3,6 +3,8 @@
 
 #include "debtorexecutor.h"
 
+class Debtor;
+
 namespace DebtorQuery {
 class ViewDebtTransactions : public DebtorExecutor
 {
@@ -10,14 +12,12 @@ class ViewDebtTransactions : public DebtorExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_debt_transactions");
 
-    explicit ViewDebtTransactions(int debtorId,
+    explicit ViewDebtTransactions(const Debtor &debtor,
                                   QObject *receiver);
     QueryResult execute() override;
 private:
-    void fetchDebtorDetails(const QVariantMap &params,
-                            QVariantMap &debtorDetails);
-    void fetchDebtTransactions(const QVariantMap &params,
-                               QVariantList &debtTransactions);
+    void fetchDebtor(QVariantMap &debtor);
+    void fetchDebtTransactions(QVariantList &debtTransactions);
 };
 }
 

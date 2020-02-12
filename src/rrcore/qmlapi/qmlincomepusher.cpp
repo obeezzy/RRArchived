@@ -73,10 +73,10 @@ void QMLIncomePusher::push()
 {
     setBusy(true);
     emit execute(new IncomeQuery::AddIncomeTransaction(
-                     m_clientName,
+                     Client { m_clientName },
                      m_purpose,
                      m_amount,
-                     paymentMethodAsString(),
+                     paymentMethodAsUtilityEnum(),
                      this));
 }
 
@@ -95,16 +95,16 @@ void QMLIncomePusher::processResult(const QueryResult result)
     }
 }
 
-QString QMLIncomePusher::paymentMethodAsString() const
+Utility::PaymentMethod QMLIncomePusher::paymentMethodAsUtilityEnum() const
 {
     switch (m_paymentMethod) {
-    case PaymentMethod::Cash:
-        return QStringLiteral("cash");
     case PaymentMethod::DebitCard:
-        return QStringLiteral("debit_card");
+        return Utility::PaymentMethod::DebitCard;
     case PaymentMethod::CreditCard:
-        return QStringLiteral("credit_card");
+        return Utility::PaymentMethod::CreditCard;
+    case PaymentMethod::Cash:
+        break;
     }
 
-    return QString();
+    return Utility::PaymentMethod::Cash;
 }

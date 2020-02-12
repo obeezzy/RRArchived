@@ -2,6 +2,7 @@
 #define VIEWCLIENTS_H
 
 #include "clientexecutor.h"
+#include "utility/commonutils.h"
 
 namespace ClientQuery {
 class ViewClients : public ClientExecutor
@@ -11,8 +12,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("view_clients");
 
     explicit ViewClients(QObject *receiver);
-    explicit ViewClients(const QString &filterText,
-                         const QString &filterColumn,
+    explicit ViewClients(const RecordGroup::Flags &flags,
                          QObject *receiver);
     QueryResult execute() override;
 };

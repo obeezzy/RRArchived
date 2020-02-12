@@ -1,8 +1,8 @@
-#ifndef EXPENSE_H
-#define EXPENSE_H
+#ifndef EXPENSEQUERY_H // NOTE: Intentionally EXPENSEQUERY instead of EXPENSE to avoid clashes
+#define EXPENSEQUERY_H
 
 #include "expense/addexpensetransaction.h"
 #include "expense/viewexpensetransactions.h"
 #include "expense/viewexpensereport.h"
 
-#endif // EXPENSE_H
+#endif // EXPENSEQUERY_H

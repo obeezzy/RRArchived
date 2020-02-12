@@ -1,5 +1,5 @@
-#ifndef PURCHASE_H
-#define PURCHASE_H
+#ifndef PURCHASEQUERY_H // NOTE: Intentionally PURCHASEQUERY instead of PURCHASE to avoid clashes
+#define PURCHASEQUERY_H
 
 #include "purchase/viewpurchasehome.h"
 #include "purchase/addpurchasetransaction.h"
@@ -11,4 +11,4 @@
 #include "purchase/removepurchasedproduct.h"
 #include "purchase/viewpurchasereport.h"
 
-#endif // PURCHASE_H
+#endif // PURCHASEQUERY_H
