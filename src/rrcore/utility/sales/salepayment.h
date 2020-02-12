@@ -1,29 +1,24 @@
 #ifndef SALEPAYMENT_H
 #define SALEPAYMENT_H
 
+#include "utility/commonutils.h"
 #include <QString>
 #include <QList>
 #include <initializer_list>
 
 struct SalePayment {
-    enum class PaymentMethod {
-        Cash,
-        DebitCard,
-        CreditCard
-    };
-
-    double amount;
-    PaymentMethod method;
+    qreal amount;
+    Utility::PaymentMethod method;
     QString note;
     QString currency;
 
     QString paymentMethodAsString() const {
         switch (method) {
-        case PaymentMethod::Cash:
+        case Utility::PaymentMethod::Cash:
             return QStringLiteral("cash");
-        case PaymentMethod::DebitCard:
+        case Utility::PaymentMethod::DebitCard:
             return QStringLiteral("debit_card");
-        case PaymentMethod::CreditCard:
+        case Utility::PaymentMethod::CreditCard:
             return QStringLiteral("credit_card");
         }
 
@@ -33,7 +28,7 @@ struct SalePayment {
     QVariantMap toVariantMap() const {
         return {
             { "amount", amount },
-            { "method", paymentMethodAsString(), },
+            { "payment_method", paymentMethodAsString(), },
             { "note", note }
         };
     }

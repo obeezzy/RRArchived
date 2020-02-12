@@ -3,6 +3,10 @@
 
 #include "pusher/abstractpusher.h"
 
+namespace Utility {
+    enum class PaymentMethod;
+}
+
 class QMLIncomePusher : public AbstractPusher
 {
     Q_OBJECT
@@ -53,7 +57,7 @@ private:
     qreal m_amount;
     PaymentMethod m_paymentMethod;
 
-    QString paymentMethodAsString() const;
+    Utility::PaymentMethod paymentMethodAsUtilityEnum() const;
 };
 
 #endif // QMLINCOMEPUSHER_H

@@ -2,23 +2,25 @@
 #include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-
+#include "singletons/settings.h"
+#include "utility/commonutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace IncomeQuery;
 
-AddIncomeTransaction::AddIncomeTransaction(const QString &clientName,
+AddIncomeTransaction::AddIncomeTransaction(const Client &client,
                                            const QString &purpose,
                                            qreal amount,
-                                           const QString &paymentMethod,
+                                           const Utility::PaymentMethod &paymentMethod,
                                            QObject *receiver) :
     IncomeExecutor(COMMAND, {
-                        { "client_name", clientName },
+                        { "client_name", client.preferredName },
                         { "purpose", purpose },
                         { "amount", amount },
-                        { "payment_method", paymentMethod }
+                        { "payment_method", Utility::asString(paymentMethod) },
+                        { "currency", Settings::DEFAULT_CURRENCY }
                    }, receiver)
 {
 
@@ -29,26 +31,25 @@ QueryResult IncomeQuery::AddIncomeTransaction::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
+    const QString &note = params.value("note").toString();
     int noteId = 0;
 
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
         DatabaseUtils::beginTransaction(q);
 
-        if (params.contains("note")) {
-            // STEP: Insert note
-            noteId = addNote(params.value("note").toString(), "income");
-        }
+        noteId = QueryExecutor::addNote(note,
+                                        QStringLiteral("income"),
+                                        ExceptionPolicy::DisallowExceptions);
 
-        // STEP: Insert income transaction
         callProcedure("AddIncomeTransaction", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "client_id",
-                              params.value("client_id", QVariant::Int)
+                              params.value("client_id")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -73,7 +74,7 @@ QueryResult IncomeQuery::AddIncomeTransaction::execute()
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "currency",
-                              params.value("currency", "NGN")
+                              params.value("currency")
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,

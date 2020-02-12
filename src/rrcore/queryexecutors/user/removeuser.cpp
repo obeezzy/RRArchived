@@ -1,16 +1,16 @@
 #include "removeuser.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
-
+#include "utility/userutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
 using namespace UserQuery;
 
-RemoveUser::RemoveUser(const QString &userName,
+RemoveUser::RemoveUser(const User &user,
                        QObject *receiver) :
     UserExecutor(COMMAND, {
-                        { "user_name", userName }
+                    { "user", user.user }
                  }, receiver)
 {
 
@@ -22,6 +22,7 @@ QueryResult RemoveUser::execute()
     result.setSuccessful(true);
 
     const QVariantMap &params = request().params();
+
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
@@ -31,8 +32,8 @@ QueryResult RemoveUser::execute()
         callProcedure("RemoveUser", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
-                              "user_name",
-                              params.value("user_name")
+                              "user",
+                              params.value("user")
                           }
                       });
 

@@ -1,20 +1,19 @@
 #include "filterstockcategories.h"
 #include "database/databaseexception.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace StockQuery;
 
-FilterStockCategories::FilterStockCategories(const QString &filterText,
-                                             Qt::SortOrder sortOrder,
-                                             bool archived,
+FilterStockCategories::FilterStockCategories(const FilterCriteria &filterCriteria,
+                                             const SortCriteria &sortCriteria,
+                                             const RecordGroup::Flags &RecordGroups,
                                              QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "filter_text", filterText },
-                    { "sort_order", sortOrder == Qt::DescendingOrder ? "descending" : "ascending" },
-                    { "archived", archived }
+                    { "filter_text", filterCriteria.text },
+                    { "sort_order", sortCriteria.orderAsString() },
+                    { "archived", RecordGroups.testFlag(RecordGroup::Archived) }
                   }, receiver)
 {
 

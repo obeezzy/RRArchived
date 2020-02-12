@@ -29,12 +29,26 @@ struct StockProduct {
     QDateTime created;
     QDateTime lastEdited;
     User user;
+    int row;
 
+    explicit StockProduct(int id);
     explicit StockProduct(const StockProductCategory &category,
                           const QString &product,
                           const QString &description,
                           const QUrl &imageUrl,
                           double quantity,
+                          const StockProductUnit &unit,
+                          bool tracked,
+                          bool divisible,
+                          qreal costPrice,
+                          qreal retailPrice,
+                          const QString &currency,
+                          const Note &note);
+    explicit StockProduct(int id,
+                          const StockProductCategory &category,
+                          const QString &product,
+                          const QString &description,
+                          const QUrl &imageUrl,
                           const StockProductUnit &unit,
                           bool tracked,
                           bool divisible,

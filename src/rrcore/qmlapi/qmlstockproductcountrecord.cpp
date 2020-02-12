@@ -78,9 +78,11 @@ void QMLStockProductCountRecord::tryQuery()
 
     if (!m_filterText.trimmed().isEmpty() && m_filterColumn > -1)
         emit execute(new StockQuery::FilterStockProductCount(
+                         FilterCriteria {
+                             columnName(m_filterColumn),
+                             m_filterText
+                         },
                          m_categoryId,
-                         m_filterText,
-                         columnName(m_filterColumn),
                          this));
     else
         emit execute(new StockQuery::FetchStockProductCount(m_categoryId,
@@ -120,7 +122,7 @@ QString QMLStockProductCountRecord::columnName(int column) const
 {
     switch (column) {
     case CategoryColumn:
-        return QStringLiteral("category");
+        return QStringLiteral("product_category");
     case ProductColumn:
         return QStringLiteral("product");
     }

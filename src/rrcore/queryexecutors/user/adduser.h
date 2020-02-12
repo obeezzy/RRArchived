@@ -2,6 +2,7 @@
 #define ADDUSER_H
 
 #include "userexecutor.h"
+#include "utility/userutils.h"
 
 namespace UserQuery {
 class AddUser : public UserExecutor
@@ -10,15 +11,13 @@ class AddUser : public UserExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("add_user");
 
-    explicit AddUser(const QString &firstName,
-                     const QString &lastName,
-                     const QString &userName,
-                     const QString &password,
-                     const QString &phoneNumber,
-                     const QString &emailAddress,
-                     const QUrl &imageUrl,
+    explicit AddUser(const User &user,
                      QObject *receiver);
     QueryResult execute() override;
+private:
+    int addRRUser();
+    void addUserPrivileges(int userId);
+    void addSqlUser();
 };
 }
 

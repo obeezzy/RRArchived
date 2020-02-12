@@ -3,6 +3,8 @@
 
 #include "saleexecutor.h"
 
+class SaleTransaction;
+
 namespace SaleQuery {
 class UpdateSuspendedSaleTransaction : public SaleExecutor
 {
@@ -10,17 +12,12 @@ class UpdateSuspendedSaleTransaction : public SaleExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("update_suspended_sale_transaction");
 
-    explicit UpdateSuspendedSaleTransaction(qint64 transactionId,
-                                            const QString &customerName,
-                                            int clientId,
-                                            const QString &customerPhoneNumber,
-                                            qreal totalCost,
-                                            qreal amountPaid,
-                                            qreal balance,
-                                            const QString &note,
-                                            bool suspended,
+    explicit UpdateSuspendedSaleTransaction(const SaleTransaction &transaction,
                                             QObject *receiver);
     QueryResult execute() override;
+private:
+    void affirmTransactionHasBeenSuspended();
+    void archiveSaleTransaction();
 };
 }
 

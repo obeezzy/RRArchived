@@ -2,6 +2,7 @@
 #define VIEWSALETRANSACTIONS_H
 
 #include "saleexecutor.h"
+#include "utility/commonutils.h"
 
 namespace SaleQuery {
 class ViewSaleTransactions : public SaleExecutor
@@ -10,10 +11,8 @@ class ViewSaleTransactions : public SaleExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_sale_transactions");
 
-    explicit ViewSaleTransactions(const QDateTime &from,
-                                  const QDateTime &to,
-                                  bool suspended,
-                                  bool archived,
+    explicit ViewSaleTransactions(const DateTimeSpan &dateTimeSpan,
+                                  const RecordGroup::Flags &RecordGroups,
                                   QObject *receiver);
     QueryResult execute() override;
 };

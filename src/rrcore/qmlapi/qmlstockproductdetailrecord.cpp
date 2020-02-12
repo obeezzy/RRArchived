@@ -123,7 +123,8 @@ void QMLStockProductDetailRecord::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new StockQuery::ViewStockProductDetails(m_productId, this));
+    emit execute(new StockQuery::FetchStockProduct(m_productId,
+                                                   this));
 }
 
 void QMLStockProductDetailRecord::processResult(const QueryResult result)

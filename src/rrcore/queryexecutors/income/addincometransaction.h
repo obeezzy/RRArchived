@@ -3,17 +3,22 @@
 
 #include "incomeexecutor.h"
 
+class Client;
+namespace Utility {
+    enum class PaymentMethod;
+}
+
 namespace IncomeQuery {
 class AddIncomeTransaction : public IncomeExecutor
 {
     Q_OBJECT
 public:
-    static inline const QString COMMAND = QStringLiteral("add_new_income_transaction");
+    static inline const QString COMMAND = QStringLiteral("add_income_transaction");
 
-    explicit AddIncomeTransaction(const QString &clientName,
+    explicit AddIncomeTransaction(const Client &client,
                                   const QString &purpose,
                                   qreal amount,
-                                  const QString &paymentMethod,
+                                  const Utility::PaymentMethod &paymentMethod,
                                   QObject *receiver);
     QueryResult execute() override;
 };

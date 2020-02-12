@@ -3,6 +3,8 @@
 
 #include "stockexecutor.h"
 
+class StockProduct;
+
 namespace StockQuery {
 class UpdateStockProduct : public StockExecutor
 {
@@ -10,23 +12,13 @@ class UpdateStockProduct : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("update_stock_product");
 
-    explicit UpdateStockProduct(int productId,
-                                const QString &category,
-                                const QString &product,
-                                const QString &description,
-                                const QString &unit,
-                                bool tracked,
-                                bool divisible,
-                                qreal costPrice,
-                                qreal retailPrice,
-                                qreal baseUnitEquivalent,
-                                bool isPreferredUnit,
-                                const QString &currency,
-                                const QUrl &imageUrl,
-                                const QString &categoryNote,
-                                const QString &productNote,
+    explicit UpdateStockProduct(const StockProduct &product,
                                 QObject *receiver);
     QueryResult execute() override;
+private:
+    int addOrUpdateStockProductCategory();
+    void updateStockProduct(int productCategoryId);
+    void updateStockProductUnit();
 };
 }
 

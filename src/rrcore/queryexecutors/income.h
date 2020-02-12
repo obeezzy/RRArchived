@@ -1,8 +1,8 @@
-#ifndef INCOME_H
-#define INCOME_H
+#ifndef INCOMEQUERY_H // NOTE: Intentionally INCOMEQUERY instead of INCOME to avoid clashes
+#define INCOMEQUERY_H
 
 #include "income/addincometransaction.h"
 #include "income/viewincometransactions.h"
 #include "income/viewincomereport.h"
 
-#endif // INCOME_H
+#endif // INCOMEQUERY_H

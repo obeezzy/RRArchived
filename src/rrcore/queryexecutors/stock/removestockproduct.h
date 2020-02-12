@@ -12,10 +12,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("remove_stock_product");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_remove_stock_product");
 
-    explicit RemoveStockProduct(int productId,
-                                QObject *receiver);
-    explicit RemoveStockProduct(int productRow,
-                                const StockProduct &product,
+    explicit RemoveStockProduct(const StockProduct &product,
                                 QObject *receiver);
     QueryResult execute() override;
 private:

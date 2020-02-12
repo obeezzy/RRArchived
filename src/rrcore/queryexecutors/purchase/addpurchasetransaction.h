@@ -2,7 +2,8 @@
 #define ADDPURCHASETRANSACTION_H
 
 #include "purchaseexecutor.h"
-#include "utility/purchaseutils.h"
+
+class PurchaseTransaction;
 
 namespace PurchaseQuery {
 class AddPurchaseTransaction : public PurchaseExecutor
@@ -12,23 +13,18 @@ public:
     static inline const QString COMMAND = QStringLiteral("add_purchase_transaction");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_add_purchase_transaction");
 
-    explicit AddPurchaseTransaction(qint64 transactionId,
-                                    int clientId,
-                                    const QString &customerName,
-                                    const QString &customerPhoneNumber,
-                                    qreal totalCost,
-                                    qreal amountPaid,
-                                    qreal balance,
-                                    bool suspended,
-                                    const QDateTime &dueDate,
-                                    const QString &action,
-                                    const PurchasePaymentList &payments,
-                                    const PurchaseCartProductList &products,
-                                    const QString &note,
+    explicit AddPurchaseTransaction(const PurchaseTransaction &transaction,
                                     QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult undoAddPurchaseTransaction();
+
+    void archivePurchaseTransaction(int transactionId);
+    void archiveDebtTransaction(const QString &transactionTable,
+                                int transactionId);
+    void archiveCreditTransaction(const QString &transactionTable,
+                                  int transactionId);
+    void revertProductQuantityUpdate(int transactionId);
 };
 }
 

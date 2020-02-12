@@ -99,6 +99,6 @@ private:
     void populateBusinessDetails();
 };
 
-Q_DECLARE_LOGGING_CATEGORY(qmlUserProfile);
+Q_DECLARE_LOGGING_CATEGORY(lcqmluserprofile);
 
 #endif // QMLUSERPROFILE_H

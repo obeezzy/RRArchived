@@ -1,6 +1,7 @@
 #include "qmlexpensepusher.h"
 #include "database/databasethread.h"
 #include "queryexecutors/expense.h"
+#include "utility/commonutils.h"
 
 QMLExpensePusher::QMLExpensePusher(QObject *parent) :
     QMLExpensePusher(DatabaseThread::instance(), parent)
@@ -73,10 +74,10 @@ void QMLExpensePusher::push()
 {
     setBusy(true);
     emit execute(new ExpenseQuery::AddExpenseTransaction(
-                     m_clientName,
+                     Client { m_clientName },
                      m_purpose,
                      m_amount,
-                     paymentMethodAsString(),
+                     paymentMethodAsUtilityEnum(),
                      this));
 }
 
@@ -95,16 +96,16 @@ void QMLExpensePusher::processResult(const QueryResult result)
     }
 }
 
-QString QMLExpensePusher::paymentMethodAsString() const
+Utility::PaymentMethod QMLExpensePusher::paymentMethodAsUtilityEnum() const
 {
     switch (m_paymentMethod) {
-    case PaymentMethod::Cash:
-        return QStringLiteral("cash");
     case PaymentMethod::DebitCard:
-        return QStringLiteral("debit_card");
+        return Utility::PaymentMethod::DebitCard;
     case PaymentMethod::CreditCard:
-        return QStringLiteral("credit_card");
+        return Utility::PaymentMethod::CreditCard;
+    case PaymentMethod::Cash:
+        break;
     }
 
-    return QString();
+    return Utility::PaymentMethod::Cash;
 }

@@ -3,12 +3,12 @@
 
 using namespace StockQuery;
 
-ViewStockProductCategories::ViewStockProductCategories(Qt::SortOrder sortOrder,
-                                                       bool archived,
+ViewStockProductCategories::ViewStockProductCategories(const SortCriteria &sortCriteria,
+                                                       const RecordGroup::Flags &flags,
                                                        QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "sort_order", sortOrder == Qt::DescendingOrder ? "descending" : "ascending" },
-                    { "archived", archived }
+                    { "sort_order", sortCriteria.orderAsString() },
+                    { "archived", flags.testFlag(RecordGroup::Archived) }
                   }, receiver)
 {
 
@@ -17,22 +17,23 @@ ViewStockProductCategories::ViewStockProductCategories(Qt::SortOrder sortOrder,
 QueryResult ViewStockProductCategories::execute()
 {
     QueryResult result{ request() };
+
     result.setSuccessful(true);
     const QVariantMap &params(request().params());
 
     try {
-        const QList<QSqlRecord> &records(callProcedure("ViewStockProductCategories", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "sort_order",
-                                                               params.value("sort_order", "ascending")
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "archived",
-                                                               params.value("archived", false)
-                                                           }
-                                                       }));
+        const auto &records(callProcedure("ViewStockProductCategories", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "sort_order",
+                                                  params.value("sort_order")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "archived",
+                                                  params.value("archived", false)
+                                              }
+                                          }));
 
         QVariantList categories;
         for (const auto &record : records)

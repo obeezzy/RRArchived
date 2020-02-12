@@ -12,14 +12,17 @@ public:
     static inline const QString COMMAND = QStringLiteral("remove_purchase_transaction");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_remove_purchase_transaction");
 
-    explicit RemovePurchaseTransaction(qint64 transactionId,
-                                       int row,
-                                       const PurchaseTransaction &transaction,
+    explicit RemovePurchaseTransaction(const PurchaseTransaction &transaction,
                                        QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult removePurchaseTransaction();
     QueryResult undoRemovePurchaseTransaction();
+
+    void archivePurchaseTransaction();
+    void archiveDebtTransaction();
+    void archiveCreditTransaction();
+    void revertProductQuantityUpdate();
 };
 }
 

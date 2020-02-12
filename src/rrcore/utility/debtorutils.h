@@ -3,6 +3,6 @@
 
 #include "debtor/debttransaction.h"
 #include "debtor/debtpayment.h"
-#include "debtor/debtordetails.h"
+#include "debtor/debtor.h"
 
 #endif // DEBTORUTILS_H

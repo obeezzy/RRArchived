@@ -1,6 +1,5 @@
 #include "viewdebtpayments.h"
 #include "database/databaseexception.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -28,9 +27,7 @@ QueryResult ViewDebtPayments::execute()
 
     try {
         QueryExecutor::enforceArguments({ "debt_transaction_id" }, params);
-
-        fetchDebtPayments(params, payments);
-
+        fetchDebtPayments(payments);
         result.setOutcome(QVariantMap {
                               { "payments", payments },
                               { "record_count", payments.count() }
@@ -41,21 +38,23 @@ QueryResult ViewDebtPayments::execute()
     }
 }
 
-void ViewDebtPayments::fetchDebtPayments(const QVariantMap &params, QVariantList &debtPayments)
+void ViewDebtPayments::fetchDebtPayments(QVariantList &debtPayments)
 {
-    const QList<QSqlRecord> &records = callProcedure("ViewDebtPayments", {
-                                                         ProcedureArgument {
-                                                             ProcedureArgument::Type::In,
-                                                             "debt_transaction_id",
-                                                             params.value("debt_transaction_id")
-                                                         },
-                                                         ProcedureArgument {
-                                                             ProcedureArgument::Type::In,
-                                                             "archived",
-                                                             params.value("archived", false)
-                                                         }
-                                                     });
+    const QVariantMap &params{request().params()};
+
+    const auto &records = callProcedure("ViewDebtPayments", {
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "debt_transaction_id",
+                                                params.value("debt_transaction_id")
+                                            },
+                                            ProcedureArgument {
+                                                ProcedureArgument::Type::In,
+                                                "archived",
+                                                params.value("archived", false)
+                                            }
+                                        });
 
     for (const auto &record : records)
-        debtPayments.append(QueryExecutor::recordToMap(record));
+        debtPayments.append(recordToMap(record));
 }

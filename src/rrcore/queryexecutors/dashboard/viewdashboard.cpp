@@ -1,5 +1,6 @@
 #include "viewdashboard.h"
 #include "json/messagecenter.h"
+#include "database/databaseexception.h"
 
 using namespace DashboardQuery;
 
@@ -14,31 +15,31 @@ QueryResult ViewDashboard::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QVariantMap outcome { { "record_count", 0 }, { "records", QVariantList {} } };
-    result.setOutcome(outcome);
+    QVariantList homeRecords;
 
-    fetchWelcomeMessage(result);
-    fetchEmptyStockMessage(result);
+    try {
 
-    outcome.insert("record_count", result.outcome().toMap().value("records").toList().count());
-    outcome.insert("records", result.outcome().toMap().value("records").toList());
-    result.setOutcome(outcome);
+        fetchWelcomeMessage(homeRecords);
+        fetchEmptyStockMessage(homeRecords);
+        result.setOutcome(QVariantMap {
+                              { "records", homeRecords },
+                              { "record_count", homeRecords.count() }
+                          });
 
-    return result;
+        return result;
+    } catch (DatabaseException &) {
+        throw;
+    }
 }
 
-void ViewDashboard::fetchWelcomeMessage(QueryResult &result)
+void ViewDashboard::fetchWelcomeMessage(QVariantList &homeRecords)
 {
     MessageCenter center;
-    QVariantList records(result.outcome().toMap().value("records").toList());
-    records.append(center.getMessage("welcome"));
-    result.setOutcome(QVariantMap { { "record_count", 0 }, { "records", records } });
+    homeRecords.append(center.getMessage("welcome"));
 }
 
-void ViewDashboard::fetchEmptyStockMessage(QueryResult &result)
+void ViewDashboard::fetchEmptyStockMessage(QVariantList &homeRecords)
 {
     MessageCenter center;
-    QVariantList records(result.outcome().toMap().value("records").toList());
-    records.append(center.getMessage("empty_stock"));
-    result.setOutcome(QVariantMap { { "record_count", 0 }, { "records", records } });
+    homeRecords.append(center.getMessage("empty_stock"));
 }

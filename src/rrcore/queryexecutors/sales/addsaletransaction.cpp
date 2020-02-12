@@ -3,53 +3,41 @@
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
-
+#include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace SaleQuery;
 
-AddSaleTransaction::AddSaleTransaction(qint64 transactionId,
-                                       const QString &customerName,
-                                       int clientId,
-                                       const QString &customerPhoneNumber,
-                                       qreal totalCost,
-                                       qreal amountPaid,
-                                       qreal balance,
-                                       bool suspended,
-                                       const QDateTime &dueDate,
-                                       const QString &action,
-                                       const Note &note,
-                                       const SalePaymentList &payments,
-                                       const SaleCartProductList &products,
+AddSaleTransaction::AddSaleTransaction(const SaleTransaction &transaction,
                                        QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "can_undo", true },
-                    { "transaction_id", transactionId },
-                    { "customer_name", customerName },
-                    { "client_id", clientId },
-                    { "customer_phone_number", customerPhoneNumber },
-                    { "total_cost", totalCost },
-                    { "amount_paid", amountPaid },
-                    { "balance", balance },
-                    { "suspended", suspended },
-                    { "due_date", dueDate },
-                    { "action", action },
-                    { "note", note.note },
-                    { "payments", payments.toVariantList() },
-                    { "products", products.toVariantList() },
-                    { "currency", Settings::DEFAULT_CURRENCY },
-                    { "user_id", UserProfile::instance().userId() }
+                    { "sale_transaction_id", transaction.id },
+                    { "client_preferred_name", transaction.customer.client.preferredName },
+                    { "client_id", transaction.customer.client.id },
+                    { "client_phone_number", transaction.customer.client.phoneNumber },
+                    { "total_cost", transaction.totalCost },
+                    { "amount_paid", transaction.amountPaid },
+                    { "balance", transaction.balance },
+                    { "suspended", transaction.flags.testFlag(RecordGroup::Suspended) },
+                    { "due_date_time", transaction.dueDateTime },
+                    { "action", transaction.action },
+                    { "note", transaction.note.note },
+                    { "payments", transaction.payments.toVariantList() },
+                    { "products", transaction.products.toVariantList() }
                  }, receiver)
 {
 
 }
 
-AddSaleTransaction::AddSaleTransaction(const QueryRequest &request, QObject *receiver) :
+AddSaleTransaction::AddSaleTransaction(const QueryRequest &request,
+                                       QObject *receiver) :
     SaleExecutor(COMMAND, request.params(), receiver)
 {
 }
+
 
 QueryResult AddSaleTransaction::execute()
 {
@@ -64,98 +52,21 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     const QVariantMap &params = request().params();
 
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
-        QueryExecutor::enforceArguments({ "transaction_id" }, params);
+        QueryExecutor::enforceArguments({ "sale_transaction_id" }, params);
 
         DatabaseUtils::beginTransaction(q);
 
-        if (params.value("transaction_id").toInt() > 0) {
-            callProcedure("ArchiveSaleTransaction", {
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "archived",
-                                  false
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "transaction_id",
-                                  params.value("transaction_id")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "user_id",
-                                  params.value("user_id")
-                              }
-                          });
-
-            callProcedure("ArchiveDebtTransaction1", {
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "archived",
-                                  false
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "transaction_table",
-                                  QStringLiteral("sale_transaction")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "transaction_id",
-                                  params.value("transaction_id")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "user_id",
-                                  params.value("user_id")
-                              }
-                          });
-
-            callProcedure("ArchiveCreditTransaction", {
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "archived",
-                                  false
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "transaction_table",
-                                  QStringLiteral("sale_transaction")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "transaction_id",
-                                  params.value("transaction_id")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "user_id",
-                                  params.value("user_id")
-                              }
-                          });
-
-            callProcedure("RevertSaleQuantityUpdate", {
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "transaction_id",
-                                  params.value("transaction_id")
-                              },
-                              ProcedureArgument {
-                                  ProcedureArgument::Type::In,
-                                  "user_id",
-                                  params.value("user_id")
-                              }
-                          });
-        } else {
-            throw DatabaseException(DatabaseError::QueryErrorCode::InvalidArguments,
-                                    QStringLiteral("Transaction ID is not valid."),
-                                    QStringLiteral("Transaction ID is not valid."));
-        }
+        affirmSaleTransactionIdIsValid();
+        archiveSaleTransaction();
+        archiveDebtTransaction();
+        archiveCreditTransaction();
+        revertProductQuantityUpdate();
 
         DatabaseUtils::commitTransaction(q);
         return result;
@@ -163,4 +74,110 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
+}
+
+void AddSaleTransaction::affirmSaleTransactionIdIsValid()
+{
+    const QVariantMap &params = request().params();
+    const int saleTransactionId = params.value("sale_transaction_id").toInt();
+
+    if (saleTransactionId <= 0)
+        throw InvalidArgumentException(QStringLiteral("Sale transaction ID is invalid."));
+}
+
+void AddSaleTransaction::archiveSaleTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchiveSaleTransaction", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          false
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "sale_transaction_id",
+                          params.value("sale_transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void AddSaleTransaction::archiveDebtTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchiveDebtTransactionByTransactionTable", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          false
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_table",
+                          QStringLiteral("sale_transaction")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "debt_transaction_id",
+                          params.value("debt_transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void AddSaleTransaction::archiveCreditTransaction()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("ArchiveCreditTransaction", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          false
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "transaction_table",
+                          QStringLiteral("sale_transaction")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "credit_transaction_id",
+                          params.value("credit_transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void AddSaleTransaction::revertProductQuantityUpdate()
+{
+    const QVariantMap &params = request().params();
+
+    callProcedure("RevertSaleQuantityUpdate", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "sale_transaction_id",
+                          params.value("sale_transaction_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
 }

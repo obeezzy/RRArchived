@@ -1,6 +1,6 @@
 #include "viewexpensetransactions.h"
 #include "database/databaseexception.h"
-
+#include "utility/commonutils.h"
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -8,14 +8,13 @@
 
 using namespace ExpenseQuery;
 
-ViewExpenseTransactions::ViewExpenseTransactions(const QDateTime &from,
-                                                 const QDateTime &to,
-                                                 bool archived,
+ViewExpenseTransactions::ViewExpenseTransactions(const DateTimeSpan &dateTimeSpan,
+                                                 const RecordGroup::Flags &flags,
                                                  QObject *receiver) :
     ExpenseExecutor(COMMAND, {
-                        { "from", from },
-                        { "to", to },
-                        { "archived", archived }
+                    { "from", dateTimeSpan.from },
+                    { "to", dateTimeSpan.to },
+                    { "archived", flags.testFlag(RecordGroup::Archived) }
                     }, receiver)
 {
 
@@ -32,29 +31,31 @@ QueryResult ViewExpenseTransactions::execute()
     QSqlQuery q(connection);
 
     try {
-        QueryExecutor::enforceArguments({ "from", "to" }, params);
-        const QList<QSqlRecord> &records (callProcedure("ViewExpenseTransactions", {
-                                                            ProcedureArgument {
-                                                                ProcedureArgument::Type::In,
-                                                                "from",
-                                                                params.value("from")
-                                                            },
-                                                            ProcedureArgument {
-                                                                ProcedureArgument::Type::In,
-                                                                "to",
-                                                                params.value("to")
-                                                            },
-                                                            ProcedureArgument {
-                                                                ProcedureArgument::Type::In,
-                                                                "archived",
-                                                                params.value("archived")
-                                                            }
-                                                        }));
+        QueryExecutor::enforceArguments({ "from",
+                                          "to"
+                                        }, params);
+
+        const auto &records(callProcedure("ViewExpenseTransactions", {
+                                               ProcedureArgument {
+                                                   ProcedureArgument::Type::In,
+                                                   "from",
+                                                   params.value("from")
+                                               },
+                                               ProcedureArgument {
+                                                   ProcedureArgument::Type::In,
+                                                   "to",
+                                                   params.value("to")
+                                               },
+                                               ProcedureArgument {
+                                                   ProcedureArgument::Type::In,
+                                                   "archived",
+                                                   params.value("archived")
+                                               }
+                                           }));
 
         QVariantList transactions;
-        for (const QSqlRecord &record : records) {
+        for (const auto &record : records)
             transactions.append(recordToMap(record));
-        }
 
         result.setOutcome(QVariantMap {
                               { "transactions", transactions },

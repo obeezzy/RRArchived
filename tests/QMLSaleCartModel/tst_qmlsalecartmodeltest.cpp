@@ -452,11 +452,11 @@ void QMLSaleCartModelTest::testAddPayment()
     // STEP: Ensure payments were added properly.
     QCOMPARE(m_saleCartModel->payments().count(), 3);
     QCOMPARE(m_saleCartModel->payments().at(0).amount, 9.0);
-    QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<SalePayment::PaymentMethod>(QMLSaleCartModel::Cash));
+    QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::Cash));
     QCOMPARE(m_saleCartModel->payments().at(1).amount, 1.0);
-    QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<SalePayment::PaymentMethod>(QMLSaleCartModel::DebitCard));
+    QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::DebitCard));
     QCOMPARE(m_saleCartModel->payments().at(2).amount, 3.0);
-    QCOMPARE(m_saleCartModel->payments().at(2).method, static_cast<SalePayment::PaymentMethod>(QMLSaleCartModel::CreditCard));
+    QCOMPARE(m_saleCartModel->payments().at(2).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::CreditCard));
 
     // STEP: Ensure amount paid was updated properly.
     QCOMPARE(m_saleCartModel->amountPaid(), 13.0);
@@ -481,9 +481,9 @@ void QMLSaleCartModelTest::testRemovePayment()
     // STEP: Ensure payment was removed properly.
     QCOMPARE(m_saleCartModel->payments().count(), 2);
     QCOMPARE(m_saleCartModel->payments().at(0).amount, 1.0);
-    QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<SalePayment::PaymentMethod>(QMLSaleCartModel::DebitCard));
+    QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::DebitCard));
     QCOMPARE(m_saleCartModel->payments().at(1).amount, 3.0);
-    QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<SalePayment::PaymentMethod>(QMLSaleCartModel::CreditCard));
+    QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::CreditCard));
 
     // STEP: Ensure amount paid was updated properly.
     QCOMPARE(m_saleCartModel->amountPaid(), 4.0);

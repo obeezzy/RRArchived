@@ -118,7 +118,11 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
 void QMLStockReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new StockQuery::ViewStockReport(this));
+    emit execute(new StockQuery::ViewStockReport(
+                     DateTimeSpan {
+                         QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
+                         QDateTime::currentDateTime()
+                     }, this));
 }
 
 void QMLStockReportModel::processResult(const QueryResult result)

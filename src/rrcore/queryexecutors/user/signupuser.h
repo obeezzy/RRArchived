@@ -3,6 +3,9 @@
 
 #include "userexecutor.h"
 
+class QSqlDatabase;
+class User;
+
 namespace UserQuery {
 class SignUpUser : public UserExecutor
 {
@@ -10,9 +13,12 @@ class SignUpUser : public UserExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("sign_up_user");
 
-    explicit SignUpUser(const QString &userName, const QString &password,
+    explicit SignUpUser(const User &user,
                         QObject *receiver);
     QueryResult execute() override;
+private:
+    void connectToDatabase(QSqlDatabase &connection);
+    void addSqlUser(QSqlQuery &q);
 };
 }
 

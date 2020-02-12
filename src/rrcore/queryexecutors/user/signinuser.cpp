@@ -1,24 +1,25 @@
 #include "signinuser.h"
-#include <QSqlDatabase>
 #include "config/config.h"
-#include <QSqlError>
-#include <QLoggingCategory>
+#include "utility/userutils.h"
 #include "database/databaseerror.h"
 #include "database/databaseexception.h"
+#include "database/exceptions/exceptions.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "user/userprofile.h"
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(lcsigninuser, "rrcore.queryexecutors.user.signinuser");
 
 using namespace UserQuery;
 
-SignInUser::SignInUser(const QString &userName,
-                       const QString &password,
+SignInUser::SignInUser(const User &user,
                        QObject *receiver) :
     UserExecutor(COMMAND, {
-                    { "user_name", userName },
-                    { "password", password },
+                    { "user", user.user },
+                    { "password", user.password },
                     { "rack_id", UserProfile::instance().rackId() },
                     { "user_id", UserProfile::instance().userId() }
                   }, receiver)
@@ -30,13 +31,59 @@ QueryResult SignInUser::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QSqlDatabase connection;
-    const QString &userName = request().params().value("user_name").toString();
-    const QString &password = request().params().value("password").toString();
-
     QueryExecutor::enforceArguments({ "user_name",
                                       "password"
                                     }, request().params());
+
+    attemptSignIn(result);
+
+    return result;
+}
+
+bool SignInUser::storeProfile(QueryResult &result,
+                              const QString &userName,
+                              const QString &password)
+{
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
+
+    if (!connection.isOpen())
+        throw DatabaseException(DatabaseError::QueryErrorCode::UnknownError,
+                                QStringLiteral("Database connection is closed."));
+
+    try {
+        const auto &records(callProcedure("FetchUserByName", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "user",
+                                                  userName
+                                              }
+                                          }));
+
+        if (records.isEmpty())
+            throw NoExistingRecordException(QStringLiteral("User '%1' does not exist in RR user table.")
+                                            .arg(userName));
+
+        const QVariantMap &user{ recordToMap(records.first()) };
+        result.setOutcome(QVariantMap {
+                              { "user", user },
+                              { "password", password },
+                              { "user_id", user.value("user_id").toInt() },
+                              { "user_privileges", user.value("user_privileges") },
+                              { "record_count", 1 }
+                          });
+    } catch (DatabaseException &e) {
+        qCWarning(lcsigninuser) << e;
+        throw;
+    }
+
+    return true;
+}
+
+void SignInUser::attemptSignIn(QueryResult &result)
+{
+    QSqlDatabase connection;
+    const QString &userName = request().params().value("user_name").toString();
+    const QString &password = request().params().value("password").toString();
 
     if (!QSqlDatabase::contains())
         connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
@@ -51,53 +98,12 @@ QueryResult SignInUser::execute()
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection.open() || !storeProfile(result, userName, password)) {
-        qDebug() << "Code====" << connection.lastError().nativeErrorCode().toInt();
+        qCDebug(lcsigninuser) << "Sign in SQL error code:" << connection.lastError().nativeErrorCode().toInt();
         if (connection.lastError().nativeErrorCode().toInt() == static_cast<int>(DatabaseError::MySqlErrorCode::UserAccountIsLockedError))
-            throw DatabaseException(DatabaseError::QueryErrorCode::UserAccountIsLocked, connection.lastError().text(),
-                                    QString("Failed to sign in as '%1'.").arg(userName));
+            throw UserAccountLockedException(QStringLiteral("Failed to sign in as '%1'.")
+                                             .arg(userName));
         else
-            throw DatabaseException(DatabaseError::QueryErrorCode::SignInFailure, connection.lastError().text(),
-                                    QString("Failed to sign in as '%1'.").arg(userName));
+            throw IncorrectCredentialsException(QString("Failed to sign in as '%1'.")
+                                                .arg(userName));
     }
-
-    return result;
-}
-
-bool SignInUser::storeProfile(QueryResult &result, const QString &userName, const QString &password)
-{
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
-
-    if (!connection.isOpen())
-        throw DatabaseException(DatabaseError::QueryErrorCode::UnknownError,
-                                QStringLiteral("Database connection is closed."));
-
-    try {
-        const QList<QSqlRecord> &records(callProcedure("FetchUserByName", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "user_name",
-                                                               userName
-                                                           }
-                                                       }));
-
-        QVariantMap user;
-        if (!records.isEmpty())
-            user = recordToMap(records.first());
-        else
-            throw DatabaseException(DatabaseError::QueryErrorCode::UnknownError,
-                                    QStringLiteral("User does not exist."));
-
-        result.setOutcome(QVariantMap {
-                              { "user_name", userName },
-                              { "password", password },
-                              { "user_id", user.value("user_id").toInt() },
-                              { "user_privileges", user.value("user_privileges") },
-                              { "record_count", 1 }
-                          });
-    } catch (DatabaseException &e) {
-        qCWarning(lcsigninuser) << e;
-        throw;
-    }
-
-    return true;
 }

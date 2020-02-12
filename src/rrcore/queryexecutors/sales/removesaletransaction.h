@@ -3,6 +3,8 @@
 
 #include "saleexecutor.h"
 
+class SaleTransaction;
+
 namespace SaleQuery {
 class RemoveSaleTransaction : public SaleExecutor
 {
@@ -11,7 +13,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("remove_sale_transaction");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_remove_sale_transaction");
 
-    explicit RemoveSaleTransaction(qint64 transactionId,
+    explicit RemoveSaleTransaction(const SaleTransaction &transaction,
                                    QObject *receiver);
     QueryResult execute() override;
 };

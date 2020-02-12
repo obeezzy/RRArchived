@@ -3,6 +3,8 @@
 
 #include "userexecutor.h"
 
+class UserPrivilegeList;
+
 namespace UserQuery {
 class UpdateUserPrivileges : public UserExecutor
 {
@@ -11,6 +13,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("update_user_privileges");
 
     explicit UpdateUserPrivileges(int userId,
+                                  const UserPrivilegeList &privilege,
                                   QObject *receiver);
     QueryResult execute() override;
 };

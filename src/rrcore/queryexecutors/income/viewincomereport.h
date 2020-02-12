@@ -3,6 +3,8 @@
 
 #include "incomeexecutor.h"
 
+class DateTimeSpan;
+
 namespace IncomeQuery {
 class ViewIncomeReport : public IncomeExecutor
 {
@@ -10,7 +12,8 @@ class ViewIncomeReport : public IncomeExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_income_report");
 
-    explicit ViewIncomeReport(QObject *receiver);
+    explicit ViewIncomeReport(const DateTimeSpan &dateTimeSpan,
+                              QObject *receiver);
     QueryResult execute() override;
 };
 }

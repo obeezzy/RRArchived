@@ -14,8 +14,11 @@ public:
                           QObject *receiver);
     virtual ~UserExecutor() override = default;
 protected:
-    void createRRUser(const QString &userName, QSqlQuery &q);
-    void grantPrivilege(const QString &privilege, const QString &userName, QSqlQuery &q);
+    void createRRUser(const QString &userName,
+                      QSqlQuery &q);
+    void grantPrivilege(const QString &privilege,
+                        const QString &userName,
+                        QSqlQuery &q);
     QString resolvedUserName(const QString &userName) const;
 };
 

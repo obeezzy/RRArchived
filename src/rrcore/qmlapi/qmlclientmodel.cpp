@@ -1,6 +1,7 @@
 #include "qmlclientmodel.h"
 #include "database/databasethread.h"
 #include "queryexecutors/client.h"
+#include "utility/commonutils.h"
 
 QMLClientModel::QMLClientModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
@@ -76,9 +77,12 @@ void QMLClientModel::filter()
         return;
 
     setBusy(true);
-    emit execute(new ClientQuery::ViewClients(
-                     filterText(),
-                     columnName(),
+    emit execute(new ClientQuery::FilterClients(
+                     FilterCriteria {
+                         filterText(),
+                         columnName()
+                     },
+                     RecordGroup::None,
                      this));
 }
 

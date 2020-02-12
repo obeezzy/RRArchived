@@ -3,30 +3,28 @@
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace DebtorQuery;
 
-UpdateDebtor::UpdateDebtor(const DebtorDetails &debtorDetails,
-                           const DebtTransactionList &debtTransactions,
+UpdateDebtor::UpdateDebtor(const Debtor &debtor,
                            QObject *receiver) :
     DebtorExecutor(COMMAND, {
                     { "can_undo", true },
-                    { "debtor_id", debtorDetails.debtorId },
-                    { "client_id", debtorDetails.clientId },
-                    { "preferred_name", debtorDetails.preferredName },
-                    { "first_name", debtorDetails.firstName },
-                    { "last_name", debtorDetails.lastName },
-                    { "image_url", debtorDetails.imageUrl },
-                    { "primary_phone_number", debtorDetails.phoneNumber },
-                    { "note_id", debtorDetails.note.id },
-                    { "note", debtorDetails.note.note }
+                    { "debtor_id", debtor.id },
+                    { "client_id", debtor.client.id },
+                    { "preferred_name", debtor.client.preferredName },
+                    { "first_name", debtor.client.firstName },
+                    { "last_name", debtor.client.lastName },
+                    { "image_url", debtor.client.imageUrl },
+                    { "primary_phone_number", debtor.client.phoneNumber },
+                    { "note_id", debtor.note.id },
+                    { "note", debtor.note.note }
                    }, receiver)
 {
-    DebtorExecutor::arrangeDebtTransactions(debtTransactions);
+    DebtorExecutor::arrangeDebtTransactions(debtor.debtTransactions);
 }
 
 QueryResult UpdateDebtor::execute()
@@ -39,13 +37,6 @@ QueryResult UpdateDebtor::execute()
     const int clientId = params.value("client_id").toInt();
     const int noteId = params.value("note_id").toInt();
     const QString &note = params.value("note").toString();
-    //const QByteArray &imageBytes = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
-    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
-    const QVariantList &updatedDebtTransactions = params.value("updated_debt_transactions").toList();
-    const QVariantList &archivedDebtTransactions = params.value("archived_debt_transactions").toList();
-    const QVariantList &newDebtPayments = params.value("new_debt_payments").toList();
-    const QVariantList &updatedDebtPayments = params.value("updated_debt_payments").toList();
-    const QVariantList &archivedDebtPayments = params.value("archived_debt_payments").toList();
     QVariantList newDebtTransactionIds;
     QVariantList updatedDebtTransactionIds;
     QVariantList archivedDebtTransactionIds;
@@ -54,9 +45,6 @@ QueryResult UpdateDebtor::execute()
     QVariantList updatedDebtPaymentIds;
     QVariantList archivedDebtPaymentIds;
 
-    qDebug() << "New debt payments=====" << newDebtPayments;
-    qDebug() << "COUNT:" << newDebtPayments.count();
-
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
@@ -64,41 +52,26 @@ QueryResult UpdateDebtor::execute()
         QueryExecutor::enforceArguments({ "client_id",
                                           "debtor_id",
                                           "preferred_name",
-                                          "primary_phone_number" },
-                                        params);
+                                          "phone_number"
+                                        }, params);
 
         DatabaseUtils::beginTransaction(q);
 
-        if (updatedDebtTransactions.isEmpty()
-                && newDebtTransactions.isEmpty()
-                && archivedDebtTransactions.isEmpty()
-                && archivedDebtPayments.isEmpty())
-            throw MissingArgumentException(QStringLiteral("No new/updated/archived debt transactions for debtor %1.")
-                                           .arg(params.value("preferred_name").toString()));
-
+        affirmDirtyTransactionsExist();
         QueryExecutor::addOrUpdateNote(noteId,
                                        note,
                                        QStringLiteral("debtor"),
                                        ExceptionPolicy::DisallowExceptions);
-
-        addNotesForNewTransactions(newDebtTransactions,
-                                   newDebtTransactionNoteIds);
-        updateNotesForExistingTransactions(updatedDebtTransactions);
-        updateClientDetails(clientId,
-                            params);
-        addNewTransactions(debtorId, newDebtTransactions,
-                           newDebtTransactionNoteIds,
+        addNotesForNewTransactions(newDebtTransactionNoteIds);
+        updateNotesForExistingTransactions();
+        updateClientDetails();
+        addNewTransactions(newDebtTransactionNoteIds,
                            newDebtTransactionIds);
-        updateExistingTransactions(updatedDebtTransactions,
-                                   updatedDebtTransactionIds);
-        archiveDeletedTransactions(archivedDebtTransactions,
-                                   archivedDebtTransactionIds);
-        addNewPayments(newDebtPayments,
-                       newDebtPaymentIds);
-        updateExistingPayments(updatedDebtPayments,
-                               updatedDebtPaymentIds);
-        archiveDeletedPayments(archivedDebtPayments,
-                               archivedDebtPaymentIds);
+        updateExistingTransactions(updatedDebtTransactionIds);
+        archiveDeletedTransactions(archivedDebtTransactionIds);
+        addNewPayments(newDebtPaymentIds);
+        updateExistingPayments(updatedDebtPaymentIds);
+        archiveDeletedPayments(archivedDebtPaymentIds);
 
         result.setOutcome(QVariantMap {
                               { "client_id", clientId },
@@ -119,9 +92,27 @@ QueryResult UpdateDebtor::execute()
     }
 }
 
-void UpdateDebtor::addNotesForNewTransactions(const QVariantList &newDebtTransactions,
-                                              QVariantList &newDebtTransactionNoteIds)
+void UpdateDebtor::affirmDirtyTransactionsExist()
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
+    const QVariantList &updatedDebtTransactions = params.value("updated_debt_transactions").toList();
+    const QVariantList &archivedDebtTransactions = params.value("archived_debt_transactions").toList();
+    const QVariantList &archivedDebtPayments = params.value("archived_debt_payments").toList();
+
+    if (updatedDebtTransactions.isEmpty()
+            && newDebtTransactions.isEmpty()
+            && archivedDebtTransactions.isEmpty()
+            && archivedDebtPayments.isEmpty())
+        throw MissingArgumentException(QStringLiteral("No new/updated/archived debt transactions for debtor %1.")
+                                       .arg(params.value("preferred_name").toString()));
+}
+
+void UpdateDebtor::addNotesForNewTransactions(QVariantList &newDebtTransactionNoteIds)
+{
+    const QVariantMap &params = request().params();
+    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
+
     for (const QVariant &transactionAsVariant : newDebtTransactions) {
         const QString &note = transactionAsVariant.toMap().value("note").toString();
         newDebtTransactionNoteIds.append(QueryExecutor::addNote(note,
@@ -133,19 +124,27 @@ void UpdateDebtor::addNotesForNewTransactions(const QVariantList &newDebtTransac
         throw ArgumentMismatchException(QStringLiteral("Failed to match note ID count with transaction count."));
 }
 
-void UpdateDebtor::updateNotesForExistingTransactions(const QVariantList &updatedDebtTransactions)
+void UpdateDebtor::updateNotesForExistingTransactions()
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &updatedDebtTransactions = params.value("updated_debt_transactions").toList();
+
     for (const QVariant &transactionAsVariant : updatedDebtTransactions) {
         const int noteId = transactionAsVariant.toMap().value("note_id").toInt();
         const QString &note = transactionAsVariant.toMap().value("note").toString();
-        QueryExecutor::addOrUpdateNote(noteId, note,
+        QueryExecutor::addOrUpdateNote(noteId,
+                                       note,
                                        QStringLiteral("debtor"),
                                        ExceptionPolicy::DisallowExceptions);
     }
 }
 
-void UpdateDebtor::updateClientDetails(int clientId, const QVariantMap &params)
+void UpdateDebtor::updateClientDetails()
 {
+    const QVariantMap &params = request().params();
+    const int clientId = params.value("client_id").toInt();
+    const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    Q_UNUSED(imageBlob)
     if (clientId <= 0)
         throw InvalidArgumentException(QStringLiteral("Client ID invalid."));
 
@@ -173,7 +172,7 @@ void UpdateDebtor::updateClientDetails(int clientId, const QVariantMap &params)
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
                           "phone_number",
-                          params.value("primary_phone_number")
+                          params.value("phone_number")
                       },
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
@@ -183,11 +182,13 @@ void UpdateDebtor::updateClientDetails(int clientId, const QVariantMap &params)
                   });
 }
 
-void UpdateDebtor::addNewTransactions(int debtorId,
-                                      const QVariantList &newDebtTransactions,
-                                      const QVariantList &newDebtTransactionNoteIds,
+void UpdateDebtor::addNewTransactions(const QVariantList &newDebtTransactionNoteIds,
                                       QVariantList &newDebtTransactionIds)
 {
+    const QVariantMap &params = request().params();
+    const int debtorId = params.value("debtor_id").toInt();
+    const QVariantList &newDebtTransactions = params.value("new_debt_transactions").toList();
+
     for (int i = 0; i < newDebtTransactions.count(); ++i) {
         const int debtTransactionId = newDebtTransactions.at(i).toMap().value("debt_transaction_id").toInt();
 
@@ -196,42 +197,43 @@ void UpdateDebtor::addNewTransactions(int debtorId,
         if (debtTransactionId <= 0)
             throw InvalidArgumentException(QStringLiteral("Invalid debt transaction ID."));
 
-        const QList<QSqlRecord> records(callProcedure("AddDebtTransaction", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "debtor_id",
-                                                              debtorId
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "transaction_table",
-                                                              QStringLiteral("debtor")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "transaction_id",
-                                                              debtTransactionId
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "note_id",
-                                                              newDebtTransactionNoteIds.at(i) == 0 ?
-                                                              QVariant(QVariant::Int) : newDebtTransactionNoteIds.at(i)
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "user_id",
-                                                              UserProfile::instance().userId()
-                                                          }
-                                                      }));
+        callProcedure("AddDebtTransaction", {
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "debtor_id",
+                              debtorId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "transaction_table",
+                              QStringLiteral("debtor")
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "transaction_id",
+                              debtTransactionId
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "note_id",
+                              newDebtTransactionNoteIds.at(i)
+                          },
+                          ProcedureArgument {
+                              ProcedureArgument::Type::In,
+                              "user_id",
+                              UserProfile::instance().userId()
+                          }
+                      });
 
         newDebtTransactionIds.append(debtTransactionId);
     }
 }
 
-void UpdateDebtor::updateExistingTransactions(const QVariantList &updatedDebtTransactions,
-                                              QVariantList &updatedDebtTransactionIds)
+void UpdateDebtor::updateExistingTransactions(QVariantList &updatedDebtTransactionIds)
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &updatedDebtTransactions = params.value("updated_debt_transactions").toList();
+
     for (const QVariant &transactionAsVariant : updatedDebtTransactions) {
         const int debtTransactionId = transactionAsVariant.toMap().value("debt_transaction_id").toInt();
 
@@ -255,16 +257,18 @@ void UpdateDebtor::updateExistingTransactions(const QVariantList &updatedDebtTra
     }
 }
 
-void UpdateDebtor::archiveDeletedTransactions(const QVariantList &archivedDebtTransactions,
-                                              QVariantList &archivedDebtTransactionIds)
+void UpdateDebtor::archiveDeletedTransactions(QVariantList &archivedDebtTransactionIds)
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &archivedDebtTransactions = params.value("archived_debt_transactions").toList();
+
     for (const QVariant &transactionAsVariant : archivedDebtTransactions) {
         const int debtTransactionId = transactionAsVariant.toMap().value("debt_transaction_id").toInt();
 
         if (debtTransactionId <= 0)
             throw InvalidArgumentException(QStringLiteral("Invalid debt transaction ID."));
 
-        callProcedure("ArchiveDebtTransaction2", {
+        callProcedure("ArchiveDebtTransactionById", {
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "debt_transaction_id",
@@ -281,9 +285,11 @@ void UpdateDebtor::archiveDeletedTransactions(const QVariantList &archivedDebtTr
     }
 }
 
-void UpdateDebtor::addNewPayments(const QVariantList &newDebtPayments,
-                                  QVariantList &newDebtPaymentIds)
+void UpdateDebtor::addNewPayments(QVariantList &newDebtPaymentIds)
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &newDebtPayments = params.value("new_debt_payments").toList();
+
     for (const QVariant &paymentAsVariant : newDebtPayments) {
         const int debtTransactionId = paymentAsVariant.toMap().value("debt_transaction_id").toInt();
         const double totalAmount = paymentAsVariant.toMap().value("total_amount").toDouble();
@@ -291,6 +297,7 @@ void UpdateDebtor::addNewPayments(const QVariantList &newDebtPayments,
         const double balance = paymentAsVariant.toMap().value("balance").toDouble();
         const QDateTime &dueDateTime = paymentAsVariant.toMap().value("due_date").toDateTime();
         const QString &note = paymentAsVariant.toMap().value("note").toString();
+        const QString &currency = Settings::DEFAULT_CURRENCY;
         const int noteId = QueryExecutor::addNote(note,
                                                   QStringLiteral("debtor"),
                                                   ExceptionPolicy::DisallowExceptions);
@@ -328,7 +335,7 @@ void UpdateDebtor::addNewPayments(const QVariantList &newDebtPayments,
                                                              ProcedureArgument {
                                                                  ProcedureArgument::Type::In,
                                                                  "currency",
-                                                                 Settings::DEFAULT_CURRENCY
+                                                                 currency
                                                              },
                                                              ProcedureArgument {
                                                                  ProcedureArgument::Type::In,
@@ -338,7 +345,7 @@ void UpdateDebtor::addNewPayments(const QVariantList &newDebtPayments,
                                                              ProcedureArgument {
                                                                  ProcedureArgument::Type::In,
                                                                  "note_id",
-                                                                 noteId == 0 ? QVariant(QVariant::Int) : noteId
+                                                                 noteId
                                                              },
                                                              ProcedureArgument {
                                                                  ProcedureArgument::Type::In,
@@ -357,9 +364,11 @@ void UpdateDebtor::addNewPayments(const QVariantList &newDebtPayments,
     }
 }
 
-void UpdateDebtor::updateExistingPayments(const QVariantList &updatedDebtPayments,
-                                          QVariantList &updatedDebtPaymentIds)
+void UpdateDebtor::updateExistingPayments(QVariantList &updatedDebtPaymentIds)
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &updatedDebtPayments = params.value("updated_debt_payments").toList();
+
     for (const QVariant &paymentAsVariant : updatedDebtPayments) {
         const int debtPaymentId = paymentAsVariant.toMap().value("debt_payment_id").toInt();
         const double totalAmount = paymentAsVariant.toMap().value("total_amount").toDouble();
@@ -367,6 +376,7 @@ void UpdateDebtor::updateExistingPayments(const QVariantList &updatedDebtPayment
         const double balance = paymentAsVariant.toMap().value("balance").toDouble();
         const QDateTime &dueDateTime = paymentAsVariant.toMap().value("due_date").toDateTime();
         const QString &note = paymentAsVariant.toMap().value("note").toString();
+        const QString &currency = Settings::DEFAULT_CURRENCY;
         const int noteId = QueryExecutor::addNote(note,
                                                   QStringLiteral("debtor"),
                                                   ExceptionPolicy::DisallowExceptions);
@@ -402,7 +412,7 @@ void UpdateDebtor::updateExistingPayments(const QVariantList &updatedDebtPayment
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
                               "currency",
-                              Settings::DEFAULT_CURRENCY
+                              currency
                           },
                           ProcedureArgument {
                               ProcedureArgument::Type::In,
@@ -424,9 +434,11 @@ void UpdateDebtor::updateExistingPayments(const QVariantList &updatedDebtPayment
     }
 }
 
-void UpdateDebtor::archiveDeletedPayments(const QVariantList &archivedDebtPayments,
-                                          QVariantList &archivedDebtPaymentIds)
+void UpdateDebtor::archiveDeletedPayments(QVariantList &archivedDebtPaymentIds)
 {
+    const QVariantMap &params = request().params();
+    const QVariantList &archivedDebtPayments = params.value("archived_debt_payments").toList();
+
     for (const QVariant &paymentAsVariant : archivedDebtPayments) {
         const int debtPaymentId = paymentAsVariant.toMap().value("debt_payment_id").toInt();
 

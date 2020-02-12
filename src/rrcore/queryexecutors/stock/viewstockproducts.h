@@ -2,6 +2,7 @@
 #define VIEWSTOCKPRODUCTS_H
 
 #include "stockexecutor.h"
+#include "utility/commonutils.h"
 
 namespace StockQuery {
 class ViewStockProducts : public StockExecutor
@@ -10,8 +11,8 @@ class ViewStockProducts : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_stock_products");
 
-    explicit ViewStockProducts(int categoryId,
-                               Qt::SortOrder sortOrder,
+    explicit ViewStockProducts(int productCategoryId,
+                               const SortCriteria &sortCriteria,
                                QObject *receiver);
     QueryResult execute() override;
 };

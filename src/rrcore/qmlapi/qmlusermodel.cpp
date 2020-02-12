@@ -115,7 +115,8 @@ QVariant QMLUserModel::headerData(int section, Qt::Orientation orientation, int 
 void QMLUserModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new UserQuery::ViewUsers(false, this));
+    emit execute(new UserQuery::ViewUsers(RecordGroup::None,
+                                          this));
 }
 
 void QMLUserModel::processResult(const QueryResult result)
@@ -161,13 +162,14 @@ void QMLUserModel::removeUserFromModel(const QString &userName)
 void QMLUserModel::removeUser(const QString &userName)
 {
     setBusy(true);
-    emit execute(new UserQuery::RemoveUser(userName, this));
+    emit execute(new UserQuery::RemoveUser(User{ userName },
+                                           this));
 }
 
 void QMLUserModel::activateUser(const QString &userName, bool active)
 {
     setBusy(true);
-    emit execute(new UserQuery::ActivateUser(userName,
-                                             active,
+    emit execute(new UserQuery::ActivateUser(active,
+                                             User { userName },
                                              this));
 }

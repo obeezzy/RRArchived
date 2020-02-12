@@ -2,15 +2,15 @@
 #include "database/databaseexception.h"
 #include "database/databaseerror.h"
 #include "database/exceptions/exceptions.h"
+#include "utility/saleutils.h"
 
 using namespace SaleQuery;
 
-RemoveSoldProduct::RemoveSoldProduct(qint64 transactionId,
-                                                     int soldProductId,
-                                                     QObject *receiver) :
+RemoveSoldProduct::RemoveSoldProduct(const SoldProduct &product,
+                                     QObject *receiver) :
     SaleExecutor(COMMAND, {
-                        { "transaction_id", transactionId },
-                        { "sold_product_id", soldProductId }
+                        { "transaction_id", product.saleTransactionId },
+                        { "sold_product_id", product.id }
                  }, receiver)
 {
 

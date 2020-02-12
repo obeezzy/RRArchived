@@ -2,8 +2,7 @@
 #define VIEWINCOMETRANSACTIONS_H
 
 #include "incomeexecutor.h"
-
-class QDateTime;
+#include "utility/commonutils.h"
 
 namespace IncomeQuery {
 class ViewIncomeTransactions : public IncomeExecutor
@@ -12,9 +11,8 @@ class ViewIncomeTransactions : public IncomeExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_income_transactions");
 
-    explicit ViewIncomeTransactions(const QDateTime &from,
-                                    const QDateTime &to,
-                                    bool archived,
+    explicit ViewIncomeTransactions(const DateTimeSpan &dateTimeSpan,
+                                    const RecordGroup::Flags &flags,
                                     QObject *receiver);
     QueryResult execute() override;
 };

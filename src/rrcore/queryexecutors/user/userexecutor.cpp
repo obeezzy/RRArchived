@@ -1,12 +1,11 @@
 #include "userexecutor.h"
+#include "database/databaseexception.h"
+#include "config/config.h"
+#include "database/databaseerror.h"
 #include <QSqlQuery>
 #include <QDateTime>
 #include <QVariant>
 #include <QSqlError>
-
-#include "database/databaseexception.h"
-#include "config/config.h"
-#include "database/databaseerror.h"
 
 UserExecutor::UserExecutor(const QString &command,
                            const QVariantMap &params,

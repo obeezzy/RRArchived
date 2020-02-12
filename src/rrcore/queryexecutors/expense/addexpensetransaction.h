@@ -3,17 +3,22 @@
 
 #include "expenseexecutor.h"
 
+class Client;
+namespace Utility {
+    enum class PaymentMethod;
+}
+
 namespace ExpenseQuery {
 class AddExpenseTransaction : public ExpenseExecutor
 {
     Q_OBJECT
 public:
-    static inline const QString COMMAND = QStringLiteral("add_new_expense_transaction");
+    static inline const QString COMMAND = QStringLiteral("add_expense_transaction");
 
-    explicit AddExpenseTransaction(const QString &clientName,
+    explicit AddExpenseTransaction(const Client &client,
                                    const QString &purpose,
                                    qreal amount,
-                                   const QString &paymentMethod,
+                                   const Utility::PaymentMethod &paymentMethod,
                                    QObject *receiver);
     QueryResult execute() override;
 };

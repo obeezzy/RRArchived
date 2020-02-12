@@ -1,9 +1,4 @@
 #include "qmlsalecartmodel.h"
-#include <QSqlField>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QJsonArray>
-
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
@@ -11,6 +6,10 @@
 #include "queryexecutors/sales.h"
 #include "queryexecutors/stock.h"
 #include "utility/saleutils.h"
+#include <QSqlField>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 const int CASH_PAYMENT_LIMIT = 1;
 const int CARD_PAYMENT_LIMIT = 2;
@@ -231,7 +230,7 @@ void QMLSaleCartModel::addPayment(double amount, QMLSaleCartModel::PaymentMethod
     if (amount <= 0.0)
         return;
 
-    SalePayment payment{ amount, static_cast<SalePayment::PaymentMethod>(method), note, QStringLiteral("NGN") };
+    SalePayment payment{ amount, static_cast<Utility::PaymentMethod>(method), note, QStringLiteral("NGN") };
     m_paymentModel->addPayment(payment);
     m_salePayments.append(payment);
 
@@ -324,19 +323,26 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
         }
 
         setBusy(true);
-        emit execute(new SaleQuery::AddSaleTransaction(m_transactionId,
-                                                       m_customerName,
-                                                       transaction.value("client_id").toInt(),
-                                                       m_customerPhoneNumber,
-                                                       m_totalCost,
-                                                       m_amountPaid,
-                                                       m_balance,
-                                                       transaction.value("suspended", false).toBool(),
-                                                       transaction.value("due_date", QDateTime()).toDateTime(),
-                                                       transaction.value("action").toString(),
-                                                       Note{transaction.value("note").toString()},
-                                                       m_salePayments,
-                                                       products,
+        emit execute(new SaleQuery::AddSaleTransaction(SaleTransaction {
+                                                           m_transactionId,
+                                                           Customer {
+                                                               Client {
+                                                                   transaction.value("client_id").toInt(),
+                                                                   m_customerName,
+                                                                   m_customerPhoneNumber
+                                                               }
+                                                           },
+                                                           m_totalCost,
+                                                           m_amountPaid,
+                                                           m_balance,
+                                                           transaction.value("suspended").toBool() ? RecordGroup::Suspended
+                                                           : RecordGroup::None,
+                                                           transaction.value("due_date_time").toDateTime(),
+                                                           transaction.value("action").toString(),
+                                                           Note{transaction.value("note").toString()},
+                                                           m_salePayments,
+                                                           products
+                                                       },
                                                        this));
     } else {
         emit error(EmptyCartError);
@@ -381,15 +387,21 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction
 
         setBusy(true);
         emit execute(new SaleQuery::UpdateSuspendedSaleTransaction(
-                         m_transactionId,
-                         m_customerName,
-                         m_clientId,
-                         m_customerPhoneNumber,
-                         m_totalCost,
-                         m_amountPaid,
-                         m_balance,
-                         transaction.value("note", QVariant(QVariant::String)).toString(),
-                         true,
+                         SaleTransaction {
+                             m_transactionId,
+                             Customer {
+                                 Client {
+                                     m_clientId,
+                                     m_customerName,
+                                     m_customerPhoneNumber
+                                 }
+                             },
+                             m_totalCost,
+                             m_amountPaid,
+                             m_balance,
+                             RecordGroup::Suspended,
+                             Note { transaction.value("note").toString() }
+                         },
                          this));
     } else {
         emit error(EmptyCartError);
@@ -489,7 +501,7 @@ void QMLSaleCartModel::undoLastCommit()
     QueryRequest request{ lastSuccessfulRequest() };
     QVariantMap params{ lastSuccessfulRequest().params() };
     if (lastSuccessfulRequest().command() == SaleQuery::AddSaleTransaction::COMMAND) {
-        params.insert("transaction_id", params.value("outcome").toMap().value("transaction_id").toInt());
+        params.insert("sale_transaction_id", params.value("outcome").toMap().value("sale_transaction_id").toInt());
         request.setParams(params);
 
         auto addSaleTransaction = new SaleQuery::AddSaleTransaction(request, this);
@@ -505,7 +517,7 @@ void QMLSaleCartModel::addProduct(const QVariantMap &product)
     const int productId = product.value("product_id").toInt();
     const QString &productName = product.value("product").toString();
     const double availableQuantity = product.value("available_quantity",
-                                                         product.value("quantity").toDouble()).toDouble(); // TODO: Simplify
+                                                   product.value("quantity").toDouble()).toDouble(); // TODO: Simplify
     const int unitId = product.value("unit_id").toInt();
     const QString &unit = product.value("unit").toString();
     const double costPrice = product.value("cost_price").toDouble();

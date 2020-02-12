@@ -11,18 +11,12 @@ class UpdateSuspendedPurchaseTransaction : public PurchaseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("update_suspended_purchase_transaction");
 
-    explicit UpdateSuspendedPurchaseTransaction(qint64 transactionId,
-                                                int clientId,
-                                                const QString &customerName,
-                                                const QString &customerPhoneNumber,
-                                                qreal totalCost,
-                                                qreal amountPaid,
-                                                qreal balance,
-                                                bool suspended,
-                                                const PurchaseCartProductList &products,
-                                                const Note &note,
+    explicit UpdateSuspendedPurchaseTransaction(const PurchaseTransaction &transaction,
                                                 QObject *receiver);
     QueryResult execute() override;
+private:
+    void affirmTransactionHasBeenSuspended();
+    void archivePurchaseTransaction();
 };
 }
 

@@ -2,6 +2,7 @@
 #define VIEWDEBTORS_H
 
 #include "debtorexecutor.h"
+#include "utility/commonutils.h"
 
 namespace DebtorQuery {
 class ViewDebtors : public DebtorExecutor
@@ -11,8 +12,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("view_debtors");
 
     explicit ViewDebtors(QObject *receiver);
-    explicit ViewDebtors(const QString &filterText,
-                         const QString &filterColumn,
+    explicit ViewDebtors(const RecordGroup::Flags &flags,
                          QObject *receiver);
     QueryResult execute() override;
 };

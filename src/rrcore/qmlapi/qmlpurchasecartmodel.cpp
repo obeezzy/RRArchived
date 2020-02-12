@@ -8,6 +8,7 @@
 #include "queryexecutors/purchase.h"
 #include "utility/purchaseutils.h"
 #include "utility/stockutils.h"
+#include "utility/commonutils.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -230,7 +231,7 @@ void QMLPurchaseCartModel::addPayment(double amount, QMLPurchaseCartModel::Payme
     if (amount <= 0.0)
         return;
 
-    PurchasePayment payment{ amount, static_cast<PurchasePayment::PaymentMethod>(method), note, "NGN" };
+    PurchasePayment payment{ amount, static_cast<Utility::PaymentMethod>(method), note, "NGN" };
     m_paymentModel->addPayment(payment);
     m_purchasePayments.append(payment);
 
@@ -335,20 +336,26 @@ void QMLPurchaseCartModel::addTransaction(const QVariantMap &transaction)
 
         setBusy(true);
         emit execute(new PurchaseQuery::AddPurchaseTransaction(
-                         m_transactionId,
-                         m_clientId,
-                         m_clientName,
-                         m_customerPhoneNumber,
-                         m_totalCost,
-                         m_amountPaid,
-                         m_balance,
-                         transaction.value("suspended", false).toBool(),
-                         transaction.value("due_date", QDateTime()).toDateTime(),
-                         transaction.value("action").toString(),
-                         m_purchasePayments,
-                         products,
-                         m_note,
-                         this));
+                         PurchaseTransaction {
+                             m_transactionId,
+                             Vendor {
+                                 Client {
+                                     m_clientId,
+                                     m_clientName,
+                                     m_customerPhoneNumber
+                                 }
+                             },
+                             m_totalCost,
+                             m_amountPaid,
+                             m_balance,
+                             transaction.value("suspended").toBool() ? RecordGroup::Suspended
+                                                                     : RecordGroup::None,
+                             products,
+                             m_purchasePayments,
+                             transaction.value("due_date").toDateTime(),
+                             transaction.value("action").toString(),
+                             Note { m_note }
+                         }, this));
     } else {
         emit error(EmptyCartError);
     }
@@ -381,18 +388,24 @@ void QMLPurchaseCartModel::updateSuspendedTransaction(const QVariantMap &transac
 
         setBusy(true);
 
-        emit execute(new PurchaseQuery::UpdateSuspendedPurchaseTransaction(
-                         m_transactionId,
-                         m_clientId,
-                         m_clientName,
-                         m_customerPhoneNumber,
-                         m_totalCost,
-                         m_amountPaid,
-                         m_balance,
-                         true,
-                         products,
-                         Note{transaction.value("note").toString()},
-                         this));
+        emit execute(new PurchaseQuery::UpdateSuspendedPurchaseTransaction(PurchaseTransaction {
+                                                                               m_transactionId,
+                                                                               Vendor {
+                                                                                   Client {
+                                                                                       m_clientId,
+                                                                                       m_clientName,
+                                                                                       m_customerPhoneNumber
+                                                                                   }
+                                                                               },
+                                                                               m_totalCost,
+                                                                               m_amountPaid,
+                                                                               m_balance,
+                                                                               RecordGroup::Suspended,
+                                                                               products,
+                                                                               m_purchasePayments,
+                                                                               Note{ transaction.value("note").toString() }
+                                                                           },
+                                                                           this));
     } else {
         emit error(EmptyCartError);
     }
@@ -486,7 +499,8 @@ void QMLPurchaseCartModel::addProduct(const QVariantMap &product)
     const QString &category = product.value("category").toString();
     const int productId = product.value("product_id").toInt();
     const QString &productName = product.value("product").toString();
-    const double availableQuantity = product.value("available_quantity", product.value("quantity").toDouble()).toDouble(); // TODO: Simplify
+    const double availableQuantity = product.value("available_quantity",
+                                                   product.value("quantity").toDouble()).toDouble(); // TODO: Simplify
     const int unitId = product.value("unit_id").toInt();
     const QString &unit = product.value("unit").toString();
     const double costPrice = product.value("cost_price").toDouble();

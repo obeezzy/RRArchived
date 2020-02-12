@@ -3,7 +3,8 @@
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
-
+#include "utility/stockutils.h"
+#include "database/exceptions/exceptions.h"
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlDatabase>
@@ -12,41 +13,25 @@ Q_LOGGING_CATEGORY(lcupdatestockproduct, "rrcore.queryexecutors.stock.updatestoc
 
 using namespace StockQuery;
 
-UpdateStockProduct::UpdateStockProduct(int productId,
-                                       const QString &category,
-                                       const QString &product,
-                                       const QString &description,
-                                       const QString &unit,
-                                       bool tracked,
-                                       bool divisible,
-                                       qreal costPrice,
-                                       qreal retailPrice,
-                                       qreal baseUnitEquivalent,
-                                       bool isPreferredUnit,
-                                       const QString &currency,
-                                       const QUrl &imageUrl,
-                                       const QString &categoryNote,
-                                       const QString &productNote,
+UpdateStockProduct::UpdateStockProduct(const StockProduct &product,
                                        QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "image_url", imageUrl },
-                    { "category", category },
-                    { "product", product },
-                    { "description", description },
-                    { "unit", unit },
-                    { "category_note", categoryNote },
-                    { "product_note", productNote },
-                    { "tracked", tracked },
-                    { "divisible", divisible },
-                    { "cost_price", costPrice },
-                    { "retail_price", retailPrice },
-                    { "base_unit_equivalent", baseUnitEquivalent },
-                    { "is_preferred_unit", isPreferredUnit },
-                    { "currency", currency },
-                    { "product_id", productId },
-                    { "currency", currency },
-                    { "preferred", true },
-                    { "user_id", UserProfile::instance().userId() }
+                    { "image_url", product.imageUrl },
+                    { "category", product.category.category },
+                    { "product", product.product },
+                    { "description", product.description },
+                    { "unit", product.unit.unit },
+                    { "category_note", product.category.note.note },
+                    { "product_note", product.note.note },
+                    { "tracked", product.tracked },
+                    { "divisible", product.divisible },
+                    { "cost_price", product.costPrice },
+                    { "retail_price", product.retailPrice },
+                    { "base_unit_equivalent", product.unit.baseUnitEquivalent },
+                    { "unit_preferred", product.unit.preferred },
+                    { "currency", product.currency },
+                    { "product_id", product.id },
+                    { "currency", product.currency }
                   }, receiver)
 {
 
@@ -56,160 +41,23 @@ QueryResult UpdateStockProduct::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    const QVariantMap &params = request().params();
-    int categoryId = 0;
 
+    const QVariantMap &params = request().params();
+    int productCategoryId = 0;
+
+    QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     if (params.contains("quantity"))
-        qCWarning(lcupdatestockproduct) << Q_FUNC_INFO << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
+        qCWarning(lcupdatestockproduct) << Q_FUNC_INFO
+                                        << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
 
     try {
         DatabaseUtils::beginTransaction(q);
 
-        // STEP: Insert category note.
-        if (!params.value("category_note").toString().trimmed().isEmpty()) {
-            QueryExecutor::addNote(params.value("category_note").toString(), "product");
-        }
-
-        // STEP: Update product note.
-        if (!params.value("product_note").toString().trimmed().isEmpty()) {
-            QueryExecutor::updateNote(params.value("product_note_id").toInt(), params.value("product_note").toString(), "product");
-        }
-
-        // STEP: Insert category if it doesn't exist. Else, get the category ID.
-        QList<QSqlRecord> records(callProcedure("AddStockCategory", {
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "category",
-                                                        params.value("category")
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "short_form",
-                                                        {}
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "note_id",
-                                                        {}
-                                                    },
-                                                    ProcedureArgument {
-                                                        ProcedureArgument::Type::In,
-                                                        "user_id",
-                                                        params.value("user_id")
-                                                    }
-                                                }));
-        categoryId = records.first().value("product_category_id").toInt();
-
-        // STEP: Update product.
-        callProcedure("UpdateStockProduct", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "product_category_id",
-                              categoryId
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "product_id",
-                              params.value("product_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "product",
-                              params.value("product")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "short_form",
-                              params.value("short_form")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "description",
-                              params.value("description")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "barcode",
-                              params.value("barcode")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "divisible",
-                              params.value("divisible")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "image",
-                              DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl()) // Store image as BLOB
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "note_id",
-                              params.value("product_note_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              params.value("user_id")
-                          }
-                      });
-
-        // STEP: Update unit.
-        callProcedure("UpdateStockUnit", {
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "product_id",
-                              params.value("product_id")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "unit",
-                              params.value("unit")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "short_form",
-                              params.value("short_form")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "base_unit_equivalent",
-                              params.value("base_unit_equivalent")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "cost_price",
-                              params.value("cost_price")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "retail_price",
-                              params.value("retail_price")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "preferred",
-                              params.value("preferred")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "currency",
-                              params.value("currency")
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "note_id",
-                              QVariant(QVariant::Int)
-                          },
-                          ProcedureArgument {
-                              ProcedureArgument::Type::In,
-                              "user_id",
-                              params.value("user_id")
-                          }
-                      });
+        productCategoryId = addOrUpdateStockProductCategory();
+        updateStockProduct(productCategoryId);
+        updateStockProductUnit();
 
         DatabaseUtils::commitTransaction(q);
         return result;
@@ -217,5 +65,167 @@ QueryResult UpdateStockProduct::execute()
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
+}
+
+int UpdateStockProduct::addOrUpdateStockProductCategory()
+{
+    const QVariantMap &params = request().params();
+    const QString &note = params.value("category_note").toString();
+    const int noteId = QueryExecutor::addNote(note,
+                                              QStringLiteral("product_category"),
+                                              ExceptionPolicy::DisallowExceptions);
+
+    const auto &records(callProcedure("AddOrUpdateStockProductCategory", {
+                                          ProcedureArgument {
+                                              ProcedureArgument::Type::In,
+                                              "category",
+                                              params.value("category")
+                                          },
+                                          ProcedureArgument {
+                                              ProcedureArgument::Type::In,
+                                              "short_form",
+                                              {}
+                                          },
+                                          ProcedureArgument {
+                                              ProcedureArgument::Type::In,
+                                              "note_id",
+                                              noteId
+                                          },
+                                          ProcedureArgument {
+                                              ProcedureArgument::Type::In,
+                                              "user_id",
+                                              UserProfile::instance().userId()
+                                          }
+                                      }));
+
+    if (records.isEmpty())
+        throw UnexpectedResultException(QStringLiteral("Expected category ID, received nothing."));
+
+    return records.first().value("product_category_id").toInt();
+}
+
+void UpdateStockProduct::updateStockProduct(int productCategoryId)
+{
+    const QVariantMap &params = request().params();
+    const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    const QString &note = params.value("product_note").toString();
+    const int noteId = QueryExecutor::addNote(note,
+                                              QStringLiteral("product"),
+                                              ExceptionPolicy::DisallowExceptions);
+
+    callProcedure("UpdateStockProduct", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "product_category_id",
+                          productCategoryId
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "product_id",
+                          params.value("product_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "product",
+                          params.value("product")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "short_form",
+                          params.value("short_form")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "description",
+                          params.value("description")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "barcode",
+                          params.value("barcode")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "divisible",
+                          params.value("divisible")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "image",
+                          imageBlob
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "note_id",
+                          noteId
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
+}
+
+void UpdateStockProduct::updateStockProductUnit()
+{
+    const QVariantMap &params = request().params();
+    const QString &note = params.value("product_unit_note").toString();
+    const int noteId = QueryExecutor::addNote(note,
+                                              QStringLiteral("product_unit"),
+                                              ExceptionPolicy::DisallowExceptions);
+
+    callProcedure("UpdateStockProductUnit", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "product_id",
+                          params.value("product_id")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "unit",
+                          params.value("unit")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "short_form",
+                          params.value("short_form")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "base_unit_equivalent",
+                          params.value("base_unit_equivalent")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "cost_price",
+                          params.value("cost_price")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "retail_price",
+                          params.value("retail_price")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "preferred",
+                          params.value("preferred")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "currency",
+                          params.value("currency")
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "note_id",
+                          noteId
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "user_id",
+                          UserProfile::instance().userId()
+                      }
+                  });
 }
 

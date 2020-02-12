@@ -1,7 +1,6 @@
 #include "qmldebtpaymentmodel.h"
 #include "database/databasethread.h"
 #include "queryexecutors/debtor.h"
-
 #include <QDateTime>
 
 Q_LOGGING_CATEGORY(lcqmldebtpaymentmodel, "rrcore.models.qmldebtpaymentmodel");
@@ -195,7 +194,8 @@ void QMLDebtPaymentModel::removePayment(int row)
 void QMLDebtPaymentModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new DebtorQuery::ViewDebtPayments(m_debtTransactionId, this));
+    emit execute(new DebtorQuery::ViewDebtPayments(m_debtTransactionId,
+                                                   this));
 }
 
 void QMLDebtPaymentModel::processResult(const QueryResult result)

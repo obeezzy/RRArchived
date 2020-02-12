@@ -2,7 +2,6 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -12,7 +11,7 @@ using namespace SaleQuery;
 ViewSaleCart::ViewSaleCart(qint64 transactionId,
                            QObject *receiver) :
     SaleExecutor(COMMAND, {
-                    { "transaction_id", transactionId },
+                    { "sale_transaction_id", transactionId },
                     { "sale_transaction_archived", false },
                     { "sold_product_archived", false }
                  }, receiver)
@@ -31,23 +30,23 @@ QueryResult ViewSaleCart::execute()
     QSqlQuery q(connection);
 
     try {
-        const QList<QSqlRecord> records(callProcedure("ViewSaleCart", {
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "transaction_id",
-                                                              params.value("transaction_id")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "sale_transaction_archived",
-                                                              params.value("sale_transaction_archived")
-                                                          },
-                                                          ProcedureArgument {
-                                                              ProcedureArgument::Type::In,
-                                                              "sold_product_archived",
-                                                              params.value("sold_product_archived")
-                                                          }
-                                                      }));
+        const auto &records(callProcedure("ViewSaleCart", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "sale_transaction_id",
+                                                  params.value("transaction_id")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "sale_transaction_archived",
+                                                  params.value("sale_transaction_archived")
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "sold_product_archived",
+                                                  params.value("sold_product_archived")
+                                              }
+                                          }));
 
         QVariantList products;
         for (const auto &record : records)

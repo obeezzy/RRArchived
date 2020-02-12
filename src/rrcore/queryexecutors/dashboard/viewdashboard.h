@@ -13,8 +13,8 @@ public:
     explicit ViewDashboard(QObject *receiver);
     QueryResult execute() override;
 private:
-    void fetchWelcomeMessage(QueryResult &result);
-    void fetchEmptyStockMessage(QueryResult &result);
+    void fetchWelcomeMessage(QVariantList &homeRecords);
+    void fetchEmptyStockMessage(QVariantList &homeRecords);
 };
 }
 
