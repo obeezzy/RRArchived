@@ -7,7 +7,7 @@
 
 using namespace StockQuery;
 
-FilterStockProductCount::FilterStockProductCount(const FilterCriteria &filterCriteria,
+FilterStockProductCount::FilterStockProductCount(const Utility::FilterCriteria &filterCriteria,
                                                  int categoryId,
                                                  QObject *receiver) :
     StockExecutor(COMMAND, {

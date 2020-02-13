@@ -7,6 +7,7 @@
 #include <QFlags>
 #include <QUrl>
 
+namespace Utility {
 struct Note {
     int id;
     QString note;
@@ -168,10 +169,12 @@ class RecordGroup
         None = 0x0,
         Archived = 0x1,
         Suspended = 0x2,
+        Tracked = 0x4,
+        Divisible = 0x8,
+        Active = 0x16
     }; Q_DECLARE_FLAGS(Flags, Flag)
 };
 
-namespace Utility {
 enum class PaymentMethod {
     Cash,
     DebitCard,
@@ -192,5 +195,5 @@ inline static QString asString(const PaymentMethod &paymentMethod) {
 }
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(RecordGroup::Flags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utility::RecordGroup::Flags)
 #endif // COMMONUTILS_H

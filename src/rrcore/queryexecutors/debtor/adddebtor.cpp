@@ -11,7 +11,7 @@
 
 using namespace DebtorQuery;
 
-AddDebtor::AddDebtor(const Debtor &debtor,
+AddDebtor::AddDebtor(const Utility::Debtor &debtor,
                      QObject *receiver) :
     DebtorExecutor(COMMAND, {
                     { "can_undo", true },

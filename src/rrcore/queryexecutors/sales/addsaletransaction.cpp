@@ -3,6 +3,7 @@
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
+#include "utility/saleutils.h"
 #include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -10,7 +11,7 @@
 
 using namespace SaleQuery;
 
-AddSaleTransaction::AddSaleTransaction(const SaleTransaction &transaction,
+AddSaleTransaction::AddSaleTransaction(const Utility::SaleTransaction &transaction,
                                        QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "can_undo", true },
@@ -21,7 +22,7 @@ AddSaleTransaction::AddSaleTransaction(const SaleTransaction &transaction,
                     { "total_cost", transaction.totalCost },
                     { "amount_paid", transaction.amountPaid },
                     { "balance", transaction.balance },
-                    { "suspended", transaction.flags.testFlag(RecordGroup::Suspended) },
+                    { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
                     { "due_date_time", transaction.dueDateTime },
                     { "action", transaction.action },
                     { "note", transaction.note.note },

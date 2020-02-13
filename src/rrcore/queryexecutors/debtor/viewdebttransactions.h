@@ -3,7 +3,9 @@
 
 #include "debtorexecutor.h"
 
+namespace Utility {
 class Debtor;
+}
 
 namespace DebtorQuery {
 class ViewDebtTransactions : public DebtorExecutor
@@ -12,7 +14,7 @@ class ViewDebtTransactions : public DebtorExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_debt_transactions");
 
-    explicit ViewDebtTransactions(const Debtor &debtor,
+    explicit ViewDebtTransactions(const Utility::Debtor &debtor,
                                   QObject *receiver);
     QueryResult execute() override;
 private:

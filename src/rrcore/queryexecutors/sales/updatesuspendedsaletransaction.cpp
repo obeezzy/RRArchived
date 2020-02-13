@@ -11,7 +11,7 @@
 
 using namespace SaleQuery;
 
-UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(const SaleTransaction &transaction,
+UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(const Utility::SaleTransaction &transaction,
                                                                QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "transaction_id", transaction.id },
@@ -23,7 +23,7 @@ UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(const SaleTransac
                     { "balance", transaction.balance },
                     { "note_id", transaction.note.id },
                     { "note", transaction.note.note },
-                    { "suspended", transaction.flags.testFlag(RecordGroup::Suspended) },
+                    { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
                     { "currency", Settings::DEFAULT_CURRENCY }
                  }, receiver)
 {

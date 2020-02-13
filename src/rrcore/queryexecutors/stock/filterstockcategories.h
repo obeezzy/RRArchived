@@ -10,9 +10,9 @@ class FilterStockCategories : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("filter_stock_categories");
 
-    explicit FilterStockCategories(const FilterCriteria &filterCriteria,
-                                   const SortCriteria &sortCriteria,
-                                   const RecordGroup::Flags &RecordGroups,
+    explicit FilterStockCategories(const Utility::FilterCriteria &filterCriteria,
+                                   const Utility::SortCriteria &sortCriteria,
+                                   const Utility::RecordGroup::Flags &flags,
                                    QObject *receiver);
     QueryResult execute() override;
 };

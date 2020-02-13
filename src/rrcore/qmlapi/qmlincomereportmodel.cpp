@@ -85,7 +85,7 @@ void QMLIncomeReportModel::tryQuery()
 {
     setBusy(true);
     emit execute(new IncomeQuery::ViewIncomeReport(
-                     DateTimeSpan {
+                     Utility::DateTimeSpan {
                          QDateTime::currentDateTime().addDays(-1),
                          QDateTime::currentDateTime()
                      },

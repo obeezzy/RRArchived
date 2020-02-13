@@ -74,7 +74,7 @@ void QMLExpensePusher::push()
 {
     setBusy(true);
     emit execute(new ExpenseQuery::AddExpenseTransaction(
-                     Client { m_clientName },
+                     Utility::Client { m_clientName },
                      m_purpose,
                      m_amount,
                      paymentMethodAsUtilityEnum(),

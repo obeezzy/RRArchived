@@ -50,7 +50,7 @@ QVariant QMLStockProductModel::data(const QModelIndex &index, int role) const
     case DescriptionRole:
         return m_products.at(index.row()).description;
     case DivisibleRole:
-        return m_products.at(index.row()).divisible;
+        return m_products.at(index.row()).flags.testFlag(Utility::RecordGroup::Divisible);
     case ImageUrlRole:
         return m_products.at(index.row()).imageUrl;
     case QuantityRole:
@@ -166,7 +166,7 @@ void QMLStockProductModel::removeProduct(int row)
         return;
 
     setBusy(true);
-    StockProduct product{ m_products[row] };
+    Utility::StockProduct product{ m_products[row] };
     product.row = row;
     emit execute(new StockQuery::RemoveStockProduct(product,
                                                     this));
@@ -179,10 +179,10 @@ void QMLStockProductModel::tryQuery()
 
     setBusy(true);
     if (!filterText().trimmed().isEmpty() && sortColumn() > -1 && filterColumn() > -1) {
-        emit execute(new StockQuery::FilterStockProducts(FilterCriteria {
+        emit execute(new StockQuery::FilterStockProducts(Utility::FilterCriteria {
                                                              columnName(filterColumn()),
                                                              filterText(),
-                                                         }, SortCriteria {
+                                                         }, Utility::SortCriteria {
                                                              columnName(sortColumn()),
                                                              sortOrder()
                                                          },
@@ -191,7 +191,7 @@ void QMLStockProductModel::tryQuery()
 
     } else {
         emit execute(new StockQuery::ViewStockProducts(m_categoryId,
-                                                       SortCriteria{ sortOrder() },
+                                                       Utility::SortCriteria{ sortOrder() },
                                                        this));
     }
 }
@@ -207,7 +207,7 @@ void QMLStockProductModel::processResult(const QueryResult result)
         if (result.request().command() == StockQuery::ViewStockProducts::COMMAND
                 || result.request().command() == StockQuery::FilterStockProducts::COMMAND) {
             beginResetModel();
-            m_products = StockProductList{ result.outcome().toMap().value("products").toList() };
+            m_products = Utility::StockProductList{ result.outcome().toMap().value("products").toList() };
             endResetModel();
 
             emit success(ViewProductsSuccess);
@@ -217,7 +217,7 @@ void QMLStockProductModel::processResult(const QueryResult result)
             emit success(RemoveProductSuccess);
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
             const int row = result.request().params().value("product_row").toInt();
-            const StockProduct product{ result.request().params().value("product").toMap() };
+            const Utility::StockProduct product{ result.request().params().value("product").toMap() };
             undoRemoveProductFromModel(row, product);
             emit success(UndoRemoveProductSuccess);
         }
@@ -267,7 +267,7 @@ void QMLStockProductModel::removeProductFromModel(int row)
 }
 
 void QMLStockProductModel::undoRemoveProductFromModel(int row,
-                                                      const StockProduct &product)
+                                                      const Utility::StockProduct &product)
 {
     if (row < 0 || row >= rowCount())
         return;

@@ -2,9 +2,9 @@
 #include "utility/commonutils.h"
 #include "database/databaseexception.h"
 
-FilterExpenseReport::FilterExpenseReport(const FilterCriteria &filterCriteria,
-                                         const SortCriteria &sortCriteria,
-                                         const DateTimeSpan &dateTimeSpan,
+FilterExpenseReport::FilterExpenseReport(const Utility::FilterCriteria &filterCriteria,
+                                         const Utility::SortCriteria &sortCriteria,
+                                         const Utility::DateTimeSpan &dateTimeSpan,
                                          QObject *receiver) :
     ExpenseExecutor(COMMAND, {
                     { "filter_column", filterCriteria.column },

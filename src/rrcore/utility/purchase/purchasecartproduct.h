@@ -10,6 +10,7 @@
 #include <QVariantMap>
 #include <QDateTime>
 
+namespace Utility {
 struct PurchaseCartProduct {
     int id;
     QString product;
@@ -18,8 +19,7 @@ struct PurchaseCartProduct {
     QUrl imageUrl;
     double quantity;
     StockProductUnit unit;
-    bool tracked;
-    bool divisible;
+    RecordGroup::Flags flags;
     qreal costPrice;
     qreal retailPrice;
     qreal unitPrice;
@@ -35,10 +35,9 @@ struct PurchaseCartProduct {
                              const QString &product,
                              const QString &description,
                              const QUrl &imageUrl,
-                             double quantity,
+                             qreal quantity,
                              const StockProductUnit &unit,
-                             bool tracked,
-                             bool divisible,
+                             const RecordGroup::Flags &flags,
                              qreal costPrice,
                              qreal retailPrice,
                              const QString &currency,
@@ -46,7 +45,7 @@ struct PurchaseCartProduct {
     explicit PurchaseCartProduct(int id,
                              const QString &product,
                              const StockProductCategory &category,
-                             double quantity,
+                             qreal quantity,
                              const StockProductUnit &unit,
                              qreal retailPrice,
                              qreal unitPrice,
@@ -75,5 +74,6 @@ public:
         return list;
     }
 };
+}
 
 #endif // PURCHASECARTPRODUCT_H

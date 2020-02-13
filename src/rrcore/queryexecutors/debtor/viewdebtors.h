@@ -12,7 +12,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("view_debtors");
 
     explicit ViewDebtors(QObject *receiver);
-    explicit ViewDebtors(const RecordGroup::Flags &flags,
+    explicit ViewDebtors(const Utility::RecordGroup::Flags &flags,
                          QObject *receiver);
     QueryResult execute() override;
 };

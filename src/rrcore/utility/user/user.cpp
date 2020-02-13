@@ -1,10 +1,10 @@
 #include "user.h"
 #include <QString>
 
+using namespace Utility;
+
 User::User() :
     id(-1),
-    active(false),
-    archived(false),
     userId(-1)
 {
 
@@ -15,8 +15,6 @@ User::User(const QString &user,
     id(-1),
     user(user),
     password(password),
-    active(false),
-    archived(false),
     userId(-1)
 {
 
@@ -26,8 +24,6 @@ User::User(int id,
            const QString &user) :
     id(id),
     user(user),
-    active(false),
-    archived(false),
     userId(-1)
 {
 
@@ -40,9 +36,8 @@ User::User(int id,
            const QUrl &imageUrl,
            const QString &phoneNumber,
            const QString &emailAddress,
-           bool active,
            const Note &note,
-           bool archived) :
+           const RecordGroup::Flags &flags) :
     id(id),
     user(user),
     firstName(firstName),
@@ -50,9 +45,8 @@ User::User(int id,
     imageUrl(imageUrl),
     phoneNumber(phoneNumber),
     emailAddress(emailAddress),
-    active(active),
     note(note),
-    archived(archived),
+    flags(flags),
     userId(-1)
 {
 
@@ -73,8 +67,6 @@ User::User(const QString &firstName,
     imageUrl(imageUrl),
     phoneNumber(phoneNumber),
     emailAddress(emailAddress),
-    active(false),
-    archived(false),
     userId(-1)
 {
 

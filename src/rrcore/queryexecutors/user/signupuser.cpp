@@ -12,7 +12,7 @@
 
 using namespace UserQuery;
 
-SignUpUser::SignUpUser(const User &user,
+SignUpUser::SignUpUser(const Utility::User &user,
                        QObject *receiver) :
     UserExecutor(COMMAND, {
                     { "user", user.user },

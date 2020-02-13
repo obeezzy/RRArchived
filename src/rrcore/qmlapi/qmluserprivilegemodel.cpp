@@ -212,10 +212,10 @@ bool QMLUserPrivilegeModel::submit()
 
         if (isExistingUser()) {
             emit execute(new UserQuery::UpdateUserPrivileges(m_userId,
-                                                             UserPrivilegeList { },
+                                                             Utility::UserPrivilegeList { },
                                                              this));
         } else {
-            emit execute(new UserQuery::AddUser(User {
+            emit execute(new UserQuery::AddUser(Utility::User {
                                                     m_firstName,
                                                     m_lastName,
                                                     m_userName,

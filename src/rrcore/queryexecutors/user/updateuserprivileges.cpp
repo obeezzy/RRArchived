@@ -10,7 +10,7 @@
 using namespace UserQuery;
 
 UpdateUserPrivileges::UpdateUserPrivileges(int userId,
-                                           const UserPrivilegeList &privilege,
+                                           const Utility::UserPrivilegeList &privilege,
                                            QObject *receiver) :
     UserExecutor(COMMAND, {
                     { "user_id", userId },

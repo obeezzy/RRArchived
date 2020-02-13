@@ -4,6 +4,7 @@
 #include "database/databasethread.h"
 #include "qmlsaletransactionmodel.h"
 #include "queryexecutors/sales.h"
+#include "utility/saleutils.h"
 #include <QSqlRecord>
 #include <QDateTime>
 
@@ -139,17 +140,17 @@ QVariant QMLSaleTransactionModel::headerData(int section, Qt::Orientation orient
 void QMLSaleTransactionModel::tryQuery()
 {
     setBusy(true);
-    RecordGroup::Flags flags;
+    Utility::RecordGroup::Flags flags;
 
     if (keys() == Suspended)
-        flags.setFlag(RecordGroup::Suspended);
+        flags.setFlag(Utility::RecordGroup::Suspended);
     else if (keys() == Archived)
-        flags.setFlag(RecordGroup::Suspended);
+        flags.setFlag(Utility::RecordGroup::Suspended);
     else if (keys() == All)
-        flags = RecordGroup::Flags(RecordGroup::Suspended
-                                   | RecordGroup::Archived);
+        flags = Utility::RecordGroup::Flags(Utility::RecordGroup::Suspended
+                                            | Utility::RecordGroup::Archived);
 
-    emit execute(new SaleQuery::ViewSaleTransactions(DateTimeSpan {
+    emit execute(new SaleQuery::ViewSaleTransactions(Utility::DateTimeSpan {
                                                          from(),
                                                          to()
                                                      },
@@ -181,7 +182,7 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
 void QMLSaleTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-    emit execute(new SaleQuery::RemoveSaleTransaction(SaleTransaction {
+    emit execute(new SaleQuery::RemoveSaleTransaction(Utility::SaleTransaction {
                                                           data(index(row, 0), TransactionIdRole).toInt()
                                                       }, this));
 }

@@ -135,12 +135,12 @@ void QMLStockProductDetailRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        const StockProduct &product{result.outcome().toMap().value("product").toMap()};
+        const Utility::StockProduct &product{result.outcome().toMap().value("product").toMap()};
         setCategoryId(product.category.id);
         setCategory(product.category.category);
         setProduct(product.product);
         setDescription(product.description);
-        setDivisible(product.divisible);
+        setDivisible(product.flags.testFlag(Utility::RecordGroup::Divisible));
         setImageUrl(product.imageUrl);
         setQuantity(product.quantity);
         setUnitId(product.id);

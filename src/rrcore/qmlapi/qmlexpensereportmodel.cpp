@@ -85,7 +85,7 @@ void QMLExpenseReportModel::tryQuery()
 {
     setBusy(true);
     emit execute(new ExpenseQuery::ViewExpenseReport(
-                     DateTimeSpan {
+                     Utility::DateTimeSpan {
                          QDateTime::currentDateTime().addDays(-1),
                          QDateTime::currentDateTime()
                      },

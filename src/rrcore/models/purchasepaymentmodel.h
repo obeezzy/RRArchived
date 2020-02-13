@@ -21,7 +21,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 
-    void addPayment(const PurchasePayment &payment);
+    void addPayment(const Utility::PurchasePayment &payment);
     void removePayment(int index);
     void clearPayments();
 
@@ -36,7 +36,7 @@ signals:
     void cashPaymentCountChanged();
     void cardPaymentCountChanged();
 private:
-    PurchasePaymentList m_purchasePayments;
+    Utility::PurchasePaymentList m_purchasePayments;
     int m_cashPaymentCount;
     int m_cardPaymentCount;
 }; Q_DECLARE_METATYPE(PurchasePaymentModel *)

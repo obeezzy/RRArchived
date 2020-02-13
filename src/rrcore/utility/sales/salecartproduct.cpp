@@ -4,14 +4,15 @@
 #include <QVariantMap>
 #include <QDateTime>
 
+using namespace Utility;
+
 SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
                                  const QString &product,
                                  const QString &description,
                                  const QUrl &imageUrl,
-                                 double quantity,
+                                 qreal quantity,
                                  const StockProductUnit &unit,
-                                 bool tracked,
-                                 bool divisible,
+                                 const RecordGroup::Flags &flags,
                                  qreal costPrice,
                                  qreal retailPrice,
                                  const QString &currency,
@@ -22,8 +23,7 @@ SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
     imageUrl(imageUrl),
     quantity(quantity),
     unit(unit),
-    tracked(tracked),
-    divisible(divisible),
+    flags(flags),
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
@@ -33,7 +33,7 @@ SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
 SaleCartProduct::SaleCartProduct(int id,
                                  const QString &product,
                                  const StockProductCategory &category,
-                                 double quantity,
+                                 qreal quantity,
                                  const StockProductUnit &unit,
                                  qreal retailPrice,
                                  qreal unitPrice,
@@ -45,8 +45,7 @@ SaleCartProduct::SaleCartProduct(int id,
     category(category),
     quantity(quantity),
     unit(unit),
-    tracked(true),
-    divisible(true),
+    flags(RecordGroup::Tracked | RecordGroup::Divisible),
     retailPrice(retailPrice),
     unitPrice(unitPrice),
     cost(cost),
@@ -72,8 +71,6 @@ SaleCartProduct::SaleCartProduct(const QVariantMap &product) :
          product.value("unit_id").toInt(),
          product.value("unit").toString()
          }),
-    tracked(product.value("tracked").toBool()),
-    divisible(product.value("divisible").toBool()),
     costPrice(product.value("cost_price").toDouble()),
     retailPrice(product.value("retail_price").toDouble()),
     unitPrice(product.value("unit_price").toDouble()),
@@ -90,7 +87,10 @@ SaleCartProduct::SaleCartProduct(const QVariantMap &product) :
          product.value("user_id").toInt(),
          product.value("user").toString()
          })
-{}
+{
+    flags.setFlag(RecordGroup::Tracked, product.value("tracked").toBool());
+    flags.setFlag(RecordGroup::Divisible, product.value("divisible").toBool());
+}
 
 QVariantMap SaleCartProduct::toVariantMap() const
 {

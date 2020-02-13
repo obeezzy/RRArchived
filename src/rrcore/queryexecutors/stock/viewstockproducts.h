@@ -12,7 +12,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("view_stock_products");
 
     explicit ViewStockProducts(int productCategoryId,
-                               const SortCriteria &sortCriteria,
+                               const Utility::SortCriteria &sortCriteria,
                                QObject *receiver);
     QueryResult execute() override;
 };

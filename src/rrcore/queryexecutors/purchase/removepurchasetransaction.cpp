@@ -2,14 +2,14 @@
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
 #include "user/userprofile.h"
-
+#include "utility/purchaseutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace PurchaseQuery;
 
-RemovePurchaseTransaction::RemovePurchaseTransaction(const PurchaseTransaction &transaction,
+RemovePurchaseTransaction::RemovePurchaseTransaction(const Utility::PurchaseTransaction &transaction,
                                                      QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                             { "can_undo", true },

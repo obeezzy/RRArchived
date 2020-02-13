@@ -2,7 +2,10 @@
 #define REMOVEUSER_H
 
 #include "userexecutor.h"
-#include "utility/userutils.h"
+
+namespace Utility {
+class User;
+}
 
 namespace UserQuery {
 class RemoveUser : public UserExecutor
@@ -11,7 +14,7 @@ class RemoveUser : public UserExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("remove_user");
 
-    explicit RemoveUser(const User &user,
+    explicit RemoveUser(const Utility::User &user,
                         QObject *receiver);
     QueryResult execute() override;
 };

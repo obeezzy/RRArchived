@@ -6,6 +6,7 @@
 #include "salepayment.h"
 #include <QString>
 
+namespace Utility {
 struct SaleTransaction
 {
     int id;
@@ -43,5 +44,6 @@ struct SaleTransaction
                              const RecordGroup::Flags &flags,
                              const Note &note);
 };
+}
 
 #endif // SALETRANSACTION_H

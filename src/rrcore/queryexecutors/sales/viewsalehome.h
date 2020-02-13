@@ -3,7 +3,9 @@
 
 #include "saleexecutor.h"
 
+namespace Utility {
 class DateTimeSpan;
+}
 
 namespace SaleQuery {
 class ViewSaleHome : public SaleExecutor
@@ -12,7 +14,7 @@ class ViewSaleHome : public SaleExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_sale_home");
 
-    explicit ViewSaleHome(const DateTimeSpan &dateTimeSpan,
+    explicit ViewSaleHome(const Utility::DateTimeSpan &dateTimeSpan,
                           QObject *receiver);
     QueryResult execute() override;
 private:

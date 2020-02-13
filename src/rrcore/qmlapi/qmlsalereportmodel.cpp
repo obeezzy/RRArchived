@@ -104,7 +104,7 @@ void QMLSaleReportModel::tryQuery()
 {
     setBusy(true);
     emit execute(new SaleQuery::ViewSaleReport(
-                     DateTimeSpan {
+                     Utility::DateTimeSpan {
                          QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
                          QDateTime::currentDateTime()
                      }, this));

@@ -4,7 +4,7 @@
 
 using namespace IncomeQuery;
 
-ViewIncomeReport::ViewIncomeReport(const DateTimeSpan &dateTimeSpan,
+ViewIncomeReport::ViewIncomeReport(const Utility::DateTimeSpan &dateTimeSpan,
                                    QObject *receiver) :
     IncomeExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },

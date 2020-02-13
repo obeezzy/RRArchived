@@ -3,7 +3,9 @@
 
 #include "stockexecutor.h"
 
+namespace Utility {
 class DateTimeSpan;
+}
 
 namespace StockQuery {
 class ViewStockReport : public StockExecutor
@@ -12,7 +14,8 @@ class ViewStockReport : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_stock_report");
 
-    explicit ViewStockReport(const DateTimeSpan &dateTimeSpan, QObject *receiver);
+    explicit ViewStockReport(const Utility::DateTimeSpan &dateTimeSpan,
+                             QObject *receiver);
     QueryResult execute() override;
 };
 }

@@ -1,14 +1,15 @@
 #include "viewstockproductcategories.h"
 #include "database/databaseexception.h"
+#include "utility/stockutils.h"
 
 using namespace StockQuery;
 
-ViewStockProductCategories::ViewStockProductCategories(const SortCriteria &sortCriteria,
-                                                       const RecordGroup::Flags &flags,
+ViewStockProductCategories::ViewStockProductCategories(const Utility::SortCriteria &sortCriteria,
+                                                       const Utility::RecordGroup::Flags &flags,
                                                        QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "sort_order", sortCriteria.orderAsString() },
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                   }, receiver)
 {
 

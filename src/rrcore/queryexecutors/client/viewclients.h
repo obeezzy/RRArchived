@@ -12,7 +12,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("view_clients");
 
     explicit ViewClients(QObject *receiver);
-    explicit ViewClients(const RecordGroup::Flags &flags,
+    explicit ViewClients(const Utility::RecordGroup::Flags &flags,
                          QObject *receiver);
     QueryResult execute() override;
 };

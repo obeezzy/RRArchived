@@ -15,7 +15,7 @@ QMLPurchaseHomeModel::QMLPurchaseHomeModel(DatabaseThread &thread, QObject *pare
 void QMLPurchaseHomeModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::ViewPurchaseHome(DateTimeSpan {
+    emit execute(new PurchaseQuery::ViewPurchaseHome(Utility::DateTimeSpan {
                                                          QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
                                                          QDateTime::currentDateTime()
                                                      }, this));

@@ -1,6 +1,6 @@
 #include "viewincometransactions.h"
 #include "database/databaseexception.h"
-
+#include "utility/commonutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -8,13 +8,13 @@
 
 using namespace IncomeQuery;
 
-ViewIncomeTransactions::ViewIncomeTransactions(const DateTimeSpan &dateTimeSpan,
-                                               const RecordGroup::Flags &flags,
+ViewIncomeTransactions::ViewIncomeTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                               const Utility::RecordGroup::Flags &flags,
                                                QObject *receiver) :
     IncomeExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },
                     { "to", dateTimeSpan.to },
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                    }, receiver)
 {
 

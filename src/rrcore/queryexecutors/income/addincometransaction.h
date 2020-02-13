@@ -3,9 +3,9 @@
 
 #include "incomeexecutor.h"
 
-class Client;
 namespace Utility {
-    enum class PaymentMethod;
+class Client;
+enum class PaymentMethod;
 }
 
 namespace IncomeQuery {
@@ -15,7 +15,7 @@ class AddIncomeTransaction : public IncomeExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("add_income_transaction");
 
-    explicit AddIncomeTransaction(const Client &client,
+    explicit AddIncomeTransaction(const Utility::Client &client,
                                   const QString &purpose,
                                   qreal amount,
                                   const Utility::PaymentMethod &paymentMethod,

@@ -11,9 +11,9 @@ class FilterStockProductCategoriesByProduct : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("filter_stock_product_categories_by_product");
 
-    explicit FilterStockProductCategoriesByProduct(const FilterCriteria &filterCriteria,
-                                                   const SortCriteria &sortCriteria,
-                                                   const RecordGroup::Flags &flags,
+    explicit FilterStockProductCategoriesByProduct(const Utility::FilterCriteria &filterCriteria,
+                                                   const Utility::SortCriteria &sortCriteria,
+                                                   const Utility::RecordGroup::Flags &flags,
                                                    QObject *receiver);
     QueryResult execute() override;
 };

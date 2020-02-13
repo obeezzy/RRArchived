@@ -3,6 +3,7 @@
 #include "database/databaseerror.h"
 #include "queryexecutors/stock.h"
 #include "singletons/settings.h"
+#include "utility/stockutils.h"
 #include <QUrl>
 
 QMLStockProductPusher::QMLStockProductPusher(QObject *parent) :
@@ -213,48 +214,50 @@ void QMLStockProductPusher::push()
 {
     setBusy(true);
 
+    Utility::RecordGroup::Flags flags;
+    flags.setFlag(Utility::RecordGroup::Tracked, m_tracked);
+    flags.setFlag(Utility::RecordGroup::Divisible, m_divisible);
+
     if (isExistingProduct())
         emit execute(new StockQuery::UpdateStockProduct(
-                         StockProduct {
+                         Utility::StockProduct {
                              m_productId,
-                             StockProductCategory {
+                             Utility::StockProductCategory {
                                 m_category
                              },
                              m_product,
                              m_description,
                              QUrl(),
-                             StockProductUnit {
+                             Utility::StockProductUnit {
                                  m_unit,
                                  m_baseUnitEquivalent,
                              },
-                             m_tracked,
-                             m_divisible,
+                             flags,
                              m_costPrice,
                              m_retailPrice,
                              Settings::DEFAULT_CURRENCY,
-                             Note { m_productNote }
+                             Utility::Note { m_productNote }
                          },
                          this));
     else
-        emit execute(new StockQuery::AddStockProduct(StockProduct {
-                                                         StockProductCategory {
+        emit execute(new StockQuery::AddStockProduct(Utility::StockProduct {
+                                                         Utility::StockProductCategory {
                                                              m_category,
-                                                             Note{ m_categoryNote }
+                                                             Utility::Note{ m_categoryNote }
                                                          },
                                                          m_product,
                                                          m_description,
                                                          m_imageUrl,
                                                          m_quantity,
-                                                         StockProductUnit {
+                                                         Utility::StockProductUnit {
                                                              m_unit,
                                                              m_baseUnitEquivalent
                                                          },
-                                                         m_tracked,
-                                                         m_divisible,
+                                                         flags,
                                                          m_costPrice,
                                                          m_retailPrice,
                                                          Settings::DEFAULT_CURRENCY,
-                                                         Note { m_productNote }
+                                                         Utility::Note { m_productNote }
                                                      },
                                                      this));
 }

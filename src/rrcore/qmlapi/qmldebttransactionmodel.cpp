@@ -52,7 +52,7 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
     case TotalDebtRole:
         return m_transactions.at(index.row()).totalDebt;
     case DirtyRole:
-        return m_transactions.at(index.row()).state == DebtTransaction::State::Dirty;
+        return m_transactions.at(index.row()).state == Utility::DebtTransaction::State::Dirty;
     }
 
     return QVariant();
@@ -78,7 +78,7 @@ bool QMLDebtTransactionModel::setData(const QModelIndex &index, const QVariant &
     if (!index.isValid())
         return false;
 
-    DebtTransaction &transaction = m_transactions[index.row()];
+    Utility::DebtTransaction &transaction = m_transactions[index.row()];
     switch (role) {
     case DueDateRole:
         if (value.toDateTime().isValid() && (transaction.dueDateTime != value.toDateTime())) {
@@ -296,13 +296,19 @@ void QMLDebtTransactionModel::removeEmailAddress(int row)
     emit emailAddressModelChanged();
 }
 
-void QMLDebtTransactionModel::addDebt(double totalDebt, const QDateTime &dueDateTime, const QString &note)
+void QMLDebtTransactionModel::addDebt(double totalDebt,
+                                      const QDateTime &dueDateTime,
+                                      const QString &note)
 {
     if (totalDebt <= 0.0 || !dueDateTime.isValid())
         return;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_transactions.append(DebtTransaction{ totalDebt, dueDateTime, Note{note} });
+    m_transactions.append(Utility::DebtTransaction{
+                              totalDebt,
+                              dueDateTime,
+                              Utility::Note{ note }
+                          });
     m_dirty = true;
     endInsertRows();
 }
@@ -326,7 +332,7 @@ void QMLDebtTransactionModel::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new DebtorQuery::ViewDebtTransactions(Debtor {
+    emit execute(new DebtorQuery::ViewDebtTransactions(Utility::Debtor {
                                                            m_debtorId
                                                        }, this));
 }
@@ -343,7 +349,7 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
             beginResetModel();
 
             clearAll();
-            m_transactions = DebtTransactionList{result.outcome().toMap().value("transactions").toList()};
+            m_transactions = Utility::DebtTransactionList{result.outcome().toMap().value("transactions").toList()};
             setClientId(result.outcome().toMap().value("client_id").toInt());
             setPreferredName(result.outcome().toMap().value("preferred_name").toString());
             setPrimaryPhoneNumber(result.outcome().toMap().value("primary_phone_number").toString());
@@ -442,9 +448,9 @@ bool QMLDebtTransactionModel::submit()
         setBusy(true);
 
         if (isExistingDebtor()) {
-            emit execute(new DebtorQuery::UpdateDebtor(Debtor {
+            emit execute(new DebtorQuery::UpdateDebtor(Utility::Debtor {
                                                            m_debtorId,
-                                                           Client {
+                                                           Utility::Client {
                                                                m_clientId,
                                                                m_preferredName,
                                                                m_primaryPhoneNumber,
@@ -457,8 +463,8 @@ bool QMLDebtTransactionModel::submit()
                                                        },
                                                        this));
         } else {
-            emit execute(new DebtorQuery::AddDebtor(Debtor {
-                                                        Client {
+            emit execute(new DebtorQuery::AddDebtor(Utility::Debtor {
+                                                        Utility::Client {
                                                             m_preferredName,
                                                             m_primaryPhoneNumber,
                                                             m_firstName,

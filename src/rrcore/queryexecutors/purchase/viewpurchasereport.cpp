@@ -7,7 +7,7 @@
 
 using namespace PurchaseQuery;
 
-ViewPurchaseReport::ViewPurchaseReport(const DateTimeSpan &dateTimeSpan,
+ViewPurchaseReport::ViewPurchaseReport(const Utility::DateTimeSpan &dateTimeSpan,
                                        QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "from", dateTimeSpan.from },

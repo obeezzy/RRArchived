@@ -73,7 +73,7 @@ void QMLIncomePusher::push()
 {
     setBusy(true);
     emit execute(new IncomeQuery::AddIncomeTransaction(
-                     Client { m_clientName },
+                     Utility::Client { m_clientName },
                      m_purpose,
                      m_amount,
                      paymentMethodAsUtilityEnum(),

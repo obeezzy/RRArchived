@@ -6,7 +6,7 @@
 
 using namespace SaleQuery;
 
-RemoveSoldProduct::RemoveSoldProduct(const SoldProduct &product,
+RemoveSoldProduct::RemoveSoldProduct(const Utility::SoldProduct &product,
                                      QObject *receiver) :
     SaleExecutor(COMMAND, {
                         { "transaction_id", product.saleTransactionId },

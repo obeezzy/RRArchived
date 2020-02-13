@@ -67,11 +67,11 @@ private:
     int m_debtTransactionId;
     QVariant m_debtTransactionRef;
     qreal m_totalAmountPaid;
-    DebtPaymentList m_payments;
+    Utility::DebtPaymentList m_payments;
     int m_lastPaymentId;
 
     void calculateTotals();
-    void updateRef(DebtPayment payment);
+    void updateRef(Utility::DebtPayment payment);
 };
 
 Q_DECLARE_LOGGING_CATEGORY(lcqmldebtpaymentmodel);

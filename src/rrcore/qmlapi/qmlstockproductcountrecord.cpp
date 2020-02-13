@@ -78,7 +78,7 @@ void QMLStockProductCountRecord::tryQuery()
 
     if (!m_filterText.trimmed().isEmpty() && m_filterColumn > -1)
         emit execute(new StockQuery::FilterStockProductCount(
-                         FilterCriteria {
+                         Utility::FilterCriteria {
                              columnName(m_filterColumn),
                              m_filterText
                          },

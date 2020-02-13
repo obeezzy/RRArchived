@@ -1,5 +1,7 @@
 #include "stockproductunit.h"
 
+using namespace Utility;
+
 StockProductUnit::StockProductUnit() :
     id(-1),
     preferred(false),

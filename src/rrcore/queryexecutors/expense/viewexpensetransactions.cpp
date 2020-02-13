@@ -8,13 +8,13 @@
 
 using namespace ExpenseQuery;
 
-ViewExpenseTransactions::ViewExpenseTransactions(const DateTimeSpan &dateTimeSpan,
-                                                 const RecordGroup::Flags &flags,
+ViewExpenseTransactions::ViewExpenseTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                                 const Utility::RecordGroup::Flags &flags,
                                                  QObject *receiver) :
     ExpenseExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },
                     { "to", dateTimeSpan.to },
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                     }, receiver)
 {
 

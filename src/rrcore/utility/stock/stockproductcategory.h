@@ -4,6 +4,7 @@
 #include "utility/commonutils.h"
 #include <QString>
 
+namespace Utility {
 struct StockProductCategory
 {
     int id;
@@ -17,5 +18,6 @@ struct StockProductCategory
                                   const QString &category,
                                   const Note &note = Note{});
 };
+}
 
 #endif // STOCKPRODUCTCATEGORY_H

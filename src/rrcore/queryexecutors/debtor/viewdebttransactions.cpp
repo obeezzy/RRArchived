@@ -8,7 +8,7 @@
 
 using namespace DebtorQuery;
 
-ViewDebtTransactions::ViewDebtTransactions(const Debtor &debtor,
+ViewDebtTransactions::ViewDebtTransactions(const Utility::Debtor &debtor,
                                            QObject *receiver) :
     DebtorExecutor(COMMAND, { { "debtor_id", debtor.id } }, receiver)
 {

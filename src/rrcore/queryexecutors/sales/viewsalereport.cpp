@@ -4,7 +4,7 @@
 
 using namespace SaleQuery;
 
-ViewSaleReport::ViewSaleReport(const DateTimeSpan &dateTimeSpan,
+ViewSaleReport::ViewSaleReport(const Utility::DateTimeSpan &dateTimeSpan,
                                QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },

@@ -9,7 +9,7 @@
 using namespace UserQuery;
 
 ActivateUser::ActivateUser(bool active,
-                           const User &user,
+                           const Utility::User &user,
                            QObject *receiver) :
     UserExecutor(COMMAND, {
                     { "user", user.user },

@@ -3,9 +3,11 @@
 
 #include "stockexecutor.h"
 
+namespace Utility {
 class FilterCriteria;
 class SortCriteria;
 class DateTimeSpan;
+}
 
 class FilterStockReport : public StockExecutor
 {
@@ -13,9 +15,9 @@ class FilterStockReport : public StockExecutor
 public:
     inline static const QString COMMAND = QStringLiteral("filter_stock_report");
 
-    explicit FilterStockReport(const FilterCriteria &filterCriteria,
-                               const SortCriteria &sortCriteria,
-                               const DateTimeSpan &dateTimeSpan,
+    explicit FilterStockReport(const Utility::FilterCriteria &filterCriteria,
+                               const Utility::SortCriteria &sortCriteria,
+                               const Utility::DateTimeSpan &dateTimeSpan,
                                QObject *receiver);
     QueryResult execute() override;
 };

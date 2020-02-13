@@ -1,5 +1,7 @@
 #include "userprivilege.h"
 
+using namespace Utility;
+
 UserPrivilege::UserPrivilege() :
     id(-1),
     userId(-1)

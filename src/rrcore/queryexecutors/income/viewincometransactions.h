@@ -11,8 +11,8 @@ class ViewIncomeTransactions : public IncomeExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_income_transactions");
 
-    explicit ViewIncomeTransactions(const DateTimeSpan &dateTimeSpan,
-                                    const RecordGroup::Flags &flags,
+    explicit ViewIncomeTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                    const Utility::RecordGroup::Flags &flags,
                                     QObject *receiver);
     QueryResult execute() override;
 };

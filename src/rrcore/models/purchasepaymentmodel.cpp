@@ -31,7 +31,7 @@ QVariant PurchasePaymentModel::data(const QModelIndex &index, int role) const
     case MethodRole:
         return static_cast<int>(m_purchasePayments.at(index.row()).method);
     case NoteRole:
-        return m_purchasePayments.at(index.row()).note;
+        return m_purchasePayments.at(index.row()).note.note;
     }
 
     return QVariant();
@@ -46,7 +46,7 @@ QHash<int, QByteArray> PurchasePaymentModel::roleNames() const
     };
 }
 
-void PurchasePaymentModel::addPayment(const PurchasePayment &payment)
+void PurchasePaymentModel::addPayment(const Utility::PurchasePayment &payment)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_purchasePayments.append(payment);
@@ -91,7 +91,7 @@ void PurchasePaymentModel::calculatePaymentCount()
     m_cashPaymentCount = 0;
     m_cardPaymentCount = 0;
 
-    for (const PurchasePayment &payment : m_purchasePayments) {
+    for (const Utility::PurchasePayment &payment : m_purchasePayments) {
         if (payment.method == Utility::PaymentMethod::Cash)
             m_cashPaymentCount++;
         else

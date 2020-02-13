@@ -3,15 +3,14 @@
 
 #include "utility/commonutils.h"
 #include "singletons/settings.h"
-
+#include <initializer_list>
 #include <QString>
 #include <QDateTime>
 #include <QVariantList>
 #include <QVariantMap>
 #include <QDebug>
 
-#include <initializer_list>
-
+namespace Utility {
 struct DebtPayment {
 private:
     Q_GADGET
@@ -68,7 +67,7 @@ public:
 
         return debug.nospace();
     }
-}; Q_DECLARE_TYPEINFO(DebtPayment, Q_PRIMITIVE_TYPE);
+};
 
 class DebtPaymentList : public QList<DebtPayment>
 {
@@ -89,5 +88,8 @@ public:
         return list;
     }
 };
+}
+
+Q_DECLARE_TYPEINFO(Utility::DebtPayment, Q_PRIMITIVE_TYPE);
 
 #endif // DEBTPAYMENT_H

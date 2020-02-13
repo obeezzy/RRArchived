@@ -10,7 +10,7 @@
 
 using namespace SaleQuery;
 
-ViewSaleHome::ViewSaleHome(const DateTimeSpan &dateTimeSpan,
+ViewSaleHome::ViewSaleHome(const Utility::DateTimeSpan &dateTimeSpan,
                            QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },

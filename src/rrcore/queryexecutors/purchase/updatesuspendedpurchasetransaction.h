@@ -2,7 +2,10 @@
 #define UPDATESUSPENDEDPURCHASETRANSACTION_H
 
 #include "purchaseexecutor.h"
-#include "utility/purchaseutils.h"
+
+namespace Utility {
+class PurchaseTransaction;
+}
 
 namespace PurchaseQuery {
 class UpdateSuspendedPurchaseTransaction : public PurchaseExecutor
@@ -11,7 +14,7 @@ class UpdateSuspendedPurchaseTransaction : public PurchaseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("update_suspended_purchase_transaction");
 
-    explicit UpdateSuspendedPurchaseTransaction(const PurchaseTransaction &transaction,
+    explicit UpdateSuspendedPurchaseTransaction(const Utility::PurchaseTransaction &transaction,
                                                 QObject *receiver);
     QueryResult execute() override;
 private:

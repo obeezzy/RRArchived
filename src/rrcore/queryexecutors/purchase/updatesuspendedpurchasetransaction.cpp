@@ -10,7 +10,7 @@
 
 using namespace PurchaseQuery;
 
-UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(const PurchaseTransaction &transaction,
+UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(const Utility::PurchaseTransaction &transaction,
                                                                        QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                             { "transaction_id", transaction.id },
@@ -20,7 +20,7 @@ UpdateSuspendedPurchaseTransaction::UpdateSuspendedPurchaseTransaction(const Pur
                             { "total_cost", transaction.totalCost },
                             { "amount_paid", transaction.amountPaid },
                             { "balance", transaction.balance },
-                            { "suspended", transaction.flags.testFlag(RecordGroup::Suspended) },
+                            { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
                             { "products", transaction.products.toVariantList() },
                             { "note_id", transaction.note.id },
                             { "note", transaction.note.note }

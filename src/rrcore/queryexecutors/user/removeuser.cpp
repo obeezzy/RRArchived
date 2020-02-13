@@ -7,7 +7,7 @@
 
 using namespace UserQuery;
 
-RemoveUser::RemoveUser(const User &user,
+RemoveUser::RemoveUser(const Utility::User &user,
                        QObject *receiver) :
     UserExecutor(COMMAND, {
                     { "user", user.user }

@@ -4,7 +4,7 @@
 
 using namespace StockQuery;
 
-ViewStockReport::ViewStockReport(const DateTimeSpan &dateTimeSpan,
+ViewStockReport::ViewStockReport(const Utility::DateTimeSpan &dateTimeSpan,
                                  QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },

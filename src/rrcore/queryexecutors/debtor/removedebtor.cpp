@@ -11,7 +11,7 @@
 
 using namespace DebtorQuery;
 
-RemoveDebtor::RemoveDebtor(const Debtor &debtor,
+RemoveDebtor::RemoveDebtor(const Utility::Debtor &debtor,
                            QObject *receiver) :
     DebtorExecutor(COMMAND, {
                     { "can_undo", true },

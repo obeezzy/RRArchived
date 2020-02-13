@@ -10,7 +10,7 @@
 
 using namespace StockQuery;
 
-RemoveStockProduct::RemoveStockProduct(const StockProduct &product,
+RemoveStockProduct::RemoveStockProduct(const Utility::StockProduct &product,
                                        QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "can_undo", true },

@@ -7,11 +7,11 @@
 
 using namespace DebtorQuery;
 
-FilterDebtors::FilterDebtors(const FilterCriteria &filterCriteria,
+FilterDebtors::FilterDebtors(const Utility::FilterCriteria &filterCriteria,
                              QObject *receiver) :
     DebtorExecutor(COMMAND, {
-                    { "filter_text", filterCriteria.text },
-                    { "filter_column", filterCriteria.column }
+                    { "filter_column", filterCriteria.column },
+                    { "filter_text", filterCriteria.text }
                    }, receiver)
 {
 
