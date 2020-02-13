@@ -4,6 +4,7 @@
 #include <QVariantList>
 #include <initializer_list>
 
+namespace Utility {
 struct UserPrivilege
 {
     int id;
@@ -34,5 +35,6 @@ public:
         return list;
     }
 };
+}
 
 #endif // USERPRIVILEGE_H

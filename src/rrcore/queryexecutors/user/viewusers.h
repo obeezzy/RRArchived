@@ -11,7 +11,7 @@ class ViewUsers : public UserExecutor
 public:
     static inline const  QString COMMAND = QStringLiteral("view_users");
 
-    explicit ViewUsers(const RecordGroup::Flags &flags,
+    explicit ViewUsers(const Utility::RecordGroup::Flags &flags,
                        QObject *receiver);
     QueryResult execute() override;
 };

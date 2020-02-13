@@ -1,5 +1,7 @@
 #include "purchasetransaction.h"
 
+using namespace Utility;
+
 PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
     id(transaction.value("purchase_transaction_id").toLongLong()),
     vendor(Client {

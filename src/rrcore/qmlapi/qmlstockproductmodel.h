@@ -69,10 +69,10 @@ public slots:
     void refresh() override;
 private:
     int m_categoryId;
-    StockProductList m_products;
+    Utility::StockProductList m_products;
 
     void removeProductFromModel(int row);
-    void undoRemoveProductFromModel(int row, const StockProduct &product);
+    void undoRemoveProductFromModel(int row, const Utility::StockProduct &product);
 };
 
 #endif // QMLSTOCKPRODUCTMODEL_H

@@ -3,7 +3,9 @@
 
 #include "database/queryexecutor.h"
 
+namespace Utility {
 class DebtTransactionList;
+}
 
 class DebtorExecutor : public QueryExecutor
 {
@@ -14,7 +16,7 @@ public:
                             QObject *receiver);
     virtual ~DebtorExecutor() = default;
 protected:
-    void arrangeDebtTransactions(const DebtTransactionList &debtTransactions);
+    void arrangeDebtTransactions(const Utility::DebtTransactionList &debtTransactions);
 };
 
 #endif // DEBTOREXECUTOR_H

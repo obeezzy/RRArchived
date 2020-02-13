@@ -4,7 +4,9 @@
 #include "userexecutor.h"
 
 class QSqlDatabase;
+namespace Utility {
 class User;
+}
 
 namespace UserQuery {
 class SignUpUser : public UserExecutor
@@ -13,7 +15,7 @@ class SignUpUser : public UserExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("sign_up_user");
 
-    explicit SignUpUser(const User &user,
+    explicit SignUpUser(const Utility::User &user,
                         QObject *receiver);
     QueryResult execute() override;
 private:

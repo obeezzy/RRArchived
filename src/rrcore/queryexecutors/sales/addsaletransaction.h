@@ -2,7 +2,10 @@
 #define ADDSALETRANSACTION_H
 
 #include "saleexecutor.h"
-#include "utility/saleutils.h"
+
+namespace Utility {
+class SaleTransaction;
+}
 
 namespace SaleQuery {
 class AddSaleTransaction : public SaleExecutor
@@ -12,7 +15,7 @@ public:
     static inline const QString COMMAND = "add_sale_transaction";
     static inline const QString UNDO_COMMAND = "undo_add_sale_transaction";
 
-    explicit AddSaleTransaction(const SaleTransaction &transaction,
+    explicit AddSaleTransaction(const Utility::SaleTransaction &transaction,
                                 QObject *receiver);
     explicit AddSaleTransaction(const QueryRequest &request,
                                 QObject *receiver);

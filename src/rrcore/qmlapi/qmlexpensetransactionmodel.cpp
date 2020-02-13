@@ -102,11 +102,11 @@ void QMLExpenseTransactionModel::tryQuery()
 {
     setBusy(true);
     emit execute(new ExpenseQuery::ViewExpenseTransactions(
-                     DateTimeSpan {
+                     Utility::DateTimeSpan {
                          QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
                          QDateTime::currentDateTime()
                      },
-                     RecordGroup::None,
+                     Utility::RecordGroup::None,
                      this));
 }
 

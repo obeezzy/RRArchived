@@ -1,27 +1,25 @@
 #ifndef SALECARTPRODUCT_H
 #define SALECARTPRODUCT_H
 
-#include <QVariantList>
-
 #include "utility/user/user.h"
 #include "utility/commonutils.h"
 #include "utility/stockutils.h"
-
+#include <QVariantList>
 #include <QList>
 #include <QVariantList>
 #include <QVariantMap>
 #include <QDateTime>
 
+namespace Utility {
 struct SaleCartProduct {
     int id;
     QString product;
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    double quantity;
+    qreal quantity;
     StockProductUnit unit;
-    bool tracked;
-    bool divisible;
+    RecordGroup::Flags flags;
     qreal costPrice;
     qreal retailPrice;
     qreal unitPrice;
@@ -37,10 +35,9 @@ struct SaleCartProduct {
                              const QString &product,
                              const QString &description,
                              const QUrl &imageUrl,
-                             double quantity,
+                             qreal quantity,
                              const StockProductUnit &unit,
-                             bool tracked,
-                             bool divisible,
+                             const RecordGroup::Flags &flags,
                              qreal costPrice,
                              qreal retailPrice,
                              const QString &currency,
@@ -48,7 +45,7 @@ struct SaleCartProduct {
     explicit SaleCartProduct(int id,
                              const QString &product,
                              const StockProductCategory &category,
-                             double quantity,
+                             qreal quantity,
                              const StockProductUnit &unit,
                              qreal retailPrice,
                              qreal unitPrice,
@@ -77,5 +74,6 @@ public:
         return list;
     }
 };
+}
 
 #endif // SALECARTPRODUCT_H

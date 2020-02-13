@@ -11,8 +11,8 @@ class FilterStockProducts : public StockExecutor
 public:
     static inline QString COMMAND = QStringLiteral("filter_stock_products");
 
-    explicit FilterStockProducts(const FilterCriteria &filterCriteria,
-                                 const SortCriteria &sortCriteria,
+    explicit FilterStockProducts(const Utility::FilterCriteria &filterCriteria,
+                                 const Utility::SortCriteria &sortCriteria,
                                  int categoryId,
                                  QObject *receiver);
     QueryResult execute() override;

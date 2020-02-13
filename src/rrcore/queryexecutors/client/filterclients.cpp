@@ -4,13 +4,13 @@
 
 using namespace ClientQuery;
 
-FilterClients::FilterClients(const FilterCriteria &filterCriteria,
-                             const RecordGroup::Flags &flags,
+FilterClients::FilterClients(const Utility::FilterCriteria &filterCriteria,
+                             const Utility::RecordGroup::Flags &flags,
                              QObject *receiver) :
     ClientExecutor(COMMAND, {
                     { "filter_text", filterCriteria.text },
                     { "filter_column", filterCriteria.column },
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                    }, receiver)
 {
 

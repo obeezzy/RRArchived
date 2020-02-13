@@ -4,9 +4,9 @@
 
 using namespace IncomeQuery;
 
-FilterIncomeReport::FilterIncomeReport(const FilterCriteria &filterCriteria,
-                                       const SortCriteria &sortCriteria,
-                                       const DateTimeSpan &dateTimeSpan,
+FilterIncomeReport::FilterIncomeReport(const Utility::FilterCriteria &filterCriteria,
+                                       const Utility::SortCriteria &sortCriteria,
+                                       const Utility::DateTimeSpan &dateTimeSpan,
                                        QObject *receiver) :
     IncomeExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },

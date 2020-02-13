@@ -4,6 +4,8 @@
 #include <QVariantMap>
 #include <QDateTime>
 
+using namespace Utility;
+
 StockProduct::StockProduct(int id) :
     id(id),
     row(-1)
@@ -17,8 +19,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
                            const QUrl &imageUrl,
                            double quantity,
                            const StockProductUnit &unit,
-                           bool tracked,
-                           bool divisible,
+                           const RecordGroup::Flags &flags,
                            qreal costPrice,
                            qreal retailPrice,
                            const QString &currency,
@@ -30,8 +31,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
     imageUrl(imageUrl),
     quantity(quantity),
     unit(unit),
-    tracked(tracked),
-    divisible(divisible),
+    flags(flags),
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
@@ -45,8 +45,7 @@ StockProduct::StockProduct(int id,
                            const QString &description,
                            const QUrl &imageUrl,
                            const StockProductUnit &unit,
-                           bool tracked,
-                           bool divisible,
+                           const RecordGroup::Flags &flags,
                            qreal costPrice,
                            qreal retailPrice,
                            const QString &currency,
@@ -58,8 +57,7 @@ StockProduct::StockProduct(int id,
     imageUrl(imageUrl),
     quantity(0.0),
     unit(unit),
-    tracked(tracked),
-    divisible(divisible),
+    flags(flags),
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
@@ -69,7 +67,7 @@ StockProduct::StockProduct(int id,
 
 StockProduct::StockProduct(int id,
                            const StockProductCategory &category,
-                           double quantity,
+                           qreal quantity,
                            const StockProductUnit &unit,
                            qreal retailPrice,
                            qreal unitPrice,
@@ -78,8 +76,7 @@ StockProduct::StockProduct(int id,
     category(category),
     quantity(quantity),
     unit(unit),
-    tracked(true),
-    divisible(true),
+    flags(RecordGroup::Tracked | RecordGroup::Divisible),
     retailPrice(retailPrice),
     unitPrice(unitPrice),
     note(note),
@@ -104,8 +101,6 @@ StockProduct::StockProduct(const QVariantMap &product) :
          product.value("unit_id").toInt(),
          product.value("unit").toString()
          }),
-    tracked(product.value("tracked").toBool()),
-    divisible(product.value("divisible").toBool()),
     costPrice(product.value("cost_price").toDouble()),
     retailPrice(product.value("retail_price").toDouble()),
     unitPrice(product.value("unit_price").toDouble()),
@@ -120,7 +115,10 @@ StockProduct::StockProduct(const QVariantMap &product) :
          product.value("user").toString()
          }),
     row(-1)
-{}
+{
+    flags.setFlag(RecordGroup::Tracked, product.value("tracked").toBool());
+    flags.setFlag(RecordGroup::Divisible, product.value("divisible").toBool());
+}
 
 QVariantMap StockProduct::toVariantMap() const
 {

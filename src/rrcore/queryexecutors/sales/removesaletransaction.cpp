@@ -6,7 +6,7 @@
 
 using namespace SaleQuery;
 
-RemoveSaleTransaction::RemoveSaleTransaction(const SaleTransaction &transaction,
+RemoveSaleTransaction::RemoveSaleTransaction(const Utility::SaleTransaction &transaction,
                                              QObject *receiver) :
     SaleExecutor(COMMAND, {
                         { "can_undo", true },

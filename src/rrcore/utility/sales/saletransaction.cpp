@@ -1,5 +1,7 @@
 #include "saletransaction.h"
 
+using namespace Utility;
+
 SaleTransaction::SaleTransaction(qint64 id) :
     id(id),
     row(-1)

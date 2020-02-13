@@ -6,6 +6,7 @@
 #include <QString>
 #include <QUrl>
 
+namespace Utility {
 struct Debtor
 {
     int id;
@@ -27,5 +28,6 @@ struct Debtor
     explicit Debtor(int id,
                     int row);
 };
+}
 
 #endif // DEBTOR_H

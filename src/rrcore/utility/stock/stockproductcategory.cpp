@@ -1,5 +1,7 @@
 #include "stockproductcategory.h"
 
+using namespace Utility;
+
 StockProductCategory::StockProductCategory() :
     id(-1)
 {

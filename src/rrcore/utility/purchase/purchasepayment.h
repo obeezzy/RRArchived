@@ -4,35 +4,21 @@
 #include "utility/commonutils.h"
 #include <QString>
 #include <QList>
-#include <QDateTime>
 
+namespace Utility {
 struct PurchasePayment {
     qreal amount;
     Utility::PaymentMethod method;
-    QString note;
+    Note note;
     QString currency;
 
-    QString paymentMethodAsString() const {
-        switch (method) {
-        case Utility::PaymentMethod::Cash:
-            return QStringLiteral("cash");
-        case Utility::PaymentMethod::DebitCard:
-            return QStringLiteral("debit_card");
-        case Utility::PaymentMethod::CreditCard:
-            return QStringLiteral("credit_card");
-        }
+    explicit PurchasePayment(qreal amount,
+                             const Utility::PaymentMethod &method,
+                             const Note &note,
+                             const QString &currency);
 
-        return QString();
-    }
-
-    QVariantMap toVariantMap() const {
-        return {
-            { "amount", amount },
-            { "payment_method", paymentMethodAsString(), },
-            { "note", note }
-        };
-    }
-}; Q_DECLARE_TYPEINFO(PurchasePayment, Q_PRIMITIVE_TYPE);
+    QVariantMap toVariantMap() const;
+};
 
 class PurchasePaymentList : public QList<PurchasePayment> {
 public:
@@ -43,5 +29,6 @@ public:
         return list;
     }
 };
+} Q_DECLARE_TYPEINFO(Utility::PurchasePayment, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASEPAYMENT_H

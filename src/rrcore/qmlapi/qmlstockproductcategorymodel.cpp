@@ -70,7 +70,7 @@ void QMLStockProductCategoryModel::unarchiveProduct(int productId)
 
     setBusy(true);
     StockQuery::RemoveStockProduct *removeStockProduct = new StockQuery::RemoveStockProduct(
-                StockProduct{ productId }, this);
+                Utility::StockProduct{ productId }, this);
     removeStockProduct->undoOnNextExecution();
     emit execute(removeStockProduct);
 }
@@ -173,18 +173,18 @@ void QMLStockProductCategoryModel::tryQuery()
     setBusy(true);
 
     if (!m_productFilterText.trimmed().isEmpty()) {
-        emit execute(new StockQuery::FilterStockProductCategoriesByProduct(FilterCriteria { m_productFilterText },
-                                                                           SortCriteria { sortOrder() },
-                                                                           RecordGroup::None,
+        emit execute(new StockQuery::FilterStockProductCategoriesByProduct(Utility::FilterCriteria { m_productFilterText },
+                                                                           Utility::SortCriteria { sortOrder() },
+                                                                           Utility::RecordGroup::None,
                                                                            this));
     } else if (!filterText().trimmed().isEmpty()) {
-        emit execute(new StockQuery::FilterStockCategories(FilterCriteria { filterText() },
-                                                           SortCriteria { sortOrder() },
-                                                           RecordGroup::None,
+        emit execute(new StockQuery::FilterStockCategories(Utility::FilterCriteria { filterText() },
+                                                           Utility::SortCriteria { sortOrder() },
+                                                           Utility::RecordGroup::None,
                                                            this));
     } else {
-        emit execute(new StockQuery::ViewStockProductCategories(SortCriteria{ sortOrder() },
-                                                                RecordGroup::None,
+        emit execute(new StockQuery::ViewStockProductCategories(Utility::SortCriteria{ sortOrder() },
+                                                                Utility::RecordGroup::None,
                                                                 this));
     }
 }

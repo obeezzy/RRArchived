@@ -5,8 +5,8 @@
 
 using namespace StockQuery;
 
-FilterStockProducts::FilterStockProducts(const FilterCriteria &filterCriteria,
-                                         const SortCriteria &sortCriteria,
+FilterStockProducts::FilterStockProducts(const Utility::FilterCriteria &filterCriteria,
+                                         const Utility::SortCriteria &sortCriteria,
                                          int categoryId,
                                          QObject *receiver) :
     StockExecutor(COMMAND, {

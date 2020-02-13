@@ -13,10 +13,10 @@ ViewClients::ViewClients(QObject *receiver) :
 
 }
 
-ViewClients::ViewClients(const RecordGroup::Flags &flags,
+ViewClients::ViewClients(const Utility::RecordGroup::Flags &flags,
                          QObject *receiver) :
     ClientExecutor(COMMAND, {
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                    }, receiver)
 {
 

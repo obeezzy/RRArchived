@@ -10,7 +10,7 @@
 
 using namespace IncomeQuery;
 
-AddIncomeTransaction::AddIncomeTransaction(const Client &client,
+AddIncomeTransaction::AddIncomeTransaction(const Utility::Client &client,
                                            const QString &purpose,
                                            qreal amount,
                                            const Utility::PaymentMethod &paymentMethod,

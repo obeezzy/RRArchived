@@ -4,8 +4,9 @@
 #include "debtorexecutor.h"
 #include <QUrl>
 
+namespace Utility {
 class Debtor;
-class DebtTransactionList;
+}
 
 namespace DebtorQuery {
 class AddDebtor : public DebtorExecutor
@@ -15,7 +16,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("add_debtor");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_add_debtor");
 
-    explicit AddDebtor(const Debtor &debtor,
+    explicit AddDebtor(const Utility::Debtor &debtor,
                        QObject *receiver);
     QueryResult execute() override;
 private:

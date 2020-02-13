@@ -8,7 +8,7 @@
 
 using namespace PurchaseQuery;
 
-ViewPurchaseHome::ViewPurchaseHome(const DateTimeSpan &dateTimeSpan,
+ViewPurchaseHome::ViewPurchaseHome(const Utility::DateTimeSpan &dateTimeSpan,
                                    QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "from", dateTimeSpan.from },

@@ -33,7 +33,7 @@ QVariant SalePaymentModel::data(const QModelIndex &index, int role) const
     case MethodRole:
         return static_cast<int>(m_salePayments.at(index.row()).method);
     case NoteRole:
-        return m_salePayments.at(index.row()).note;
+        return m_salePayments.at(index.row()).note.note;
     }
 
     return QVariant();
@@ -48,7 +48,7 @@ QHash<int, QByteArray> SalePaymentModel::roleNames() const
     };
 }
 
-void SalePaymentModel::addPayment(SalePayment payment)
+void SalePaymentModel::addPayment(Utility::SalePayment payment)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_salePayments.append(payment);
@@ -93,7 +93,7 @@ void SalePaymentModel::calculatePaymentCount()
     m_cashPaymentCount = 0;
     m_cardPaymentCount = 0;
 
-    for (const SalePayment &payment : m_salePayments) {
+    for (const Utility::SalePayment &payment : m_salePayments) {
         if (payment.method == Utility::PaymentMethod::Cash)
             m_cashPaymentCount++;
         else

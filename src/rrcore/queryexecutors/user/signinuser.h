@@ -2,7 +2,10 @@
 #define SIGNINUSER_H
 
 #include "userexecutor.h"
-#include "utility/userutils.h"
+
+namespace Utility {
+class User;
+}
 
 namespace UserQuery {
 class SignInUser : public UserExecutor
@@ -11,7 +14,7 @@ class SignInUser : public UserExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("sign_in_user");
 
-    explicit SignInUser(const User &user,
+    explicit SignInUser(const Utility::User &user,
                         QObject *receiver);
     QueryResult execute() override;
 private:

@@ -1,5 +1,7 @@
 #include "utility/debtor/debtor.h"
 
+using namespace Utility;
+
 Debtor::Debtor(int id) :
     id(id),
     row(-1)

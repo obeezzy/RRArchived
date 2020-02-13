@@ -1,12 +1,13 @@
 #include "viewstockproducts.h"
 #include "database/databaseexception.h"
 #include "database/databaseutils.h"
+#include "utility/commonutils.h"
 #include <QUrl>
 
 using namespace StockQuery;
 
 ViewStockProducts::ViewStockProducts(int productCategoryId,
-                                     const SortCriteria &sortCriteria,
+                                     const Utility::SortCriteria &sortCriteria,
                                      QObject *receiver) :
     StockExecutor(COMMAND, {
                         { "category_id", productCategoryId },

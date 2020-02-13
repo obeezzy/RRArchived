@@ -3,9 +3,11 @@
 
 #include "expenseexecutor.h"
 
+namespace Utility {
 class FilterCriteria;
 class SortCriteria;
 class DateTimeSpan;
+}
 
 class FilterExpenseReport : public ExpenseExecutor
 {
@@ -13,9 +15,9 @@ class FilterExpenseReport : public ExpenseExecutor
 public:
     inline static const QString COMMAND = QStringLiteral("filter_expense_report");
 
-    explicit FilterExpenseReport(const FilterCriteria &filterCriteria,
-                                 const SortCriteria &sortCriteria,
-                                 const DateTimeSpan &dateTimeSpan,
+    explicit FilterExpenseReport(const Utility::FilterCriteria &filterCriteria,
+                                 const Utility::SortCriteria &sortCriteria,
+                                 const Utility::DateTimeSpan &dateTimeSpan,
                                  QObject *receiver);
     QueryResult execute() override;
 };

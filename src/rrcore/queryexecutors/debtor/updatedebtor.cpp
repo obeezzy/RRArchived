@@ -9,7 +9,7 @@
 
 using namespace DebtorQuery;
 
-UpdateDebtor::UpdateDebtor(const Debtor &debtor,
+UpdateDebtor::UpdateDebtor(const Utility::Debtor &debtor,
                            QObject *receiver) :
     DebtorExecutor(COMMAND, {
                     { "can_undo", true },

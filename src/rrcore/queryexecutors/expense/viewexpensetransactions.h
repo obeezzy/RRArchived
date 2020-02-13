@@ -11,8 +11,8 @@ class ViewExpenseTransactions : public ExpenseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_expense_transactions");
 
-    explicit ViewExpenseTransactions(const DateTimeSpan &dateTimeSpan,
-                                     const RecordGroup::Flags &flags,
+    explicit ViewExpenseTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                     const Utility::RecordGroup::Flags &flags,
                                      QObject *receiver);
     QueryResult execute() override;
 };

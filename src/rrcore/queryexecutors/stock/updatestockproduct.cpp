@@ -13,7 +13,7 @@ Q_LOGGING_CATEGORY(lcupdatestockproduct, "rrcore.queryexecutors.stock.updatestoc
 
 using namespace StockQuery;
 
-UpdateStockProduct::UpdateStockProduct(const StockProduct &product,
+UpdateStockProduct::UpdateStockProduct(const Utility::StockProduct &product,
                                        QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "image_url", product.imageUrl },
@@ -23,8 +23,8 @@ UpdateStockProduct::UpdateStockProduct(const StockProduct &product,
                     { "unit", product.unit.unit },
                     { "category_note", product.category.note.note },
                     { "product_note", product.note.note },
-                    { "tracked", product.tracked },
-                    { "divisible", product.divisible },
+                    { "tracked", product.flags.testFlag(Utility::RecordGroup::Tracked) },
+                    { "divisible", product.flags.testFlag(Utility::RecordGroup::Divisible) },
                     { "cost_price", product.costPrice },
                     { "retail_price", product.retailPrice },
                     { "base_unit_equivalent", product.unit.baseUnitEquivalent },

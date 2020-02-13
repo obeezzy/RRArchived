@@ -2,9 +2,9 @@
 #include "utility/commonutils.h"
 #include "database/databaseexception.h"
 
-FilterSaleReport::FilterSaleReport(const FilterCriteria &filterCriteria,
-                                   const SortCriteria &sortCriteria,
-                                   const DateTimeSpan &dateTimeSpan,
+FilterSaleReport::FilterSaleReport(const Utility::FilterCriteria &filterCriteria,
+                                   const Utility::SortCriteria &sortCriteria,
+                                   const Utility::DateTimeSpan &dateTimeSpan,
                                    QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "filter_column", filterCriteria.column },

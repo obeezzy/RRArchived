@@ -108,7 +108,7 @@ void QMLDebtorModel::filter()
 
     setBusy(true);
     emit execute(new DebtorQuery::FilterDebtors(
-                     FilterCriteria {
+                     Utility::FilterCriteria {
                          filterText(),
                          filterColumnName()
                      }, this));
@@ -122,7 +122,7 @@ void QMLDebtorModel::removeDebtor(int debtorId)
     }
 
     setBusy(true);
-    emit execute(new DebtorQuery::RemoveDebtor(Debtor {
+    emit execute(new DebtorQuery::RemoveDebtor(Utility::Debtor {
                                                    debtorId,
                                                    debtorRowFromId(debtorId)
                                                },

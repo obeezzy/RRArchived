@@ -1,5 +1,7 @@
 #include "debtpayment.h"
 
+using namespace Utility;
+
 int DebtPayment::temporaryId = 1;
 
 DebtPayment::DebtPayment(qreal totalAmount,

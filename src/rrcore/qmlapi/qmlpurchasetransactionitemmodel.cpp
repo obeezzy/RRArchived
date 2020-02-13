@@ -3,7 +3,7 @@
 #include "database/queryresult.h"
 #include "database/databasethread.h"
 #include "queryexecutors/purchase.h"
-
+#include "utility/purchaseutils.h"
 #include <QDateTime>
 
 QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(QObject *parent) :
@@ -202,7 +202,7 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
 void QMLPurchaseTransactionItemModel::removeSoldProduct(int row)
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::RemovePurchasedProduct(PurchasedProduct {
+    emit execute(new PurchaseQuery::RemovePurchasedProduct(Utility::PurchasedProduct {
                                                                transactionId(),
                                                                data(index(row, 0), TransactionItemIdRole).toInt()
                                                            },

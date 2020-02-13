@@ -3,6 +3,7 @@
 
 #include <QString>
 
+namespace Utility {
 struct StockProductUnit
 {
     int id;
@@ -16,5 +17,6 @@ struct StockProductUnit
     explicit StockProductUnit(const QString &unit,
                               qreal baseUnitEquivalent);
 };
+}
 
 #endif // STOCKPRODUCTUNIT_H

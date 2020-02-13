@@ -15,7 +15,7 @@ Q_LOGGING_CATEGORY(lcsigninuser, "rrcore.queryexecutors.user.signinuser");
 
 using namespace UserQuery;
 
-SignInUser::SignInUser(const User &user,
+SignInUser::SignInUser(const Utility::User &user,
                        QObject *receiver) :
     UserExecutor(COMMAND, {
                     { "user", user.user },

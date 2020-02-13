@@ -129,8 +129,8 @@ private:
     QStringList m_alternatePhoneNumberModel;
     QStringList m_addressModel;
     QStringList m_emailAddressModel;
-    Note m_note;
-    DebtTransactionList m_transactions;
+    Utility::Note m_note;
+    Utility::DebtTransactionList m_transactions;
 
     void clearAll();
     bool isExistingDebtor() const;

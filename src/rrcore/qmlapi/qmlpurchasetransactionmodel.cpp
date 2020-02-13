@@ -1,13 +1,11 @@
 #include "qmlpurchasetransactionmodel.h"
-#include <QSqlRecord>
-#include <QDateTime>
-
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
 #include "utility/purchaseutils.h"
-
 #include "queryexecutors/purchase.h"
+#include <QSqlRecord>
+#include <QDateTime>
 
 QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(QObject *parent) :
     QMLPurchaseTransactionModel(DatabaseThread::instance(), parent)
@@ -139,20 +137,20 @@ void QMLPurchaseTransactionModel::tryQuery()
 {
     setBusy(true);
 
-    RecordGroup::Flags RecordGroups;
+    Utility::RecordGroup::Flags flags;
     if (keys() == Suspended)
-        RecordGroups.setFlag(RecordGroup::Suspended);
+        flags.setFlag(Utility::RecordGroup::Suspended);
     else if (keys() == Archived)
-        RecordGroups.setFlag(RecordGroup::Archived);
+        flags.setFlag(Utility::RecordGroup::Archived);
     else if (keys() == All)
-        RecordGroups = RecordGroup::Flags(RecordGroup::Archived
-                                      | RecordGroup::Suspended);
+        flags = Utility::RecordGroup::Flags(Utility::RecordGroup::Archived
+                                      | Utility::RecordGroup::Suspended);
 
-    emit execute(new PurchaseQuery::ViewPurchaseTransactions(DateTimeSpan {
+    emit execute(new PurchaseQuery::ViewPurchaseTransactions(Utility::DateTimeSpan {
                                                                  from(),
                                                                  to()
                                                              },
-                                                             RecordGroups,
+                                                             flags,
                                                              this));
 }
 
@@ -193,7 +191,7 @@ void QMLPurchaseTransactionModel::processResult(const QueryResult result)
 void QMLPurchaseTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-    PurchaseTransaction transaction{ m_records.at(row).toMap() };
+    Utility::PurchaseTransaction transaction{ m_records.at(row).toMap() };
     transaction.id = data(index(row, 0), TransactionIdRole).toInt();
     transaction.row = row;
     emit execute(new PurchaseQuery::RemovePurchaseTransaction(transaction,

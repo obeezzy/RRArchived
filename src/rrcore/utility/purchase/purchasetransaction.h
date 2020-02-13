@@ -6,6 +6,7 @@
 #include "utility/commonutils.h"
 #include <QString>
 
+namespace Utility {
 struct PurchaseTransaction {
     qint64 id;
     Vendor vendor;
@@ -46,7 +47,7 @@ struct PurchaseTransaction {
                                  const Note &note = Note());
     explicit PurchaseTransaction(const QVariantMap &transaction);
     QVariantMap toVariantMap() const;
-}; Q_DECLARE_TYPEINFO(PurchaseTransaction, Q_PRIMITIVE_TYPE);
+};
 
 class PurchaseTransactionList : public QList<PurchaseTransaction> {
 public:
@@ -57,5 +58,6 @@ public:
         return list;
     }
 };
+} Q_DECLARE_TYPEINFO(Utility::PurchaseTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASETRANSACTION_H

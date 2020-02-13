@@ -4,7 +4,7 @@
 
 using namespace ExpenseQuery;
 
-ViewExpenseReport::ViewExpenseReport(const DateTimeSpan &dateTimeSpan,
+ViewExpenseReport::ViewExpenseReport(const Utility::DateTimeSpan &dateTimeSpan,
                                      QObject *receiver) :
     ExpenseExecutor(COMMAND, {
                         { "from", dateTimeSpan.from },

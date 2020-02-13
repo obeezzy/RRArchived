@@ -3,7 +3,9 @@
 
 #include "purchaseexecutor.h"
 
+namespace Utility {
 class DateTimeSpan;
+}
 
 namespace PurchaseQuery {
 class ViewPurchaseReport : public PurchaseExecutor
@@ -12,7 +14,7 @@ class ViewPurchaseReport : public PurchaseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_purchase_report");
 
-    explicit ViewPurchaseReport(const DateTimeSpan &dateTimeSpan,
+    explicit ViewPurchaseReport(const Utility::DateTimeSpan &dateTimeSpan,
                                 QObject *receiver);
     QueryResult execute() override;
 };

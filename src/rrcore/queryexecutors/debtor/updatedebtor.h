@@ -12,7 +12,7 @@ class UpdateDebtor : public DebtorExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("update_debtor");
 
-    explicit UpdateDebtor(const Debtor &debtor,
+    explicit UpdateDebtor(const Utility::Debtor &debtor,
                           QObject *receiver);
     QueryResult execute() override;
 private:

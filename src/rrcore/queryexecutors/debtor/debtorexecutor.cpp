@@ -9,7 +9,7 @@ DebtorExecutor::DebtorExecutor(const QString &command,
 
 }
 
-void DebtorExecutor::arrangeDebtTransactions(const DebtTransactionList &debtTransactions)
+void DebtorExecutor::arrangeDebtTransactions(const Utility::DebtTransactionList &debtTransactions)
 {
     QVariantList newDebtTransactions;
     QVariantList updatedDebtTransactions;
@@ -19,19 +19,19 @@ void DebtorExecutor::arrangeDebtTransactions(const DebtTransactionList &debtTran
     QVariantList archivedDebtPayments;
 
     for (const auto &transaction : debtTransactions) {
-        if (transaction.state == DebtTransaction::State::Fresh)
+        if (transaction.state == Utility::DebtTransaction::State::Fresh)
             newDebtTransactions.append(transaction.toVariantMap());
-        else if (transaction.state == DebtTransaction::State::Dirty)
+        else if (transaction.state == Utility::DebtTransaction::State::Dirty)
             updatedDebtTransactions.append(transaction.toVariantMap());
-        else if (transaction.state == DebtTransaction::State::Trash)
+        else if (transaction.state == Utility::DebtTransaction::State::Trash)
             archivedDebtTransactions.append(transaction.toVariantMap());
 
         for (const auto &payment : transaction.debtPayments) {
-            if (payment.state == DebtPayment::State::Fresh)
+            if (payment.state == Utility::DebtPayment::State::Fresh)
                 newDebtPayments.append(payment.toVariantMap());
-            else if (payment.state == DebtPayment::State::Dirty)
+            else if (payment.state == Utility::DebtPayment::State::Dirty)
                 updatedDebtPayments.append(payment.toVariantMap());
-            else if (payment.state == DebtPayment::State::Trash)
+            else if (payment.state == Utility::DebtPayment::State::Trash)
                 archivedDebtPayments.append(payment.toVariantMap());
         }
 

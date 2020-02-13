@@ -103,7 +103,7 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
 void QMLPurchaseReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::ViewPurchaseReport(DateTimeSpan {
+    emit execute(new PurchaseQuery::ViewPurchaseReport(Utility::DateTimeSpan {
                                                            QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
                                                            QDateTime::currentDateTime()
                                                        }, this));

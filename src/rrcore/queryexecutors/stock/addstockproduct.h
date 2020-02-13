@@ -11,7 +11,7 @@ class AddStockProduct : public StockExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("add_stock_product");
 
-    explicit AddStockProduct(const StockProduct &product,
+    explicit AddStockProduct(const Utility::StockProduct &product,
                              QObject *receiver);
     QueryResult execute() override;
 private:

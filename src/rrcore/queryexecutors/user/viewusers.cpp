@@ -4,10 +4,10 @@
 
 using namespace UserQuery;
 
-ViewUsers::ViewUsers(const RecordGroup::Flags &flags,
+ViewUsers::ViewUsers(const Utility::RecordGroup::Flags &flags,
                      QObject *receiver) :
     UserExecutor(COMMAND, {
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                  }, receiver)
 {
 

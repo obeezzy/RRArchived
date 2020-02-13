@@ -11,18 +11,18 @@
 
 using namespace PurchaseQuery;
 
-AddPurchaseTransaction::AddPurchaseTransaction(const PurchaseTransaction &transaction,
+AddPurchaseTransaction::AddPurchaseTransaction(const Utility::PurchaseTransaction &transaction,
                                                QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "can_undo", true },
-                        { "transaction_id", transaction.id },
+                        { "purchase_transaction_id", transaction.id },
                         { "client_id", transaction.vendor.client.id },
                         { "vendor_name", transaction.vendor.client.preferredName },
                         { "phone_number", transaction.vendor.client.phoneNumber },
                         { "total_cost", transaction.totalCost },
                         { "amount_paid", transaction.amountPaid },
                         { "balance", transaction.balance },
-                        { "suspended", transaction.flags.testFlag(RecordGroup::Suspended) },
+                        { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
                         { "due_date", transaction.dueDateTime },
                         { "action", transaction.action },
                         { "payments", transaction.payments.toVariantList() },
@@ -48,7 +48,7 @@ QueryResult AddPurchaseTransaction::undoAddPurchaseTransaction()
 
     const QVariantMap &params = request().params();
     const QString &transactionTable = QStringLiteral("purchase_transaction");
-    const int transactionId = params.value("transaction_id").toInt();
+    const int transactionId = params.value("purchase_transaction_id").toInt();
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
@@ -88,7 +88,7 @@ void AddPurchaseTransaction::archivePurchaseTransaction(int transactionId)
                       },
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
-                          "transaction_id",
+                          "purchase_transaction_id",
                           transactionId
                       },
                       ProcedureArgument {
@@ -153,7 +153,7 @@ void AddPurchaseTransaction::revertProductQuantityUpdate(int transactionId)
     callProcedure("RevertPurchaseQuantityUpdate", {
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
-                          "transaction_id",
+                          "purchase_transaction_id",
                           transactionId
                       },
                       ProcedureArgument {

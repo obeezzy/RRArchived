@@ -6,14 +6,14 @@
 
 using namespace StockQuery;
 
-FilterStockProductCategoriesByProduct::FilterStockProductCategoriesByProduct(const FilterCriteria &filterCriteria,
-                                                                             const SortCriteria &sortCriteria,
-                                                                             const RecordGroup::Flags &flags,
+FilterStockProductCategoriesByProduct::FilterStockProductCategoriesByProduct(const Utility::FilterCriteria &filterCriteria,
+                                                                             const Utility::SortCriteria &sortCriteria,
+                                                                             const Utility::RecordGroup::Flags &flags,
                                                                              QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "filter_text", filterCriteria.text },
                     { "sort_order", sortCriteria.orderAsString() },
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                   }, receiver)
 {
 

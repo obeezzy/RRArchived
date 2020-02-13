@@ -3,7 +3,9 @@
 
 #include "queryexecutors/debtor/debtorexecutor.h"
 
+namespace Utility {
 class FilterCriteria;
+}
 
 namespace DebtorQuery {
 class FilterDebtors : public DebtorExecutor
@@ -12,7 +14,7 @@ class FilterDebtors : public DebtorExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_debtors");
 
-    explicit FilterDebtors(const FilterCriteria &filterCriteria,
+    explicit FilterDebtors(const Utility::FilterCriteria &filterCriteria,
                            QObject *receiver);
     QueryResult execute() override;
 private:

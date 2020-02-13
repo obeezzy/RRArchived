@@ -220,7 +220,7 @@ void QMLSaleCartModel::setBalance(double balance)
     emit balanceChanged();
 }
 
-QList<SalePayment> QMLSaleCartModel::payments() const
+Utility::SalePaymentList QMLSaleCartModel::payments() const
 {
     return m_salePayments;
 }
@@ -230,7 +230,12 @@ void QMLSaleCartModel::addPayment(double amount, QMLSaleCartModel::PaymentMethod
     if (amount <= 0.0)
         return;
 
-    SalePayment payment{ amount, static_cast<Utility::PaymentMethod>(method), note, QStringLiteral("NGN") };
+    Utility::SalePayment payment {
+        amount,
+                static_cast<Utility::PaymentMethod>(method),
+                Utility::Note{ note },
+                QStringLiteral("NGN")
+    };
     m_paymentModel->addPayment(payment);
     m_salePayments.append(payment);
 
@@ -300,17 +305,17 @@ QString QMLSaleCartModel::toPrintableFormat() const
 void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
 {
     if (!m_records.isEmpty()) {
-        SaleCartProductList products;
+        Utility::SaleCartProductList products;
         for (const QVariant &record : m_records) {
-            products.append(SaleCartProduct {
+            products.append(Utility::SaleCartProduct {
                                 record.toMap().value("product_id").toInt(),
                                 record.toMap().value("product").toString(),
-                                StockProductCategory {
+                                Utility::StockProductCategory {
                                     record.toMap().value("product_category_id").toInt(),
                                     record.toMap().value("category").toString()
                                 },
                                 record.toMap().value("quantity").toDouble(),
-                                StockProductUnit {
+                                Utility::StockProductUnit {
                                     record.toMap().value("product_unit_id").toInt(),
                                     record.toMap().value("unit").toString()
                                 },
@@ -318,15 +323,15 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
                                 record.toMap().value("unit_price").toDouble(),
                                 record.toMap().value("cost").toDouble(),
                                 record.toMap().value("amount_paid").toDouble(),
-                                Note{ record.toMap().value("note").toString() }
+                                Utility::Note{ record.toMap().value("note").toString() }
                             });
         }
 
         setBusy(true);
-        emit execute(new SaleQuery::AddSaleTransaction(SaleTransaction {
+        emit execute(new SaleQuery::AddSaleTransaction(Utility::SaleTransaction {
                                                            m_transactionId,
-                                                           Customer {
-                                                               Client {
+                                                           Utility::Customer {
+                                                               Utility::Client {
                                                                    transaction.value("client_id").toInt(),
                                                                    m_customerName,
                                                                    m_customerPhoneNumber
@@ -335,11 +340,11 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
                                                            m_totalCost,
                                                            m_amountPaid,
                                                            m_balance,
-                                                           transaction.value("suspended").toBool() ? RecordGroup::Suspended
-                                                           : RecordGroup::None,
+                                                           transaction.value("suspended").toBool() ? Utility::RecordGroup::Suspended
+                                                           : Utility::RecordGroup::None,
                                                            transaction.value("due_date_time").toDateTime(),
                                                            transaction.value("action").toString(),
-                                                           Note{transaction.value("note").toString()},
+                                                           Utility::Note{transaction.value("note").toString()},
                                                            m_salePayments,
                                                            products
                                                        },
@@ -352,7 +357,7 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
 void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction)
 {
     if (!m_records.isEmpty()) {
-        SaleCartProductList products;
+        Utility::SaleCartProductList products;
         for (const QVariant &record : m_records) {
             //            products.append(SaleCartProduct {
             //                                record.toMap().value("product_category_id").toInt(),
@@ -365,15 +370,15 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction
             //                                record.toMap().value("amount_paid").toDouble(),
             //                                record.toMap().value("note").toString()
             //                            });
-            products.append(SaleCartProduct {
+            products.append(Utility::SaleCartProduct {
                                 record.toMap().value("product_id").toInt(),
                                 record.toMap().value("product").toString(),
-                                StockProductCategory {
+                                Utility::StockProductCategory {
                                     record.toMap().value("product_category_id").toInt(),
                                     record.toMap().value("category").toString()
                                 },
                                 record.toMap().value("quantity").toDouble(),
-                                StockProductUnit {
+                                Utility::StockProductUnit {
                                     record.toMap().value("product_unit_id").toInt(),
                                     record.toMap().value("unit").toString()
                                 },
@@ -381,16 +386,16 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction
                                 record.toMap().value("unit_price").toDouble(),
                                 record.toMap().value("cost").toDouble(),
                                 record.toMap().value("amount_paid").toDouble(),
-                                Note{ record.toMap().value("note").toString() }
+                                Utility::Note{ record.toMap().value("note").toString() }
                             });
         }
 
         setBusy(true);
         emit execute(new SaleQuery::UpdateSuspendedSaleTransaction(
-                         SaleTransaction {
+                         Utility::SaleTransaction {
                              m_transactionId,
-                             Customer {
-                                 Client {
+                             Utility::Customer {
+                                 Utility::Client {
                                      m_clientId,
                                      m_customerName,
                                      m_customerPhoneNumber
@@ -399,8 +404,8 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &transaction
                              m_totalCost,
                              m_amountPaid,
                              m_balance,
-                             RecordGroup::Suspended,
-                             Note { transaction.value("note").toString() }
+                             Utility::RecordGroup::Suspended,
+                             Utility::Note { transaction.value("note").toString() }
                          },
                          this));
     } else {
@@ -717,7 +722,7 @@ void QMLSaleCartModel::calculateTotal()
 void QMLSaleCartModel::calculateAmountPaid()
 {
     double amountPaid = 0.0;
-    for (const SalePayment &salePayment : m_salePayments)
+    for (const Utility::SalePayment &salePayment : m_salePayments)
         amountPaid += salePayment.amount;
 
     setAmountPaid(amountPaid);

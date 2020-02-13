@@ -100,7 +100,7 @@ void QMLUserProfile::signIn(const QString &userName,
         emit error(NoPasswordProvided);
     } else {
         setBusy(true);
-        emit execute(new UserQuery::SignInUser(User {
+        emit execute(new UserQuery::SignInUser(Utility::User {
                                                    userName,
                                                    password
                                                }, this));
@@ -125,7 +125,7 @@ void QMLUserProfile::signUp(const QString &userName,
         emit error(NoPasswordProvided);
     } else {
         setBusy(true);
-        emit execute(new UserQuery::SignUpUser(User {
+        emit execute(new UserQuery::SignUpUser(Utility::User {
                                                    userName,
                                                    password
                                                }, this));

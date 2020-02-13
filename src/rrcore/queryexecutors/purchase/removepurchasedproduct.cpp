@@ -3,7 +3,7 @@
 
 using namespace PurchaseQuery;
 
-RemovePurchasedProduct::RemovePurchasedProduct(const PurchasedProduct &product,
+RemovePurchasedProduct::RemovePurchasedProduct(const Utility::PurchasedProduct &product,
                                                QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "can_undo", true },

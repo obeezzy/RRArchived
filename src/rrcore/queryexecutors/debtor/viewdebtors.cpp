@@ -15,10 +15,10 @@ ViewDebtors::ViewDebtors(QObject *receiver) :
 
 }
 
-ViewDebtors::ViewDebtors(const RecordGroup::Flags &flags,
+ViewDebtors::ViewDebtors(const Utility::RecordGroup::Flags &flags,
                          QObject *receiver) :
     DebtorExecutor(COMMAND, {
-                    { "archived", flags.testFlag(RecordGroup::Archived) }
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                    }, receiver)
 {
 

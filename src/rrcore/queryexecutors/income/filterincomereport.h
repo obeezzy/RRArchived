@@ -3,9 +3,11 @@
 
 #include "queryexecutors/income/incomeexecutor.h"
 
+namespace Utility {
 class DateTimeSpan;
 class FilterCriteria;
 class SortCriteria;
+}
 
 namespace IncomeQuery {
 class FilterIncomeReport : public IncomeExecutor
@@ -14,9 +16,9 @@ class FilterIncomeReport : public IncomeExecutor
 public:
     inline static const QString COMMAND = QStringLiteral("filter_income_report");
 
-    explicit FilterIncomeReport(const FilterCriteria &filterCriteria,
-                                const SortCriteria &sortCriteria,
-                                const DateTimeSpan &dateTimeSpan,
+    explicit FilterIncomeReport(const Utility::FilterCriteria &filterCriteria,
+                                const Utility::SortCriteria &sortCriteria,
+                                const Utility::DateTimeSpan &dateTimeSpan,
                                 QObject *receiver);
     QueryResult execute() override;
 };

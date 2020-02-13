@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QDateTime>
 
+namespace Utility {
 struct User {
     int id;
     QString user;
@@ -15,9 +16,8 @@ struct User {
     QUrl imageUrl;
     QString phoneNumber;
     QString emailAddress;
-    bool active;
     Note note;
-    bool archived;
+    RecordGroup::Flags flags; // Active, Archived
     QDateTime created;
     QDateTime lastEdited;
     int userId;
@@ -34,9 +34,8 @@ struct User {
                   const QUrl &imageUrl,
                   const QString &phoneNumber,
                   const QString &emailAddress,
-                  bool active,
                   const Note &note,
-                  bool archived);
+                  const RecordGroup::Flags &flags);
     explicit User(const QString &firstName,
                   const QString &lastName,
                   const QString &user,
@@ -45,5 +44,6 @@ struct User {
                   const QString &emailAddress,
                   const QUrl &imageUrl);
 };
+}
 
 #endif // USER_H

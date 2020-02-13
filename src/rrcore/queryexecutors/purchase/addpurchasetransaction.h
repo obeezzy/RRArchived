@@ -3,7 +3,9 @@
 
 #include "purchaseexecutor.h"
 
+namespace Utility {
 class PurchaseTransaction;
+}
 
 namespace PurchaseQuery {
 class AddPurchaseTransaction : public PurchaseExecutor
@@ -13,7 +15,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("add_purchase_transaction");
     static inline const QString UNDO_COMMAND = QStringLiteral("undo_add_purchase_transaction");
 
-    explicit AddPurchaseTransaction(const PurchaseTransaction &transaction,
+    explicit AddPurchaseTransaction(const Utility::PurchaseTransaction &transaction,
                                     QObject *receiver);
     QueryResult execute() override;
 private:

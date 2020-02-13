@@ -10,7 +10,7 @@
 
 using namespace UserQuery;
 
-AddUser::AddUser(const User &user,
+AddUser::AddUser(const Utility::User &user,
                  QObject *receiver) :
     UserExecutor(COMMAND, {
                         { "first_name", user.firstName },

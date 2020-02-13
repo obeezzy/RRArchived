@@ -103,11 +103,11 @@ void QMLIncomeTransactionModel::tryQuery()
 {
     setBusy(true);
     emit execute(new IncomeQuery::ViewIncomeTransactions(
-                     DateTimeSpan {
-                         QDateTime(QDate(QDate::currentDate().year(), 1, 1),QTime(12, 0)),
+                     Utility::DateTimeSpan {
+                         QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
                          QDateTime::currentDateTime()
                      },
-                     RecordGroup::None,
+                     Utility::RecordGroup::None,
                      this));
 }
 

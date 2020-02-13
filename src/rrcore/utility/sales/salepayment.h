@@ -2,37 +2,23 @@
 #define SALEPAYMENT_H
 
 #include "utility/commonutils.h"
+#include <initializer_list>
 #include <QString>
 #include <QList>
-#include <initializer_list>
 
+namespace Utility {
 struct SalePayment {
     qreal amount;
     Utility::PaymentMethod method;
-    QString note;
+    Note note;
     QString currency;
 
-    QString paymentMethodAsString() const {
-        switch (method) {
-        case Utility::PaymentMethod::Cash:
-            return QStringLiteral("cash");
-        case Utility::PaymentMethod::DebitCard:
-            return QStringLiteral("debit_card");
-        case Utility::PaymentMethod::CreditCard:
-            return QStringLiteral("credit_card");
-        }
-
-        return QString();
-    }
-
-    QVariantMap toVariantMap() const {
-        return {
-            { "amount", amount },
-            { "payment_method", paymentMethodAsString(), },
-            { "note", note }
-        };
-    }
-}; Q_DECLARE_TYPEINFO(SalePayment, Q_PRIMITIVE_TYPE);
+    explicit SalePayment(qreal amount,
+                         const Utility::PaymentMethod &method,
+                         const Note &note,
+                         const QString &currency);
+    QVariantMap toVariantMap() const;
+};
 
 class SalePaymentList : public QList<SalePayment> {
 public:
@@ -48,5 +34,6 @@ public:
         return list;
     }
 };
+} Q_DECLARE_TYPEINFO(Utility::SalePayment, Q_PRIMITIVE_TYPE);
 
 #endif // SALEPAYMENT_H

@@ -78,11 +78,11 @@ void QMLClientModel::filter()
 
     setBusy(true);
     emit execute(new ClientQuery::FilterClients(
-                     FilterCriteria {
+                     Utility::FilterCriteria {
                          filterText(),
                          columnName()
                      },
-                     RecordGroup::None,
+                     Utility::RecordGroup::None,
                      this));
 }
 

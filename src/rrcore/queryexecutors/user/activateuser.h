@@ -2,8 +2,10 @@
 #define ACTIVATEUSER_H
 
 #include "userexecutor.h"
-#include "utility/userutils.h"
 
+namespace Utility {
+class User;
+}
 namespace UserQuery {
 class ActivateUser : public UserExecutor
 {
@@ -12,7 +14,7 @@ public:
     static inline const QString COMMAND = QStringLiteral("activate_user");
 
     explicit ActivateUser(bool active,
-                          const User &user,
+                          const Utility::User &user,
                           QObject *receiver);
     QueryResult execute() override;
 };

@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+namespace Utility {
 struct SoldProduct
 {
     qint64 saleTransactionId;
@@ -11,5 +12,6 @@ struct SoldProduct
     explicit SoldProduct(qint64 saleTransactionId,
                          int id);
 };
+}
 
 #endif // SOLDPRODUCT_H

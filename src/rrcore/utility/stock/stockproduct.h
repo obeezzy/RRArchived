@@ -5,12 +5,12 @@
 #include "utility/commonutils.h"
 #include "stockproductcategory.h"
 #include "stockproductunit.h"
-
 #include <QList>
 #include <QVariantList>
 #include <QVariantMap>
 #include <QDateTime>
 
+namespace Utility {
 struct StockProduct {
     int id;
     StockProductCategory category;
@@ -19,8 +19,7 @@ struct StockProduct {
     QUrl imageUrl;
     double quantity;
     StockProductUnit unit;
-    bool tracked;
-    bool divisible;
+    RecordGroup::Flags flags;
     qreal costPrice;
     qreal retailPrice;
     qreal unitPrice;
@@ -38,8 +37,7 @@ struct StockProduct {
                           const QUrl &imageUrl,
                           double quantity,
                           const StockProductUnit &unit,
-                          bool tracked,
-                          bool divisible,
+                          const RecordGroup::Flags &flags,
                           qreal costPrice,
                           qreal retailPrice,
                           const QString &currency,
@@ -50,15 +48,14 @@ struct StockProduct {
                           const QString &description,
                           const QUrl &imageUrl,
                           const StockProductUnit &unit,
-                          bool tracked,
-                          bool divisible,
+                          const RecordGroup::Flags &flags,
                           qreal costPrice,
                           qreal retailPrice,
                           const QString &currency,
                           const Note &note);
     explicit StockProduct(int id,
                           const StockProductCategory &category,
-                          double quantity,
+                          qreal quantity,
                           const StockProductUnit &unit,
                           qreal retailPrice,
                           qreal unitPrice,
@@ -75,7 +72,7 @@ public:
     explicit StockProductList(const QVariantList &list) :
         QList<StockProduct>() {
         for (const auto &variant : list)
-            append(StockProduct{variant.toMap()});
+            append(StockProduct{ variant.toMap() });
     }
 
     inline QVariantList toVariantList() const {
@@ -85,5 +82,6 @@ public:
         return list;
     }
 };
+}
 
 #endif // STOCKPRODUCT_H

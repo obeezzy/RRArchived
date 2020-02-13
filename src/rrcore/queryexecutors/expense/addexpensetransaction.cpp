@@ -10,7 +10,7 @@
 
 using namespace ExpenseQuery;
 
-AddExpenseTransaction::AddExpenseTransaction(const Client &client,
+AddExpenseTransaction::AddExpenseTransaction(const Utility::Client &client,
                                              const QString &purpose,
                                              qreal amount,
                                              const Utility::PaymentMethod &paymentMethod,

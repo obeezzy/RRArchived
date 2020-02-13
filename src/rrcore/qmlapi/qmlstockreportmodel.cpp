@@ -119,7 +119,7 @@ void QMLStockReportModel::tryQuery()
 {
     setBusy(true);
     emit execute(new StockQuery::ViewStockReport(
-                     DateTimeSpan {
+                     Utility::DateTimeSpan {
                          QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
                          QDateTime::currentDateTime()
                      }, this));

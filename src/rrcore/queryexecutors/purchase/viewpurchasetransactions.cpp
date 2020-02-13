@@ -7,14 +7,14 @@
 
 using namespace PurchaseQuery;
 
-ViewPurchaseTransactions::ViewPurchaseTransactions(const DateTimeSpan &dateTimeSpan,
-                                                   const RecordGroup::Flags &flags,
+ViewPurchaseTransactions::ViewPurchaseTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                                   const Utility::RecordGroup::Flags &flags,
                                                    QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "from", dateTimeSpan.from },
                         { "to", dateTimeSpan.to },
-                        { "suspended", flags.testFlag(RecordGroup::Suspended) },
-                        { "archived", flags.testFlag(RecordGroup::Archived) }
+                        { "suspended", flags.testFlag(Utility::RecordGroup::Suspended) },
+                        { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                      }, receiver)
 {
 }

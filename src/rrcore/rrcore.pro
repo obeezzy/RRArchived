@@ -142,10 +142,13 @@ SOURCES += \
     user/businessdetails.cpp \
     utility/debtor/debtor.cpp \
     utility/debtor/debtpayment.cpp \
+    utility/debtor/debttransaction.cpp \
     utility/purchase/purchasecartproduct.cpp \
     utility/purchase/purchasedproduct.cpp \
+    utility/purchase/purchasepayment.cpp \
     utility/purchase/purchasetransaction.cpp \
     utility/sales/salecartproduct.cpp \
+    utility/sales/salepayment.cpp \
     utility/sales/saletransaction.cpp \
     utility/sales/soldproduct.cpp \
     utility/stock/stockproduct.cpp \

@@ -11,8 +11,8 @@ class ViewPurchaseTransactions : public PurchaseExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_purchase_transactions");
 
-    explicit ViewPurchaseTransactions(const DateTimeSpan &dateTimeSpan,
-                                      const RecordGroup::Flags &flags,
+    explicit ViewPurchaseTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                      const Utility::RecordGroup::Flags &flags,
                                       QObject *receiver);
     QueryResult execute() override;
 };

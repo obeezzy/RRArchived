@@ -11,8 +11,8 @@ class ViewSaleTransactions : public SaleExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_sale_transactions");
 
-    explicit ViewSaleTransactions(const DateTimeSpan &dateTimeSpan,
-                                  const RecordGroup::Flags &RecordGroups,
+    explicit ViewSaleTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                  const Utility::RecordGroup::Flags &flags,
                                   QObject *receiver);
     QueryResult execute() override;
 };

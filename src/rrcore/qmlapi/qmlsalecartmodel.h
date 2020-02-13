@@ -97,7 +97,7 @@ public:
 
     SalePaymentModel *paymentModel() const;
 
-    QList<SalePayment> payments() const;
+    Utility::SalePaymentList payments() const;
 
     Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
     Q_INVOKABLE void removePayment(int index);
@@ -140,7 +140,7 @@ private:
     bool m_canAcceptCash;
     bool m_canAcceptCard;
     QVariantList m_records;
-    SalePaymentList m_salePayments;
+    Utility::SalePaymentList m_salePayments;
     SalePaymentModel *m_paymentModel;
 
     bool containsProduct(int productId);

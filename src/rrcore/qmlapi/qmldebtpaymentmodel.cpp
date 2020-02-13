@@ -34,7 +34,7 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case AmountOwedRole: {
-        auto debtTransaction = m_debtTransactionRef.value<DebtTransaction *>();
+        auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
         return debtTransaction->totalDebt;
     }
     case AmountPaidRole:
@@ -42,7 +42,7 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
     case BalanceRole:
         return m_payments.at(index.row()).balance;
     case MaxPayableAmount: {
-        auto debtTransaction = m_debtTransactionRef.value<DebtTransaction *>();
+        auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
         return qMax(0.0, debtTransaction->totalDebt - m_totalAmountPaid);
     }
     case CurrencyRole:
@@ -52,9 +52,9 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
     case NoteRole:
         return m_payments.at(index.row()).note.note;
     case DirtyRole:
-        return m_payments.at(index.row()).state == DebtPayment::State::Dirty;
+        return m_payments.at(index.row()).state == Utility::DebtPayment::State::Dirty;
     case FreshRole:
-        return m_payments.at(index.row()).state == DebtPayment::State::Fresh;
+        return m_payments.at(index.row()).state == Utility::DebtPayment::State::Fresh;
     case ArchivedRole:
         return m_payments.at(index.row()).archived;
     case CreatedRole:
@@ -89,11 +89,11 @@ bool QMLDebtPaymentModel::setData(const QModelIndex &index, const QVariant &valu
     if (!index.isValid())
         return false;
 
-    DebtPayment &payment = m_payments[index.row()];
+    Utility::DebtPayment &payment = m_payments[index.row()];
 
     switch (role) {
     case AmountPaidRole:
-        if (payment.state != DebtPayment::State::Clean) {
+        if (payment.state != Utility::DebtPayment::State::Clean) {
             payment.amountPaid = value.toDouble();
             updateRef(payment);
             emit dataChanged(index, index);
@@ -164,14 +164,18 @@ void QMLDebtPaymentModel::addPayment(double amount,
     if (amount <= 0.0)
         return;
 
-    auto debtTransaction = m_debtTransactionRef.value<DebtTransaction *>();
+    auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!m_payments.isEmpty()) {
-        m_payments.append(DebtPayment{m_payments.last().balance, amount,
-                                      debtTransaction->dueDateTime, Note{note}});
+        m_payments.append(Utility::DebtPayment{m_payments.last().balance,
+                                               amount,
+                                               debtTransaction->dueDateTime,
+                                               Utility::Note{ note }});
     } else {
-        m_payments.append(DebtPayment{debtTransaction->totalDebt, amount,
-                                      debtTransaction->dueDateTime, Note{note}});
+        m_payments.append(Utility::DebtPayment{debtTransaction->totalDebt,
+                                               amount,
+                                               debtTransaction->dueDateTime,
+                                               Utility::Note{ note }});
     }
     updateRef(m_payments.last());
     calculateTotals();
@@ -185,7 +189,7 @@ void QMLDebtPaymentModel::removePayment(int row)
 
     beginRemoveRows(QModelIndex(), row, row);
     auto payment = m_payments.takeAt(row);
-    payment.state = DebtPayment::State::Trash;
+    payment.state = Utility::DebtPayment::State::Trash;
     updateRef(payment);
     calculateTotals();
     endRemoveRows();
@@ -207,7 +211,7 @@ void QMLDebtPaymentModel::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         beginResetModel();
-        m_payments = DebtPaymentList{result.outcome().toMap().value("payments").toList()};
+        m_payments = Utility::DebtPaymentList{ result.outcome().toMap().value("payments").toList() };
         calculateTotals();
         endResetModel();
 
@@ -226,12 +230,12 @@ void QMLDebtPaymentModel::calculateTotals()
     setTotalAmountPaid(totalAmountPaid);
 }
 
-void QMLDebtPaymentModel::updateRef(DebtPayment payment)
+void QMLDebtPaymentModel::updateRef(Utility::DebtPayment payment)
 {
-    auto debtTransaction = m_debtTransactionRef.value<DebtTransaction *>();
+    auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
     payment.debtTransactionId = debtTransaction->id;
 
-    if (payment.state == DebtPayment::State::Trash) {
+    if (payment.state == Utility::DebtPayment::State::Trash) {
         debtTransaction->debtPayments.removeAll(payment);
         debtTransaction->archivedDebtPayments.append(payment);
     } else if (debtTransaction->debtPayments.contains(payment)) {
@@ -241,5 +245,5 @@ void QMLDebtPaymentModel::updateRef(DebtPayment payment)
     }
 
     debtTransaction->lastEdited = QDateTime::currentDateTime();
-    debtTransaction->state = DebtTransaction::State::Dirty;
+    debtTransaction->state = Utility::DebtTransaction::State::Dirty;
 }

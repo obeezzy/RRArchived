@@ -7,14 +7,14 @@
 
 using namespace SaleQuery;
 
-ViewSaleTransactions::ViewSaleTransactions(const DateTimeSpan &dateTimeSpan,
-                                           const RecordGroup::Flags &RecordGroups,
+ViewSaleTransactions::ViewSaleTransactions(const Utility::DateTimeSpan &dateTimeSpan,
+                                           const Utility::RecordGroup::Flags &flags,
                                            QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "from", dateTimeSpan.from },
                     { "to", dateTimeSpan.to },
-                    { "suspended", RecordGroups.testFlag(RecordGroup::Suspended) },
-                    { "archived", RecordGroups.testFlag(RecordGroup::Archived) }
+                    { "suspended", flags.testFlag(Utility::RecordGroup::Suspended) },
+                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
                  }, receiver)
 {
 

@@ -4,6 +4,10 @@
 #include "userexecutor.h"
 #include "utility/userutils.h"
 
+namespace Utility {
+class User;
+}
+
 namespace UserQuery {
 class AddUser : public UserExecutor
 {
@@ -11,7 +15,7 @@ class AddUser : public UserExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("add_user");
 
-    explicit AddUser(const User &user,
+    explicit AddUser(const Utility::User &user,
                      QObject *receiver);
     QueryResult execute() override;
 private:
