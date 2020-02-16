@@ -7,10 +7,10 @@
 namespace Utility {
 struct UserPrivilege
 {
-    int id;
-    int userId;
+    int id {-1};
+    int userId {-1};
 
-    explicit UserPrivilege();
+    explicit UserPrivilege() = default;
     explicit UserPrivilege(int userId);
     explicit UserPrivilege(const QVariantMap &map);
 

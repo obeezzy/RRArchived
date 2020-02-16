@@ -2,7 +2,7 @@
 #define QMLSTOCKPRODUCTMODEL_H
 
 #include "models/abstractvisualtablemodel.h"
-#include "utility/stockutils.h"
+#include "utility/stock/stockproduct.h"
 
 class QMLStockProductModel : public AbstractVisualTableModel
 {
@@ -68,11 +68,11 @@ protected:
 public slots:
     void refresh() override;
 private:
-    int m_categoryId;
+    int m_categoryId {-1};
     Utility::StockProductList m_products;
 
     void removeProductFromModel(int row);
-    void undoRemoveProductFromModel(int row, const Utility::StockProduct &product);
+    void undoRemoveProductFromModel(const Utility::StockProduct &product);
 };
 
 #endif // QMLSTOCKPRODUCTMODEL_H

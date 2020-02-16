@@ -2,6 +2,7 @@
 #define QMLUSERMODEL_H
 
 #include "models/abstractvisualtablemodel.h"
+#include "utility/user/user.h"
 
 class QMLUserModel : public AbstractVisualTableModel
 {
@@ -51,20 +52,23 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
-    Q_INVOKABLE void removeUser(const QString &userName);
-    Q_INVOKABLE void activateUser(const QString &userName, bool active);
+    Q_INVOKABLE void removeUser(int row);
+    Q_INVOKABLE void activateUser(int row,
+                                  bool active);
 signals:
     void keysChanged();
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::UserList m_users;
     int m_keys;
 
-    void removeUserFromModel(const QString &userName);
+    void removeUserFromModel(const Utility::User &user);
 };
 
 #endif // QMLUSERMODEL_H

@@ -3,21 +3,46 @@
 
 #include "utility/commonutils.h"
 #include <QString>
+#include <QVariantList>
 
 namespace Utility {
 struct StockProductCategory
 {
-    int id;
+    int id {-1};
     QString category;
     Note note;
+    int row {-1};
 
-    explicit StockProductCategory();
+    explicit StockProductCategory() = default;
+    explicit StockProductCategory(const QVariantMap &map);
     explicit StockProductCategory(const QString &category,
                                   const Note &note = Note{});
     explicit StockProductCategory(int id,
                                   const QString &category,
                                   const Note &note = Note{});
+
+    QVariantMap toVariantMap() const;
 };
-}
+
+class StockProductCategoryList : public QList<StockProductCategory>
+{
+public:
+    explicit StockProductCategoryList() = default;
+    StockProductCategoryList(std::initializer_list<StockProductCategory> categories) :
+        QList<StockProductCategory>(categories) { }
+    explicit StockProductCategoryList(const QVariantList &list) :
+        QList<StockProductCategory>() {
+        for (const auto &variant : list)
+            append(StockProductCategory{ variant.toMap() });
+    }
+
+    QVariantList toVariantList() const {
+        QVariantList list;
+        for (const auto &product : *this)
+            list.append(product.toVariantMap());
+        return list;
+    }
+};
+} Q_DECLARE_TYPEINFO(Utility::StockProductCategory, Q_PRIMITIVE_TYPE);
 
 #endif // STOCKPRODUCTCATEGORY_H

@@ -8,9 +8,7 @@ QMLPurchaseHomeModel::QMLPurchaseHomeModel(QObject *parent) :
 
 QMLPurchaseHomeModel::QMLPurchaseHomeModel(DatabaseThread &thread, QObject *parent) :
     AbstractHomeModel(thread, parent)
-{
-
-}
+{}
 
 void QMLPurchaseHomeModel::tryQuery()
 {

@@ -1,9 +1,9 @@
 #ifndef USERPROFILE_H
 #define USERPROFILE_H
 
+#include "utility/user/user.h"
 #include <QObject>
 #include <QVariant>
-#include <QUrl>
 
 class QMLUserProfile;
 class BusinessAdmin;
@@ -34,18 +34,13 @@ public:
 signals:
     void adminChanged();
 private:
-    QUrl m_logoUrl;
-    QString m_userName;
-    QString m_password;
-    int m_userId;
-    QVariant m_privileges;
+    Utility::User m_user;
     BusinessDetails *m_businessDetails;
     BusinessAdmin *m_businessAdmin;
 
     explicit UserProfile(QObject *parent = nullptr);
     explicit UserProfile(const UserProfile &other) = delete;
-    void setUser(int userId, const QString &userName, const QString &password,
-                 const QVariant &privileges, const QByteArray &accessToken);
+    void setUser(const Utility::User &user);
     void setDatabaseReady(bool databaseReady);
     void setRackId(const QString &rackId);
     void setUserId(int userId);

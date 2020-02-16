@@ -1,9 +1,7 @@
 #include "queryexecutor.h"
-
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -146,7 +144,8 @@ void QueryExecutor::enforceArguments(QStringList argumentsToEnforce, const QVari
                                        .arg(argumentsToEnforce.join(", ")));
 }
 
-QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::initializer_list<ProcedureArgument> arguments)
+QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure,
+                                               std::initializer_list<ProcedureArgument> arguments)
 {
     if (procedure.trimmed().isEmpty())
         return QList<QSqlRecord>();
@@ -193,9 +192,9 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::in
                 sqlArguments.append(argument.value.toString());
             break;
         case ProcedureArgument::Type::Out:
-            sqlArguments.append(QString("@") + argument.name);
+            sqlArguments.append(QStringLiteral("@") + argument.name);
             outArguments.append(argument.name);
-            selectStatementSuffixes.append(QString("@%1 AS %1").arg(argument.name));
+            selectStatementSuffixes.append(QStringLiteral("@%1 AS %1").arg(argument.name));
             break;
         case ProcedureArgument::Type::InOut:
         {
@@ -206,35 +205,34 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure, std::in
                 inArgument = QStringLiteral("%1").arg(argument.value.toString());
 
             if (!q.exec(QStringLiteral("SET @%1 = %2").arg(argument.name, inArgument)))
-                throw DatabaseException(DatabaseError::QueryErrorCode::ProcedureFailed,
-                                        QStringLiteral("Failed to SET variable @%1").arg(argument.name));
+                throw ProcedureCallFailedException(QStringLiteral("Failed to SET variable @%1").arg(argument.name),
+                                                   q.lastError());
 
-            sqlArguments.append(QString("@") + argument.name);
+            sqlArguments.append(QStringLiteral("@") + argument.name);
             outArguments.append(argument.name);
-            selectStatementSuffixes.append(QString("@%1 AS %1").arg(argument.name));
+            selectStatementSuffixes.append(QStringLiteral("@%1 AS %1").arg(argument.name));
         }
             break;
         }
     }
 
-    const QString &storedProcedure = QString("CALL %1(%2)").arg(procedure, sqlArguments.join(", "));
+    const QString &storedProcedure = QStringLiteral("CALL %1(%2)").arg(procedure,
+                                                                       sqlArguments.join(", "));
     qCInfo(lcqueryexecutor) << "Procedure syntax:" << storedProcedure;
     if (!q.exec(storedProcedure)) {
         if (q.lastError().nativeErrorCode().toInt() >= static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException))
-            throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
-                                    q.lastError().text(),
-                                    q.lastError().databaseText());
+            throw ProcedureCallFailedException(q.lastError().text(),
+                                               q.lastError());
         else
-            throw DatabaseException(q.lastError().nativeErrorCode().toInt(),
-                                    q.lastError().text(),
-                                    QStringLiteral("Procedure '%1' failed.").arg(procedure));
+            throw ProcedureCallFailedException(QStringLiteral("Procedure '%1' failed.").arg(procedure),
+                                               q.lastError());
     }
 
     if (!selectStatementSuffixes.isEmpty()) {
         if (!q.exec(QStringLiteral("SELECT %1").arg(selectStatementSuffixes.join(", "))))
-            throw DatabaseException(DatabaseError::QueryErrorCode::ProcedureFailed,
-                                    q.lastError().text(),
-                                    QStringLiteral("Failed to select out arguments for procedure '%1'.").arg(procedure));
+            throw ProcedureCallFailedException(QStringLiteral("Failed to select out arguments for procedure '%1'.")
+                                               .arg(procedure),
+                                               q.lastError());
 
         while (q.next()) {
             if (areAllArgumentsNull(q.record(), outArguments))
@@ -261,23 +259,23 @@ int QueryExecutor::addNote(const QString &note,
         if (tableName.trimmed().isEmpty())
             throw InvalidArgumentException("Cannot add note with no table name.");
 
-        const QList<QSqlRecord> &records(callProcedure("AddNote", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "note",
-                                                               note
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "table_name",
-                                                               "debtor"
-                                                           },
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "user_id",
-                                                               UserProfile::instance().userId()
-                                                           }
-                                                       }));
+        const auto &records(callProcedure("AddNote", {
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "note",
+                                                  note
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "table_name",
+                                                  "debtor"
+                                              },
+                                              ProcedureArgument {
+                                                  ProcedureArgument::Type::In,
+                                                  "user_id",
+                                                  UserProfile::instance().userId()
+                                              }
+                                          }));
 
         return records.first().value("id").toInt();
     } catch (DatabaseException &) {

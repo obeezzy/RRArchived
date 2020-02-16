@@ -6,8 +6,9 @@ QMLExpenseReportModel::QMLExpenseReportModel(QObject *parent) :
     QMLExpenseReportModel(DatabaseThread::instance(), parent)
 {}
 
-QMLExpenseReportModel::QMLExpenseReportModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent)
+QMLExpenseReportModel::QMLExpenseReportModel(DatabaseThread &thread,
+                                             QObject *parent) :
+    AbstractReportModel(thread, parent)
 {
 
 }
@@ -17,7 +18,7 @@ int QMLExpenseReportModel::rowCount(const QModelIndex &index) const
     if (index.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLExpenseReportModel::columnCount(const QModelIndex &index) const
@@ -35,9 +36,9 @@ QVariant QMLExpenseReportModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case PurposeRole:
-        return m_records.at(index.row()).toMap().value("purpose").toString();
+        return m_transactions.at(index.row()).purpose;
     case AmountRole:
-        return m_records.at(index.row()).toMap().value("amount").toDouble();
+        return m_transactions.at(index.row()).amount;
     }
 
     return QVariant();
@@ -84,12 +85,8 @@ QVariant QMLExpenseReportModel::headerData(int section, Qt::Orientation orientat
 void QMLExpenseReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new ExpenseQuery::ViewExpenseReport(
-                     Utility::DateTimeSpan {
-                         QDateTime::currentDateTime().addDays(-1),
-                         QDateTime::currentDateTime()
-                     },
-                     this));
+    emit execute(new ExpenseQuery::ViewExpenseReport(dateTimeSpan(),
+                                                     this));
 }
 
 void QMLExpenseReportModel::processResult(const QueryResult result)
@@ -101,7 +98,7 @@ void QMLExpenseReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == ExpenseQuery::ViewExpenseReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("transactions").toList();
+            m_transactions = Utility::ExpenseReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
             emit success(ViewExpenseReportSuccess);
         } else {

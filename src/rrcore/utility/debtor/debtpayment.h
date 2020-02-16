@@ -3,11 +3,9 @@
 
 #include "utility/commonutils.h"
 #include "singletons/settings.h"
-#include <initializer_list>
 #include <QString>
 #include <QDateTime>
 #include <QVariantList>
-#include <QVariantMap>
 #include <QDebug>
 
 namespace Utility {
@@ -16,15 +14,15 @@ private:
     Q_GADGET
 public:
     enum class State { Clean, Dirty, Fresh, Trash }; Q_ENUM(State)
-    int id;
-    int debtTransactionId;
-    qreal totalAmount;
-    qreal amountPaid;
-    qreal balance;
+    int id {-1};
+    int debtTransactionId {-1};
+    qreal totalAmount {0.0};
+    qreal amountPaid {0.0};
+    qreal balance {0.0};
     QString currency;
     QDateTime dueDateTime;
     Note note;
-    bool archived;
+    RecordGroup::Flags flags;
     QDateTime created;
     QDateTime lastEdited;
     State state;
@@ -34,7 +32,6 @@ public:
                          qreal amountPaid,
                          const QDateTime &dueDateTime,
                          const Note &note);
-
     explicit DebtPayment(int id,
                          qreal totalAmount,
                          qreal amountPaid,
@@ -42,7 +39,7 @@ public:
                          const QString &currency,
                          const QDateTime &dueDateTime,
                          const Note &note,
-                         bool archived,
+                         const RecordGroup::Flags &flags,
                          const QDateTime &created,
                          const QDateTime &lastEdited,
                          State state);

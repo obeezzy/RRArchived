@@ -10,10 +10,7 @@ QMLDebtPaymentModel::QMLDebtPaymentModel(QObject *parent) :
 {}
 
 QMLDebtPaymentModel::QMLDebtPaymentModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent),
-    m_debtTransactionId(-1),
-    m_totalAmountPaid(0.0),
-    m_lastPaymentId(0)
+    AbstractVisualListModel(thread, parent)
 {
     connect(this, &QMLDebtPaymentModel::debtTransactionIdChanged,
             this, &QMLDebtPaymentModel::tryQuery);
@@ -56,7 +53,7 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
     case FreshRole:
         return m_payments.at(index.row()).state == Utility::DebtPayment::State::Fresh;
     case ArchivedRole:
-        return m_payments.at(index.row()).archived;
+        return m_payments.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
         return m_payments.at(index.row()).created;
     case LastEditedRole:
@@ -236,12 +233,12 @@ void QMLDebtPaymentModel::updateRef(Utility::DebtPayment payment)
     payment.debtTransactionId = debtTransaction->id;
 
     if (payment.state == Utility::DebtPayment::State::Trash) {
-        debtTransaction->debtPayments.removeAll(payment);
-        debtTransaction->archivedDebtPayments.append(payment);
-    } else if (debtTransaction->debtPayments.contains(payment)) {
-        debtTransaction->debtPayments.replace(debtTransaction->debtPayments.indexOf(payment), payment);
+        debtTransaction->payments.removeAll(payment);
+        debtTransaction->archivedPayments.append(payment);
+    } else if (debtTransaction->payments.contains(payment)) {
+        debtTransaction->payments.replace(debtTransaction->payments.indexOf(payment), payment);
     } else {
-        debtTransaction->debtPayments.append(payment);
+        debtTransaction->payments.append(payment);
     }
 
     debtTransaction->lastEdited = QDateTime::currentDateTime();

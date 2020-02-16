@@ -2,6 +2,7 @@
 #define QMLCLIENTMODEL_H
 
 #include "models/abstractvisuallistmodel.h"
+#include "utility/common/client.h"
 
 class QMLClientModel : public AbstractVisualListModel
 {
@@ -37,10 +38,10 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
     void filter() override final;
+    QString columnName(int column) const override;
 private:
-    QVariantList m_records;
+    Utility::ClientList m_clientList;
 
-    QString columnName() const;
 };
 
 #endif // QMLCLIENTMODEL_H

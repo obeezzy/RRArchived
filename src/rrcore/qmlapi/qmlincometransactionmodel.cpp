@@ -1,26 +1,22 @@
 #include "qmlincometransactionmodel.h"
 #include "queryexecutors/income.h"
-
 #include <QDateTime>
 
 QMLIncomeTransactionModel::QMLIncomeTransactionModel(QObject *parent) :
     AbstractTransactionModel (parent)
-{
+{}
 
-}
-
-QMLIncomeTransactionModel::QMLIncomeTransactionModel(DatabaseThread &thread) :
-    AbstractTransactionModel (thread)
-{
-
-}
+QMLIncomeTransactionModel::QMLIncomeTransactionModel(DatabaseThread &thread,
+                                                     QObject *parent) :
+    AbstractTransactionModel(thread, parent)
+{}
 
 int QMLIncomeTransactionModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLIncomeTransactionModel::columnCount(const QModelIndex &parent) const
@@ -38,11 +34,11 @@ QVariant QMLIncomeTransactionModel::data(const QModelIndex &index, int role) con
 
     switch (role) {
     case TransactionIdRole:
-        return m_records.at(index.row()).toMap().value("transaction_id").toInt();
+        return m_transactions.at(index.row()).id;
     case ClientNameRole:
-        return m_records.at(index.row()).toMap().value("client_name").toString();
+        return m_transactions.at(index.row()).client.preferredName;
     case AmountRole:
-        return m_records.at(index.row()).toMap().value("amount").toDouble();
+        return m_transactions.at(index.row()).amount;
     }
 
     return QVariant();
@@ -57,7 +53,9 @@ QHash<int, QByteArray> QMLIncomeTransactionModel::roleNames() const
     };
 }
 
-QVariant QMLIncomeTransactionModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QMLIncomeTransactionModel::headerData(int section,
+                                               Qt::Orientation orientation,
+                                               int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
@@ -102,13 +100,9 @@ QVariant QMLIncomeTransactionModel::headerData(int section, Qt::Orientation orie
 void QMLIncomeTransactionModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new IncomeQuery::ViewIncomeTransactions(
-                     Utility::DateTimeSpan {
-                         QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
-                         QDateTime::currentDateTime()
-                     },
-                     Utility::RecordGroup::None,
-                     this));
+    emit execute(new IncomeQuery::ViewIncomeTransactions(dateTimeSpan(),
+                                                         Utility::RecordGroup::None,
+                                                         this));
 }
 
 void QMLIncomeTransactionModel::processResult(const QueryResult result)
@@ -119,10 +113,9 @@ void QMLIncomeTransactionModel::processResult(const QueryResult result)
     setBusy(false);
     beginResetModel();
     if (result.isSuccessful()) {
-        m_records = result.outcome().toMap().value("transactions").toList();
+        m_transactions = Utility::IncomeTransactionList{ result.outcome().toMap().value("transactions").toList() };
         emit success();
     } else {
-        m_records.clear();
         emit error();
     }
     endResetModel();

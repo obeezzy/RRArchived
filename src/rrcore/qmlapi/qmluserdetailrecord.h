@@ -2,7 +2,9 @@
 #define QMLUSERDETAILRECORD_H
 
 #include "detailrecord/abstractdetailrecord.h"
-#include <QUrl>
+#include "utility/user/user.h"
+
+class QUrl;
 
 class QMLUserDetailRecord : public AbstractDetailRecord
 {
@@ -40,13 +42,7 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_userId;
-    QString m_firstName;
-    QString m_lastName;
-    QString m_userName;
-    QString m_phoneNumber;
-    QString m_emailAddress;
-    QUrl m_imageUrl;
+    Utility::User m_user;
 
     void setFirstName(const QString &firstName);
     void setLastName(const QString &lastName);

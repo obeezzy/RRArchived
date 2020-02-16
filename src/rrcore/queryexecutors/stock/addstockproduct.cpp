@@ -25,7 +25,7 @@ AddStockProduct::AddStockProduct(const Utility::StockProduct &product,
                     { "cost_price", product.costPrice },
                     { "retail_price", product.retailPrice },
                     { "base_unit_equivalent", product.unit.baseUnitEquivalent },
-                    { "is_preferred_unit", product.unit.preferred },
+                    { "unit_preferred", product.unit.flags.testFlag(Utility::RecordGroup::Preferred) },
                     { "currency", product.currency },
                     { "quantity", product.quantity },
                   }, receiver)
@@ -66,7 +66,7 @@ QueryResult AddStockProduct::execute()
 
 int AddStockProduct::addStockProductCategory()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &note = params.value("category_note").toString();
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("product_category"),
@@ -103,7 +103,7 @@ int AddStockProduct::addStockProductCategory()
 
 int AddStockProduct::addStockProduct(int productCategoryId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
     const QString &note = params.value("product_note").toString();
     const int noteId = QueryExecutor::addNote(note,
@@ -166,8 +166,8 @@ int AddStockProduct::addStockProduct(int productCategoryId)
 
 int AddStockProduct::addStockProductUnit(int productId)
 {
-    const QVariantMap &params = request().params();
-    const QString &note = params.value("product_unit_note").toString();
+    const QVariantMap &params{ request().params() };
+    const QString &note{ params.value("product_unit_note").toString() };
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("unit"),
                                               ExceptionPolicy::DisallowExceptions);
@@ -234,8 +234,8 @@ int AddStockProduct::addStockProductUnit(int productId)
 void AddStockProduct::addInitialProductQuantity(int productId,
                                                 int productUnitId)
 {
-    const QVariantMap &params = request().params();
-    const QString &reason = request().command();
+    const QVariantMap &params{ request().params() };
+    const QString &reason{ request().command() };
     callProcedure("AddInitialQuantity", {
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
@@ -268,7 +268,7 @@ void AddStockProduct::addInitialProductQuantity(int productId,
 void AddStockProduct::addCurrentProductQuantity(int productId,
                                                 int productUnitId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     callProcedure("AddCurrentQuantity", {
                       ProcedureArgument {
                           ProcedureArgument::Type::In,

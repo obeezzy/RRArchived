@@ -1,14 +1,15 @@
 #ifndef ABSTRACTVISUALTABLEMODEL_H
 #define ABSTRACTVISUALTABLEMODEL_H
 
-#include <QObject>
+#include "database/queryrequest.h"
+#include "database/queryresult.h"
+#include "database/queryexecutor.h"
+#include "utility/common/filtercriteria.h"
+#include "utility/common/sortcriteria.h"
 #include <QAbstractTableModel>
 #include <QQmlParserStatus>
 #include <QVariant>
 #include <QLoggingCategory>
-#include "database/queryrequest.h"
-#include "database/queryresult.h"
-#include "database/queryexecutor.h"
 
 class QueryRequest;
 class QueryResult;
@@ -65,6 +66,8 @@ protected:
     virtual void filter();
     void setBusy(bool);
     const QueryRequest &lastSuccessfulRequest() const;
+    Utility::FilterCriteria filterCriteria() const;
+    Utility::SortCriteria sortCriteria() const;
 signals:
     void execute(QueryExecutor *);
     void autoQueryChanged();
@@ -81,13 +84,11 @@ signals:
     void success(int successCode = -1);
     void error(int errorCode = -1);
 private:
-    bool m_autoQuery;
-    bool m_busy;
-    QString m_filterText;
-    int m_filterColumn;
-    Qt::SortOrder m_sortOrder;
-    int m_sortColumn;
-    qreal m_tableViewWidth;
+    bool m_autoQuery {true};
+    bool m_busy {false};
+    Utility::FilterCriteria m_filterCriteria;
+    Utility::SortCriteria m_sortCriteria;
+    qreal m_tableViewWidth {0.0};
     QueryRequest m_lastSuccessfulRequest;
 
     void saveRequest(const QueryResult &result);

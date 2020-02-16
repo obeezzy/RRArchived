@@ -12,10 +12,7 @@ QMLDebtTransactionModel::QMLDebtTransactionModel(QObject *parent) :
 {}
 
 QMLDebtTransactionModel::QMLDebtTransactionModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent),
-    m_debtorId(-1),
-    m_clientId(-1),
-    m_dirty(false)
+    AbstractVisualListModel(thread, parent)
 {
     connect(this, &QMLDebtTransactionModel::debtorIdChanged,
             this, &QMLDebtTransactionModel::tryQuery);
@@ -26,7 +23,7 @@ int QMLDebtTransactionModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_transactions.count();
+    return m_debtor.transactions.count();
 }
 
 QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
@@ -36,23 +33,23 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case TransactionIdRole:
-        return m_transactions.at(index.row()).id;
+        return m_debtor.transactions.at(index.row()).id;
     case RelatedTransactionRole:
-        return tableNameNormalized(m_transactions.at(index.row()).relatedTransaction.tableName);
+        return m_debtor.transactions.at(index.row()).relatedTransaction.toString();
     case RelatedTransactionIdRole:
-        return m_transactions.at(index.row()).relatedTransaction.id;
+        return m_debtor.transactions.at(index.row()).relatedTransaction.id;
     case NoteRole:
-        return m_transactions.at(index.row()).note.note;
+        return m_debtor.transactions.at(index.row()).note.note;
     case DueDateRole:
-        return m_transactions.at(index.row()).dueDateTime;
+        return m_debtor.transactions.at(index.row()).dueDateTime;
     case CreatedRole:
-        return m_transactions.at(index.row()).created;
+        return m_debtor.transactions.at(index.row()).created;
     case RefRole:
-        return QVariant::fromValue(&m_transactions.at(index.row()));
+        return QVariant::fromValue(&m_debtor.transactions.at(index.row()));
     case TotalDebtRole:
-        return m_transactions.at(index.row()).totalDebt;
+        return m_debtor.transactions.at(index.row()).totalDebt;
     case DirtyRole:
-        return m_transactions.at(index.row()).state == Utility::DebtTransaction::State::Dirty;
+        return m_debtor.transactions.at(index.row()).state == Utility::DebtTransaction::State::Dirty;
     }
 
     return QVariant();
@@ -73,19 +70,21 @@ QHash<int, QByteArray> QMLDebtTransactionModel::roleNames() const
     };
 }
 
-bool QMLDebtTransactionModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QMLDebtTransactionModel::setData(const QModelIndex &index,
+                                      const QVariant &value,
+                                      int role)
 {
     if (!index.isValid())
         return false;
 
-    Utility::DebtTransaction &transaction = m_transactions[index.row()];
+    Utility::DebtTransaction &debtTransaction = m_debtor.transactions[index.row()];
     switch (role) {
     case DueDateRole:
-        if (value.toDateTime().isValid() && (transaction.dueDateTime != value.toDateTime())) {
-            transaction.dueDateTime = value.toDateTime();
+        if (value.toDateTime().isValid() && (debtTransaction.dueDateTime != value.toDateTime())) {
+            debtTransaction.dueDateTime = value.toDateTime();
             m_dirty = true;
             emit dataChanged(index, index);
-        } else if (transaction.dueDateTime == value.toDateTime()) {
+        } else if (debtTransaction.dueDateTime == value.toDateTime()) {
             return false;
         } else {
             qCWarning(lcqmldebttransactionmodel) << "Can't update due date/time: date/time invalid.";
@@ -93,8 +92,8 @@ bool QMLDebtTransactionModel::setData(const QModelIndex &index, const QVariant &
         }
         break;
     case NoteRole:
-        if (transaction.note.note != value.toString()) {
-            transaction.note.note = value.toString();
+        if (debtTransaction.note.note != value.toString()) {
+            debtTransaction.note.note = value.toString();
             m_dirty = true;
             emit dataChanged(index, index);
         }
@@ -109,191 +108,114 @@ bool QMLDebtTransactionModel::setData(const QModelIndex &index, const QVariant &
 
 int QMLDebtTransactionModel::debtorId() const
 {
-    return m_debtorId;
+    return m_debtor.id;
 }
 
 void QMLDebtTransactionModel::setDebtorId(int debtorId)
 {
-    if (m_debtorId == debtorId)
+    if (m_debtor.id == debtorId)
         return;
 
-    m_debtorId = debtorId;
+    m_debtor.id = debtorId;
     emit debtorIdChanged();
 }
 
 int QMLDebtTransactionModel::clientId() const
 {
-    return m_clientId;
+    return m_debtor.client.id;
 }
 
 void QMLDebtTransactionModel::setClientId(int clientId)
 {
-    if (m_clientId == clientId)
+    if (m_debtor.client.id == clientId)
         return;
 
-    m_clientId = clientId;
+    m_debtor.client.id = clientId;
     emit clientIdChanged();
-}
-
-QString QMLDebtTransactionModel::tableNameNormalized(const QString &tableName) const
-{
-    if (tableName == QStringLiteral("sale_transaction"))
-        return tr("Sales");
-
-    return tableName;
 }
 
 QUrl QMLDebtTransactionModel::imageUrl() const
 {
-    return m_imageUrl;
+    return m_debtor.client.imageUrl;
 }
 
 void QMLDebtTransactionModel::setImageUrl(const QUrl &imageUrl)
 {
-    if (m_imageUrl == imageUrl)
+    if (m_debtor.client.imageUrl == imageUrl)
         return;
 
-    m_imageUrl = imageUrl;
+    m_debtor.client.imageUrl = imageUrl;
     emit imageUrlChanged();
 }
 
 QString QMLDebtTransactionModel::firstName() const
 {
-    return m_firstName;
+    return m_debtor.client.firstName;
 }
 
 void QMLDebtTransactionModel::setFirstName(const QString &firstName)
 {
-    if (m_firstName == firstName)
+    if (m_debtor.client.firstName == firstName)
         return;
 
-    m_firstName = firstName;
+    m_debtor.client.firstName = firstName;
     emit firstNameChanged();
 }
 
 QString QMLDebtTransactionModel::lastName() const
 {
-    return m_lastName;
+    return m_debtor.client.lastName;
 }
 
 void QMLDebtTransactionModel::setLastName(const QString &lastName)
 {
-    if (m_lastName == lastName)
+    if (m_debtor.client.lastName == lastName)
         return;
 
-    m_lastName = lastName;
+    m_debtor.client.lastName = lastName;
     emit lastNameChanged();
 }
 
 QString QMLDebtTransactionModel::preferredName() const
 {
-    return m_preferredName;
+    return m_debtor.client.preferredName;
 }
 
 void QMLDebtTransactionModel::setPreferredName(const QString &preferredName)
 {
-    if (m_preferredName == preferredName)
+    if (m_debtor.client.preferredName == preferredName)
         return;
 
-    m_preferredName = preferredName;
+    m_debtor.client.preferredName = preferredName;
     emit preferredNameChanged();
 }
 
-QString QMLDebtTransactionModel::primaryPhoneNumber() const
+QString QMLDebtTransactionModel::phoneNumber() const
 {
-    return m_primaryPhoneNumber;
+    return m_debtor.client.phoneNumber;
 }
 
-void QMLDebtTransactionModel::setPrimaryPhoneNumber(const QString &primaryPhoneNumber)
+void QMLDebtTransactionModel::setPhoneNumber(const QString &phoneNumber)
 {
-    if (m_primaryPhoneNumber == primaryPhoneNumber)
+    if (m_debtor.client.phoneNumber == phoneNumber)
         return;
 
-    m_primaryPhoneNumber = primaryPhoneNumber;
-    emit primaryPhoneNumberChanged();
-}
-
-QStringList QMLDebtTransactionModel::alternatePhoneNumberModel() const
-{
-    return m_alternatePhoneNumberModel;
-}
-
-QStringList QMLDebtTransactionModel::addressModel() const
-{
-    return m_addressModel;
-}
-
-QStringList QMLDebtTransactionModel::emailAddressModel() const
-{
-    return m_emailAddressModel;
+    m_debtor.client.phoneNumber = phoneNumber;
+    emit phoneNumberChanged();
 }
 
 QString QMLDebtTransactionModel::note() const
 {
-    return m_note.note;
+    return m_debtor.note.note;
 }
 
 void QMLDebtTransactionModel::setNote(const QString &note)
 {
-    if (m_note.note == note)
+    if (m_debtor.note.note == note)
         return;
 
-    m_note.note = note;
+    m_debtor.note.note = note;
     emit noteChanged();
-}
-
-void QMLDebtTransactionModel::addAlternatePhoneNumber(const QString &alternatePhoneNumber)
-{
-    if (alternatePhoneNumber.trimmed().isEmpty() || m_alternatePhoneNumberModel.contains(alternatePhoneNumber))
-        return;
-
-    m_alternatePhoneNumberModel.append(alternatePhoneNumber);
-    emit alternatePhoneNumberModelChanged();
-}
-
-void QMLDebtTransactionModel::removeAlternatePhoneNumber(int row)
-{
-    if (row < 0 || row >= m_alternatePhoneNumberModel.count())
-        return;
-
-    m_alternatePhoneNumberModel.removeAt(row);
-    emit alternatePhoneNumberModelChanged();
-}
-
-void QMLDebtTransactionModel::addAddress(const QString &address)
-{
-    if (address.trimmed().isEmpty() || m_addressModel.contains(address))
-        return;
-
-    m_addressModel.append(address);
-    emit addressModelChanged();
-}
-
-void QMLDebtTransactionModel::removeAddress(int row)
-{
-    if (row < 0 || row >= m_addressModel.count())
-        return;
-
-    m_addressModel.removeAt(row);
-    emit addressModelChanged();
-}
-
-void QMLDebtTransactionModel::addEmailAddress(const QString &emailAddress)
-{
-    if (emailAddress.trimmed().isEmpty() || m_emailAddressModel.contains(emailAddress))
-        return;
-
-    m_emailAddressModel.append(emailAddress);
-    emit emailAddressModelChanged();
-}
-
-void QMLDebtTransactionModel::removeEmailAddress(int row)
-{
-    if (row < 0 || row >= m_emailAddressModel.count())
-        return;
-
-    m_emailAddressModel.removeAt(row);
-    emit emailAddressModelChanged();
 }
 
 void QMLDebtTransactionModel::addDebt(double totalDebt,
@@ -304,11 +226,11 @@ void QMLDebtTransactionModel::addDebt(double totalDebt,
         return;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_transactions.append(Utility::DebtTransaction{
-                              totalDebt,
-                              dueDateTime,
-                              Utility::Note{ note }
-                          });
+    m_debtor.transactions.append(Utility::DebtTransaction{
+                                         totalDebt,
+                                         dueDateTime,
+                                         Utility::Note{ note }
+                                     });
     m_dirty = true;
     endInsertRows();
 }
@@ -321,20 +243,18 @@ void QMLDebtTransactionModel::removeDebt(int row)
     }
 
     beginRemoveRows(QModelIndex(), row, row);
-    m_transactions.takeAt(row).clear();
+    m_debtor.transactions.takeAt(row).clear();
     m_dirty = true;
     endRemoveRows();
 }
 
 void QMLDebtTransactionModel::tryQuery()
 {
-    if (m_debtorId <= 0)
+    if (m_debtor.id <= 0)
         return;
 
     setBusy(true);
-    emit execute(new DebtorQuery::ViewDebtTransactions(Utility::Debtor {
-                                                           m_debtorId
-                                                       }, this));
+    emit execute(new DebtorQuery::ViewDebtTransactions(m_debtor, this));
 }
 
 void QMLDebtTransactionModel::processResult(const QueryResult result)
@@ -349,11 +269,12 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
             beginResetModel();
 
             clearAll();
-            m_transactions = Utility::DebtTransactionList{result.outcome().toMap().value("transactions").toList()};
-            setClientId(result.outcome().toMap().value("client_id").toInt());
-            setPreferredName(result.outcome().toMap().value("preferred_name").toString());
-            setPrimaryPhoneNumber(result.outcome().toMap().value("primary_phone_number").toString());
-            setNote(result.outcome().toMap().value("note").toString());
+            m_debtor.transactions = Utility::DebtTransactionList{ result.outcome().toMap().value("transactions").toList() };
+            const auto &debtor = Utility::Debtor{ result.outcome().toMap() };
+            setClientId(debtor.client.id);
+            setPreferredName(debtor.client.preferredName);
+            setPhoneNumber(debtor.client.phoneNumber);
+            setNote(debtor.note.note);
 
             endResetModel();
 
@@ -394,22 +315,19 @@ void QMLDebtTransactionModel::clearAll()
     setPreferredName(QString());
     setFirstName(QString());
     setLastName(QString());
-    setPrimaryPhoneNumber(QString());
-    m_alternatePhoneNumberModel = QStringList();
-    m_addressModel = QStringList();
-    m_emailAddressModel = QStringList();
+    setPhoneNumber(QString());
     m_dirty = false;
 }
 
 bool QMLDebtTransactionModel::isExistingDebtor() const
 {
-    return m_debtorId > 0;
+    return m_debtor.id > 0;
 }
 
 bool QMLDebtTransactionModel::paymentsDirty() const
 {
-    for (const auto &transaction : m_transactions) {
-        for (const auto &payment : transaction.debtPayments) {
+    for (const auto &transaction : m_debtor.transactions) {
+        for (const auto &payment : transaction.payments) {
             Q_UNUSED(payment)
             return true;
         }
@@ -420,8 +338,8 @@ bool QMLDebtTransactionModel::paymentsDirty() const
 
 bool QMLDebtTransactionModel::paymentsDueDateValid() const
 {
-    for (const auto &transaction : m_transactions) {
-        for (const auto &payment : transaction.debtPayments) {
+    for (const auto &transaction : m_debtor.transactions) {
+        for (const auto &payment : transaction.payments) {
             if (payment.dueDateTime <= QDateTime::currentDateTime())
                 return false;
         }
@@ -432,10 +350,10 @@ bool QMLDebtTransactionModel::paymentsDueDateValid() const
 
 bool QMLDebtTransactionModel::submit()
 {
-    if (m_primaryPhoneNumber.trimmed().isEmpty()) {
-        emit error(NoPrimaryPhoneNumberError);
+    if (m_debtor.client.phoneNumber.trimmed().isEmpty()) {
+        emit error(NoPhoneNumberError);
         return false;
-    } else if (m_preferredName.trimmed().isEmpty()) {
+    } else if (m_debtor.client.preferredName.trimmed().isEmpty()) {
         emit error(NoPreferredNameError);
         return false;
     } else if (!m_dirty && !paymentsDirty()) {
@@ -447,35 +365,10 @@ bool QMLDebtTransactionModel::submit()
     } else {
         setBusy(true);
 
-        if (isExistingDebtor()) {
-            emit execute(new DebtorQuery::UpdateDebtor(Utility::Debtor {
-                                                           m_debtorId,
-                                                           Utility::Client {
-                                                               m_clientId,
-                                                               m_preferredName,
-                                                               m_primaryPhoneNumber,
-                                                               m_firstName,
-                                                               m_lastName,
-                                                               m_imageUrl
-                                                           },
-                                                           m_transactions,
-                                                           m_note
-                                                       },
-                                                       this));
-        } else {
-            emit execute(new DebtorQuery::AddDebtor(Utility::Debtor {
-                                                        Utility::Client {
-                                                            m_preferredName,
-                                                            m_primaryPhoneNumber,
-                                                            m_firstName,
-                                                            m_lastName,
-                                                            m_imageUrl
-                                                        },
-                                                        m_transactions,
-                                                        m_note
-                                                    },
-                                                    this));
-        }
+        if (isExistingDebtor())
+            emit execute(new DebtorQuery::UpdateDebtor(m_debtor, this));
+        else
+            emit execute(new DebtorQuery::AddDebtor(m_debtor, this));
     }
 
     return true;

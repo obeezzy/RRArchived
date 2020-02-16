@@ -2,6 +2,7 @@
 #define QMLPURCHASETRANSACTIONMODEL_H
 
 #include "models/abstracttransactionmodel.h"
+#include "utility/purchase/purchasetransaction.h"
 
 class QMLPurchaseTransactionModel : public AbstractTransactionModel
 {
@@ -16,34 +17,34 @@ public:
 
     enum ErrorCode {
         UnknownError,
-        ViewTransactionError,
-        RemoveTransactionError,
-        UndoRemoveTransactionError
+                ViewTransactionError,
+                RemoveTransactionError,
+                UndoRemoveTransactionError
     }; Q_ENUM(ErrorCode)
 
     enum Columns {
         TransactionIdColumn,
-        CustomerNameColumn,
-        TotalCostColumn,
-        ActionColumn,
-        ColumnCount
+                CustomerNameColumn,
+                TotalCostColumn,
+                ActionColumn,
+                ColumnCount
     }; Q_ENUM(Columns)
 
     enum Roles {
         TransactionIdRole = Qt::UserRole,
-        ClientIdRole,
-        CustomerNameRole,
-        TotalCostRole,
-        AmountPaidRole,
-        BalanceRole,
-        DiscountRole,
-        NoteIdRole,
-        NoteRole,
-        SuspendedRole,
-        ArchivedRole,
-        CreatedRole,
-        LastEditedRole,
-        UserIdRole
+                ClientIdRole,
+                CustomerNameRole,
+                TotalCostRole,
+                AmountPaidRole,
+                BalanceRole,
+                DiscountRole,
+                NoteIdRole,
+                NoteRole,
+                SuspendedRole,
+                ArchivedRole,
+                CreatedRole,
+                LastEditedRole,
+                UserIdRole
     };
 
     explicit QMLPurchaseTransactionModel(QObject *parent = nullptr);
@@ -53,17 +54,19 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
-    Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 public slots:
     void removeTransaction(int row);
 private:
-    QVariantList m_records;
+    Utility::PurchaseTransactionList m_transactions;
 
-    void removeTransactionFromModel(int row);
-    void undoRemoveTransactionFromModel(int row, const QVariantMap &record);
+    void removeTransactionFromModel(const Utility::PurchaseTransaction &transaction);
+    void undoRemoveTransactionFromModel(const Utility::PurchaseTransaction &transaction);
 };
 
 #endif // QMLPURCHASETRANSACTIONMODEL_H

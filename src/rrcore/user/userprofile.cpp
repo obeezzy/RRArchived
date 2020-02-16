@@ -1,34 +1,25 @@
 #include "userprofile.h"
+#include "database/databaseutils.h"
+#include "businessdetails.h"
+#include "businessadmin.h"
+#include "utility/user/user.h"
 #include <QCoreApplication>
 #include <QUrl>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QSettings>
 
-#include "database/databaseutils.h"
-#include "businessdetails.h"
-#include "businessadmin.h"
-
 UserProfile::UserProfile(QObject *parent) :
     QObject(parent),
-    m_userId(0),
     m_businessDetails(new BusinessDetails(this)),
     m_businessAdmin(new BusinessAdmin(this))
 {
     setAccessToken(QByteArray());
 }
 
-void UserProfile::setUser(int userId,
-                          const QString &userName,
-                          const QString &password,
-                          const QVariant &privileges,
-                          const QByteArray &accessToken)
+void UserProfile::setUser(const Utility::User &user)
 {
-    m_userId = userId;
-    m_userName = userName;
-    m_password = password;
-    m_privileges = privileges;
-    setAccessToken(accessToken);
+    m_user = user;
 }
 
 void UserProfile::setDatabaseReady(bool databaseReady)
@@ -43,12 +34,13 @@ void UserProfile::setRackId(const QString &rackId)
 
 void UserProfile::setUserId(int userId)
 {
-    m_userId = userId;
+    m_user.id = userId;
 }
 
 void UserProfile::setAccessToken(const QByteArray &accessToken)
 {
     QSettings().setValue("access_token", accessToken);
+    m_user.accessToken = accessToken;
 }
 
 void UserProfile::setServerTunnelingEnabled(bool enabled)
@@ -58,7 +50,7 @@ void UserProfile::setServerTunnelingEnabled(bool enabled)
 
 void UserProfile::clearUser()
 {
-    UserProfile::instance().setUser(-1, QString(), QString(), QVariant(), QByteArray());
+    UserProfile::instance().setUser(Utility::User());
 }
 
 UserProfile &UserProfile::instance()
@@ -69,17 +61,17 @@ UserProfile &UserProfile::instance()
 
 int UserProfile::userId() const
 {
-    return m_userId;
+    return m_user.id;
 }
 
 QString UserProfile::userName() const
 {
-    return m_userName;
+    return m_user.user;
 }
 
 QString UserProfile::password() const
 {
-    return m_password;
+    return m_user.password;
 }
 
 bool UserProfile::isDatabaseReady() const
@@ -130,9 +122,9 @@ QByteArray UserProfile::accessToken() const
 QByteArray UserProfile::toJson() const
 {
     QJsonObject jsonObject {
-        { "user_name", m_userName },
-        { "user_id", m_userId },
-        { "password", m_password },
+        { "user_name", m_user.user },
+        { "user_id", m_user.id },
+        { "password", m_user.password },
         { "rack_id", rackId() }
     };
 

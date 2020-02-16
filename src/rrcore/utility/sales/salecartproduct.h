@@ -12,25 +12,27 @@
 
 namespace Utility {
 struct SaleCartProduct {
-    int id;
+    int id {-1};
     QString product;
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    qreal quantity;
+    qreal quantity {0.0};
+    qreal availableQuantity {0.0};
     StockProductUnit unit;
     RecordGroup::Flags flags;
-    qreal costPrice;
-    qreal retailPrice;
-    qreal unitPrice;
-    qreal cost;
-    qreal amountPaid;
+    qreal costPrice {0.0};
+    qreal retailPrice {0.0};
+    qreal unitPrice {0.0};
+    qreal cost {0.0};
+    qreal amountPaid {0.0};
     QString currency;
     Note note;
     QDateTime created;
     QDateTime lastEdited;
     User user;
 
+    explicit SaleCartProduct(int id);
     explicit SaleCartProduct(const StockProductCategory &category,
                              const QString &product,
                              const QString &description,
@@ -54,6 +56,10 @@ struct SaleCartProduct {
                              const Note &note);
     explicit SaleCartProduct(const QVariantMap &product);
     QVariantMap toVariantMap() const;
+
+    inline bool operator==(const SaleCartProduct &other) {
+        return id == other.id;
+    }
 };
 
 class SaleCartProductList : public QList<SaleCartProduct> {

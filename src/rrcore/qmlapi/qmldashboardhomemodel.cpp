@@ -1,9 +1,8 @@
 #include "qmldashboardhomemodel.h"
-#include <QTimer>
-#include <QDebug>
-
 #include "database/databasethread.h"
 #include "queryexecutors/dashboard.h"
+#include <QTimer>
+#include <QDebug>
 
 QMLDashboardHomeModel::QMLDashboardHomeModel(QObject *parent)
     : QMLDashboardHomeModel(DatabaseThread::instance(), parent)

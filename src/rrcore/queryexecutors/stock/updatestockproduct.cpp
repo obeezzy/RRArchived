@@ -28,7 +28,7 @@ UpdateStockProduct::UpdateStockProduct(const Utility::StockProduct &product,
                     { "cost_price", product.costPrice },
                     { "retail_price", product.retailPrice },
                     { "base_unit_equivalent", product.unit.baseUnitEquivalent },
-                    { "unit_preferred", product.unit.preferred },
+                    { "unit_preferred", product.unit.flags.testFlag(Utility::RecordGroup::Preferred) },
                     { "currency", product.currency },
                     { "product_id", product.id },
                     { "currency", product.currency }

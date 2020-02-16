@@ -1,5 +1,4 @@
 #include "qmlexpensetransactionmodel.h"
-
 #include "queryexecutors/expense.h"
 
 QMLExpenseTransactionModel::QMLExpenseTransactionModel(QObject *parent) :
@@ -19,7 +18,7 @@ int QMLExpenseTransactionModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLExpenseTransactionModel::columnCount(const QModelIndex &parent) const
@@ -37,11 +36,11 @@ QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) co
 
     switch (role) {
     case TransactionIdRole:
-        return m_records.at(index.row()).toMap().value("transaction_id").toInt();
+        return m_transactions.at(index.row()).id;
     case ClientNameRole:
-        return m_records.at(index.row()).toMap().value("client_name").toString();
+        return m_transactions.at(index.row()).client.preferredName;
     case AmountRole:
-        return m_records.at(index.row()).toMap().value("amount").toDouble();
+        return m_transactions.at(index.row()).amount;
     }
 
     return QVariant();
@@ -101,13 +100,9 @@ QVariant QMLExpenseTransactionModel::headerData(int section, Qt::Orientation ori
 void QMLExpenseTransactionModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new ExpenseQuery::ViewExpenseTransactions(
-                     Utility::DateTimeSpan {
-                         QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(12, 0)),
-                         QDateTime::currentDateTime()
-                     },
-                     Utility::RecordGroup::None,
-                     this));
+    emit execute(new ExpenseQuery::ViewExpenseTransactions(dateTimeSpan(),
+                                                           Utility::RecordGroup::None,
+                                                           this));
 }
 
 void QMLExpenseTransactionModel::processResult(const QueryResult result)
@@ -118,10 +113,10 @@ void QMLExpenseTransactionModel::processResult(const QueryResult result)
     setBusy(false);
     beginResetModel();
     if (result.isSuccessful()) {
-        m_records = result.outcome().toMap().value("transactions").toList();
+        m_transactions = Utility::ExpenseTransactionList{ result.outcome().toMap().value("transactions").toList() };
         emit success();
     } else {
-        m_records.clear();
+        m_transactions.clear();
         emit error();
     }
     endResetModel();

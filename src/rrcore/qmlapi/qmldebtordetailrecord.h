@@ -2,10 +2,11 @@
 #define QMLDEBTORDETAILRECORD_H
 
 #include "detailrecord/abstractdetailrecord.h"
-#include <QDateTime>
-#include <QUrl>
+#include "utility/debtor/debtor.h"
 
 class DatabaseThread;
+class QDateTime;
+class QUrl;
 
 class QMLDebtorDetailRecord : public AbstractDetailRecord
 {
@@ -60,18 +61,7 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_debtorId;
-    QString m_preferredName;
-    QString m_firstName;
-    QString m_lastName;
-    QString m_phoneNumber;
-    QStringList m_addressModel;
-    QStringList m_emailModel;
-    QUrl m_imageUrl;
-    QDateTime m_created;
-    QDateTime m_lastEdited;
-    int m_userId;
-    QString m_user;
+    Utility::Debtor m_debtor;
 
     void setPreferredName(const QString &preferredName);
     void setFirstName(const QString &firstName);

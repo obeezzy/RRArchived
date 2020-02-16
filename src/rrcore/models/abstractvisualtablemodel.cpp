@@ -1,23 +1,18 @@
 #include "abstractvisualtablemodel.h"
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
-
+#include "utility/common/filtercriteria.h"
+#include "utility/common/sortcriteria.h"
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(abstractVisualTableModel, "rrcore.models.abstractvisualtablemodel");
+Q_LOGGING_CATEGORY(lcabstractvisualtablemodel, "rrcore.models.abstractvisualtablemodel");
 
 AbstractVisualTableModel::AbstractVisualTableModel(QObject *parent) :
     AbstractVisualTableModel(DatabaseThread::instance(), parent)
 {}
 
 AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObject *parent) :
-    QAbstractTableModel(parent),
-    m_autoQuery(true),
-    m_busy(false),
-    m_filterColumn(-1),
-    m_sortOrder(Qt::AscendingOrder),
-    m_sortColumn(-1),
-    m_tableViewWidth(0.0)
+    QAbstractTableModel(parent)
 {
     connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
@@ -55,21 +50,21 @@ bool AbstractVisualTableModel::isBusy() const
 
 QString AbstractVisualTableModel::filterText() const
 {
-    return m_filterText;
+    return m_filterCriteria.text;
 }
 
 void AbstractVisualTableModel::setFilterText(const QString &filterText)
 {
-    if (m_filterText == filterText)
+    if (m_filterCriteria.text == filterText)
         return;
 
-    m_filterText = filterText;
+    m_filterCriteria.text = filterText;
     emit filterTextChanged();
 }
 
 int AbstractVisualTableModel::filterColumn() const
 {
-    return m_filterColumn;
+    return m_filterCriteria.columnAsInteger;
 }
 
 QVariant AbstractVisualTableModel::get(int row, int column) const
@@ -88,38 +83,40 @@ QVariant AbstractVisualTableModel::get(int row, int column) const
 
 void AbstractVisualTableModel::setFilterColumn(int filterColumn)
 {
-    if (m_filterColumn == filterColumn)
+    if (m_filterCriteria.columnAsInteger == filterColumn)
         return;
 
-    m_filterColumn = filterColumn;
+    m_filterCriteria.columnAsInteger = filterColumn;
+    m_filterCriteria.column = columnName(filterColumn);
     emit filterColumnChanged();
 }
 
 Qt::SortOrder AbstractVisualTableModel::sortOrder() const
 {
-    return m_sortOrder;
+    return m_sortCriteria.order;
 }
 
 void AbstractVisualTableModel::setSortOrder(Qt::SortOrder sortOrder)
 {
-    if (m_sortOrder == sortOrder)
+    if (m_sortCriteria.order == sortOrder)
         return;
 
-    m_sortOrder = sortOrder;
+    m_sortCriteria.order = sortOrder;
     emit sortOrderChanged();
 }
 
 int AbstractVisualTableModel::sortColumn() const
 {
-    return m_sortColumn;
+    return m_sortCriteria.columnAsInteger;
 }
 
 void AbstractVisualTableModel::setSortColumn(int sortColumn)
 {
-    if (m_sortColumn == sortColumn)
+    if (m_sortCriteria.columnAsInteger == sortColumn)
         return;
 
-    m_sortColumn = sortColumn;
+    m_sortCriteria.columnAsInteger = sortColumn;
+    m_sortCriteria.column = columnName(sortColumn);
     emit sortColumnChanged();
 }
 
@@ -166,7 +163,7 @@ void AbstractVisualTableModel::saveRequest(const QueryResult &result)
         QVariantMap params{ result.request().params() };
         params.insert("outcome", result.outcome());
         m_lastSuccessfulRequest.setParams(params);
-        qCDebug(abstractVisualTableModel) << "Request saved:" << result.request().command() << this;
+        qCDebug(lcabstractvisualtablemodel) << "Request saved:" << result.request().command() << this;
     }
 }
 
@@ -182,6 +179,16 @@ void AbstractVisualTableModel::setBusy(bool busy)
 const QueryRequest &AbstractVisualTableModel::lastSuccessfulRequest() const
 {
     return m_lastSuccessfulRequest;
+}
+
+Utility::FilterCriteria AbstractVisualTableModel::filterCriteria() const
+{
+    return m_filterCriteria;
+}
+
+Utility::SortCriteria AbstractVisualTableModel::sortCriteria() const
+{
+    return m_sortCriteria;
 }
 
 void AbstractVisualTableModel::refresh()

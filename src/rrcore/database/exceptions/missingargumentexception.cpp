@@ -4,7 +4,8 @@
 
 MissingArgumentException::MissingArgumentException(const QString &message) :
     DatabaseException(DatabaseError::QueryErrorCode::MissingArguments,
-                      message.isEmpty() ? QStringLiteral("Arguments missing.") : QString())
+                      message.isEmpty() ? QStringLiteral("Arguments missing.")
+                                        : message)
 {
 
 }

@@ -2,6 +2,7 @@
 #define QMLINCOMETRANSACTIONMODEL_H
 
 #include "models/abstracttransactionmodel.h"
+#include "utility/incomeutils.h"
 
 class QMLIncomeTransactionModel : public AbstractTransactionModel
 {
@@ -27,7 +28,8 @@ public:
     }; Q_ENUM(Columns)
 
     explicit QMLIncomeTransactionModel(QObject *parent = nullptr);
-    explicit QMLIncomeTransactionModel(DatabaseThread &thread);
+    explicit QMLIncomeTransactionModel(DatabaseThread &thread,
+                                       QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -38,7 +40,7 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::IncomeTransactionList m_transactions;
 };
 
 #endif // QMLINCOMETRANSACTIONMODEL_H

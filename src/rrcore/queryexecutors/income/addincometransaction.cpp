@@ -4,22 +4,20 @@
 #include "user/userprofile.h"
 #include "singletons/settings.h"
 #include "utility/commonutils.h"
+#include "utility/incomeutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace IncomeQuery;
 
-AddIncomeTransaction::AddIncomeTransaction(const Utility::Client &client,
-                                           const QString &purpose,
-                                           qreal amount,
-                                           const Utility::PaymentMethod &paymentMethod,
+AddIncomeTransaction::AddIncomeTransaction(const Utility::IncomeTransaction &transaction,
                                            QObject *receiver) :
     IncomeExecutor(COMMAND, {
-                        { "client_name", client.preferredName },
-                        { "purpose", purpose },
-                        { "amount", amount },
-                        { "payment_method", Utility::asString(paymentMethod) },
+                        { "client_name", transaction.client.preferredName },
+                        { "purpose", transaction.purpose },
+                        { "amount", transaction.amount },
+                        { "payment_method", transaction.paymentMethod.toString() },
                         { "currency", Settings::DEFAULT_CURRENCY }
                    }, receiver)
 {

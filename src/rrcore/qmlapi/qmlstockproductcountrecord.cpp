@@ -8,11 +8,9 @@ QMLStockProductCountRecord::QMLStockProductCountRecord(QObject *parent) :
     QMLStockProductCountRecord(DatabaseThread::instance(), parent)
 {}
 
-QMLStockProductCountRecord::QMLStockProductCountRecord(DatabaseThread &thread, QObject *parent) :
-    AbstractDetailRecord(thread, parent),
-    m_categoryId(-1),
-    m_filterColumn(-1),
-    m_productCount(0)
+QMLStockProductCountRecord::QMLStockProductCountRecord(DatabaseThread &thread,
+                                                       QObject *parent) :
+    AbstractDetailRecord(thread, parent)
 {
     connect(this, &QMLStockProductCountRecord::filterTextChanged,
             this, &QMLStockProductCountRecord::filter);
@@ -36,29 +34,30 @@ void QMLStockProductCountRecord::setCategoryId(int categoryId)
 
 QString QMLStockProductCountRecord::filterText() const
 {
-    return m_filterText;
+    return m_filterCriteria.text;
 }
 
 void QMLStockProductCountRecord::setFilterText(const QString &filterText)
 {
-    if (m_filterText == filterText)
+    if (m_filterCriteria.text == filterText)
         return;
 
-    m_filterText = filterText;
+    m_filterCriteria.text = filterText;
     emit filterTextChanged();
 }
 
 int QMLStockProductCountRecord::filterColumn() const
 {
-    return m_filterColumn;
+    return m_filterCriteria.columnAsInteger;
 }
 
 void QMLStockProductCountRecord::setFilterColumn(int filterColumn)
 {
-    if (m_filterColumn == filterColumn)
+    if (m_filterCriteria.columnAsInteger == filterColumn)
         return;
 
-    m_filterColumn = filterColumn;
+    m_filterCriteria.columnAsInteger = filterColumn;
+    m_filterCriteria.column = columnName(filterColumn);
     emit filterColumnChanged();
 }
 
@@ -76,12 +75,9 @@ void QMLStockProductCountRecord::tryQuery()
 {
     setBusy(true);
 
-    if (!m_filterText.trimmed().isEmpty() && m_filterColumn > -1)
+    if (m_filterCriteria.isValid())
         emit execute(new StockQuery::FilterStockProductCount(
-                         Utility::FilterCriteria {
-                             columnName(m_filterColumn),
-                             m_filterText
-                         },
+                         m_filterCriteria,
                          m_categoryId,
                          this));
     else

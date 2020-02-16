@@ -1,24 +1,20 @@
 #include "abstractvisuallistmodel.h"
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
-
 #include "queryexecutors/sales.h"
-
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(abstractVisualListModel, "rrcore.models.abstractvisuallistmodel");
+Q_LOGGING_CATEGORY(lcabstractvisuallistmodel, "rrcore.models.abstractvisuallistmodel");
 
 AbstractVisualListModel::AbstractVisualListModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
 {}
 
-AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread, QObject *parent) :
+AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread,
+                                                 QObject *parent) :
     QAbstractListModel(parent),
     m_autoQuery(true),
-    m_busy(false),
-    m_filterColumn(-1),
-    m_sortOrder(Qt::AscendingOrder),
-    m_sortColumn(-1)
+    m_busy(false)
 {
     connect(this, &AbstractVisualListModel::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::processResult);
@@ -60,21 +56,21 @@ bool AbstractVisualListModel::isBusy() const
 
 QString AbstractVisualListModel::filterText() const
 {
-    return m_filterText;
+    return m_filterCriteria.text;
 }
 
 void AbstractVisualListModel::setFilterText(const QString &filterText)
 {
-    if (m_filterText == filterText)
+    if (m_filterCriteria.text == filterText)
         return;
 
-    m_filterText = filterText;
+    m_filterCriteria.text = filterText;
     emit filterTextChanged();
 }
 
 int AbstractVisualListModel::filterColumn() const
 {
-    return m_filterColumn;
+    return m_filterCriteria.columnAsInteger;
 }
 
 QVariant AbstractVisualListModel::get(int row) const
@@ -93,24 +89,25 @@ QVariant AbstractVisualListModel::get(int row) const
 
 void AbstractVisualListModel::setFilterColumn(int filterColumn)
 {
-    if (m_filterColumn == filterColumn)
+    if (m_filterCriteria.columnAsInteger == filterColumn)
         return;
 
-    m_filterColumn = filterColumn;
+    m_filterCriteria.column = columnName(filterColumn);
+    m_filterCriteria.columnAsInteger = filterColumn;
     emit filterColumnChanged();
 }
 
 Qt::SortOrder AbstractVisualListModel::sortOrder() const
 {
-    return m_sortOrder;
+    return m_sortCriteria.order;
 }
 
 void AbstractVisualListModel::setSortOrder(Qt::SortOrder sortOrder)
 {
-    if (m_sortOrder == sortOrder)
+    if (m_sortCriteria.order == sortOrder)
         return;
 
-    m_sortOrder = sortOrder;
+    m_sortCriteria.order = sortOrder;
     emit sortOrderChanged();
 }
 
@@ -149,6 +146,12 @@ void AbstractVisualListModel::filter()
 
 }
 
+QString AbstractVisualListModel::columnName(int column) const
+{
+    Q_UNUSED(column)
+    return QString();
+}
+
 const QueryRequest &AbstractVisualListModel::lastSuccessfulRequest() const
 {
     return m_lastSuccessfulRequest;
@@ -163,7 +166,7 @@ void AbstractVisualListModel::saveRequest(const QueryResult &result)
         QVariantMap params{ result.request().params() };
         params.insert("outcome", result.outcome());
         m_lastSuccessfulRequest.setParams(params);
-        qCDebug(abstractVisualListModel) << "Request saved:" << result.request().command() << this;
+        qCDebug(lcabstractvisuallistmodel) << "Request saved:" << result.request().command() << this;
     }
 }
 
@@ -174,6 +177,16 @@ void AbstractVisualListModel::setBusy(bool busy)
 
     m_busy = busy;
     emit busyChanged();
+}
+
+Utility::FilterCriteria AbstractVisualListModel::filterCriteria() const
+{
+    return m_filterCriteria;
+}
+
+Utility::SortCriteria AbstractVisualListModel::sortCriteria() const
+{
+    return m_sortCriteria;
 }
 
 void AbstractVisualListModel::refresh()

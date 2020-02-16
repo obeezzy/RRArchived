@@ -6,8 +6,9 @@ QMLStockReportModel::QMLStockReportModel(QObject *parent) :
     QMLStockReportModel(DatabaseThread::instance(), parent)
 {}
 
-QMLStockReportModel::QMLStockReportModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel (thread, parent)
+QMLStockReportModel::QMLStockReportModel(DatabaseThread &thread,
+                                         QObject *parent) :
+    AbstractReportModel(thread, parent)
 {
 }
 
@@ -16,7 +17,7 @@ int QMLStockReportModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLStockReportModel::columnCount(const QModelIndex &parent) const
@@ -34,19 +35,19 @@ QVariant QMLStockReportModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case CategoryRole:
-        return m_records.at(index.row()).toMap().value("category").toString();
+        return m_transactions.at(index.row()).category.category;
     case ProductRole:
-        return m_records.at(index.row()).toMap().value("product").toString();
+        return m_transactions.at(index.row()).product.product;
     case OpeningStockQuantityRole:
-        return m_records.at(index.row()).toMap().value("opening_stock_quantity").toString();
+        return m_transactions.at(index.row()).openingStockQuantity;
     case QuantitySoldRole:
-        return m_records.at(index.row()).toMap().value("quantity_sold").toString();
+        return m_transactions.at(index.row()).quantitySold;
     case QuantityBoughtRole:
-        return m_records.at(index.row()).toMap().value("quantity_bought").toString();
+        return m_transactions.at(index.row()).quantityBought;
     case QuantityInStockRole:
-        return m_records.at(index.row()).toMap().value("quantity_in_stock").toString();
+        return m_transactions.at(index.row()).quantityInStock;
     case UnitRole:
-        return m_records.at(index.row()).toMap().value("unit").toString();
+        return m_transactions.at(index.row()).product.unit.unit;
     }
 
     return QVariant();
@@ -65,7 +66,9 @@ QHash<int, QByteArray> QMLStockReportModel::roleNames() const
     };
 }
 
-QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QMLStockReportModel::headerData(int section,
+                                         Qt::Orientation orientation,
+                                         int role) const
 {
    if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
@@ -118,11 +121,8 @@ QVariant QMLStockReportModel::headerData(int section, Qt::Orientation orientatio
 void QMLStockReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new StockQuery::ViewStockReport(
-                     Utility::DateTimeSpan {
-                         QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
-                         QDateTime::currentDateTime()
-                     }, this));
+    emit execute(new StockQuery::ViewStockReport(dateTimeSpan(),
+                                                 this));
 }
 
 void QMLStockReportModel::processResult(const QueryResult result)
@@ -134,7 +134,7 @@ void QMLStockReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == StockQuery::ViewStockReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("products").toList();
+            m_transactions = Utility::StockReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
             emit success(ViewStockReportSuccess);
         }

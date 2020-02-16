@@ -9,9 +9,7 @@ QMLUserModel::QMLUserModel(QObject *parent) :
 
 QMLUserModel::QMLUserModel(DatabaseThread &thread, QObject *parent) :
     AbstractVisualTableModel(thread, parent)
-{
-
-}
+{}
 
 int QMLUserModel::keys() const
 {
@@ -32,7 +30,7 @@ int QMLUserModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_users.count();
 }
 
 int QMLUserModel::columnCount(const QModelIndex &parent) const
@@ -50,13 +48,13 @@ QVariant QMLUserModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case UserIdRole:
-        return m_records.at(index.row()).toMap().value("user_id").toInt();
+        return m_users.at(index.row()).id;
     case UserRole:
-        return m_records.at(index.row()).toMap().value("user").toString();
+        return m_users.at(index.row()).user;
     case ActiveRole:
-        return m_records.at(index.row()).toMap().value("active").toBool();
+        return m_users.at(index.row()).flags.testFlag(Utility::RecordGroup::Active);
     case PresetRole:
-        return m_records.at(index.row()).toMap().value("preset").toString();
+        return m_users.at(index.row()).preset;
     }
 
     return QVariant();
@@ -126,17 +124,18 @@ void QMLUserModel::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == "activate_user") {
+        if (result.request().command() == UserQuery::ActivateUser::COMMAND) {
             emit success(ActivateUserSuccess);
         } else {
             beginResetModel();
             if (result.request().command() == UserQuery::ViewUsers::COMMAND) {
-                m_records = result.outcome().toMap().value("users").toList();
+                m_users = Utility::UserList{ result.outcome().toMap().value("users").toList() };
                 emit success(ViewUsersSuccess);
-            } else if (result.request().command() == "remove_user") {
-                removeUserFromModel(result.request().params().value("user_name").toString());
+            } else if (result.request().command() == UserQuery::RemoveUser::COMMAND) {
+                const Utility::User &user{ result.outcome().toMap() };
+                removeUserFromModel(user);
                 emit success(RemoveUserSuccess);
-            } else if (result.request().command() == "undo_remove_user") {
+            } else if (result.request().command() == UserQuery::RemoveUser::UNDO_COMMAND) {
                 emit success(UndoRemoveUserSuccess);
             }
             endResetModel();
@@ -146,30 +145,28 @@ void QMLUserModel::processResult(const QueryResult result)
     }
 }
 
-void QMLUserModel::removeUserFromModel(const QString &userName)
+void QMLUserModel::removeUserFromModel(const Utility::User &user)
 {
-    if (userName.trimmed().isEmpty())
-        return;
-
-    for (int i = 0; i < m_records.count(); ++i) {
-        if (userName == m_records.at(i).toMap().value("user_name").toString()) {
-            m_records.removeAt(i);
-            break;
-        }
-    }
+    beginRemoveRows(QModelIndex(), user.row, user.row);
+    m_users.removeAt(user.row);
+    endRemoveRows();
 }
 
-void QMLUserModel::removeUser(const QString &userName)
+void QMLUserModel::removeUser(int row)
 {
     setBusy(true);
-    emit execute(new UserQuery::RemoveUser(Utility::User{ userName },
+    Utility::User user{ m_users[row] };
+    user.row = row;
+    emit execute(new UserQuery::RemoveUser(user,
                                            this));
 }
 
-void QMLUserModel::activateUser(const QString &userName, bool active)
+void QMLUserModel::activateUser(int row, bool active)
 {
     setBusy(true);
+    Utility::User user{ m_users[row] };
+    user.row = row;
     emit execute(new UserQuery::ActivateUser(active,
-                                             Utility::User { userName },
+                                             user,
                                              this));
 }

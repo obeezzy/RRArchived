@@ -20,17 +20,8 @@ private Q_SLOTS:
     void testSetFirstName();
     void testSetLastName();
     void testSetPreferredName();
-    void testSetPrimaryPhoneNumber();
+    void testSetPhoneNumber();
     void testSetNote();
-
-    void testAddAlternatePhoneNumberModel();
-    void testRemoveAlternatePhoneNumberModel();
-
-    void testAddAddressModel();
-    void testRemoveAddressModel();
-
-    void testAddEmailAddressModel();
-    void testRemoveEmailAddressModel();
 
     void testAddDebt();
     void testUpdateDebt();
@@ -145,24 +136,24 @@ void QMLDebtTransactionModelTest::testSetPreferredName()
     QCOMPARE(preferredNameChangedSpy.count(), 0);
 }
 
-void QMLDebtTransactionModelTest::testSetPrimaryPhoneNumber()
+void QMLDebtTransactionModelTest::testSetPhoneNumber()
 {
-    QSignalSpy primaryPhoneNumberChanged(m_debtTransactionModel, &QMLDebtTransactionModel::primaryPhoneNumberChanged);
+    QSignalSpy phoneNumberChanged(m_debtTransactionModel, &QMLDebtTransactionModel::phoneNumberChanged);
 
     // STEP: Ensure primary phone number is not set.
-    QCOMPARE(m_debtTransactionModel->primaryPhoneNumber(), QString());
+    QCOMPARE(m_debtTransactionModel->phoneNumber(), QString());
 
     // STEP: Set primary phone number.
-    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
+    m_debtTransactionModel->setPhoneNumber(QStringLiteral("123456789"));
 
     // STEP: Ensure primary phone number is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->primaryPhoneNumber(), QStringLiteral("123456789"));
-    QCOMPARE(primaryPhoneNumberChanged.count(), 1);
-    primaryPhoneNumberChanged.clear();
+    QCOMPARE(m_debtTransactionModel->phoneNumber(), QStringLiteral("123456789"));
+    QCOMPARE(phoneNumberChanged.count(), 1);
+    phoneNumberChanged.clear();
 
     // STEP: Ensure user is not notified if primary phone number is set to the same value.
-    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
-    QCOMPARE(primaryPhoneNumberChanged.count(), 0);
+    m_debtTransactionModel->setPhoneNumber(QStringLiteral("123456789"));
+    QCOMPARE(phoneNumberChanged.count(), 0);
 }
 
 void QMLDebtTransactionModelTest::testSetNote()
@@ -183,213 +174,6 @@ void QMLDebtTransactionModelTest::testSetNote()
     // STEP: Ensure user is not notified if note is set to the same value.
     m_debtTransactionModel->setNote(QStringLiteral("Note"));
     QCOMPARE(noteChangedSpy.count(), 0);
-}
-
-void QMLDebtTransactionModelTest::testAddAlternatePhoneNumberModel()
-{
-    QSignalSpy alternatePhoneNumberModelChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::alternatePhoneNumberModelChanged);
-
-    // STEP: Ensure alternate phone number is not set.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel(), QStringList());
-
-    // STEP: Add alternate phone number.
-    m_debtTransactionModel->addAlternatePhoneNumber(QStringLiteral("987654321"));
-
-    // STEP: Ensure alternate phone number is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 1);
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().first(), QStringLiteral("987654321"));
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 1);
-    alternatePhoneNumberModelChangedSpy.clear();
-
-    // STEP: Add another alternate phone number.
-    m_debtTransactionModel->addAlternatePhoneNumber(QStringLiteral("98765"));
-
-    // STEP: Ensure alternate phone number is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 2);
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().last(), QStringLiteral("98765"));
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 1);
-    alternatePhoneNumberModelChangedSpy.clear();
-
-    // STEP: Add the same alternate phone number again and ensure it fails.
-    m_debtTransactionModel->addAlternatePhoneNumber(QStringLiteral("98765"));
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 2);
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 0);
-}
-
-void QMLDebtTransactionModelTest::testRemoveAlternatePhoneNumberModel()
-{
-    QSignalSpy alternatePhoneNumberModelChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::alternatePhoneNumberModelChanged);
-
-    // STEP: Ensure alternate phone number is not set.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel(), QStringList());
-    // STEP: Add alternate phone number.
-    m_debtTransactionModel->addAlternatePhoneNumber(QStringLiteral("987654321"));
-    m_debtTransactionModel->addAlternatePhoneNumber(QStringLiteral("98765"));
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 2);
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 2);
-    alternatePhoneNumberModelChangedSpy.clear();
-
-    // STEP: Remove alternate phone number.
-    m_debtTransactionModel->removeAlternatePhoneNumber(0);
-
-    // STEP: Ensure alternate phone number is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 1);
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().first(), QStringLiteral("98765"));
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 1);
-    alternatePhoneNumberModelChangedSpy.clear();
-
-    // STEP: Remove another alternate phone number.
-    m_debtTransactionModel->removeAlternatePhoneNumber(0);
-
-    // STEP: Ensure alternate phone number is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 0);
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 1);
-    alternatePhoneNumberModelChangedSpy.clear();
-
-    // STEP: Attempt to remove another alternate phone number.
-    m_debtTransactionModel->removeAlternatePhoneNumber(0);
-
-    // STEP: Ensure alternate phone number is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->alternatePhoneNumberModel().count(), 0);
-    QCOMPARE(alternatePhoneNumberModelChangedSpy.count(), 0);
-}
-
-void QMLDebtTransactionModelTest::testAddAddressModel()
-{
-    QSignalSpy addressModelChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::addressModelChanged);
-
-    // STEP: Ensure address is not set.
-    QCOMPARE(m_debtTransactionModel->addressModel(), QStringList());
-
-    // STEP: Add address.
-    m_debtTransactionModel->addAddress(QStringLiteral("Address1"));
-
-    // STEP: Ensure address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 1);
-    QCOMPARE(m_debtTransactionModel->addressModel().first(), QStringLiteral("Address1"));
-    QCOMPARE(addressModelChangedSpy.count(), 1);
-    addressModelChangedSpy.clear();
-
-    // STEP: Add another address.
-    m_debtTransactionModel->addAddress(QStringLiteral("Address2"));
-
-    // STEP: Ensure address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 2);
-    QCOMPARE(m_debtTransactionModel->addressModel().last(), QStringLiteral("Address2"));
-    QCOMPARE(addressModelChangedSpy.count(), 1);
-    addressModelChangedSpy.clear();
-
-    // STEP: Add the same address again and ensure it fails.
-    m_debtTransactionModel->addAddress(QStringLiteral("Address2"));
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 2);
-    QCOMPARE(addressModelChangedSpy.count(), 0);
-}
-
-void QMLDebtTransactionModelTest::testRemoveAddressModel()
-{
-    QSignalSpy addressModelChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::addressModelChanged);
-
-    // STEP: Ensure address is not set.
-    QCOMPARE(m_debtTransactionModel->addressModel(), QStringList());
-    // STEP: Add alternate phone number.
-    m_debtTransactionModel->addAddress(QStringLiteral("Address1"));
-    m_debtTransactionModel->addAddress(QStringLiteral("Address2"));
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 2);
-    QCOMPARE(addressModelChangedSpy.count(), 2);
-    addressModelChangedSpy.clear();
-
-    // STEP: Remove address.
-    m_debtTransactionModel->removeAddress(0);
-
-    // STEP: Ensure address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 1);
-    QCOMPARE(m_debtTransactionModel->addressModel().first(), QStringLiteral("Address2"));
-    QCOMPARE(addressModelChangedSpy.count(), 1);
-    addressModelChangedSpy.clear();
-
-    // STEP: Remove another address.
-    m_debtTransactionModel->removeAddress(0);
-
-    // STEP: Ensure address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 0);
-    QCOMPARE(addressModelChangedSpy.count(), 1);
-    addressModelChangedSpy.clear();
-
-    // STEP: Attempt to remove another address.
-    m_debtTransactionModel->removeAddress(0);
-
-    // STEP: Ensure address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->addressModel().count(), 0);
-    QCOMPARE(addressModelChangedSpy.count(), 0);
-}
-
-void QMLDebtTransactionModelTest::testAddEmailAddressModel()
-{
-    QSignalSpy emailAddressModelChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::emailAddressModelChanged);
-
-    // STEP: Ensure email address is not set.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel(), QStringList());
-
-    // STEP: Add email address.
-    m_debtTransactionModel->addEmailAddress(QStringLiteral("email@email.com"));
-
-    // STEP: Ensure email address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 1);
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().first(), QStringLiteral("email@email.com"));
-    QCOMPARE(emailAddressModelChangedSpy.count(), 1);
-    emailAddressModelChangedSpy.clear();
-
-    // STEP: Add another email address.
-    m_debtTransactionModel->addEmailAddress(QStringLiteral("email2@email.com"));
-
-    // STEP: Ensure email address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 2);
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().last(), QStringLiteral("email2@email.com"));
-    QCOMPARE(emailAddressModelChangedSpy.count(), 1);
-    emailAddressModelChangedSpy.clear();
-
-    // STEP: Add the same email address again and ensure it fails.
-    m_debtTransactionModel->addEmailAddress(QStringLiteral("email2@email.com"));
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 2);
-    QCOMPARE(emailAddressModelChangedSpy.count(), 0);
-}
-
-void QMLDebtTransactionModelTest::testRemoveEmailAddressModel()
-{
-    QSignalSpy emailAddressModelChangedSpy(m_debtTransactionModel, &QMLDebtTransactionModel::emailAddressModelChanged);
-
-    // STEP: Ensure email address is not set.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel(), QStringList());
-    // STEP: Add email address.
-    m_debtTransactionModel->addEmailAddress(QStringLiteral("email@email.com"));
-    m_debtTransactionModel->addEmailAddress(QStringLiteral("email2@email.com"));
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 2);
-    QCOMPARE(emailAddressModelChangedSpy.count(), 2);
-    emailAddressModelChangedSpy.clear();
-
-    // STEP: Remove emailaddress.
-    m_debtTransactionModel->removeEmailAddress(0);
-
-    // STEP: Ensure email address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 1);
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().first(), QStringLiteral("email2@email.com"));
-    QCOMPARE(emailAddressModelChangedSpy.count(), 1);
-    emailAddressModelChangedSpy.clear();
-
-    // STEP: Remove another email address.
-    m_debtTransactionModel->removeEmailAddress(0);
-
-    // STEP: Ensure email address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 0);
-    QCOMPARE(emailAddressModelChangedSpy.count(), 1);
-    emailAddressModelChangedSpy.clear();
-
-    // STEP: Attempt to remove another email address.
-    m_debtTransactionModel->removeEmailAddress(0);
-
-    // STEP: Ensure address is set and user is notified.
-    QCOMPARE(m_debtTransactionModel->emailAddressModel().count(), 0);
-    QCOMPARE(emailAddressModelChangedSpy.count(), 0);
 }
 
 void QMLDebtTransactionModelTest::testAddDebt()
@@ -613,7 +397,7 @@ void QMLDebtTransactionModelTest::testSubmitDebt()
 
     // STEP: Provide mandatory fields.
     m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));
-    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
+    m_debtTransactionModel->setPhoneNumber(QStringLiteral("123456789"));
 
     // STEP: Add debt.
     m_debtTransactionModel->addDebt(1234.56, dueDate, QStringLiteral("Note"));
@@ -672,7 +456,7 @@ void QMLDebtTransactionModelTest::testSubmitPayment()
 
     // STEP: Provide mandatory fields.
     m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));
-    m_debtTransactionModel->setPrimaryPhoneNumber(QStringLiteral("123456789"));
+    m_debtTransactionModel->setPhoneNumber(QStringLiteral("123456789"));
 
     // STEP: Add debt.
     m_debtTransactionModel->addDebt(1234.56, dueDate, QStringLiteral("Note"));

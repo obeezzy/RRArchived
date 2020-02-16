@@ -3,31 +3,22 @@
 
 using namespace Utility;
 
-User::User() :
-    id(-1),
-    userId(-1)
+User::User(const QVariantMap &map)
 {
-
+    Q_UNUSED(map)
 }
 
 User::User(const QString &user,
            const QString &password) :
-    id(-1),
     user(user),
-    password(password),
-    userId(-1)
-{
-
-}
+    password(password)
+{}
 
 User::User(int id,
            const QString &user) :
     id(id),
-    user(user),
-    userId(-1)
-{
-
-}
+    user(user)
+{}
 
 User::User(int id,
            const QString &user,
@@ -46,11 +37,8 @@ User::User(int id,
     phoneNumber(phoneNumber),
     emailAddress(emailAddress),
     note(note),
-    flags(flags),
-    userId(-1)
-{
-
-}
+    flags(flags)
+{}
 
 User::User(const QString &firstName,
            const QString &lastName,
@@ -59,15 +47,16 @@ User::User(const QString &firstName,
            const QString &phoneNumber,
            const QString &emailAddress,
            const QUrl &imageUrl) :
-    id(-1),
     user(user),
     password(password),
     firstName(firstName),
     lastName(lastName),
     imageUrl(imageUrl),
     phoneNumber(phoneNumber),
-    emailAddress(emailAddress),
-    userId(-1)
-{
+    emailAddress(emailAddress)
+{}
 
+QVariantMap User::toVariantMap() const
+{
+    return {};
 }

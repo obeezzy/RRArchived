@@ -2,10 +2,8 @@
 #define QMLEXPENSEPUSHER_H
 
 #include "pusher/abstractpusher.h"
-
-namespace Utility {
-    enum class PaymentMethod;
-}
+#include "utility/expense/expensetransaction.h"
+#include <QLoggingCategory>
 
 class QMLExpensePusher : public AbstractPusher
 {
@@ -19,12 +17,12 @@ public:
         Cash, DebitCard, CreditCard
     }; Q_ENUM(PaymentMethod)
 
-    enum class SuccessCode {
+    enum SuccessCode {
         AddExpenseSuccess,
         UpdateExpenseSuccess
     }; Q_ENUM(SuccessCode)
 
-    enum class ErrorCode {
+    enum ErrorCode {
         AddExpenseError
     }; Q_ENUM(ErrorCode)
 
@@ -42,22 +40,19 @@ public:
 
     PaymentMethod paymentMethod() const;
     void setPaymentMethod(PaymentMethod paymentMethod);
+
+    void push() override;
 signals:
     void clientNameChanged();
     void purposeChanged();
     void amountChanged();
     void paymentMethodChanged();
-public slots:
-    void push() override;
 protected:
     void processResult(const QueryResult result) override;
 private:
-    QString m_clientName;
-    QString m_purpose;
-    qreal m_amount;
-    PaymentMethod m_paymentMethod;
-
-    Utility::PaymentMethod paymentMethodAsUtilityEnum() const;
+    Utility::ExpenseTransaction m_transaction;
 };
+
+Q_DECLARE_LOGGING_CATEGORY(lcqmlexpensepusher);
 
 #endif // QMLEXPENSEPUSHER_H

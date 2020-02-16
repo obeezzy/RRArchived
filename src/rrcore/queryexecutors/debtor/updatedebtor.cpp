@@ -24,7 +24,7 @@ UpdateDebtor::UpdateDebtor(const Utility::Debtor &debtor,
                     { "note", debtor.note.note }
                    }, receiver)
 {
-    DebtorExecutor::arrangeDebtTransactions(debtor.debtTransactions);
+    DebtorExecutor::arrangeDebtTransactions(debtor.transactions);
 }
 
 QueryResult UpdateDebtor::execute()

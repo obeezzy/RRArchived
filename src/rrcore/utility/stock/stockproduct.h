@@ -1,35 +1,34 @@
 #ifndef STOCKPRODUCT_H
 #define STOCKPRODUCT_H
 
+#include "utility/common/note.h"
 #include "utility/user/user.h"
-#include "utility/commonutils.h"
 #include "stockproductcategory.h"
 #include "stockproductunit.h"
-#include <QList>
 #include <QVariantList>
-#include <QVariantMap>
 #include <QDateTime>
 
 namespace Utility {
 struct StockProduct {
-    int id;
+    int id {-1};
     StockProductCategory category;
     QString product;
     QString description;
     QUrl imageUrl;
-    double quantity;
+    double quantity {0.0};
     StockProductUnit unit;
-    RecordGroup::Flags flags;
-    qreal costPrice;
-    qreal retailPrice;
-    qreal unitPrice;
+    RecordGroup::Flags flags{ RecordGroup::Tracked | RecordGroup::Divisible };
+    qreal costPrice {0.0};
+    qreal retailPrice {0.0};
+    qreal unitPrice {0.0};
     QString currency;
     Note note;
     QDateTime created;
     QDateTime lastEdited;
     User user;
-    int row;
+    int row {-1};
 
+    explicit StockProduct() = default;
     explicit StockProduct(int id);
     explicit StockProduct(const StockProductCategory &category,
                           const QString &product,
@@ -62,6 +61,10 @@ struct StockProduct {
                           const Note &note);
     explicit StockProduct(const QVariantMap &product);
     QVariantMap toVariantMap() const;
+
+    inline bool operator==(const StockProduct &other) {
+        return id == other.id;
+    }
 };
 
 class StockProductList : public QList<StockProduct> {

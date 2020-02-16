@@ -2,9 +2,10 @@
 #define QMLSTOCKPRODUCTDETAILRECORD_H
 
 #include "detailrecord/abstractdetailrecord.h"
-#include <QVariantMap>
-#include <QDateTime>
-#include <QUrl>
+#include "utility/stock/stockproduct.h"
+
+class QDateTime;
+class QUrl;
 
 class QMLStockProductDetailRecord : public AbstractDetailRecord
 {
@@ -74,24 +75,7 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_productId;
-
-    int m_categoryId;
-    QString m_category;
-    QString m_product;
-    QString m_description;
-    bool m_divisible;
-    QUrl m_imageUrl;
-    double m_quantity;
-    int m_unitId;
-    QString m_unit;
-    qreal m_costPrice;
-    qreal m_retailPrice;
-    QString m_currency;
-    QDateTime m_created;
-    QDateTime m_lastEdited;
-    int m_userId;
-    QString m_user;
+    Utility::StockProduct m_product;
 
     void setCategoryId(int categoryId);
     void setCategory(const QString &category);

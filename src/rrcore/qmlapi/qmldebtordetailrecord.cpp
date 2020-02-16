@@ -1,16 +1,15 @@
 #include "qmldebtordetailrecord.h"
 #include "database/databasethread.h"
 #include "queryexecutors/debtor.h"
+#include "utility/debtorutils.h"
 #include <QDateTime>
 
 QMLDebtorDetailRecord::QMLDebtorDetailRecord(QObject *parent) :
     AbstractDetailRecord(DatabaseThread::instance(), parent)
-{}
+{ }
 
 QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread &thread, QObject *parent) :
-    AbstractDetailRecord(thread, parent),
-    m_debtorId(-1),
-    m_userId(-1)
+    AbstractDetailRecord(thread, parent)
 {
     connect(this, &QMLDebtorDetailRecord::debtorIdChanged,
             this, &QMLDebtorDetailRecord::tryQuery);
@@ -18,179 +17,171 @@ QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread &thread, QObject *pa
 
 int QMLDebtorDetailRecord::debtorId() const
 {
-    return m_debtorId;
+    return m_debtor.id;
 }
 
 void QMLDebtorDetailRecord::setDebtorId(int debtorId)
 {
-    if (m_debtorId == debtorId)
+    if (m_debtor.id == debtorId)
         return;
 
-    m_debtorId = debtorId;
+    m_debtor.id = debtorId;
     emit debtorIdChanged();
 }
 
 QString QMLDebtorDetailRecord::preferredName() const
 {
-    return m_preferredName;
+    return m_debtor.client.preferredName;
 }
 
 void QMLDebtorDetailRecord::setPreferredName(const QString &preferredName)
 {
-    if (m_preferredName == preferredName)
+    if (m_debtor.client.preferredName == preferredName)
         return;
 
-    m_preferredName = preferredName;
+    m_debtor.client.preferredName = preferredName;
     emit preferredNameChanged();
 }
 
 QString QMLDebtorDetailRecord::firstName() const
 {
-    return m_firstName;
+    return m_debtor.client.firstName;
 }
 
 void QMLDebtorDetailRecord::setFirstName(const QString &firstName)
 {
-    if (m_firstName == firstName)
+    if (m_debtor.client.firstName == firstName)
         return;
 
-    m_firstName = firstName;
+    m_debtor.client.firstName = firstName;
     emit firstNameChanged();
 }
 
 QString QMLDebtorDetailRecord::lastName() const
 {
-    return m_lastName;
+    return m_debtor.client.lastName;
 }
 
 void QMLDebtorDetailRecord::setLastName(const QString &lastName)
 {
-    if (m_lastName == lastName)
+    if (m_debtor.client.lastName == lastName)
         return;
 
-    m_lastName = lastName;
+    m_debtor.client.lastName = lastName;
     emit lastNameChanged();
 }
 
 QString QMLDebtorDetailRecord::phoneNumber() const
 {
-    return m_phoneNumber;
+    return m_debtor.client.phoneNumber;
 }
 
 void QMLDebtorDetailRecord::setPhoneNumber(const QString &phoneNumber)
 {
-    if (m_phoneNumber == phoneNumber)
+    if (m_debtor.client.phoneNumber == phoneNumber)
         return;
 
-    m_phoneNumber = phoneNumber;
+    m_debtor.client.phoneNumber = phoneNumber;
     emit phoneNumberChanged();
 }
 
 QStringList QMLDebtorDetailRecord::addressModel() const
 {
-    return m_addressModel;
+    return QStringList();
 }
 
 void QMLDebtorDetailRecord::setAddressModel(const QStringList &addressModel)
 {
-    if (m_addressModel == addressModel)
-        return;
-
-    m_addressModel = addressModel;
-    emit addressModelChanged();
+    Q_UNUSED(addressModel);
 }
 
 QStringList QMLDebtorDetailRecord::emailModel() const
 {
-    return m_emailModel;
+    return QStringList();
 }
 
 void QMLDebtorDetailRecord::setEmailModel(const QStringList &emailModel)
 {
-    if (m_emailModel == emailModel)
-        return;
-
-    m_emailModel = emailModel;
-    emit emailModelChanged();
+    Q_UNUSED(emailModel);
 }
 
 QUrl QMLDebtorDetailRecord::imageUrl() const
 {
-    return m_imageUrl;
+    return m_debtor.client.imageUrl;
 }
 
 void QMLDebtorDetailRecord::setImageUrl(const QUrl &imageUrl)
 {
-    if (m_imageUrl == imageUrl)
+    if (m_debtor.client.imageUrl == imageUrl)
         return;
 
-    m_imageUrl = imageUrl;
+    m_debtor.client.imageUrl = imageUrl;
     emit imageUrlChanged();
 }
 
 QDateTime QMLDebtorDetailRecord::created() const
 {
-    return m_created;
+    return m_debtor.created;
 }
 
 void QMLDebtorDetailRecord::setCreated(const QDateTime &created)
 {
-    if (m_created == created)
+    if (m_debtor.created == created)
         return;
 
-    m_created = created;
+    m_debtor.created = created;
     emit createdChanged();
 }
 
 QDateTime QMLDebtorDetailRecord::lastEdited() const
 {
-    return m_lastEdited;
+    return m_debtor.lastEdited;
 }
 
 void QMLDebtorDetailRecord::setLastEdited(const QDateTime &lastEdited)
 {
-    if (m_lastEdited == lastEdited)
+    if (m_debtor.lastEdited == lastEdited)
         return;
 
-    m_lastEdited = lastEdited;
+    m_debtor.lastEdited = lastEdited;
     emit lastEditedChanged();
 }
 
 int QMLDebtorDetailRecord::userId() const
 {
-    return m_userId;
+    return m_debtor.user.id;
 }
 
 void QMLDebtorDetailRecord::setUserId(int userId)
 {
-    if (m_userId == userId)
+    if (m_debtor.user.id == userId)
         return;
 
-    m_userId = userId;
+    m_debtor.user.id = userId;
     emit userIdChanged();
 }
 
 QString QMLDebtorDetailRecord::user() const
 {
-    return m_user;
+    return m_debtor.user.user;
 }
 
 void QMLDebtorDetailRecord::setUser(const QString &user)
 {
-    if (m_user == user)
+    if (m_debtor.user.user == user)
         return;
 
-    m_user = user;
+    m_debtor.user.user = user;
     emit userChanged();
 }
 
 void QMLDebtorDetailRecord::tryQuery()
 {
-    if (m_debtorId <= 0)
+    if (m_debtor.id <= 0)
         return;
 
     setBusy(true);
-    emit execute(new DebtorQuery::FetchDebtor(m_debtorId,
+    emit execute(new DebtorQuery::FetchDebtor(m_debtor.id,
                                               this));
 }
 
@@ -202,22 +193,20 @@ void QMLDebtorDetailRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-//        if (result.request().command() == DebtorQuery::ViewDebtorDetails::COMMAND) {
-//            const QVariantMap &record = result.outcome().toMap().value("debtor").toMap();
-//            setPreferredName(record.value("preferred_name").toString());
-//            setFirstName(record.value("first_name").toString());
-//            setLastName(record.value("last_name").toString());
-//            setImageUrl(record.value("image_url").toString());
-//            setPhoneNumber(record.value("phone_number").toString());
-//            setAddressModel(record.value("addresses").toStringList());
-//            setEmailModel(record.value("emails").toStringList());
-//            setCreated(record.value("created").toDateTime());
-//            setLastEdited(record.value("last_edited").toDateTime());
-//            setUserId(record.value("user_id").toInt());
-//            setUser(record.value("user").toString());
+        if (result.request().command() == DebtorQuery::FetchDebtor::COMMAND) {
+            const Utility::Debtor debtor{ result.outcome().toMap().value("debtor").toMap() };
+            setPreferredName(debtor.client.preferredName);
+            setFirstName(debtor.client.firstName);
+            setLastName(debtor.client.lastName);
+            setImageUrl(debtor.client.imageUrl);
+            setPhoneNumber(debtor.client.phoneNumber);
+            setCreated(debtor.created);
+            setLastEdited(debtor.lastEdited);
+            setUserId(debtor.user.id);
+            setUser(debtor.user.user);
 
-//            emit success();
-//        }
+            emit success();
+        }
     } else {
         emit error();
     }

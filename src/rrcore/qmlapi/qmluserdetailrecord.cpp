@@ -3,119 +3,121 @@
 #include "queryexecutors/user.h"
 #include "utility/userutils.h"
 
+using namespace Utility;
+
 QMLUserDetailRecord::QMLUserDetailRecord(QObject *parent) :
     QMLUserDetailRecord(DatabaseThread::instance(), parent)
 {}
 
-QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread &thread, QObject *parent) :
-    AbstractDetailRecord (thread, parent),
-    m_userId(-1)
+QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread &thread,
+                                         QObject *parent) :
+    AbstractDetailRecord (thread, parent)
 {
 
 }
 
 int QMLUserDetailRecord::userId() const
 {
-    return m_userId;
+    return m_user.id;
 }
 
 void QMLUserDetailRecord::setUserId(int userId)
 {
-    if (m_userId == userId)
+    if (m_user.id == userId)
         return;
 
-    m_userId = userId;
+    m_user.id = userId;
     emit userIdChanged();
 }
 
 QString QMLUserDetailRecord::firstName() const
 {
-    return m_firstName;
+    return m_user.firstName;
 }
 
 void QMLUserDetailRecord::setFirstName(const QString &firstName)
 {
-    if (m_firstName == firstName)
+    if (m_user.firstName == firstName)
         return;
 
-    m_firstName = firstName;
+    m_user.firstName = firstName;
     emit firstNameChanged();
 }
 
 QString QMLUserDetailRecord::lastName() const
 {
-    return m_lastName;
+    return m_user.lastName;
 }
 
 void QMLUserDetailRecord::setLastName(const QString &lastName)
 {
-    if (m_lastName == lastName)
+    if (m_user.lastName == lastName)
         return;
 
-    m_lastName = lastName;
+    m_user.lastName = lastName;
     emit lastNameChanged();
 }
 
 QString QMLUserDetailRecord::userName() const
 {
-    return m_userName;
+    return m_user.user;
 }
 
 void QMLUserDetailRecord::setUserName(const QString &userName)
 {
-    if (m_userName == userName)
+    if (m_user.user == userName)
         return;
 
-    m_userName = userName;
+    m_user.user = userName;
     emit userNameChanged();
 }
 
 QString QMLUserDetailRecord::phoneNumber() const
 {
-    return m_phoneNumber;
+    return m_user.phoneNumber;
 }
 
 void QMLUserDetailRecord::setPhoneNumber(const QString &phoneNumber)
 {
-    if (m_phoneNumber == phoneNumber)
+    if (m_user.phoneNumber == phoneNumber)
         return;
 
-    m_phoneNumber = phoneNumber;
+    m_user.phoneNumber = phoneNumber;
     emit phoneNumberChanged();
 }
 
 QString QMLUserDetailRecord::emailAddress() const
 {
-    return m_emailAddress;
+    return m_user.emailAddress;
 }
 
 QUrl QMLUserDetailRecord::imageUrl() const
 {
-    return m_imageUrl;
+    return m_user.imageUrl;
 }
 
 void QMLUserDetailRecord::setImageUrl(const QUrl &imageUrl)
 {
-    if (m_imageUrl == imageUrl)
+    if (m_user.imageUrl == imageUrl)
         return;
 
-    m_imageUrl = imageUrl;
+    m_user.imageUrl = imageUrl;
     emit imageUrlChanged();
 }
 
 void QMLUserDetailRecord::setEmailAddress(const QString &emailAddress)
 {
-    if (m_emailAddress == emailAddress)
+    if (m_user.emailAddress == emailAddress)
         return;
 
-    m_emailAddress = emailAddress;
+    m_user.emailAddress = emailAddress;
     emit emailAddressChanged();
 }
 
 void QMLUserDetailRecord::tryQuery()
 {
     setBusy(true);
-    emit execute(new UserQuery::FetchUser(m_userId, this));
+    emit execute(new UserQuery::FetchUser(m_user.id, this));
 }
 
 void QMLUserDetailRecord::processResult(const QueryResult result)
@@ -125,12 +127,13 @@ void QMLUserDetailRecord::processResult(const QueryResult result)
 
     setBusy(false);
     if (result.isSuccessful()) {
-        setFirstName(result.outcome().toMap().value("user").toMap().value("first_name").toString());
-        setLastName(result.outcome().toMap().value("user").toMap().value("last_name").toString());
-        setUserName(result.outcome().toMap().value("user").toMap().value("user_name").toString());
-        setPhoneNumber(result.outcome().toMap().value("user").toMap().value("phone_number").toString());
-        setEmailAddress(result.outcome().toMap().value("user").toMap().value("email_address").toString());
-        setImageUrl(result.outcome().toMap().value("user").toMap().value("image_url").toUrl());
+        const Utility::User &user{ result.outcome().toMap() };
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setUserName(user.user);
+        setPhoneNumber(user.phoneNumber);
+        setEmailAddress(user.emailAddress);
+        setImageUrl(user.imageUrl);
 
         emit success();
     } else {

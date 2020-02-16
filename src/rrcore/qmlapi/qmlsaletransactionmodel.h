@@ -2,6 +2,7 @@
 #define QMLSALETRANSACTIONMODEL_H
 
 #include "models/abstracttransactionmodel.h"
+#include "utility/sales/saletransaction.h"
 
 class QMLSaleTransactionModel : public AbstractTransactionModel
 {
@@ -43,24 +44,26 @@ public:
         ArchivedRole,
         CreatedRole,
         LastEditedRole,
-        UserIdRole
+        UserIdRole,
+        UserRole
     };
 
     explicit QMLSaleTransactionModel(QObject *parent = nullptr);
-    explicit QMLSaleTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLSaleTransactionModel(DatabaseThread &thread,
+                                     QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
-public slots:
-    void removeTransaction(int row);
 private:
-    QVariantList m_records;
+    Utility::SaleTransactionList m_transactions;
 };
 
 #endif // QMLSALETRANSACTIONMODEL_H

@@ -1,4 +1,8 @@
 #include "qmlreceiptprinter.h"
+#include "user/userprofile.h"
+#include "user/businessdetails.h"
+#include "singletons/settings.h"
+#include "models/receiptcartmodel.h"
 #include <QVariantMap>
 #include <QQuickItem>
 #include <QQmlComponent>
@@ -15,12 +19,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 
-#include "user/userprofile.h"
-#include "user/businessdetails.h"
-#include "singletons/settings.h"
-#include "models/receiptcartmodel.h"
-
-Q_LOGGING_CATEGORY(qmlReceiptPrinter, "rrcore.qmlapi.qmlReceiptPrinter");
+Q_LOGGING_CATEGORY(lcqmlreceiptprinter, "rrcore.qmlapi.qmlreceiptprinter");
 
 QMLReceiptPrinter::QMLReceiptPrinter(QObject *parent) :
     QObject(parent)
@@ -79,13 +78,13 @@ QQuickItem *QMLReceiptPrinter::createReceipt(const QString &job)
                                                             Settings::instance().defaultReceiptTemplateUrl()).toUrl());
     QQuickItem *receiptTemplate = static_cast<QQuickItem *>(component.create());
     if (!receiptTemplate) {
-        qWarning() << "Failed to create receipt...";
+        qCWarning(lcqmlreceiptprinter) << "Failed to create receipt...";
         return nullptr;
     }
 
     QQmlApplicationEngine *engine = static_cast<QQmlApplicationEngine *>(qmlEngine(this));
     if (!engine || engine->rootObjects().isEmpty()) {
-        qWarning() << "Invalid engine. Root objects:" << engine->rootObjects().count();
+        qCWarning(lcqmlreceiptprinter) << "Invalid engine. Root objects:" << engine->rootObjects().count();
         return nullptr;
     }
     QQuickWindow *rootItem = static_cast<QQuickWindow *>(engine->rootObjects().first());

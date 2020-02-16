@@ -12,48 +12,55 @@
 
 namespace Utility {
 struct PurchaseCartProduct {
-    int id;
+    int id {-1};
     QString product;
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    double quantity;
+    qreal quantity;
+    qreal availableQuantity;
     StockProductUnit unit;
-    RecordGroup::Flags flags;
-    qreal costPrice;
-    qreal retailPrice;
-    qreal unitPrice;
-    qreal cost;
-    qreal amountPaid;
+    qreal costPrice {0.0};
+    qreal retailPrice {0.0};
+    qreal unitPrice {0.0};
+    qreal cost {0.0};
+    qreal amountPaid {0.0};
     QString currency;
     Note note;
+    RecordGroup::Flags flags;
     QDateTime created;
     QDateTime lastEdited;
     User user;
 
-    explicit PurchaseCartProduct(const StockProductCategory &category,
-                             const QString &product,
-                             const QString &description,
-                             const QUrl &imageUrl,
-                             qreal quantity,
-                             const StockProductUnit &unit,
-                             const RecordGroup::Flags &flags,
-                             qreal costPrice,
-                             qreal retailPrice,
-                             const QString &currency,
-                             const Note &note);
-    explicit PurchaseCartProduct(int id,
-                             const QString &product,
-                             const StockProductCategory &category,
-                             qreal quantity,
-                             const StockProductUnit &unit,
-                             qreal retailPrice,
-                             qreal unitPrice,
-                             qreal cost,
-                             qreal amountPaid,
-                             const Note &note);
+    explicit PurchaseCartProduct() = default;
+    explicit PurchaseCartProduct(int id);
     explicit PurchaseCartProduct(const QVariantMap &product);
+    explicit PurchaseCartProduct(const StockProductCategory &category,
+                                 const QString &product,
+                                 const QString &description,
+                                 const QUrl &imageUrl,
+                                 qreal quantity,
+                                 const StockProductUnit &unit,
+                                 const RecordGroup::Flags &flags,
+                                 qreal costPrice,
+                                 qreal retailPrice,
+                                 const QString &currency,
+                                 const Note &note);
+    explicit PurchaseCartProduct(int id,
+                                 const QString &product,
+                                 const StockProductCategory &category,
+                                 qreal quantity,
+                                 const StockProductUnit &unit,
+                                 qreal retailPrice,
+                                 qreal unitPrice,
+                                 qreal cost,
+                                 qreal amountPaid,
+                                 const Note &note);
     QVariantMap toVariantMap() const;
+
+    inline bool operator==(const PurchaseCartProduct &other) {
+        return id == other.id;
+    }
 };
 
 class PurchaseCartProductList : public QList<PurchaseCartProduct> {

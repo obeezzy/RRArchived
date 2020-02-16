@@ -1,9 +1,8 @@
 #ifndef QMLDEBTORMODEL_H
 #define QMLDEBTORMODEL_H
 
-#include <QObject>
-#include <QVariantList>
 #include "models/abstractvisuallistmodel.h"
+#include "utility/debtor/debtor.h"
 
 class QMLDebtorModel : public AbstractVisualListModel
 {
@@ -47,16 +46,14 @@ protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
     void filter() override final;
+    QString columnName(int column) const override final;
 public slots:
-    void removeDebtor(int debtorId);
+    void removeDebtor(int row);
 private:
-    QVariantList m_records;
+    Utility::DebtorList m_debtorList;
 
-    int debtorRowFromId(int debtorId);
-    QString filterColumnName() const;
-
-    void removeDebtorFromModel(int debtorId);
-    void undoRemoveDebtorFromModel(int row, int debtorId, const QVariantMap &debtor);
+    void removeDebtorFromModel(const Utility::Debtor &debtor);
+    void undoRemoveDebtorFromModel(const Utility::Debtor &debtor);
 };
 
 #endif // QMLDEBTORMODEL_H

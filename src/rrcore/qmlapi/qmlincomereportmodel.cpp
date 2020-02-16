@@ -7,7 +7,7 @@ QMLIncomeReportModel::QMLIncomeReportModel(QObject *parent) :
 {}
 
 QMLIncomeReportModel::QMLIncomeReportModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent)
+    AbstractReportModel(thread, parent)
 {
 
 }
@@ -17,7 +17,7 @@ int QMLIncomeReportModel::rowCount(const QModelIndex &index) const
     if (index.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLIncomeReportModel::columnCount(const QModelIndex &index) const
@@ -35,9 +35,9 @@ QVariant QMLIncomeReportModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case PurposeRole:
-        return m_records.at(index.row()).toMap().value("purpose").toString();
+        return m_transactions.at(index.row()).purpose;
     case AmountRole:
-        return m_records.at(index.row()).toMap().value("amount").toDouble();
+        return m_transactions.at(index.row()).amount;
     }
 
     return QVariant();
@@ -84,12 +84,8 @@ QVariant QMLIncomeReportModel::headerData(int section, Qt::Orientation orientati
 void QMLIncomeReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new IncomeQuery::ViewIncomeReport(
-                     Utility::DateTimeSpan {
-                         QDateTime::currentDateTime().addDays(-1),
-                         QDateTime::currentDateTime()
-                     },
-                     this));
+    emit execute(new IncomeQuery::ViewIncomeReport(dateTimeSpan(),
+                                                   this));
 }
 
 void QMLIncomeReportModel::processResult(const QueryResult result)
@@ -101,7 +97,7 @@ void QMLIncomeReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == IncomeQuery::ViewIncomeReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("transactions").toList();
+            m_transactions = Utility::IncomeReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
             emit success(ViewIncomeReportSuccess);
         } else {

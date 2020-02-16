@@ -12,16 +12,14 @@ QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(QObject *parent
 
 QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(DatabaseThread &thread, QObject *parent) :
     AbstractTransactionItemModel(thread, parent)
-{
-
-}
+{}
 
 int QMLPurchaseTransactionItemModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_products.count();
 }
 
 int QMLPurchaseTransactionItemModel::columnCount(const QModelIndex &parent) const
@@ -39,43 +37,43 @@ QVariant QMLPurchaseTransactionItemModel::data(const QModelIndex &index, int rol
 
     switch (role) {
     case TransactionItemIdRole:
-        return m_records.at(index.row()).toMap().value("id").toInt();
+        return m_products.at(index.row()).id;
     case CategoryIdRole:
-        return m_records.at(index.row()).toMap().value("category_id").toInt();
+        return m_products.at(index.row()).category.id;
     case CategoryRole:
-        return m_records.at(index.row()).toMap().value("category").toString();
+        return m_products.at(index.row()).category.category;
     case ProductIdRole:
-        return m_records.at(index.row()).toMap().value("product_id").toInt();
+        return m_products.at(index.row()).product.id;
     case ProductRole:
-        return m_records.at(index.row()).toMap().value("product").toString();
+        return m_products.at(index.row()).product.product;
     case UnitPriceRole:
-        return m_records.at(index.row()).toMap().value("unit_price").toDouble();
+        return m_products.at(index.row()).product.unitPrice;
     case QuantityRole:
-        return m_records.at(index.row()).toMap().value("quantity").toDouble();
+        return m_products.at(index.row()).product.quantity;
     case UnitIdRole:
-        return m_records.at(index.row()).toMap().value("unit_id").toInt();
+        return m_products.at(index.row()).product.unit.id;
     case UnitRole:
-        return m_records.at(index.row()).toMap().value("unit").toString();
+        return m_products.at(index.row()).product.unit.unit;
     case CostRole:
-        return m_records.at(index.row()).toMap().value("cost").toDouble();
+        return m_products.at(index.row()).cost;
     case DiscountRole:
-        return m_records.at(index.row()).toMap().value("discount").toDouble();
+        return m_products.at(index.row()).discount;
     case NoteIdRole:
-        return m_records.at(index.row()).toMap().value("note_id").toInt();
+        return m_products.at(index.row()).note.id;
     case NoteRole:
-        return m_records.at(index.row()).toMap().value("note").toString();
+        return m_products.at(index.row()).note.note;
     case SuspendedRole:
-        return m_records.at(index.row()).toMap().value("suspended").toBool();
+        return m_products.at(index.row()).flags.testFlag(Utility::RecordGroup::Suspended);
     case ArchivedRole:
-        return m_records.at(index.row()).toMap().value("archived").toBool();
+        return m_products.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_records.at(index.row()).toMap().value("created").toDateTime();
+        return m_products.at(index.row()).created;
     case LastEditedRole:
-        return m_records.at(index.row()).toMap().value("last_edited").toDateTime();
+        return m_products.at(index.row()).lastEdited;
     case UserIdRole:
-        return m_records.at(index.row()).toMap().value("user_id").toInt();
+        return m_products.at(index.row()).user.id;
     case UserRole:
-        return m_records.at(index.row()).toMap().value("user").toString();
+        return m_products.at(index.row()).user.user;
     }
 
     return QVariant();
@@ -171,7 +169,7 @@ void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == PurchaseQuery::ViewPurchasedProducts::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("products").toList();
+            m_products = Utility::PurchasedProductList{ result.outcome().toMap().value("products").toList() };
             endResetModel();
 
             emit success(ViewPurchaseTransactionItemsSuccess);
@@ -185,15 +183,15 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
 {
     switch (column) {
     case CategoryColumn:
-        return "category";
+        return QStringLiteral("category");
     case ProductColumn:
-        return "product";
+        return QStringLiteral("product");
     case QuantityColumn:
-        return "quantity";
+        return QStringLiteral("quantity");
     case UnitPriceColumn:
-        return "unit_price";
+        return QStringLiteral("unit_price");
     case CostColumn:
-        return "cost";
+        return QStringLiteral("cost");
     }
 
     return QString();
@@ -202,10 +200,10 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
 void QMLPurchaseTransactionItemModel::removeSoldProduct(int row)
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::RemovePurchasedProduct(Utility::PurchasedProduct {
-                                                               transactionId(),
-                                                               data(index(row, 0), TransactionItemIdRole).toInt()
-                                                           },
+    Utility::PurchasedProduct &product{ m_products[row] };
+    product.transaction.id = transactionId();
+    product.row = row;
+    emit execute(new PurchaseQuery::RemovePurchasedProduct(product,
                                                            this));
 }
 

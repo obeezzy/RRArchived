@@ -15,7 +15,7 @@ ListView {
     property int debtorId: -1
 
     property string preferredName: ""
-    property string primaryPhoneNumber: ""
+    property string phoneNumber: ""
 
     signal success(int successCode)
     signal error(int errorCode)
@@ -49,7 +49,7 @@ ListView {
 
     model: RRModels.DebtTransactionModel {
         preferredName: debtTransactionListView.preferredName
-        primaryPhoneNumber: debtTransactionListView.primaryPhoneNumber
+        phoneNumber: debtTransactionListView.phoneNumber
         debtorId: debtTransactionListView.debtorId
         filterText: debtTransactionListView.filterText
         filterColumn: debtTransactionListView.filterColumn

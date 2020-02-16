@@ -7,7 +7,8 @@ class QMLExpenseHomeModel : public AbstractHomeModel
 {
 public:
     explicit QMLExpenseHomeModel(QObject *parent = nullptr);
-    explicit QMLExpenseHomeModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLExpenseHomeModel(DatabaseThread &thread,
+                                 QObject *parent = nullptr);
 protected:
     void tryQuery() override;
 };

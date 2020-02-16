@@ -16,5 +16,6 @@
 #include "database/exceptions/incorrectcredentialsexception.h"
 #include "database/exceptions/useraccountlockedexception.h"
 #include "database/exceptions/sqlstatementfailedexception.h"
+#include "database/exceptions/procedurecallfailedexception.h"
 
 #endif // EXCEPTIONS_H

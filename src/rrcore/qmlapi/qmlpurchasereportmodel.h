@@ -1,9 +1,10 @@
 #ifndef QMLPURCHASEREPORTMODEL_H
 #define QMLPURCHASEREPORTMODEL_H
 
-#include "models/abstractvisualtablemodel.h"
+#include "models/abstractreportmodel.h"
+#include "utility/purchase/purchasereporttransaction.h"
 
-class QMLPurchaseReportModel : public AbstractVisualTableModel
+class QMLPurchaseReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
@@ -34,12 +35,14 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::PurchaseReportTransactionList m_transactions;
 };
 
 #endif // QMLPURCHASEREPORTMODEL_H

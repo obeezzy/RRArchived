@@ -31,7 +31,7 @@ QVariant SalePaymentModel::data(const QModelIndex &index, int role) const
     case AmountRole:
         return m_salePayments.at(index.row()).amount;
     case MethodRole:
-        return static_cast<int>(m_salePayments.at(index.row()).method);
+        return m_salePayments.at(index.row()).method.toString();
     case NoteRole:
         return m_salePayments.at(index.row()).note.note;
     }

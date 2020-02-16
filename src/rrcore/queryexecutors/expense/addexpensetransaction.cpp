@@ -4,22 +4,20 @@
 #include "user/userprofile.h"
 #include "singletons/settings.h"
 #include "utility/commonutils.h"
+#include "utility/expenseutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
 using namespace ExpenseQuery;
 
-AddExpenseTransaction::AddExpenseTransaction(const Utility::Client &client,
-                                             const QString &purpose,
-                                             qreal amount,
-                                             const Utility::PaymentMethod &paymentMethod,
+AddExpenseTransaction::AddExpenseTransaction(const Utility::ExpenseTransaction &transaction,
                                              QObject *receiver) :
     ExpenseExecutor(COMMAND, {
-                    { "name", client.preferredName },
-                    { "purpose", purpose },
-                    { "amount", amount },
-                    { "payment_method", Utility::asString(paymentMethod) },
+                    { "name", transaction.client.preferredName },
+                    { "purpose", transaction.purpose },
+                    { "amount", transaction.amount },
+                    { "payment_method", transaction.paymentMethod.toString() },
                     { "currency", Settings::DEFAULT_CURRENCY },
                     }, receiver)
 {

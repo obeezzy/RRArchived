@@ -2,7 +2,7 @@
 #define QMLSALETRANSACTIONITEMMODEL_H
 
 #include "models/abstracttransactionitemmodel.h"
-#include <QVariantList>
+#include "utility/sales/soldproduct.h"
 
 class QMLSaleTransactionItemModel : public AbstractTransactionItemModel
 {
@@ -56,15 +56,15 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
     QString columnName(int column) const override;
-public slots:
-    void removeTransactionItem(int row);
 private:
-    QVariantList m_records;
+    Utility::SoldProductList m_products;
 };
 
 #endif // QMLSALETRANSACTIONITEMMODEL_H

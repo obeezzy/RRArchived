@@ -2,6 +2,7 @@
 #define QMLSTOCKPRODUCTCOUNTRECORD_H
 
 #include "detailrecord/abstractdetailrecord.h"
+#include "utility/common/filtercriteria.h"
 
 class QMLStockProductCountRecord : public AbstractDetailRecord
 {
@@ -15,7 +16,8 @@ public:
         ProductColumn
     }; Q_ENUM(FilterColumns)
     explicit QMLStockProductCountRecord(QObject *parent = nullptr);
-    explicit QMLStockProductCountRecord(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLStockProductCountRecord(DatabaseThread &thread,
+                                        QObject *parent = nullptr);
 
     int categoryId() const;
     void setCategoryId(int categoryId);
@@ -39,10 +41,9 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_categoryId;
-    QString m_filterText;
-    int m_filterColumn;
-    int m_productCount;
+    int m_categoryId {-1};
+    int m_productCount {0};
+    Utility::FilterCriteria m_filterCriteria;
 
     void setProductCount(int productCount);
     void filter();

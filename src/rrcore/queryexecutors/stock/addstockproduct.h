@@ -2,7 +2,7 @@
 #define ADDSTOCKPRODUCT_H
 
 #include "stockexecutor.h"
-#include "utility/stockutils.h"
+#include "utility/stock/stockproduct.h"
 
 namespace StockQuery {
 class AddStockProduct : public StockExecutor

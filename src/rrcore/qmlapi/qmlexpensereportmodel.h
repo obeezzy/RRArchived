@@ -1,9 +1,10 @@
 #ifndef EXPENSEREPORTMODEL_H
 #define EXPENSEREPORTMODEL_H
 
-#include "models/abstractvisualtablemodel.h"
+#include "models/abstractreportmodel.h"
+#include "utility/expense/expensereporttransaction.h"
 
-class QMLExpenseReportModel : public AbstractVisualTableModel
+class QMLExpenseReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
@@ -29,12 +30,14 @@ public:
     int columnCount(const QModelIndex &index = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::ExpenseReportTransactionList m_transactions;
 };
 
 #endif // EXPENSEREPORTMODEL_H

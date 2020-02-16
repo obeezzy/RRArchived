@@ -1,5 +1,4 @@
 #include "qmlstockproductcategorymodel.h"
-
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/databasethread.h"
@@ -10,8 +9,10 @@ QMLStockProductCategoryModel::QMLStockProductCategoryModel(QObject *parent) :
     QMLStockProductCategoryModel(DatabaseThread::instance(), parent)
 {}
 
-QMLStockProductCategoryModel::QMLStockProductCategoryModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent)
+QMLStockProductCategoryModel::QMLStockProductCategoryModel(DatabaseThread &thread,
+                                                           QObject *parent) :
+    AbstractVisualListModel(thread, parent),
+    m_productFilterCriteria{ QStringLiteral("product") }
 {
     connect(this, &QMLStockProductCategoryModel::productFilterTextChanged,
             this, &QMLStockProductCategoryModel::filter);
@@ -19,15 +20,15 @@ QMLStockProductCategoryModel::QMLStockProductCategoryModel(DatabaseThread &threa
 
 QString QMLStockProductCategoryModel::productFilterText() const
 {
-    return m_productFilterText;
+    return m_productFilterCriteria.text;
 }
 
 void QMLStockProductCategoryModel::setProductFilterText(const QString &productFilterText)
 {
-    if (m_productFilterText == productFilterText)
+    if (m_productFilterCriteria.text == productFilterText)
         return;
 
-    m_productFilterText = productFilterText;
+    m_productFilterCriteria.text = productFilterText;
     emit productFilterTextChanged();
 }
 
@@ -37,7 +38,7 @@ int QMLStockProductCategoryModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_categories.count();
 }
 
 QVariant QMLStockProductCategoryModel::data(const QModelIndex &index, int role) const
@@ -47,9 +48,9 @@ QVariant QMLStockProductCategoryModel::data(const QModelIndex &index, int role) 
 
     switch (role) {
     case CategoryIdRole:
-        return m_records.at(index.row()).toMap().value("product_category_id").toInt();
+        return m_categories.at(index.row()).id;
     case CategoryRole:
-        return m_records.at(index.row()).toMap().value("category").toString();
+        return m_categories.at(index.row()).category;
     }
 
     return QVariant();
@@ -75,44 +76,43 @@ void QMLStockProductCategoryModel::unarchiveProduct(int productId)
     emit execute(removeStockProduct);
 }
 
-void QMLStockProductCategoryModel::updateCategory(int categoryId, const QVariantMap &categoryInfo)
+void QMLStockProductCategoryModel::updateCategory(const Utility::StockProductCategory &category)
 {
-    if (categoryId <= 0)
+    if (category.id <= 0)
         return;
 
-    const int row = rowFromCategoryId(categoryId);
     if (sortOrder() == Qt::AscendingOrder) {
-        if (row < 0) {
+        if (category.row < 0) {
             for (int i = 0; i < rowCount(); ++i) {
                 bool shouldBreak = false;
-                const QString &category = categoryInfo.value("category").toString();
-                const QString &categoryInModel = index(i).data(CategoryRole).toString();
-                const QString &nextCategoryInModel = index(i + 1).data(CategoryRole).toString();
+                const QString &categoryName = category.category;
+                const QString &categoryNameInModel = index(i).data(CategoryRole).toString();
+                const QString &nextCategoryNameInModel = index(i + 1).data(CategoryRole).toString();
 
-                if (category > categoryInModel) {
-                    if (nextCategoryInModel.trimmed().isEmpty()) {
+                if (categoryName > categoryNameInModel) {
+                    if (nextCategoryNameInModel.trimmed().isEmpty()) {
                         beginInsertRows(QModelIndex(), i + 1, i + 1);
-                        m_records.insert(i + 1, categoryInfo);
+                        m_categories.insert(i + 1, category);
                         endInsertRows();
                         shouldBreak = true;
-                    } else if (category < nextCategoryInModel) {
+                    } else if (categoryName < nextCategoryNameInModel) {
                         beginInsertRows(QModelIndex(), i + 1, i + 1);
-                        m_records.insert(i + 1, categoryInfo);
+                        m_categories.insert(i + 1, category);
                         endInsertRows();
                         shouldBreak = true;
                     }
 
                     if (shouldBreak)
                         break;
-                } else if (category < categoryInModel) {
-                    if (nextCategoryInModel.trimmed().isEmpty()) {
+                } else if (categoryName < categoryNameInModel) {
+                    if (nextCategoryNameInModel.trimmed().isEmpty()) {
                         beginInsertRows(QModelIndex(), i, i);
-                        m_records.insert(i, categoryInfo);
+                        m_categories.insert(i, category);
                         endInsertRows();
                         shouldBreak = true;
-                    } else if (category < nextCategoryInModel) {
+                    } else if (categoryName < nextCategoryNameInModel) {
                         beginInsertRows(QModelIndex(), i, i);
-                        m_records.insert(i, categoryInfo);
+                        m_categories.insert(i, category);
                         endInsertRows();
                         shouldBreak = true;
                     }
@@ -122,7 +122,7 @@ void QMLStockProductCategoryModel::updateCategory(int categoryId, const QVariant
                 }
             }
         } else {
-            emit dataChanged(index(row), index(row));
+            emit dataChanged(index(category.row), index(category.row));
         }
     } else {
         // TODO: Unhandled case!
@@ -154,17 +154,19 @@ void QMLStockProductCategoryModel::removeCategoryFromModel(int row)
         return;
 
     beginRemoveRows(QModelIndex(), row, row);
-    m_records.removeAt(row);
+    m_categories.removeAt(row);
     endRemoveRows();
 }
 
-void QMLStockProductCategoryModel::undoRemoveCategoryFromModel(int row, const QVariantMap &categoryInfo)
+void QMLStockProductCategoryModel::undoRemoveCategoryFromModel(int row,
+                                                               const QVariantMap &category)
 {
     if (row < 0 || row > rowCount())
         return;
 
+    const Utility::StockProductCategory &categoryToReinsert{ category };
     beginInsertRows(QModelIndex(), row, row);
-    m_records.insert(row, categoryInfo);
+    m_categories.insert(row, categoryToReinsert);
     endInsertRows();
 }
 
@@ -172,18 +174,19 @@ void QMLStockProductCategoryModel::tryQuery()
 {
     setBusy(true);
 
-    if (!m_productFilterText.trimmed().isEmpty()) {
-        emit execute(new StockQuery::FilterStockProductCategoriesByProduct(Utility::FilterCriteria { m_productFilterText },
-                                                                           Utility::SortCriteria { sortOrder() },
-                                                                           Utility::RecordGroup::None,
-                                                                           this));
+    if (!m_productFilterCriteria.text.trimmed().isEmpty()) {
+        emit execute(new StockQuery::FilterStockProductCategoriesByProduct(
+                         m_productFilterCriteria,
+                         sortCriteria(),
+                         Utility::RecordGroup::None,
+                         this));
     } else if (!filterText().trimmed().isEmpty()) {
-        emit execute(new StockQuery::FilterStockCategories(Utility::FilterCriteria { filterText() },
-                                                           Utility::SortCriteria { sortOrder() },
+        emit execute(new StockQuery::FilterStockCategories(filterCriteria(),
+                                                           sortCriteria(),
                                                            Utility::RecordGroup::None,
                                                            this));
     } else {
-        emit execute(new StockQuery::ViewStockProductCategories(Utility::SortCriteria{ sortOrder() },
+        emit execute(new StockQuery::ViewStockProductCategories(sortCriteria(),
                                                                 Utility::RecordGroup::None,
                                                                 this));
     }
@@ -201,17 +204,13 @@ void QMLStockProductCategoryModel::processResult(const QueryResult result)
                 || result.request().command() == StockQuery::FilterStockProductCategoriesByProduct::COMMAND
                 || result.request().command() == StockQuery::FilterStockCategories::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("categories").toList();
+            m_categories = Utility::StockProductCategoryList{ result.outcome().toMap().value("categories").toList() };
             endResetModel();
 
             emit success(ViewCategoriesSuccess);
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
-            const int categoryId = result.outcome().toMap().value("product_category_id").toInt();
-            const QString &category = result.outcome().toMap().value("category").toString();
-            updateCategory(categoryId, QVariantMap {
-                               { "product_category_id", categoryId },
-                               { "category", category }
-                           });
+            const Utility::StockProductCategory &category{ result.outcome().toMap() };
+            updateCategory(category);
             emit success(UnarchiveProductSuccess);
         } else {
             emit success();

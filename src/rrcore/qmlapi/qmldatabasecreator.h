@@ -21,7 +21,7 @@ signals:
     void error();
     void busyChanged();
 private:
-    bool m_busy;
+    bool m_busy {false};
     DatabaseCreator *m_databaseCreator;
     QFutureWatcher<bool> m_futureWatcher;
 
@@ -29,6 +29,6 @@ private:
     void onFinished();
 };
 
-Q_DECLARE_LOGGING_CATEGORY(qmlDatabaseCreator);
+Q_DECLARE_LOGGING_CATEGORY(lcqmldatabasecreator);
 
 #endif // QMLDATABASECREATOR_H

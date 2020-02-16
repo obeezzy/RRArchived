@@ -106,7 +106,7 @@ RRUi.Page {
                             text: newDebtorPage.isExistingDebtor ? qsTr("Update debtor") : qsTr("Add debtor")
                             onClicked: {
                                 debtTransactionSubView.listView.preferredName = clientDetailSubView.preferredName;
-                                debtTransactionSubView.listView.primaryPhoneNumber = clientDetailSubView.primaryPhoneNumber;
+                                debtTransactionSubView.listView.phoneNumber = clientDetailSubView.phoneNumber;
                                 debtTransactionSubView.listView.submit();
                             }
                         }
@@ -148,7 +148,7 @@ RRUi.Page {
                     onAboutToHide: {
                         switch (errorCode) {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:
-                        case RRModels.DebtTransactionModel.NoPrimaryPhoneNumberError:
+                        case RRModels.DebtTransactionModel.NoPhoneNumberError:
                             tabBar.currentIndex = 0;
                             break;
                         case RRModels.DebtTransactionModel.NoDebtError:
@@ -180,7 +180,7 @@ RRUi.Page {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:
                             errorDialog.show(qsTr("The debtor's name must be provided."), qsTr("Error"), errorCode);
                             break;
-                        case RRModels.DebtTransactionModel.NoPrimaryPhoneNumberError:
+                        case RRModels.DebtTransactionModel.NoPhoneNumberError:
                             errorDialog.show(qsTr("The debtor's primary phone number must be provided."), qsTr("Error"), errorCode);
                             break;
                         case RRModels.DebtTransactionModel.DataUnchangedError:

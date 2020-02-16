@@ -26,7 +26,7 @@ void DebtorExecutor::arrangeDebtTransactions(const Utility::DebtTransactionList 
         else if (transaction.state == Utility::DebtTransaction::State::Trash)
             archivedDebtTransactions.append(transaction.toVariantMap());
 
-        for (const auto &payment : transaction.debtPayments) {
+        for (const auto &payment : transaction.payments) {
             if (payment.state == Utility::DebtPayment::State::Fresh)
                 newDebtPayments.append(payment.toVariantMap());
             else if (payment.state == Utility::DebtPayment::State::Dirty)
@@ -35,7 +35,7 @@ void DebtorExecutor::arrangeDebtTransactions(const Utility::DebtTransactionList 
                 archivedDebtPayments.append(payment.toVariantMap());
         }
 
-        for (const auto &payment : transaction.archivedDebtPayments)
+        for (const auto &payment : transaction.archivedPayments)
             archivedDebtPayments.append(payment.toVariantMap());
     }
 

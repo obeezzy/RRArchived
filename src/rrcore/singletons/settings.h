@@ -19,7 +19,7 @@ public:
     void setDarkModeActive(bool darkModeActive);
 
     static QUrl defaultReceiptTemplateUrl();
-    static inline const QString DEFAULT_CURRENCY = QStringLiteral("NGN");
+    inline static const QString DEFAULT_CURRENCY = QStringLiteral("NGN");
 signals:
     void darkModeActiveChanged();
 private:

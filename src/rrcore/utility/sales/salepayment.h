@@ -2,13 +2,11 @@
 #define SALEPAYMENT_H
 
 #include "utility/commonutils.h"
-#include <initializer_list>
 #include <QString>
-#include <QList>
 
 namespace Utility {
 struct SalePayment {
-    qreal amount;
+    qreal amount {0.0};
     Utility::PaymentMethod method;
     Note note;
     QString currency;

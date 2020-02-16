@@ -53,10 +53,7 @@ QHash<int, QByteArray> QMLSaleHomeModel::roleNames() const
 void QMLSaleHomeModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new SaleQuery::ViewSaleHome(Utility::DateTimeSpan {
-                                                 QDateTime(QDate(QDate::currentDate().year(), 1, 1),QTime(0, 0)),
-                                                 QDateTime::currentDateTime()
-                                             }, this));
+    emit execute(new SaleQuery::ViewSaleHome(this));
 }
 
 void QMLSaleHomeModel::processResult(const QueryResult result)

@@ -7,7 +7,7 @@
 
 namespace Utility {
 struct PurchasePayment {
-    qreal amount;
+    qreal amount {0.0};
     Utility::PaymentMethod method;
     Note note;
     QString currency;

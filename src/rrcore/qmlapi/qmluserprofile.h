@@ -1,11 +1,12 @@
 #ifndef QMLUSERPROFILE_H
 #define QMLUSERPROFILE_H
 
+#include "user/businessstore.h"
+#include "database/queryexecutor.h"
+#include "utility/user/user.h"
 #include <QObject>
 #include <QUrl>
 #include <QLoggingCategory>
-#include "user/businessstore.h"
-#include "database/queryexecutor.h"
 
 class QueryRequest;
 class QueryResult;
@@ -66,14 +67,18 @@ public:
     BusinessDetails *businessDetails() const;
     BusinessStoreModel *businessStoreModel() const;
 
-    Q_INVOKABLE void signIn(const QString &userName, const QString &password);
-    Q_INVOKABLE void signInOnline(const QString &emailAddress, const QString &password);
-    Q_INVOKABLE void signUp(const QString &userName, const QString &password);
+    Q_INVOKABLE void signIn(const QString &userName,
+                            const QString &password);
+    Q_INVOKABLE void signInOnline(const QString &emailAddress,
+                                  const QString &password);
+    Q_INVOKABLE void signUp(const QString &userName,
+                            const QString &password);
     Q_INVOKABLE void signOut();
-    Q_INVOKABLE void linkAccount(const QString &emailAddress, const QString &password);
+    Q_INVOKABLE void linkAccount(const QString &emailAddress,
+                                 const QString &password);
     Q_INVOKABLE void linkBusinessStore();
-    Q_INVOKABLE void changePassword(const QString &oldPassword, const QString &newPassword);
-
+    Q_INVOKABLE void changePassword(const QString &oldPassword,
+                                    const QString &newPassword);
     Q_INVOKABLE bool hasPrivilege(const QString &privilege);
 signals:
     void execute(QueryExecutor *);
@@ -90,9 +95,10 @@ private slots:
     void processResult(const QueryResult &);
     void processServerResponse(const ServerResponse &);
 private:
-    bool m_busy;
-    bool m_admin;
+    bool m_busy {false};
+    bool m_admin {false};
     BusinessStoreModel *m_businessStoreModel;
+    Utility::User m_user;
 
     void setAdmin(bool admin);
 

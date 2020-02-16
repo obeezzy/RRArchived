@@ -1,9 +1,8 @@
 #ifndef QMLSTOCKPRODUCTCATEGORYMODEL_H
 #define QMLSTOCKPRODUCTCATEGORYMODEL_H
 
-#include <QObject>
-#include <QVariantList>
 #include "models/abstractvisuallistmodel.h"
+#include "utility/stock/stockproductcategory.h"
 
 class QMLStockProductCategoryModel : public AbstractVisualListModel
 {
@@ -42,12 +41,13 @@ protected:
     void processResult(const QueryResult result) override final;
     void filter() override final;
 private:
-    QVariantList m_records;
-    QString m_productFilterText;
+    Utility::StockProductCategoryList m_categories;
+    Utility::FilterCriteria m_productFilterCriteria;
 
     void removeCategoryFromModel(int row);
-    void undoRemoveCategoryFromModel(int row, const QVariantMap &categoryInfo);
-    void updateCategory(int categoryId, const QVariantMap &categoryInfo);
+    void undoRemoveCategoryFromModel(int row,
+                                     const QVariantMap &category);
+    void updateCategory(const Utility::StockProductCategory &category);
     int rowFromCategoryId(int categoryId) const;
 };
 
