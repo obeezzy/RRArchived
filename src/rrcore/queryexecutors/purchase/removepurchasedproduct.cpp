@@ -7,7 +7,7 @@ RemovePurchasedProduct::RemovePurchasedProduct(const Utility::PurchasedProduct &
                                                QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "can_undo", true },
-                        { "purchase_transaction_id", product.purchaseTransactionId },
+                        { "purchase_transaction_id", product.transaction.id },
                         { "purchased_product_id", product.id }
                      }, receiver)
 {

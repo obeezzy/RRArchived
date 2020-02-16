@@ -1,17 +1,12 @@
 #include "stockproduct.h"
-#include <QList>
-#include <QVariantList>
 #include <QVariantMap>
 #include <QDateTime>
 
 using namespace Utility;
 
 StockProduct::StockProduct(int id) :
-    id(id),
-    row(-1)
-{
-
-}
+    id(id)
+{}
 
 StockProduct::StockProduct(const StockProductCategory &category,
                            const QString &product,
@@ -24,7 +19,6 @@ StockProduct::StockProduct(const StockProductCategory &category,
                            qreal retailPrice,
                            const QString &currency,
                            const Note &note) :
-    id(-1),
     category(category),
     product(product),
     description(description),
@@ -35,8 +29,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
-    note(note),
-    row(-1)
+    note(note)
 { }
 
 StockProduct::StockProduct(int id,
@@ -55,14 +48,12 @@ StockProduct::StockProduct(int id,
     product(product),
     description(description),
     imageUrl(imageUrl),
-    quantity(0.0),
     unit(unit),
     flags(flags),
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
-    note(note),
-    row(-1)
+    note(note)
 { }
 
 StockProduct::StockProduct(int id,
@@ -76,11 +67,9 @@ StockProduct::StockProduct(int id,
     category(category),
     quantity(quantity),
     unit(unit),
-    flags(RecordGroup::Tracked | RecordGroup::Divisible),
     retailPrice(retailPrice),
     unitPrice(unitPrice),
-    note(note),
-    row(-1)
+    note(note)
 { }
 
 StockProduct::StockProduct(const QVariantMap &product) :
@@ -113,8 +102,7 @@ StockProduct::StockProduct(const QVariantMap &product) :
     user(User{
          product.value("user_id").toInt(),
          product.value("user").toString()
-         }),
-    row(-1)
+         })
 {
     flags.setFlag(RecordGroup::Tracked, product.value("tracked").toBool());
     flags.setFlag(RecordGroup::Divisible, product.value("divisible").toBool());
@@ -132,6 +120,7 @@ QVariantMap StockProduct::toVariantMap() const
         { "cost_price", costPrice },
         { "retail_price", retailPrice },
         { "unit_price", unitPrice },
+        { "divisible", flags.testFlag(RecordGroup::Divisible) },
         { "note_id", note.id },
         { "note", note.note }
     };

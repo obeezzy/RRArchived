@@ -2,7 +2,8 @@
 #include "database/databaseerror.h"
 
 UnexpectedResultException::UnexpectedResultException(const QString &message) :
-    DatabaseException(DatabaseError::QueryErrorCode::UnexpectedResultError, message)
+    DatabaseException(DatabaseError::QueryErrorCode::UnexpectedResultError,
+                      message)
 {
 
 }

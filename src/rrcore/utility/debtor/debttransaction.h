@@ -17,16 +17,16 @@ private:
     Q_GADGET
 public:
     enum class State { Clean, Dirty, Fresh, Trash }; Q_ENUM(State)
-    int id;
-    qreal totalDebt;
+    int id {-1};
+    qreal totalDebt {0.0};
     QDateTime dueDateTime;
     RelatedTransaction relatedTransaction;
     Note note;
-    DebtPaymentList debtPayments;
-    DebtPaymentList archivedDebtPayments;
+    DebtPaymentList payments;
+    DebtPaymentList archivedPayments;
     QDateTime created;
     QDateTime lastEdited;
-    State state;
+    State state{ State::Clean };
 
     explicit DebtTransaction();
     explicit DebtTransaction(qreal totalDebt,
@@ -43,7 +43,7 @@ public:
 
     QVariantMap toVariantMap() const;
 
-    void clear() { debtPayments.clear(); }
+    inline void clear() { payments.clear(); }
 
     bool operator==(const DebtTransaction &other) {
         return id == other.id;
@@ -57,7 +57,7 @@ public:
                         << ", totalDebt=" << debtTransaction.totalDebt
                         << ", dueDate=" << debtTransaction.dueDateTime
                         << ", state=" << debtTransaction.state
-                        << ", debtPayments=" << debtTransaction.debtPayments
+                        << ", debtPayments=" << debtTransaction.payments
                         << ")";
 
         return debug.nospace();

@@ -15,11 +15,10 @@ DebtPayment::DebtPayment(qreal totalAmount,
     currency(Settings::DEFAULT_CURRENCY),
     dueDateTime(dueDateTime),
     note(note),
-    archived(false),
     created(QDateTime::currentDateTime()),
     lastEdited(QDateTime::currentDateTime()),
     state(State::Fresh)
-{ }
+{}
 
 DebtPayment::DebtPayment(int id,
                          qreal totalAmount,
@@ -28,7 +27,7 @@ DebtPayment::DebtPayment(int id,
                          const QString &currency,
                          const QDateTime &dueDateTime,
                          const Note &note,
-                         bool archived,
+                         const RecordGroup::Flags &flags,
                          const QDateTime &created,
                          const QDateTime &lastEdited,
                          State state) :
@@ -39,7 +38,7 @@ DebtPayment::DebtPayment(int id,
     currency(currency),
     dueDateTime(dueDateTime),
     note(note),
-    archived(archived),
+    flags(flags),
     created(created),
     lastEdited(lastEdited),
     state(state)
@@ -56,11 +55,13 @@ DebtPayment::DebtPayment(const QVariantMap &map) :
          map.value("note_id").toInt(),
          map.value("note").toString()
          }),
-    archived(map.value("archived").toBool()),
     created(map.value("created").toDateTime()),
     lastEdited(map.value("last_edited").toDateTime()),
     state(State::Clean)
-{ }
+{
+    flags.setFlag(RecordGroup::Archived,
+                  map.value("archived").toBool());
+}
 
 QVariantMap DebtPayment::toVariantMap() const {
     return {
@@ -73,7 +74,7 @@ QVariantMap DebtPayment::toVariantMap() const {
         { "due_date", dueDateTime },
         { "note_id", note.id },
         { "note", note.note },
-        { "archived", archived },
+        { "archived", flags.testFlag(RecordGroup::Archived) },
         { "created", created },
         { "last_edited", lastEdited }
     };

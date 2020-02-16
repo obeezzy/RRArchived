@@ -28,6 +28,6 @@ private:
     QQuickItem *createReceipt(const QString &job);
 };
 
-Q_DECLARE_LOGGING_CATEGORY(qmlReceiptPrinter);
+Q_DECLARE_LOGGING_CATEGORY(lcqmlreceiptprinter);
 
 #endif // QMLRECEIPTPRINTER_H

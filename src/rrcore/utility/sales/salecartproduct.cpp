@@ -6,6 +6,10 @@
 
 using namespace Utility;
 
+SaleCartProduct::SaleCartProduct(int id) :
+    id(id)
+{}
+
 SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
                                  const QString &product,
                                  const QString &description,
@@ -28,7 +32,7 @@ SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
     retailPrice(retailPrice),
     currency(currency),
     note(note)
-{ }
+{}
 
 SaleCartProduct::SaleCartProduct(int id,
                                  const QString &product,
@@ -51,7 +55,7 @@ SaleCartProduct::SaleCartProduct(int id,
     cost(cost),
     amountPaid(amountPaid),
     note(note)
-{ }
+{}
 
 SaleCartProduct::SaleCartProduct(const QVariantMap &product) :
     id(product.value("product_id").toInt()),

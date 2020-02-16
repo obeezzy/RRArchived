@@ -1,10 +1,10 @@
 #ifndef QMLSTOCKREPORTMODEL_H
 #define QMLSTOCKREPORTMODEL_H
 
-#include "models/abstractvisualtablemodel.h"
-#include <QVariantList>
+#include "models/abstractreportmodel.h"
+#include "utility/stock/stockreporttransaction.h"
 
-class QMLStockReportModel : public AbstractVisualTableModel
+class QMLStockReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
@@ -33,19 +33,21 @@ public:
     }; Q_ENUM(Columns)
 
     explicit QMLStockReportModel(QObject *parent = nullptr);
-    explicit QMLStockReportModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLStockReportModel(DatabaseThread &thread,
+                                 QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::StockReportTransactionList m_transactions;
 };
 
 #endif // QMLSTOCKREPORTMODEL_H

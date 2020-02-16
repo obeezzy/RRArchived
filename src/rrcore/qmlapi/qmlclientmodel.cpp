@@ -18,7 +18,7 @@ int QMLClientModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_clientList.count();
 }
 
 QVariant QMLClientModel::data(const QModelIndex &index, int role) const
@@ -28,11 +28,11 @@ QVariant QMLClientModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case ClientIdRole:
-        return m_records.at(index.row()).toMap().value("client_id").toString();
+        return m_clientList.at(index.row()).id;
     case PreferredNameRole:
-        return m_records.at(index.row()).toMap().value("preferred_name").toString();
+        return m_clientList.at(index.row()).preferredName;
     case PhoneNumberRole:
-        return m_records.at(index.row()).toMap().value("phone_number").toString();
+        return m_clientList.at(index.row()).phoneNumber;
     }
 
     return QVariant();
@@ -62,7 +62,7 @@ void QMLClientModel::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         beginResetModel();
-        m_records = result.outcome().toMap().value("clients").toList();
+        m_clientList = Utility::ClientList { result.outcome().toMap().value("clients").toList() };
         endResetModel();
 
         emit success(ViewClientsSuccess);
@@ -78,17 +78,14 @@ void QMLClientModel::filter()
 
     setBusy(true);
     emit execute(new ClientQuery::FilterClients(
-                     Utility::FilterCriteria {
-                         filterText(),
-                         columnName()
-                     },
+                     filterCriteria(),
                      Utility::RecordGroup::None,
                      this));
 }
 
-QString QMLClientModel::columnName() const
+QString QMLClientModel::columnName(int column) const
 {
-    switch (filterColumn()) {
+    switch (column) {
     case PhoneNumberColumn:
         return QStringLiteral("phone_number");
     case PreferredNameColumn:

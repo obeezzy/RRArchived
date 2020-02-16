@@ -2,6 +2,7 @@
 #define QMLEXPENSETRANSACTIONMODEL_H
 
 #include "models/abstracttransactionmodel.h"
+#include "utility/expense/expensetransaction.h"
 
 class QMLExpenseTransactionModel : public AbstractTransactionModel
 {
@@ -33,12 +34,14 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::ExpenseTransactionList m_transactions;
 };
 
 #endif // QMLEXPENSETRANSACTIONMODEL_H

@@ -9,7 +9,7 @@ using namespace SaleQuery;
 RemoveSoldProduct::RemoveSoldProduct(const Utility::SoldProduct &product,
                                      QObject *receiver) :
     SaleExecutor(COMMAND, {
-                        { "transaction_id", product.saleTransactionId },
+                        { "sale_transaction_id", product.transaction.id },
                         { "sold_product_id", product.id }
                  }, receiver)
 {

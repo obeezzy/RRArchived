@@ -22,11 +22,13 @@ SOURCES += \
     database/exceptions/missingargumentexception.cpp \
     database/exceptions/missingimplementationexception.cpp \
     database/exceptions/noexistingrecordexception.cpp \
+    database/exceptions/procedurecallfailedexception.cpp \
     database/exceptions/sqlstatementfailedexception.cpp \
     database/exceptions/unexpectedresultexception.cpp \
     database/exceptions/useraccountlockedexception.cpp \
     database/exceptions/userpreviouslyarchivedexception.cpp \
     database/queryexecutor.cpp \
+    models/abstractreportmodel.cpp \
     queryexecutors/client/filterclients.cpp \
     queryexecutors/debtor/filterdebtors.cpp \
     queryexecutors/expense/filterexpensereport.cpp \
@@ -140,20 +142,37 @@ SOURCES += \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
     user/businessdetails.cpp \
+    utility/common/client.cpp \
+    utility/common/customer.cpp \
+    utility/common/datetimespan.cpp \
+    utility/common/filtercriteria.cpp \
+    utility/common/note.cpp \
+    utility/common/paymentmethod.cpp \
+    utility/common/recordgroup.cpp \
+    utility/common/relatedtransaction.cpp \
+    utility/common/sortcriteria.cpp \
+    utility/common/vendor.cpp \
     utility/debtor/debtor.cpp \
     utility/debtor/debtpayment.cpp \
     utility/debtor/debttransaction.cpp \
+    utility/expense/expensereporttransaction.cpp \
+    utility/expense/expensetransaction.cpp \
+    utility/income/incomereporttransaction.cpp \
+    utility/income/incometransaction.cpp \
     utility/purchase/purchasecartproduct.cpp \
     utility/purchase/purchasedproduct.cpp \
     utility/purchase/purchasepayment.cpp \
+    utility/purchase/purchasereporttransaction.cpp \
     utility/purchase/purchasetransaction.cpp \
     utility/sales/salecartproduct.cpp \
     utility/sales/salepayment.cpp \
+    utility/sales/salereporttransaction.cpp \
     utility/sales/saletransaction.cpp \
     utility/sales/soldproduct.cpp \
     utility/stock/stockproduct.cpp \
     utility/stock/stockproductcategory.cpp \
     utility/stock/stockproductunit.cpp \
+    utility/stock/stockreporttransaction.cpp \
     utility/user/user.cpp \
     utility/user/userprivilege.cpp \
     widgets/dialogs.cpp \
@@ -208,11 +227,13 @@ HEADERS += \
     database/exceptions/missingargumentexception.h \
     database/exceptions/missingimplementationexception.h \
     database/exceptions/noexistingrecordexception.h \
+    database/exceptions/procedurecallfailedexception.h \
     database/exceptions/sqlstatementfailedexception.h \
     database/exceptions/unexpectedresultexception.h \
     database/exceptions/useraccountlockedexception.h \
     database/exceptions/userpreviouslyarchivedexception.h \
     database/queryexecutor.h \
+    models/abstractreportmodel.h \
     queryexecutors/client/filterclients.h \
     queryexecutors/debtor/filterdebtors.h \
     queryexecutors/expense/filterexpensereport.h \
@@ -339,22 +360,41 @@ HEADERS += \
     models/abstracttransactionmodel.h \
     models/abstracttransactionitemmodel.h \
     user/businessdetails.h \
+    utility/common/client.h \
+    utility/common/customer.h \
+    utility/common/datetimespan.h \
+    utility/common/filtercriteria.h \
+    utility/common/note.h \
+    utility/common/paymentmethod.h \
+    utility/common/recordgroup.h \
+    utility/common/relatedtransaction.h \
+    utility/common/sortcriteria.h \
+    utility/common/vendor.h \
     utility/commonutils.h \
     utility/debtor/debtor.h \
     utility/debtor/debtpayment.h \
     utility/debtor/debttransaction.h \
+    utility/expense/expensereporttransaction.h \
+    utility/expense/expensetransaction.h \
+    utility/expenseutils.h \
+    utility/income/incomereporttransaction.h \
+    utility/income/incometransaction.h \
+    utility/incomeutils.h \
     utility/purchase/purchasecartproduct.h \
     utility/purchase/purchasedproduct.h \
     utility/purchase/purchasepayment.h \
+    utility/purchase/purchasereporttransaction.h \
     utility/purchase/purchasetransaction.h \
     utility/purchaseutils.h \
     utility/sales/salecartproduct.h \
     utility/sales/salepayment.h \
+    utility/sales/salereporttransaction.h \
     utility/sales/saletransaction.h \
     utility/sales/soldproduct.h \
     utility/stock/stockproduct.h \
     utility/stock/stockproductcategory.h \
     utility/stock/stockproductunit.h \
+    utility/stock/stockreporttransaction.h \
     utility/stockutils.h \
     utility/user/user.h \
     utility/user/userprivilege.h \

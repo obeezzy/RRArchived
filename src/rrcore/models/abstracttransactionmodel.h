@@ -2,6 +2,7 @@
 #define ABSTRACTTRANSACTIONMODEL_H
 
 #include "abstractvisualtablemodel.h"
+#include "utility/common/datetimespan.h"
 #include <QDateTime>
 
 class AbstractTransactionModel : public AbstractVisualTableModel
@@ -21,7 +22,7 @@ public:
 
     explicit AbstractTransactionModel(QObject *parent = nullptr);
     explicit AbstractTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
-    virtual ~AbstractTransactionModel() override;
+    virtual ~AbstractTransactionModel() override = default;
 
     int keys() const;
     void setKeys(int keys);
@@ -33,16 +34,17 @@ public:
     void setTo(const QDateTime &to);
 
     void componentComplete() override;
+protected:
+    Utility::DateTimeSpan dateTimeSpan() const;
 signals:
     void transactionIdChanged();
     void keysChanged();
     void fromChanged();
     void toChanged();
 private:
-    int m_transactionId;
-    int m_keys;
-    QDateTime m_from;
-    QDateTime m_to;
+    int m_transactionId {-1};
+    int m_keys {None};
+    Utility::DateTimeSpan m_dateTimeSpan;
 
     void toggleConnections();
 };

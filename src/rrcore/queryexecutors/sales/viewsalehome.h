@@ -14,8 +14,7 @@ class ViewSaleHome : public SaleExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_sale_home");
 
-    explicit ViewSaleHome(const Utility::DateTimeSpan &dateTimeSpan,
-                          QObject *receiver);
+    explicit ViewSaleHome(QObject *receiver);
     QueryResult execute() override;
 private:
     void fetchTotalRevenue(QVariantList &homeRecords);

@@ -1,11 +1,8 @@
 #ifndef QMLPURCHASECARTMODEL_H
 #define QMLPURCHASECARTMODEL_H
 
-#include <QSqlRecord>
-#include <QDateTime>
-
 #include "models/abstractvisuallistmodel.h"
-#include "utility/purchaseutils.h"
+#include "utility/purchase/purchasetransaction.h"
 
 class PurchasePayment;
 class PurchasePaymentModel;
@@ -97,11 +94,16 @@ public:
 
     Utility::PurchasePaymentList payments() const;
 
+    Q_INVOKABLE void addProduct(const QVariantMap &product);
+    Q_INVOKABLE void updateProduct(int productId, const QVariantMap &product);
+    Q_INVOKABLE void setProductQuantity(int productId, double quantity);
+    Q_INVOKABLE void removeProduct(int productId);
+
     Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
     Q_INVOKABLE void removePayment(int index);
     Q_INVOKABLE void clearPayments();
-    Q_INVOKABLE void submitTransaction(const QVariantMap &transactionInfo = QVariantMap());
-    Q_INVOKABLE void suspendTransaction(const QVariantMap &transactionInfo = QVariantMap());
+    Q_INVOKABLE void submitTransaction(const QVariantMap &addOns = QVariantMap());
+    Q_INVOKABLE void suspendTransaction(const QVariantMap &addOns = QVariantMap());
     Q_INVOKABLE void clearAll();
     Q_INVOKABLE QString toPrintableFormat() const;
 protected:
@@ -120,41 +122,19 @@ signals:
     void canAcceptCardChanged();
 
     void paymentModelChanged();
-public slots:
-    void addProduct(const QVariantMap &product);
-    void updateProduct(int productId, const QVariantMap &product);
-    void setProductQuantity(int productId, double quantity);
-    void removeProduct(int productId);
 private:
-    qint64 m_transactionId;
-    QString m_clientName;
-    QString m_customerPhoneNumber;
-    int m_clientId;
-    QString m_note;
-    double m_totalCost;
-    double m_amountPaid;
-    double m_balance;
-    bool m_canAcceptCash;
-    bool m_canAcceptCard;
-    QVariantList m_records;
-    Utility::PurchasePaymentList m_purchasePayments;
+    Utility::PurchaseTransaction m_transaction;
     PurchasePaymentModel *m_paymentModel;
 
-    bool containsProduct(int productId);
-    int indexOfProduct(int productId);
     void addTransaction(const QVariantMap &transaction);
-    void updateSuspendedTransaction(const QVariantMap &transaction);
+    void updateSuspendedTransaction(const QVariantMap &transactionAddOns);
 
+    void setClientId(int clientId);
     void setTotalCost(double totalCost);
     void setAmountPaid(double amountPaid);
     void setBalance(double balance);
     void calculateTotal();
     void calculateAmountPaid();
-
-    void setClientId(int clientId);
-
-    void incrementProductQuantity(int productId, double quantity = 1.0);
-    void decrementProductQuantity(int productId, double quantity = 1.0);
 
     void updateCanAcceptCash();
     void updateCanAcceptCard();

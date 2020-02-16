@@ -2,7 +2,8 @@
 
 FailedToCreateUserException::FailedToCreateUserException(const QString &message) :
     DatabaseException(DatabaseError::QueryErrorCode::CreateUserFailed,
-                      message.isEmpty() ? QStringLiteral("Failed to create user.") : message)
+                      message.isEmpty() ? QStringLiteral("Failed to create user.")
+                                        : message)
 {
 
 }

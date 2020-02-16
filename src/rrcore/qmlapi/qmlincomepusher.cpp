@@ -2,82 +2,85 @@
 #include "database/databasethread.h"
 #include "queryexecutors/income.h"
 
+Q_LOGGING_CATEGORY(lcqmlincomepusher, "rrcore.qmlapi.qmlincomepusher")
+
 QMLIncomePusher::QMLIncomePusher(QObject *parent) :
     QMLIncomePusher(DatabaseThread::instance(), parent)
 {}
 
 QMLIncomePusher::QMLIncomePusher(DatabaseThread &thread, QObject *parent) :
-    AbstractPusher(thread, parent),
-    m_paymentMethod(PaymentMethod::Cash)
-{
-
-}
+    AbstractPusher(thread, parent)
+{}
 
 QString QMLIncomePusher::clientName() const
 {
-    return m_clientName;
+    return m_transaction.client.preferredName;
 }
 
 void QMLIncomePusher::setClientName(const QString &clientName)
 {
-    if (m_clientName == clientName)
+    if (m_transaction.client.preferredName == clientName)
         return;
 
-    m_clientName = clientName;
+    m_transaction.client.preferredName = clientName;
     emit clientNameChanged();
 }
 
 QString QMLIncomePusher::purpose() const
 {
-    return m_purpose;
+    return m_transaction.purpose;
 }
 
 void QMLIncomePusher::setPurpose(const QString &purpose)
 {
-    if (m_purpose == purpose)
+    if (m_transaction.purpose == purpose)
         return;
 
-    m_purpose = purpose;
+    m_transaction.purpose = purpose;
     emit purposeChanged();
 }
 
 qreal QMLIncomePusher::amount() const
 {
-    return m_amount;
+    return m_transaction.amount;
 }
 
 void QMLIncomePusher::setAmount(qreal amount)
 {
-    if (m_amount == amount)
+    if (m_transaction.amount == amount)
         return;
 
-    m_amount = amount;
+    m_transaction.amount = amount;
     emit amountChanged();
 }
 
 QMLIncomePusher::PaymentMethod QMLIncomePusher::paymentMethod() const
 {
-    return m_paymentMethod;
+    if (m_transaction.paymentMethod == Utility::PaymentMethod::DebitCard)
+        return PaymentMethod::DebitCard;
+    else if (m_transaction.paymentMethod == Utility::PaymentMethod::CreditCard)
+        return PaymentMethod::CreditCard;
+    else if (m_transaction.paymentMethod == Utility::PaymentMethod::Cash)
+        return PaymentMethod::Cash;
+    else
+        qCWarning(lcqmlincomepusher) << "Invalid PaymentMethod";
+
+    return PaymentMethod::Cash;
 }
 
 void QMLIncomePusher::setPaymentMethod(QMLIncomePusher::PaymentMethod paymentMethod)
 {
-    if (m_paymentMethod == paymentMethod)
+    if (m_transaction.paymentMethod == Utility::PaymentMethod{ static_cast<int>(paymentMethod) })
         return;
 
-    m_paymentMethod = paymentMethod;
+    m_transaction.paymentMethod = Utility::PaymentMethod{ static_cast<int>(paymentMethod) };
     emit paymentMethodChanged();
 }
 
 void QMLIncomePusher::push()
 {
     setBusy(true);
-    emit execute(new IncomeQuery::AddIncomeTransaction(
-                     Utility::Client { m_clientName },
-                     m_purpose,
-                     m_amount,
-                     paymentMethodAsUtilityEnum(),
-                     this));
+    emit execute(new IncomeQuery::AddIncomeTransaction(m_transaction, this));
 }
 
 void QMLIncomePusher::processResult(const QueryResult result)
@@ -93,18 +96,4 @@ void QMLIncomePusher::processResult(const QueryResult result)
     } else {
         emit error();
     }
-}
-
-Utility::PaymentMethod QMLIncomePusher::paymentMethodAsUtilityEnum() const
-{
-    switch (m_paymentMethod) {
-    case PaymentMethod::DebitCard:
-        return Utility::PaymentMethod::DebitCard;
-    case PaymentMethod::CreditCard:
-        return Utility::PaymentMethod::CreditCard;
-    case PaymentMethod::Cash:
-        break;
-    }
-
-    return Utility::PaymentMethod::Cash;
 }

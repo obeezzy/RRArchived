@@ -2,11 +2,10 @@
 #define QMLDEBTTRANSACTIONMODEL_H
 
 #include "models/abstractvisuallistmodel.h"
-#include "utility/debtorutils.h"
-
-#include <QUrl>
+#include "utility/debtor/debtor.h"
 
 class DebtPaymentModel;
+class QUrl;
 
 class QMLDebtTransactionModel : public AbstractVisualListModel
 {
@@ -16,10 +15,7 @@ class QMLDebtTransactionModel : public AbstractVisualListModel
     Q_PROPERTY(QString firstName READ firstName WRITE setFirstName NOTIFY firstNameChanged)
     Q_PROPERTY(QString lastName READ lastName WRITE setLastName NOTIFY lastNameChanged)
     Q_PROPERTY(QString preferredName READ preferredName WRITE setPreferredName NOTIFY preferredNameChanged)
-    Q_PROPERTY(QString primaryPhoneNumber READ primaryPhoneNumber WRITE setPrimaryPhoneNumber NOTIFY primaryPhoneNumberChanged)
-    Q_PROPERTY(QStringList alternatePhoneNumberModel READ alternatePhoneNumberModel NOTIFY alternatePhoneNumberModelChanged)
-    Q_PROPERTY(QStringList addressModel READ addressModel NOTIFY addressModelChanged)
-    Q_PROPERTY(QStringList emailAddressModel READ emailAddressModel NOTIFY emailAddressModelChanged)
+    Q_PROPERTY(QString phoneNumber READ phoneNumber WRITE setPhoneNumber NOTIFY phoneNumberChanged)
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
 public:
     enum SuccessCode {
@@ -33,7 +29,7 @@ public:
     enum ErrorCode {
         UnknownError,
         NoPreferredNameError,
-        NoPrimaryPhoneNumberError,
+        NoPhoneNumberError,
         DataUnchangedError,
         DuplicateEntryError,
         AmountOverpaidError,
@@ -79,26 +75,15 @@ public:
     QString preferredName() const;
     void setPreferredName(const QString &preferredName);
 
-    QString primaryPhoneNumber() const;
-    void setPrimaryPhoneNumber(const QString &primaryPhoneNumber);
-
-    QStringList alternatePhoneNumberModel() const;
-    QStringList addressModel() const;
-    QStringList emailAddressModel() const;
+    QString phoneNumber() const;
+    void setPhoneNumber(const QString &phoneNumber);
 
     QString note() const;
     void setNote(const QString &note);
 
-    Q_INVOKABLE void addAlternatePhoneNumber(const QString &alternatePhoneNumber);
-    Q_INVOKABLE void removeAlternatePhoneNumber(int row);
-
-    Q_INVOKABLE void addAddress(const QString &address);
-    Q_INVOKABLE void removeAddress(int row);
-
-    Q_INVOKABLE void addEmailAddress(const QString &emailAddress);
-    Q_INVOKABLE void removeEmailAddress(int row);
-
-    Q_INVOKABLE void addDebt(double totalDebt, const QDateTime &dueDateTime, const QString &note = QString());
+    Q_INVOKABLE void addDebt(double totalDebt,
+                             const QDateTime &dueDateTime,
+                             const QString &note = QString());
     Q_INVOKABLE void removeDebt(int row);
 public slots:
     bool submit() override;
@@ -108,7 +93,7 @@ signals:
     void firstNameChanged();
     void lastNameChanged();
     void preferredNameChanged();
-    void primaryPhoneNumberChanged();
+    void phoneNumberChanged();
     void alternatePhoneNumberModelChanged();
     void addressModelChanged();
     void emailAddressModelChanged();
@@ -118,27 +103,14 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_debtorId;
-    int m_clientId;
-    bool m_dirty;
-    QUrl m_imageUrl;
-    QString m_firstName;
-    QString m_lastName;
-    QString m_preferredName;
-    QString m_primaryPhoneNumber;
-    QStringList m_alternatePhoneNumberModel;
-    QStringList m_addressModel;
-    QStringList m_emailAddressModel;
-    Utility::Note m_note;
-    Utility::DebtTransactionList m_transactions;
+    bool m_dirty {false};
+    Utility::Debtor m_debtor;
 
     void clearAll();
     bool isExistingDebtor() const;
     bool paymentsDirty() const;
     bool paymentsDueDateValid() const;
     void setClientId(int clientId);
-
-    QString tableNameNormalized(const QString &tableName) const;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(lcqmldebttransactionmodel);

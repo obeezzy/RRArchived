@@ -1,10 +1,10 @@
 #ifndef QMLSALEREPORTMODEL_H
 #define QMLSALEREPORTMODEL_H
 
-#include "models/abstractvisualtablemodel.h"
-#include <QVariantList>
+#include "models/abstractreportmodel.h"
+#include "utility/sales/salereporttransaction.h"
 
-class QMLSaleReportModel : public AbstractVisualTableModel
+class QMLSaleReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
@@ -40,7 +40,7 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    QVariantList m_records;
+    Utility::SaleReportTransactionList m_transactions;
 };
 
 #endif // QMLSALEREPORTMODEL_H

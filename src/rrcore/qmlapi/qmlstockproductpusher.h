@@ -1,12 +1,11 @@
 #ifndef QMLSTOCKPRODUCTPUSHER_H
 #define QMLSTOCKPRODUCTPUSHER_H
 
-#include <QObject>
-#include <QUrl>
-
-#include "../pusher/abstractpusher.h"
+#include "pusher/abstractpusher.h"
+#include "utility/stock/stockproduct.h"
 
 class DatabaseThread;
+class QUrl;
 
 class QMLStockProductPusher : public AbstractPusher
 {
@@ -26,7 +25,8 @@ class QMLStockProductPusher : public AbstractPusher
     Q_PROPERTY(double retailPrice READ retailPrice WRITE setRetailPrice NOTIFY retailPriceChanged)
 public:
     explicit QMLStockProductPusher(QObject *parent = nullptr);
-    explicit QMLStockProductPusher(DatabaseThread &thread, QObject *parent = nullptr); // For testing
+    explicit QMLStockProductPusher(DatabaseThread &thread,
+                                   QObject *parent = nullptr); // For testing
 
     enum SuccessCode {
         UnknownSuccess,
@@ -100,20 +100,7 @@ signals:
 public slots:
     void push() override final;
 private:
-    int m_productId;
-    QUrl m_imageUrl;
-    QString m_category;
-    QString m_product;
-    QString m_description;
-    double m_quantity;
-    QString m_unit;
-    QString m_categoryNote;
-    QString m_productNote;
-    bool m_tracked;
-    bool m_divisible;
-    double m_costPrice;
-    double m_retailPrice;
-    double m_baseUnitEquivalent;
+    Utility::StockProduct m_product;
 };
 
 #endif // QMLSTOCKPRODUCTPUSHER_H

@@ -15,7 +15,7 @@ RRUi.SubView {
     property int debtorId: -1
     property url imageUrl: debtorDetailRecord.imageUrl
     property string preferredName: debtorDetailRecord.preferredName
-    property string primaryPhoneNumber: debtorDetailRecord.phoneNumber
+    property string phoneNumber: debtorDetailRecord.phoneNumber
     property string firstName: debtorDetailRecord.firstName
     property string lastName: debtorDetailRecord.lastName
     property string middleName: ""
@@ -133,7 +133,7 @@ RRUi.SubView {
 
                         Connections {
                             target: phoneNumberTextField.textField
-                            onTextEdited: clientDetailSubView.primaryPhoneNumber = phoneNumberTextField.textField.text;
+                            onTextEdited: clientDetailSubView.phoneNumber = phoneNumberTextField.textField.text;
                         }
                     }
 

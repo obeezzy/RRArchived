@@ -1,7 +1,7 @@
 #include "qmlstockproductmodel.h"
 #include "database/databasethread.h"
-#include <QDateTime>
 #include "queryexecutors/stock.h"
+#include <QDateTime>
 
 QMLStockProductModel::QMLStockProductModel(QObject *parent) :
     QMLStockProductModel(DatabaseThread::instance(), parent)
@@ -10,8 +10,7 @@ QMLStockProductModel::QMLStockProductModel(QObject *parent) :
 }
 
 QMLStockProductModel::QMLStockProductModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent),
-    m_categoryId(-1)
+    AbstractVisualTableModel(thread, parent)
 {
     connect(this, &QMLStockProductModel::categoryIdChanged,
             this, &QMLStockProductModel::tryQuery);
@@ -98,7 +97,9 @@ QHash<int, QByteArray> QMLStockProductModel::roleNames() const
     };
 }
 
-QVariant QMLStockProductModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QMLStockProductModel::headerData(int section,
+                                          Qt::Orientation orientation,
+                                          int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
@@ -178,20 +179,15 @@ void QMLStockProductModel::tryQuery()
         return;
 
     setBusy(true);
-    if (!filterText().trimmed().isEmpty() && sortColumn() > -1 && filterColumn() > -1) {
-        emit execute(new StockQuery::FilterStockProducts(Utility::FilterCriteria {
-                                                             columnName(filterColumn()),
-                                                             filterText(),
-                                                         }, Utility::SortCriteria {
-                                                             columnName(sortColumn()),
-                                                             sortOrder()
-                                                         },
+    if (filterCriteria().isValid() && sortCriteria().isValid()) {
+        emit execute(new StockQuery::FilterStockProducts(filterCriteria(),
+                                                         sortCriteria(),
                                                          m_categoryId,
                                                          this));
 
     } else {
         emit execute(new StockQuery::ViewStockProducts(m_categoryId,
-                                                       Utility::SortCriteria{ sortOrder() },
+                                                       sortCriteria(),
                                                        this));
     }
 }
@@ -212,13 +208,12 @@ void QMLStockProductModel::processResult(const QueryResult result)
 
             emit success(ViewProductsSuccess);
         } else if (result.request().command() == StockQuery::RemoveStockProduct::COMMAND) {
-            const int row = result.request().params().value("product_row").toInt();
+            const int row = result.request().params().value("row").toInt();
             removeProductFromModel(row);
             emit success(RemoveProductSuccess);
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
-            const int row = result.request().params().value("product_row").toInt();
-            const Utility::StockProduct product{ result.request().params().value("product").toMap() };
-            undoRemoveProductFromModel(row, product);
+            const Utility::StockProduct &product{ result.request().params().value("product").toMap() };
+            undoRemoveProductFromModel(product);
             emit success(UndoRemoveProductSuccess);
         }
     } else {
@@ -262,16 +257,17 @@ void QMLStockProductModel::removeProductFromModel(int row)
     const int productId = index(row, 0).data(ProductIdRole).toInt();
     emit productRemoved(productId);
     beginRemoveRows(QModelIndex(), row, row);
-    m_products.removeAt(row);
+    Utility::StockProduct product{ m_products.takeAt(row) };
+    product.row = row;
     endRemoveRows();
 }
 
-void QMLStockProductModel::undoRemoveProductFromModel(int row,
-                                                      const Utility::StockProduct &product)
+void QMLStockProductModel::undoRemoveProductFromModel(const Utility::StockProduct &product)
 {
-    if (row < 0 || row >= rowCount())
+    if (product.row < 0 || product.row >= rowCount())
         return;
 
+    const int row = product.row;
     beginInsertRows(QModelIndex(), row, row);
     m_products.insert(row, product);
     endInsertRows();

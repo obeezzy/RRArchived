@@ -2,7 +2,7 @@
 #define QMLDEBTPAYMENTMODEL_H
 
 #include "models/abstractvisuallistmodel.h"
-#include "utility/debtorutils.h"
+#include "utility/debtor/debtpayment.h"
 
 class DatabaseThread;
 
@@ -64,11 +64,10 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_debtTransactionId;
+    int m_debtTransactionId {-1};
+    qreal m_totalAmountPaid {0.0};
     QVariant m_debtTransactionRef;
-    qreal m_totalAmountPaid;
     Utility::DebtPaymentList m_payments;
-    int m_lastPaymentId;
 
     void calculateTotals();
     void updateRef(Utility::DebtPayment payment);

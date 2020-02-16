@@ -10,11 +10,8 @@
 
 using namespace SaleQuery;
 
-ViewSaleHome::ViewSaleHome(const Utility::DateTimeSpan &dateTimeSpan,
-                           QObject *receiver) :
+ViewSaleHome::ViewSaleHome(QObject *receiver) :
     SaleExecutor(COMMAND, {
-                    { "from", dateTimeSpan.from },
-                    { "to", dateTimeSpan.to },
                     { "limit", 5 }
                  }, receiver)
 {
@@ -47,7 +44,7 @@ QueryResult ViewSaleHome::execute()
 
 void ViewSaleHome::fetchTotalRevenue(QVariantList &homeRecords)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const auto &records(callProcedure("FetchTotalRevenue", {
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
@@ -75,7 +72,7 @@ void ViewSaleHome::fetchTotalRevenue(QVariantList &homeRecords)
 
 void ViewSaleHome::fetchMostSoldProducts(QVariantList &homeRecords)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const auto &records(callProcedure("FetchMostSoldProducts", {
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
@@ -95,7 +92,7 @@ void ViewSaleHome::fetchMostSoldProducts(QVariantList &homeRecords)
                                       }));
 
     QVariantList mostSoldProducts;
-    for (const QSqlRecord &record : records)
+    for (const auto &record : records)
         mostSoldProducts.append(recordToMap(record));
 
     QVariantMap mostSoldProductsInfo;

@@ -3,7 +3,8 @@
 
 DuplicateEntryException::DuplicateEntryException(const QString &message) :
     DatabaseException(DatabaseError::QueryErrorCode::DuplicateEntryFailure,
-                      message.isEmpty() ? QStringLiteral("Entry already exists.") : message)
+                      message.isEmpty() ? QStringLiteral("Entry already exists.")
+                                        : message)
 {
 
 }

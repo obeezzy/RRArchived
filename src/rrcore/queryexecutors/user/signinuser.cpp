@@ -31,7 +31,7 @@ QueryResult SignInUser::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    QueryExecutor::enforceArguments({ "user_name",
+    QueryExecutor::enforceArguments({ "user",
                                       "password"
                                     }, request().params());
 
@@ -82,8 +82,8 @@ bool SignInUser::storeProfile(QueryResult &result,
 void SignInUser::attemptSignIn(QueryResult &result)
 {
     QSqlDatabase connection;
-    const QString &userName = request().params().value("user_name").toString();
-    const QString &password = request().params().value("password").toString();
+    const QString &userName{ request().params().value("user").toString() };
+    const QString &password{ request().params().value("password").toString() };
 
     if (!QSqlDatabase::contains())
         connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());

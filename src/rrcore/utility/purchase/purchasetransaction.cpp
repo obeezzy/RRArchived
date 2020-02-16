@@ -18,8 +18,7 @@ PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
          }),
     created(transaction.value("created").toDateTime()),
     lastEdited(transaction.value("last_edited").toDateTime()),
-    userId(transaction.value("user_id").toInt()),
-    row(-1)
+    user(User{ transaction.value("user_id").toInt() })
 {
     flags.setFlag(RecordGroup::Suspended, transaction.value("suspended").toBool());
     flags.setFlag(RecordGroup::Archived, transaction.value("archived").toBool());
@@ -41,16 +40,13 @@ PurchaseTransaction::PurchaseTransaction(qint64 id,
     totalCost(totalCost),
     amountPaid(amountPaid),
     balance(balance),
-    discount(0.0),
     products(products),
     payments(payments),
     note(note),
     dueDateTime(dueDateTime),
     action(action),
-    flags(flags),
-    userId(-1),
-    row(-1)
-{ }
+    flags(flags)
+{}
 
 PurchaseTransaction::PurchaseTransaction(qint64 id,
                                          const Vendor &vendor,
@@ -70,9 +66,7 @@ PurchaseTransaction::PurchaseTransaction(qint64 id,
     payments(payments),
     note(note),
     flags(flags)
-{
-
-}
+{}
 
 
 QVariantMap PurchaseTransaction::toVariantMap() const
@@ -92,6 +86,6 @@ QVariantMap PurchaseTransaction::toVariantMap() const
         { "archived", flags.testFlag(RecordGroup::Archived) },
         { "created", created },
         { "last_edited", lastEdited },
-        { "user_id", userId }
+        { "user_id", user.id }
     };
 }

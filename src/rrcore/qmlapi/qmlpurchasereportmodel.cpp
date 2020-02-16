@@ -1,16 +1,15 @@
 #include "qmlpurchasereportmodel.h"
 #include "database/databasethread.h"
 #include "queryexecutors/purchase.h"
+#include "utility/purchaseutils.h"
 
 QMLPurchaseReportModel::QMLPurchaseReportModel(QObject *parent) :
     QMLPurchaseReportModel(DatabaseThread::instance(), parent)
 {}
 
 QMLPurchaseReportModel::QMLPurchaseReportModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent)
-{
-
-}
+    AbstractReportModel(thread, parent)
+{}
 
 QVariant QMLPurchaseReportModel::data(const QModelIndex &index, int role) const
 {
@@ -19,15 +18,15 @@ QVariant QMLPurchaseReportModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case CategoryRole:
-        return m_records.at(index.row()).toMap().value("category").toString();
+        return m_transactions.at(index.row()).category.category;
     case ProductRole:
-        return m_records.at(index.row()).toMap().value("product").toString();
+        return m_transactions.at(index.row()).product.product;
     case QuantityBoughtRole:
-        return m_records.at(index.row()).toMap().value("quantity_bought").toDouble();
+        return m_transactions.at(index.row()).quantityBought;
     case UnitRole:
-        return m_records.at(index.row()).toMap().value("unit").toString();
+        return m_transactions.at(index.row()).product.unit.unit;
     case TotalAmountRole:
-        return m_records.at(index.row()).toMap().value("total_amount").toDouble();
+        return m_transactions.at(index.row()).totalAmount;
     }
 
     return QVariant();
@@ -38,7 +37,7 @@ int QMLPurchaseReportModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLPurchaseReportModel::columnCount(const QModelIndex &parent) const
@@ -103,10 +102,8 @@ QVariant QMLPurchaseReportModel::headerData(int section, Qt::Orientation orienta
 void QMLPurchaseReportModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new PurchaseQuery::ViewPurchaseReport(Utility::DateTimeSpan {
-                                                           QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
-                                                           QDateTime::currentDateTime()
-                                                       }, this));
+    emit execute(new PurchaseQuery::ViewPurchaseReport(dateTimeSpan(),
+                                                       this));
 }
 
 void QMLPurchaseReportModel::processResult(const QueryResult result)
@@ -118,7 +115,7 @@ void QMLPurchaseReportModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == PurchaseQuery::ViewPurchaseReport::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("products").toList();
+            m_transactions = Utility::PurchaseReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
             emit success(ViewPurchaseReportSuccess);
         } else {

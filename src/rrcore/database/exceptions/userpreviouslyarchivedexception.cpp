@@ -2,7 +2,8 @@
 
 UserPreviouslyArchivedException::UserPreviouslyArchivedException(const QString &message) :
     DatabaseException(DatabaseError::QueryErrorCode::UserPreviouslyArchived,
-                      message.isEmpty() ? QStringLiteral("User previously archived.") : message)
+                      message.isEmpty() ? QStringLiteral("User previously archived.")
+                                        : message)
 {
 
 }

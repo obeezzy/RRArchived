@@ -2,10 +2,8 @@
 #define QMLINCOMEPUSHER_H
 
 #include "pusher/abstractpusher.h"
-
-namespace Utility {
-    enum class PaymentMethod;
-}
+#include "utility/income/incometransaction.h"
+#include <QLoggingCategory>
 
 class QMLIncomePusher : public AbstractPusher
 {
@@ -52,12 +50,9 @@ public slots:
 protected:
     void processResult(const QueryResult result) override;
 private:
-    QString m_clientName;
-    QString m_purpose;
-    qreal m_amount;
-    PaymentMethod m_paymentMethod;
-
-    Utility::PaymentMethod paymentMethodAsUtilityEnum() const;
+    Utility::IncomeTransaction m_transaction;
 };
+
+Q_DECLARE_LOGGING_CATEGORY(lcqmlincomepusher)
 
 #endif // QMLINCOMEPUSHER_H

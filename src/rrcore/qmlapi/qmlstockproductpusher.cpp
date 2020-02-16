@@ -11,202 +11,195 @@ QMLStockProductPusher::QMLStockProductPusher(QObject *parent) :
 {}
 
 QMLStockProductPusher::QMLStockProductPusher(DatabaseThread &thread, QObject *parent) :
-    AbstractPusher(thread, parent),
-    m_productId(-1),
-    m_quantity(0.0),
-    m_tracked(false),
-    m_divisible(false),
-    m_costPrice(0.0),
-    m_retailPrice(0.0),
-    m_baseUnitEquivalent(1.0)
+    AbstractPusher(thread, parent)
 {
 
 }
 
 bool QMLStockProductPusher::isExistingProduct() const
 {
-    return m_productId > 0;
+    return m_product.id > 0;
 }
 
 int QMLStockProductPusher::productId() const
 {
-    return m_productId;
+    return m_product.id;
 }
 
 void QMLStockProductPusher::setProductId(int productId)
 {
-    if (m_productId == productId)
+    if (m_product.id == productId)
         return;
 
-    m_productId = productId;
+    m_product.id = productId;
     emit productIdChanged();
 }
 
 QUrl QMLStockProductPusher::imageUrl() const
 {
-    return m_imageUrl;
+    return m_product.imageUrl;
 }
 
 void QMLStockProductPusher::setImageUrl(const QUrl &imageUrl)
 {
-    if (m_imageUrl == imageUrl)
+    if (m_product.imageUrl == imageUrl)
         return;
 
-    m_imageUrl = imageUrl;
+    m_product.imageUrl = imageUrl;
     emit imageUrlChanged();
 }
 
 QString QMLStockProductPusher::category() const
 {
-    return m_category;
+    return m_product.category.category;
 }
 
 void QMLStockProductPusher::setCategory(const QString &category)
 {
-    if (m_category == category)
+    if (m_product.category.category == category)
         return;
 
-    m_category = category;
+    m_product.category.category = category;
     emit categoryChanged();
 }
 
 QString QMLStockProductPusher::product() const
 {
-    return m_product;
+    return m_product.product;
 }
 
 void QMLStockProductPusher::setProduct(const QString &product)
 {
-    if (m_product == product)
+    if (m_product.product == product)
         return;
 
-    m_product = product;
+    m_product.product = product;
     emit productChanged();
 }
 
 QString QMLStockProductPusher::description() const
 {
-    return m_description;
+    return m_product.description;
 }
 
 void QMLStockProductPusher::setDescription(const QString &description)
 {
-    if (m_description == description)
+    if (m_product.description == description)
         return;
 
-    m_description = description;
+    m_product.description = description;
     emit descriptionChanged();
 }
 
 double QMLStockProductPusher::quantity() const
 {
-    return m_quantity;
+    return m_product.quantity;
 }
 
 void QMLStockProductPusher::setQuantity(double quantity)
 {
-    if (m_quantity == quantity)
+    if (m_product.quantity == quantity)
         return;
 
-    m_quantity = quantity;
+    m_product.quantity = quantity;
     emit quantityChanged();
 }
 
 QString QMLStockProductPusher::unit() const
 {
-    return m_unit;
+    return m_product.unit.unit;
 }
 
 void QMLStockProductPusher::setUnit(const QString &unit)
 {
-    if (m_unit == unit)
+    if (m_product.unit.unit == unit)
         return;
 
-    m_unit = unit;
+    m_product.unit.unit = unit;
     emit unitChanged();
 }
 
 QString QMLStockProductPusher::categoryNote() const
 {
-    return m_categoryNote;
+    return m_product.category.note.note;
 }
 
 void QMLStockProductPusher::setCategoryNote(const QString &note)
 {
-    if (m_categoryNote == note)
+    if (m_product.category.note.note == note)
         return;
 
-    m_categoryNote = note;
+    m_product.category.note.note = note;
     emit categoryNoteChanged();
 }
 
 QString QMLStockProductPusher::productNote() const
 {
-    return m_productNote;
+    return m_product.note.note;
 }
 
 void QMLStockProductPusher::setProductNote(const QString &note)
 {
-    if (m_productNote == note)
+    if (m_product.note.note == note)
         return;
 
-    m_productNote = note;
+    m_product.note.note = note;
     emit productNoteChanged();
 }
 
 bool QMLStockProductPusher::isTracked() const
 {
-    return m_tracked;
+    return m_product.flags.testFlag(Utility::RecordGroup::Tracked);
 }
 
 void QMLStockProductPusher::setTracked(bool tracked)
 {
-    if (m_tracked == tracked)
+    if (m_product.flags.testFlag(Utility::RecordGroup::Tracked) == tracked)
         return;
 
-    m_tracked = tracked;
+    m_product.flags.setFlag(Utility::RecordGroup::Tracked, tracked);
     emit trackedChanged();
 }
 
 bool QMLStockProductPusher::isDivisible() const
 {
-    return m_divisible;
+    return m_product.flags.testFlag(Utility::RecordGroup::Divisible);
 }
 
 void QMLStockProductPusher::setDivisible(bool divisible)
 {
-    if (m_divisible == divisible)
+    if (m_product.flags.testFlag(Utility::RecordGroup::Divisible))
         return;
 
-    m_divisible = divisible;
+    m_product.flags.setFlag(Utility::RecordGroup::Divisible, divisible);
     emit divisibleChanged();
 }
 
 double QMLStockProductPusher::costPrice() const
 {
-    return m_costPrice;
+    return m_product.costPrice;
 }
 
 void QMLStockProductPusher::setCostPrice(double costPrice)
 {
-    if (m_costPrice == costPrice)
+    if (m_product.costPrice == costPrice)
         return;
 
-    m_costPrice = costPrice;
+    m_product.costPrice = costPrice;
     emit costPriceChanged();
 }
 
 double QMLStockProductPusher::retailPrice() const
 {
-    return m_retailPrice;
+    return m_product.retailPrice;
 }
 
 void QMLStockProductPusher::setRetailPrice(double retailPrice)
 {
-    if (m_retailPrice == retailPrice)
+    if (m_product.retailPrice == retailPrice)
         return;
 
-    m_retailPrice = retailPrice;
+    m_product.retailPrice = retailPrice;
     emit retailPriceChanged();
 }
 
@@ -214,51 +207,11 @@ void QMLStockProductPusher::push()
 {
     setBusy(true);
 
-    Utility::RecordGroup::Flags flags;
-    flags.setFlag(Utility::RecordGroup::Tracked, m_tracked);
-    flags.setFlag(Utility::RecordGroup::Divisible, m_divisible);
-
     if (isExistingProduct())
-        emit execute(new StockQuery::UpdateStockProduct(
-                         Utility::StockProduct {
-                             m_productId,
-                             Utility::StockProductCategory {
-                                m_category
-                             },
-                             m_product,
-                             m_description,
-                             QUrl(),
-                             Utility::StockProductUnit {
-                                 m_unit,
-                                 m_baseUnitEquivalent,
-                             },
-                             flags,
-                             m_costPrice,
-                             m_retailPrice,
-                             Settings::DEFAULT_CURRENCY,
-                             Utility::Note { m_productNote }
-                         },
-                         this));
+        emit execute(new StockQuery::UpdateStockProduct(m_product,
+                                                        this));
     else
-        emit execute(new StockQuery::AddStockProduct(Utility::StockProduct {
-                                                         Utility::StockProductCategory {
-                                                             m_category,
-                                                             Utility::Note{ m_categoryNote }
-                                                         },
-                                                         m_product,
-                                                         m_description,
-                                                         m_imageUrl,
-                                                         m_quantity,
-                                                         Utility::StockProductUnit {
-                                                             m_unit,
-                                                             m_baseUnitEquivalent
-                                                         },
-                                                         flags,
-                                                         m_costPrice,
-                                                         m_retailPrice,
-                                                         Settings::DEFAULT_CURRENCY,
-                                                         Utility::Note { m_productNote }
-                                                     },
+        emit execute(new StockQuery::AddStockProduct(m_product,
                                                      this));
 }
 

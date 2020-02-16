@@ -2,12 +2,15 @@
 
 using namespace Utility;
 
-SaleTransaction::SaleTransaction(qint64 id) :
-    id(id),
-    row(-1)
+SaleTransaction::SaleTransaction(const QVariantMap &map)
 {
-
+    Q_UNUSED(map)
 }
+
+SaleTransaction::SaleTransaction(qint64 id) :
+    id(id)
+{}
+
 SaleTransaction::SaleTransaction(qint64 id,
                                  const Customer &customer,
                                  qreal totalCost,
@@ -29,11 +32,8 @@ SaleTransaction::SaleTransaction(qint64 id,
     flags(flags),
     dueDateTime(dueDateTime),
     action(action),
-    note(note),
-    row(-1)
-{
-
-}
+    note(note)
+{}
 
 SaleTransaction::SaleTransaction(qint64 id,
                                  const Customer &customer,
@@ -48,8 +48,10 @@ SaleTransaction::SaleTransaction(qint64 id,
     amountPaid(amountPaid),
     balance(balance),
     flags(flags),
-    note(note),
-    row(-1)
-{
+    note(note)
+{}
 
+QVariantMap SaleTransaction::toVariantMap() const
+{
+    return {};
 }

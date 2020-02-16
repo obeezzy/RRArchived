@@ -1,14 +1,14 @@
 #ifndef ABSTRACTVISUALLISTMODEL_H
 #define ABSTRACTVISUALLISTMODEL_H
 
+#include "utility/common/filtercriteria.h"
+#include "utility/common/sortcriteria.h"
+#include "database/queryexecutor.h"
 #include <QObject>
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
 #include <QVariant>
 #include <QLoggingCategory>
-#include "database/queryrequest.h"
-#include "database/queryresult.h"
-#include "database/queryexecutor.h"
 
 class QueryRequest;
 class QueryResult;
@@ -58,8 +58,12 @@ protected:
     virtual void tryQuery() = 0;
     virtual void processResult(const QueryResult result) = 0;
     virtual void filter();
-    void setBusy(bool);
+    virtual QString columnName(int column) const;
     const QueryRequest &lastSuccessfulRequest() const;
+    void setBusy(bool);
+
+    Utility::FilterCriteria filterCriteria() const;
+    Utility::SortCriteria sortCriteria() const;
 signals:
     void execute(QueryExecutor *);
     void autoQueryChanged();
@@ -76,15 +80,14 @@ signals:
 private:
     bool m_autoQuery;
     bool m_busy;
-    QString m_filterText;
-    int m_filterColumn;
-    Qt::SortOrder m_sortOrder;
+    Utility::FilterCriteria m_filterCriteria;
+    Utility::SortCriteria m_sortCriteria;
     int m_sortColumn;
     QueryRequest m_lastSuccessfulRequest;
 
     void saveRequest(const QueryResult &result);
 };
 
-Q_DECLARE_LOGGING_CATEGORY(abstractVisualListModel);
+Q_DECLARE_LOGGING_CATEGORY(lcabstractvisuallistmodel);
 
 #endif // ABSTRACTVISUALLISTMODEL_H

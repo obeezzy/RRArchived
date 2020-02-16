@@ -1,11 +1,7 @@
 #include "qmlsaletransactionmodel.h"
-#include "database/queryrequest.h"
-#include "database/queryresult.h"
 #include "database/databasethread.h"
-#include "qmlsaletransactionmodel.h"
 #include "queryexecutors/sales.h"
 #include "utility/saleutils.h"
-#include <QSqlRecord>
 #include <QDateTime>
 
 QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
@@ -26,35 +22,35 @@ QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case TransactionIdRole:
-        return m_records.at(index.row()).toMap().value("transaction_id").toInt();
+        return m_transactions.at(index.row()).id;
     case ClientIdRole:
-        return m_records.at(index.row()).toMap().value("client_id").toInt();
+        return m_transactions.at(index.row()).customer.client.id;
     case CustomerNameRole:
-        return m_records.at(index.row()).toMap().value("customer_name").toString();
+        return m_transactions.at(index.row()).customer.client.preferredName;
     case TotalCostRole:
-        return m_records.at(index.row()).toMap().value("total_cost").toDouble();
+        return m_transactions.at(index.row()).totalCost;
     case AmountPaidRole:
-        return m_records.at(index.row()).toMap().value("amount_paid").toDouble();
+        return m_transactions.at(index.row()).amountPaid;
     case BalanceRole:
-        return m_records.at(index.row()).toMap().value("balance").toDouble();
+        return m_transactions.at(index.row()).balance;
     case DiscountRole:
-        return m_records.at(index.row()).toMap().value("discount").toDouble();
+        return m_transactions.at(index.row()).discount;
     case NoteIdRole:
-        return m_records.at(index.row()).toMap().value("note_id").toInt();
+        return m_transactions.at(index.row()).note.id;
     case NoteRole:
-        return m_records.at(index.row()).toMap().value("note").toString();
+        return m_transactions.at(index.row()).note.note;
     case SuspendedRole:
-        return m_records.at(index.row()).toMap().value("suspended").toBool();
+        return m_transactions.at(index.row()).flags.testFlag(Utility::RecordGroup::Suspended);
     case ArchivedRole:
-        return m_records.at(index.row()).toMap().value("archived").toBool();
+        return m_transactions.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_records.at(index.row()).toMap().value("created").toDateTime();
+        return m_transactions.at(index.row()).created;
     case LastEditedRole:
-        return m_records.at(index.row()).toMap().value("last_edited").toDateTime();
+        return m_transactions.at(index.row()).lastEdited;
     case UserIdRole:
-        return m_records.at(index.row()).toMap().value("user_id").toInt();
-    case Qt::DisplayRole:
-        return m_records.at(index.row()).toMap();
+        return m_transactions.at(index.row()).user.id;
+    case UserRole:
+        return m_transactions.at(index.row()).user.user;
     }
 
     return QVariant();
@@ -65,7 +61,7 @@ int QMLSaleTransactionModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_transactions.count();
 }
 
 int QMLSaleTransactionModel::columnCount(const QModelIndex &parent) const
@@ -92,7 +88,8 @@ QHash<int, QByteArray> QMLSaleTransactionModel::roleNames() const
         { ArchivedRole, "archived" },
         { CreatedRole, "created" },
         { LastEditedRole, "last_edited" },
-        { UserIdRole, "user_id" }
+        { UserIdRole, "user_id" },
+        { UserRole, "user" }
     };
 }
 
@@ -145,15 +142,11 @@ void QMLSaleTransactionModel::tryQuery()
     if (keys() == Suspended)
         flags.setFlag(Utility::RecordGroup::Suspended);
     else if (keys() == Archived)
-        flags.setFlag(Utility::RecordGroup::Suspended);
+        flags.setFlag(Utility::RecordGroup::Archived);
     else if (keys() == All)
-        flags = Utility::RecordGroup::Flags(Utility::RecordGroup::Suspended
-                                            | Utility::RecordGroup::Archived);
+        flags = Utility::RecordGroup::None;
 
-    emit execute(new SaleQuery::ViewSaleTransactions(Utility::DateTimeSpan {
-                                                         from(),
-                                                         to()
-                                                     },
+    emit execute(new SaleQuery::ViewSaleTransactions(dateTimeSpan(),
                                                      flags,
                                                      this));
 }
@@ -167,7 +160,7 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
     if (result.isSuccessful()) {
         if (result.request().command() == SaleQuery::ViewSaleTransactions::COMMAND) {
             beginResetModel();
-            m_records = result.outcome().toMap().value("transactions").toList();
+            m_transactions = Utility::SaleTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
 
             emit success(ViewTransactionSuccess);
@@ -177,12 +170,4 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
     } else {
         emit error(UnknownError);
     }
-}
-
-void QMLSaleTransactionModel::removeTransaction(int row)
-{
-    setBusy(true);
-    emit execute(new SaleQuery::RemoveSaleTransaction(Utility::SaleTransaction {
-                                                          data(index(row, 0), TransactionIdRole).toInt()
-                                                      }, this));
 }

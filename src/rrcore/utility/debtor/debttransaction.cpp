@@ -2,14 +2,12 @@
 
 using namespace Utility;
 
-DebtTransaction::DebtTransaction() :
-    id(-1), totalDebt(0.0)
-{ }
+DebtTransaction::DebtTransaction()
+{}
 
 DebtTransaction::DebtTransaction(qreal totalDebt,
                                  const QDateTime &dueDateTime,
                                  const Note &note) :
-    id(-1),
     totalDebt(totalDebt),
     dueDateTime(dueDateTime),
     note(note),

@@ -24,7 +24,6 @@ QMLUserProfile::QMLUserProfile(QObject *parent) :
 
 QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
     QObject(parent),
-    m_busy(false),
     m_businessStoreModel(new BusinessStoreModel(this))
 {
     UserProfile::instance().setDatabaseReady(true);
@@ -112,7 +111,6 @@ void QMLUserProfile::signInOnline(const QString &emailAddress,
 {
     Q_UNUSED(emailAddress)
     Q_UNUSED(password)
-    setBusy(true);
 }
 
 void QMLUserProfile::signUp(const QString &userName,
@@ -151,7 +149,10 @@ void QMLUserProfile::linkAccount(const QString &emailAddress,
         setBusy(true);
 
         ServerRequest request(this);
-        request.setAction("link_account", { { "email_address", emailAddress }, { "password", password } });
+        request.setAction("link_account", {
+                              { "email_address", emailAddress },
+                              { "password", password }
+                          });
         emit executeRequest(request);
     }
 }
@@ -160,7 +161,9 @@ void QMLUserProfile::linkBusinessStore()
 {
     setBusy(true);
 
-    const BusinessStore &businessStore(UserProfile::instance().businessAdmin()->businessStores().at(m_businessStoreModel->currentIndex()));
+    const BusinessStore &businessStore(UserProfile::instance()
+                                       .businessAdmin()->businessStores()
+                                       .at(m_businessStoreModel->currentIndex()));
     ServerRequest request(this);
     request.setAction("link_business_store", {
                           { "business_store", businessStore.toVariantMap() },
@@ -196,20 +199,11 @@ void QMLUserProfile::processResult(const QueryResult &result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == UserQuery::SignInUser::COMMAND) {
-            UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
-                                            result.outcome().toMap().value("user_name").toString(),
-                                            result.outcome().toMap().value("password").toString(),
-                                            result.outcome().toMap().value("user_privileges"),
-                                            result.outcome().toMap().value("access_token").toByteArray());
+        if (result.request().command() == UserQuery::SignInUser::COMMAND
+                || result.request().command() == UserQuery::SignUpUser::COMMAND) {
+            const Utility::User &user{ result.outcome().toMap() };
+            UserProfile::instance().setUser(user);
             emit success(SignInSuccess);
-        } else if (result.request().command() == UserQuery::SignUpUser::COMMAND) {
-            UserProfile::instance().setUser(result.outcome().toMap().value("user_id").toInt(),
-                                            result.outcome().toMap().value("user_name").toString(),
-                                            result.outcome().toMap().value("password").toString(),
-                                            result.outcome().toMap().value("user_privileges"),
-                                            result.outcome().toMap().value("access_token").toByteArray());
-            emit success(SignUpSuccess);
         } else if (result.request().command() == UserQuery::SignOutUser::COMMAND) {
             UserProfile::instance().clearUser();
             emit success(SignOutSuccess);
@@ -241,12 +235,13 @@ void QMLUserProfile::processServerResponse(const ServerResponse &response)
 
     setBusy(false);
     if (response.isSuccessful()) {
-        if (response.request().action() == "link_account") {
+        if (response.request().action() == QStringLiteral("link_account")) {
             UserProfile::instance()
                     .businessAdmin()->extractFromVariantMap(response.data().value("business_admin").toMap());
             emit success(LinkAccountSuccess);
-        } else if (response.request().action() == "link_business_store") {
-            const BusinessStore &businessStore(BusinessStore::fromVariantMap(response.data().value("business_store").toMap()));
+        } else if (response.request().action() == QStringLiteral("link_business_store")) {
+            const BusinessStore &businessStore(BusinessStore::fromVariantMap(response.data()
+                                                                             .value("business_store").toMap()));
 
             UserProfile::instance().setUserId(1); // User is definitely "admin"
             UserProfile::instance().setRackId(businessStore.rackId());

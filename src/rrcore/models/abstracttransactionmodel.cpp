@@ -1,23 +1,13 @@
 #include "abstracttransactionmodel.h"
-#include <QDateTime>
-
-#include "database/queryrequest.h"
-#include "database/queryresult.h"
 #include "database/databasethread.h"
+#include <QDateTime>
 
 AbstractTransactionModel::AbstractTransactionModel(QObject *parent) :
     AbstractTransactionModel(DatabaseThread::instance(), parent)
 {}
 
 AbstractTransactionModel::AbstractTransactionModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent),
-    m_transactionId(-1),
-    m_keys(None)
-{
-
-}
-
-AbstractTransactionModel::~AbstractTransactionModel()
+    AbstractVisualTableModel(thread, parent)
 {
 
 }
@@ -38,29 +28,29 @@ void AbstractTransactionModel::setKeys(int keys)
 
 QDateTime AbstractTransactionModel::from() const
 {
-    return m_from;
+    return m_dateTimeSpan.from;
 }
 
 void AbstractTransactionModel::setFrom(const QDateTime &from)
 {
-    if (m_from == from)
+    if (m_dateTimeSpan.from == from)
         return;
 
-    m_from = from;
+    m_dateTimeSpan.from = from;
     emit fromChanged();
 }
 
 QDateTime AbstractTransactionModel::to() const
 {
-    return m_to;
+    return m_dateTimeSpan.to;
 }
 
 void AbstractTransactionModel::setTo(const QDateTime &to)
 {
-    if (m_to == to)
+    if (m_dateTimeSpan.to == to)
         return;
 
-    m_to = to;
+    m_dateTimeSpan.to = to;
     emit toChanged();
 }
 
@@ -68,6 +58,11 @@ void AbstractTransactionModel::componentComplete()
 {
     toggleConnections();
     AbstractVisualTableModel::componentComplete();
+}
+
+Utility::DateTimeSpan AbstractTransactionModel::dateTimeSpan() const
+{
+    return m_dateTimeSpan;
 }
 
 void AbstractTransactionModel::toggleConnections()

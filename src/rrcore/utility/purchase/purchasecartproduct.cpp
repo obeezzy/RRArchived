@@ -1,7 +1,5 @@
 #include "purchasecartproduct.h"
-#include <QList>
 #include <QVariantList>
-#include <QVariantMap>
 #include <QDateTime>
 
 using namespace Utility;
@@ -23,11 +21,11 @@ PurchaseCartProduct::PurchaseCartProduct(const StockProductCategory &category,
     imageUrl(imageUrl),
     quantity(quantity),
     unit(unit),
-    flags(flags),
     costPrice(costPrice),
     retailPrice(retailPrice),
     currency(currency),
-    note(note)
+    note(note),
+    flags(flags)
 { }
 
 PurchaseCartProduct::PurchaseCartProduct(int id,
@@ -45,13 +43,17 @@ PurchaseCartProduct::PurchaseCartProduct(int id,
     category(category),
     quantity(quantity),
     unit(unit),
-    flags(RecordGroup::Tracked | RecordGroup::Divisible),
     retailPrice(retailPrice),
     unitPrice(unitPrice),
     cost(cost),
     amountPaid(amountPaid),
-    note(note)
+    note(note),
+    flags(RecordGroup::Tracked | RecordGroup::Divisible)
 { }
+
+PurchaseCartProduct::PurchaseCartProduct(int id) :
+    id(id)
+{}
 
 PurchaseCartProduct::PurchaseCartProduct(const QVariantMap &product) :
     id(product.value("product_id").toInt()),
@@ -67,6 +69,7 @@ PurchaseCartProduct::PurchaseCartProduct(const QVariantMap &product) :
     description(product.value("description").toString()),
     imageUrl(product.value("image_url").toUrl()),
     quantity(product.value("quantity").toDouble()),
+    availableQuantity(product.value("available_quantity").toDouble()),
     unit(StockProductUnit {
          product.value("unit_id").toInt(),
          product.value("unit").toString()
@@ -74,7 +77,7 @@ PurchaseCartProduct::PurchaseCartProduct(const QVariantMap &product) :
     costPrice(product.value("cost_price").toDouble()),
     retailPrice(product.value("retail_price").toDouble()),
     unitPrice(product.value("unit_price").toDouble()),
-    cost(product.value("cost").toDouble()),
+    cost(product.value("cost", quantity * unitPrice).toDouble()),
     amountPaid(product.value("amount_paid").toDouble()),
     currency(product.value("currency").toString()),
     note(Note {
@@ -99,6 +102,7 @@ QVariantMap PurchaseCartProduct::toVariantMap() const
         { "product_category_id", category.id },
         { "category", category.category },
         { "quantity", quantity },
+        { "available_quantity", availableQuantity },
         { "product_unit_id", unit.id },
         { "unit", unit.unit },
         { "retail_price", retailPrice },

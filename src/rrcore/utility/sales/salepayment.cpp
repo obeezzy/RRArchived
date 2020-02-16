@@ -16,7 +16,7 @@ QVariantMap SalePayment::toVariantMap() const
 {
     return {
         { "amount", amount },
-        { "payment_method", Utility::asString(method) },
+        { "payment_method", method.toString()},
         { "note", note.note }
     };
 }

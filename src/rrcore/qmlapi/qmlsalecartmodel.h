@@ -1,11 +1,8 @@
 #ifndef QMLSALECARTMODEL_H
 #define QMLSALECARTMODEL_H
 
-#include <QSqlRecord>
-#include <QDateTime>
-
 #include "models/abstractvisuallistmodel.h"
-#include "utility/saleutils.h"
+#include "utility/sales/saletransaction.h"
 
 class SalePaymentModel;
 
@@ -99,6 +96,11 @@ public:
 
     Utility::SalePaymentList payments() const;
 
+    Q_INVOKABLE void addProduct(const QVariantMap &product);
+    Q_INVOKABLE void updateProduct(int productId, const QVariantMap &product);
+    Q_INVOKABLE void setProductQuantity(int productId, double quantity);
+    Q_INVOKABLE void removeProduct(int productId);
+
     Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
     Q_INVOKABLE void removePayment(int index);
     Q_INVOKABLE void clearPayments();
@@ -123,30 +125,12 @@ signals:
     void canAcceptCardChanged();
 
     void paymentModelChanged();
-public slots:
-    void addProduct(const QVariantMap &product);
-    void updateProduct(int productId, const QVariantMap &product);
-    void setProductQuantity(int productId, double quantity);
-    void removeProduct(int productId);
 private:
-    qint64 m_transactionId;
-    QString m_customerName;
-    QString m_customerPhoneNumber;
-    int m_clientId;
-    QString m_note;
-    double m_totalCost;
-    double m_amountPaid;
-    double m_balance;
-    bool m_canAcceptCash;
-    bool m_canAcceptCard;
-    QVariantList m_records;
-    Utility::SalePaymentList m_salePayments;
+    Utility::SaleTransaction m_transaction;
     SalePaymentModel *m_paymentModel;
 
-    bool containsProduct(int productId);
-    int indexOfProduct(int productId);
     void addTransaction(const QVariantMap &transaction);
-    void updateSuspendedTransaction(const QVariantMap &transaction);
+    void updateSuspendedTransaction(const QVariantMap &addOns);
 
     void setTotalCost(double totalCost);
     void setAmountPaid(double amountPaid);
@@ -155,9 +139,6 @@ private:
     void calculateAmountPaid();
 
     void setClientId(int clientId);
-
-    void incrementProductQuantity(int productId, double quantity = 1.0);
-    void decrementProductQuantity(int productId, double quantity = 1.0);
 
     void updateCanAcceptCash();
     void updateCanAcceptCard();

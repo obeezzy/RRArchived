@@ -20,6 +20,9 @@ public:
     virtual ~AbstractPusher() = default;
 
     bool isBusy() const;
+
+    Q_INVOKABLE virtual void push() = 0;
+    Q_INVOKABLE virtual void undoLastCommit();
 protected:
     void setBusy(bool);
     virtual void processResult(const QueryResult result) = 0;
@@ -29,9 +32,6 @@ signals:
     void success(int successCode = 0);
     void error(int errorCode = 0);
     void execute(QueryExecutor *);
-public slots:
-    virtual void push() = 0;
-    virtual void undoLastCommit();
 private:
     bool m_busy;
     QueryRequest m_lastSuccessfulRequest;

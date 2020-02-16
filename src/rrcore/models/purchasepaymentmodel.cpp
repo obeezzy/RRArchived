@@ -29,7 +29,7 @@ QVariant PurchasePaymentModel::data(const QModelIndex &index, int role) const
     case AmountRole:
         return m_purchasePayments.at(index.row()).amount;
     case MethodRole:
-        return static_cast<int>(m_purchasePayments.at(index.row()).method);
+        return m_purchasePayments.at(index.row()).method.toString();
     case NoteRole:
         return m_purchasePayments.at(index.row()).note.note;
     }
