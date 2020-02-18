@@ -59,11 +59,11 @@ namespace NetworkError
         UnknownError = -1,
         RequestFailed,
         UnableToDetermineDestinationUrl,
-        InvalidCredentialsError
+        IncorrectCredentialsError
     };
 
     static QHash<QString, ServerErrorCode> serverErrorHash = {
-        { "invalid-credentials", ServerErrorCode::InvalidCredentialsError }
+        { "invalid-credentials", ServerErrorCode::IncorrectCredentialsError }
     };
 
     template <typename Enumeration>

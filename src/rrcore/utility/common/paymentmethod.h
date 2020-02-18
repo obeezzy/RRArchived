@@ -26,7 +26,7 @@ private:
     Enum m_enumValue {Cash};
 };
 }
-
+Q_DECLARE_TYPEINFO(Utility::PaymentMethod, Q_PRIMITIVE_TYPE);
 Q_DECLARE_LOGGING_CATEGORY(lcpaymentmethod);
 
 #endif // PAYMENTMETHOD_H

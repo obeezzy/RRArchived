@@ -4,6 +4,7 @@
 #include "utility/common/filtercriteria.h"
 #include "utility/common/sortcriteria.h"
 #include "database/queryexecutor.h"
+#include "modelresult.h"
 #include <QObject>
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
@@ -75,14 +76,14 @@ signals:
     void sortOrderChanged();
     void sortColumnChanged();
 
-    void success(int successCode = -1);
-    void error(int errorCode = -1);
+    void success(ModelResult result = ModelResult());
+    void error(ModelResult result = ModelResult());
 private:
-    bool m_autoQuery;
-    bool m_busy;
+    bool m_autoQuery {true};
+    bool m_busy {false};
     Utility::FilterCriteria m_filterCriteria;
     Utility::SortCriteria m_sortCriteria;
-    int m_sortColumn;
+    int m_sortColumn {-1};
     QueryRequest m_lastSuccessfulRequest;
 
     void saveRequest(const QueryResult &result);

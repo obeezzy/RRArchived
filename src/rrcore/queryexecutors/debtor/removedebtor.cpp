@@ -63,7 +63,7 @@ QueryResult RemoveDebtor::removeDebtor()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
@@ -103,7 +103,7 @@ QueryResult RemoveDebtor::undoRemoveDebtor()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

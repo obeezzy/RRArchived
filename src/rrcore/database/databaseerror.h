@@ -11,7 +11,6 @@ namespace DatabaseError
         UnknownError,
         NotYetImplementedError,
         DatabaseInitializationFailed,
-        SignInFailure,
         SignUpFailure,
         NoCommand,
         BeginTransactionFailed,
@@ -32,11 +31,13 @@ namespace DatabaseError
         ArgumentMismatch,
         UnexpectedResultError,
         NoExistingRecordError,
-        InvalidCredentialsError
+        InvalidCredentialsError,
+        ConnectionFailedError
     };
 
     enum class MySqlErrorCode {
         UncommonError,
+        AccessDeniedError = 1045,
         DuplicateEntryError = 1062,
         CreateUserError = 1396,
         UserDefinedException = 1644,

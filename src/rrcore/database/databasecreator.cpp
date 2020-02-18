@@ -146,7 +146,7 @@ bool DatabaseCreator::start()
         initDatabase();
         createProcedures();
         updateBusinessDetails();
-    } catch (DatabaseException &e) {
+    } catch (const DatabaseException &e) {
         qCCritical(lcdatabasecreator) << "Exception caught:" << e.code() << e.message() << e.userMessage();
         return false;
     }

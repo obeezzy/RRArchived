@@ -43,6 +43,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::StockProductCategory, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::StockProductCategory, Q_PRIMITIVE_TYPE);
 
 #endif // STOCKPRODUCTCATEGORY_H

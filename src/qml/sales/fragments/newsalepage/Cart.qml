@@ -21,8 +21,8 @@ RRUi.Card {
     property string customerName: ""
     property int transactionId: -1
 
-    signal success(int successCode)
-    signal error(int errorCode, string errorMessage)
+    signal success(var result)
+    signal error(var result)
     signal editRequested(var product)
     signal viewRequested(int productId)
 
@@ -52,11 +52,11 @@ RRUi.Card {
         onViewRequested: cart.viewRequested(productId);
         onEditRequested: cart.editRequested(product);
 
-        onSuccess: cart.success(successCode);
+        onSuccess: cart.success(result);
 
         onError: {
             var errorString = "";
-            switch (errorCode) {
+            switch (result.code) {
             case CartListView.ConnectionError:
                 errorString = qsTr("Failed to connect to the database.");
                 break;
@@ -75,12 +75,13 @@ RRUi.Card {
             case CartListView.SuspendTransactionError:
                 errorString = qsTr("Failed to suspend transaction.");
                 break;
-            case CartListView.UnknownError:
+            default:
                 errorString = qsTr("An unknown error occurred.");
                 break;
             }
 
-            cart.error(errorCode, errorString);
+            result.extra = errorString;
+            cart.error(result);
         }
     }
 }

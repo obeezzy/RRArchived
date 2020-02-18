@@ -36,7 +36,7 @@ QueryResult ViewPurchaseHome::execute()
                               { "record_count", homeRecords.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

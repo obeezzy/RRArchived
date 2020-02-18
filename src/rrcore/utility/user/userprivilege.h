@@ -37,4 +37,6 @@ public:
 };
 }
 
+Q_DECLARE_TYPEINFO(Utility::UserPrivilege, Q_PRIMITIVE_TYPE);
+
 #endif // USERPRIVILEGE_H

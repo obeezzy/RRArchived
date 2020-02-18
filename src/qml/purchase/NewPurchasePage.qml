@@ -41,9 +41,11 @@ RRUi.Page {
             text: qsTr("Suspend transaction")
             onTriggered: {
                 if (transitionView.currentItem.itemCount === 0) {
-                    errorDialog.show(qsTr("There are no products in your cart."), qsTr("Failed to suspend transaction"));
+                    errorDialog.show(qsTr("There are no products in your cart."),
+                                     qsTr("Failed to suspend transaction"));
                 } else if (transitionView.currentItem.customerName === "") {
-                    errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to suspend transaction"));
+                    errorDialog.show(qsTr("Customer name cannot be empty."),
+                                     qsTr("Failed to suspend transaction"));
                 } else {
                     suspendTransactionDialog.open();
                 }
@@ -100,10 +102,12 @@ RRUi.Page {
 
             function validateUserInput() {
                 if (customerNameField.text.trim() === "") {
-                    errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to complete transaction"));
+                    errorDialog.show(qsTr("Customer name cannot be empty."),
+                                     qsTr("Failed to complete transaction"));
                     return false;
                 } else if (cartListView.count == 0) {
-                    errorDialog.show(qsTr("There are no items in your cart."), qsTr("Failed to complete transaction"));
+                    errorDialog.show(qsTr("There are no items in your cart."),
+                                     qsTr("Failed to complete transaction"));
                     return false;
                 }
 
@@ -307,7 +311,7 @@ RRUi.Page {
                                 searchBar.clear();
                                 categoryListView.refresh();
 
-                                switch (successCode) {
+                                switch (result.code) {
                                 case RRModels.PurchaseCartModel.RetrieveTransactionSuccess:
                                     customerNameField.text = cartListView.customerName;
                                     newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction retrieved."));
@@ -315,12 +319,14 @@ RRUi.Page {
                                 case RRModels.PurchaseCartModel.SuspendTransactionSuccess:
                                     customerNameField.clear();
                                     privateProperties.transactionId = -1;
-                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction suspended."), qsTr("Undo"));
+                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction suspended."),
+                                                                                                qsTr("Undo"));
                                     break;
                                 case RRModels.PurchaseCartModel.SubmitTransactionSuccess:
                                     customerNameField.clear();
                                     privateProperties.transactionId = -1;
-                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
+                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction submitted."),
+                                                                                                qsTr("Undo"));
                                     break;
                                 case RRModels.PurchaseCartModel.UndoSubmitTransactionSuccess:
                                     newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successul."));
@@ -329,7 +335,7 @@ RRUi.Page {
                             }
                             onError: {
                                 var errorString = "";
-                                switch (errorCode) {
+                                switch (result.code) {
                                 case CartListView.ConnectionError:
                                     errorString = qsTr("Failed to connect to the database.");
                                     break;
@@ -353,9 +359,11 @@ RRUi.Page {
                                 if (paymentWizard.opened) {
                                     paymentWizard.displayError(errorString);
                                 } else {
-                                    switch (errorCode) {
+                                    switch (result.code) {
                                     default:
-                                        errorDialog.show(qsTr("An unknown error has occurred."), qsTr("Failed to save transaction"), errorCode);
+                                        errorDialog.show(qsTr("An unknown error has occurred."),
+                                                         qsTr("Failed to save transaction"),
+                                                         result);
                                         break;
                                     }
                                 }

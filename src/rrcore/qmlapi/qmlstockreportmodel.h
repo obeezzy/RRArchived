@@ -18,10 +18,6 @@ public:
         UnitRole
     };
 
-    enum SuccessCode {
-        ViewStockReportSuccess
-    };
-
     enum Columns {
         CategoryColumn,
         ProductColumn,

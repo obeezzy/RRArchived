@@ -57,7 +57,7 @@ QueryResult AddStockProduct::execute()
                                   productUnitId);
 
         DatabaseUtils::commitTransaction(q);
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

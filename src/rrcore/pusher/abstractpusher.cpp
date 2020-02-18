@@ -1,10 +1,8 @@
 #include "abstractpusher.h"
-
 #include "database/databasethread.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/queryexecutor.h"
-
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(abstractPusher, "rrcore.database.abstractpusher");

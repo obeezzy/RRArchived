@@ -71,6 +71,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::SaleTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::SaleTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // SALETRANSACTION_H

@@ -83,18 +83,18 @@ void QMLDebtorModel::processResult(const QueryResult result)
             beginResetModel();
             m_debtorList = Utility::DebtorList{ result.outcome().toMap().value("debtors").toList() };
             endResetModel();
-            emit success(ViewDebtorsSuccess);
+            emit success(ModelResult{ ViewDebtorsSuccess });
         } else if (result.request().command() == DebtorQuery::RemoveDebtor::COMMAND) {
             const auto &debtor = Utility::Debtor{ result.outcome().toMap() };
             removeDebtorFromModel(debtor);
-            emit success(RemoveDebtorSuccess);
+            emit success(ModelResult{ RemoveDebtorSuccess });
         } else if (result.request().command() == DebtorQuery::RemoveDebtor::UNDO_COMMAND) {
             const auto &debtor = Utility::Debtor{ result.outcome().toMap() };
             undoRemoveDebtorFromModel(debtor);
-            emit success(UndoRemoveDebtorSuccess);
+            emit success(ModelResult{ UndoRemoveDebtorSuccess });
         }
     } else {
-        emit error(UnknownError);
+        emit error();
     }
 }
 

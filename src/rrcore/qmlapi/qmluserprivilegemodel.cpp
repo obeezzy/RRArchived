@@ -186,17 +186,17 @@ void QMLUserPrivilegeModel::setPrivilegeValue(int groupIndex, int privilegeIndex
 bool QMLUserPrivilegeModel::submit()
 {
     if (m_userName.trimmed().isEmpty() && m_userId == -1) {
-        emit error(NoUserNameSetError);
+        emit error(ModelResult{ NoUserNameSetError });
     } else if (m_firstName.trimmed().isEmpty() && m_userId == -1) {
-        emit error(NoFirstNameSetError);
+        emit error(ModelResult{ NoFirstNameSetError });
     } else if (m_lastName.trimmed().isEmpty() && m_userId == -1) {
-        emit error(NoLastNameSetError);
+        emit error(ModelResult{ NoLastNameSetError });
     } else if (m_password.trimmed().isEmpty() && m_userId == -1) {
-        emit error(NoPasswordSetError);
+        emit error(ModelResult{ NoPasswordSetError });
     } else if (m_phoneNumber.trimmed().isEmpty() && m_userId == -1) {
-        emit error(NoPhoneNumberSetError);
+        emit error(ModelResult{ NoPhoneNumberSetError });
     } else if (m_emailAddress.trimmed().isEmpty() && m_userId == -1) {
-        emit error(NoEmailAddressSetError);
+        emit error(ModelResult{ NoEmailAddressSetError });
     } else {
         QVariantMap groups;
         for (auto model : m_privilegeModels) {
@@ -267,18 +267,18 @@ void QMLUserPrivilegeModel::processResult(const QueryResult result)
             endResetModel();
             emit success();
         } else if (result.request().command() == UserQuery::AddUser::COMMAND) {
-            emit success(AddUserSuccess);
+            emit success(ModelResult{ AddUserSuccess });
         } else if (result.request().command() == UserQuery::UpdateUserPrivileges::COMMAND) {
-            emit success(UpdateUserSuccess);
+            emit success(ModelResult{ UpdateUserSuccess });
         }
     } else {
         switch (result.errorCode()) {
         case DatabaseError::asInteger(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
         case DatabaseError::asInteger(DatabaseError::QueryErrorCode::CreateUserFailed):
-            emit error(UserAlreadyExistsError);
+            emit error(ModelResult{ UserAlreadyExistsError });
             break;
         case DatabaseError::asInteger(DatabaseError::QueryErrorCode::UserPreviouslyArchived):
-            emit error(UserPreviouslyArchivedError);
+            emit error(ModelResult{ UserPreviouslyArchivedError });
             break;
         default:
             emit error();

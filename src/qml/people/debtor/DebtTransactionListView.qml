@@ -17,8 +17,8 @@ ListView {
     property string preferredName: ""
     property string phoneNumber: ""
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
     signal editTransactionRequested(var debtModelData)
     signal removeTransactionRequested(int debtIndex)
     signal addPaymentRequested(var paymentModel)
@@ -53,8 +53,8 @@ ListView {
         debtorId: debtTransactionListView.debtorId
         filterText: debtTransactionListView.filterText
         filterColumn: debtTransactionListView.filterColumn
-        onSuccess: debtTransactionListView.success(successCode);
-        onError: debtTransactionListView.error(errorCode);
+        onSuccess: debtTransactionListView.success(result);
+        onError: debtTransactionListView.error(result);
     }
 
     QQC2.ScrollBar.vertical: QQC2.ScrollBar {

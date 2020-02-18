@@ -9,14 +9,12 @@ class QMLDebtorModel : public AbstractVisualListModel
     Q_OBJECT
 public:
     enum SuccessCode {
-        UnknownSuccess,
         ViewDebtorsSuccess,
         UndoRemoveDebtorSuccess,
         RemoveDebtorSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
-        UnknownError,
         InvalidDebtorError
     }; Q_ENUM(ErrorCode)
 

@@ -36,6 +36,5 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("MainWindow", engine.rootObjects().last());
 
-    qDebug() << "Right here!";
     return app.exec();
 }

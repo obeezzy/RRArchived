@@ -54,7 +54,7 @@ QueryResult FilterStockCategories::execute()
                               { "record_count", categories.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

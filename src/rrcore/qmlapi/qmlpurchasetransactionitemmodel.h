@@ -8,15 +8,6 @@ class QMLPurchaseTransactionItemModel : public AbstractTransactionItemModel
 {
     Q_OBJECT
 public:
-    enum SuccessCode {
-        UnknownSuccess,
-        ViewPurchaseTransactionItemsSuccess
-    }; Q_ENUM(SuccessCode)
-
-    enum ErrorCode {
-        UnknownError
-    }; Q_ENUM(ErrorCode)
-
     enum Roles {
         TransactionItemIdRole = Qt::UserRole,
         CategoryIdRole,

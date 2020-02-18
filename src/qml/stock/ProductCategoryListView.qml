@@ -21,8 +21,8 @@ ListView {
     property int sortColumn: -1
     property alias busy: stockProductCategoryModel.busy
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
     signal modelReset
 
     function refresh() { productCategoryListView.model.refresh(); }
@@ -45,7 +45,7 @@ ListView {
         productFilterText: productCategoryListView.filterColumn === RRModels.StockProductModel.ProductColumn ? productCategoryListView.filterText
                                                                                                              : ""
         onSuccess: {
-            switch (successCode) {
+            switch (result.code) {
             case RRModels.StockProductCategoryModel.RemoveCategorySuccess:
                 productCategoryListView.success(RRModels.StockProductModel.RemoveProductSuccess);
                 break;
@@ -113,15 +113,15 @@ ListView {
                 buttonRow: productCategoryListView.buttonRow
                 onProductRemoved: privateProperties.lastRemovedProductId = productId;
                 onSuccess: {
-                    switch (successCode) {
+                    switch (result.code) {
                     case RRModels.StockProductModel.RemoveProductSuccess:
                         if (productTableView.rows === 1)
                             stockProductCategoryModel.removeCategory(categoryCard.row);
                     }
 
-                    productCategoryListView.success(successCode);
+                    productCategoryListView.success(result);
                 }
-                onError: productCategoryListView.error(errorCode);
+                onError: productCategoryListView.error(result);
                 onModelReset: productCategoryListView.modelReset();
             }
         }

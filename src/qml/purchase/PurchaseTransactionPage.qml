@@ -124,7 +124,7 @@ RRUi.Page {
                                  purchaseTransactionPage.selectedDate.getDate() + 1)
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.PurchaseTransactionModel.RemoveTransactionSuccess:
                             MainWindow.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
                             break;
@@ -135,9 +135,10 @@ RRUi.Page {
                     }
 
                     onError: {
-                        switch (errorCode) {
+                        switch (result.code) {
                         case RRModels.PurchaseTransactionModel.RemoveTransactionError:
-                            errorDialog.show(qsTr("Failed to remove transaction."), qsTr("Error"), errorCode);
+                            errorDialog.show(qsTr("Failed to remove transaction."),
+                                             qsTr("Error"));
                             break;
                         }
                     }

@@ -212,9 +212,9 @@ void QMLDebtPaymentModel::processResult(const QueryResult result)
         calculateTotals();
         endResetModel();
 
-        emit success(ViewDebtorPaymentsSuccess);
+        emit success();
     } else {
-        emit error(UnknownError);
+        emit error();
     }
 }
 

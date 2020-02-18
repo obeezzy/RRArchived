@@ -9,14 +9,12 @@ class QMLSaleTransactionModel : public AbstractTransactionModel
     Q_OBJECT
 public:
     enum SuccessCode {
-        UnknownSuccess,
         ViewTransactionSuccess,
         RemoveTransactionSuccess,
         UndoRemoveTransactionSuccess
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
-        UnknownError,
         ViewTransactionError,
         RemoveTransactionError,
         UndoRemoveTransactionError

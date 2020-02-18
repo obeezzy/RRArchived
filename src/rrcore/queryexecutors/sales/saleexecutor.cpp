@@ -34,6 +34,8 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
     int creditorId = 0;
     int creditTransactionId = 0;
 
+    Q_UNUSED(customerId)
+
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
@@ -72,7 +74,7 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
                               { "sale_transaction_id", saleTransactionId }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         if (mode == TransactionMode::UseSqlTransaction)
             DatabaseUtils::rollbackTransaction(q);
 

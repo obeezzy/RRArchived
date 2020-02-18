@@ -28,14 +28,6 @@ public:
         LastEditedRole
     };
 
-    enum SuccessCode {
-        ViewDebtorPaymentsSuccess,
-    }; Q_ENUM(SuccessCode)
-
-    enum ErrorCode {
-        UnknownError
-    }; Q_ENUM(ErrorCode)
-
     explicit QMLDebtPaymentModel(QObject *parent = nullptr);
     explicit QMLDebtPaymentModel(DatabaseThread &thread, QObject *parent = nullptr);
 

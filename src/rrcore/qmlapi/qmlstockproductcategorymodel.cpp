@@ -207,11 +207,11 @@ void QMLStockProductCategoryModel::processResult(const QueryResult result)
             m_categories = Utility::StockProductCategoryList{ result.outcome().toMap().value("categories").toList() };
             endResetModel();
 
-            emit success(ViewCategoriesSuccess);
+            emit success(ModelResult{ ViewCategoriesSuccess });
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
             const Utility::StockProductCategory &category{ result.outcome().toMap() };
             updateCategory(category);
-            emit success(UnarchiveProductSuccess);
+            emit success(ModelResult{ UnarchiveProductSuccess });
         } else {
             emit success();
         }

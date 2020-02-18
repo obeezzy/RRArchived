@@ -49,6 +49,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::SoldProduct, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::SoldProduct, Q_PRIMITIVE_TYPE);
 
 #endif // SOLDPRODUCT_H

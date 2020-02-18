@@ -40,6 +40,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::StockReportTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::StockReportTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // STOCKREPORTTRANSACTION_H

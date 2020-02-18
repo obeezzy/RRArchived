@@ -43,7 +43,7 @@ QueryResult AddUser::execute()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &e) {
+    } catch (const DatabaseException &e) {
         DatabaseUtils::rollbackTransaction(q);
 
         const QString &userName = request().params().value("user").toString();

@@ -6,6 +6,7 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/queryexecutor.h"
+#include "models/modelresult.h"
 
 class DatabaseThread;
 class QueryResult;
@@ -29,8 +30,8 @@ protected:
     const QueryRequest &lastSuccessfulRequest() const;
 signals:
     void busyChanged();
-    void success(int successCode = 0);
-    void error(int errorCode = 0);
+    void success(ModelResult result = ModelResult());
+    void error(ModelResult result = ModelResult());
     void execute(QueryExecutor *);
 private:
     bool m_busy;
@@ -39,6 +40,6 @@ private:
     void saveRequest(const QueryResult &result);
 };
 
-Q_DECLARE_LOGGING_CATEGORY(abstractPusher);
+Q_DECLARE_LOGGING_CATEGORY(lcabstractpusher);
 
 #endif // ABSTRACTPUSHER_H

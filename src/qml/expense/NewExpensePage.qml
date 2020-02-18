@@ -190,7 +190,7 @@ RRUi.Page {
                                                                                                     : RRModels.ExpensePusher.Cash
 
                         onSuccess: {
-                            switch (successCode) {
+                            switch (result.code) {
                             case RRModels.ExpensePusher.AddExpenseSuccess:
                                 newExpensePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your entry was successfully added!"));
                                 transitionView.trigger();
@@ -202,7 +202,7 @@ RRUi.Page {
                             }
                         }
                         onError: {
-                            switch (errorCode) {
+                            switch (result.code) {
                             case RRModels.ExpensePusher.AddExpenseError:
                                 failureAlertDialogLoader.message = qsTr("Failed to add expense.");
                                 break;

@@ -13,8 +13,8 @@ RRUi.DataTableView {
     property alias busy: saleReportModel.busy
     property alias autoQuery: saleReportModel.autoQuery
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function refresh() { saleReportModel.refresh(); }
 
@@ -23,8 +23,8 @@ RRUi.DataTableView {
     model: RRModels.SaleReportModel {
         id: saleReportModel
         tableViewWidth: saleReportTableView.widthWithoutMargins
-        onSuccess: saleReportTableView.success(successCode);
-        onError: saleReportTableView.error(errorCode);
+        onSuccess: saleReportTableView.success(result);
+        onError: saleReportTableView.error(result);
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {

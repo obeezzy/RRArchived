@@ -278,33 +278,33 @@ void QMLDebtTransactionModel::processResult(const QueryResult result)
 
             endResetModel();
 
-            emit success(ViewDebtorTransactionsSuccess);
+            emit success(ModelResult{ ViewDebtorTransactionsSuccess });
         } else if (result.request().command() == DebtorQuery::AddDebtor::COMMAND) {
             clearAll();
-            emit success(AddDebtorSuccess);
+            emit success(ModelResult{ AddDebtorSuccess });
         } else if (result.request().command() == DebtorQuery::AddDebtor::UNDO_COMMAND) {
             clearAll();
-            emit success(UndoAddDebtorSuccess);
+            emit success(ModelResult{ UndoAddDebtorSuccess });
         } else if (result.request().command() == DebtorQuery::UpdateDebtor::COMMAND) {
             clearAll();
-            emit success(UpdateDebtorSuccess);
+            emit success(ModelResult{ UpdateDebtorSuccess });
         } else {
             clearAll();
-            emit success(UnknownSuccess);
+            emit success();
         }
     } else {
         switch (result.errorCode()) {
         case int(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
-            emit error(DuplicateEntryError);
+            emit error(ModelResult{ DuplicateEntryError });
             break;
         case int(DatabaseError::QueryErrorCode::AmountOverpaid):
-            emit error(AmountOverpaidError);
+            emit error(ModelResult{ AmountOverpaidError });
             break;
         case int(DatabaseError::QueryErrorCode::InvalidDueDate):
-            emit error(InvalidDueDateError);
+            emit error(ModelResult{ InvalidDueDateError });
             break;
         default:
-            emit error(UnknownError);
+            emit error();
             break;
         }
     }
@@ -351,16 +351,16 @@ bool QMLDebtTransactionModel::paymentsDueDateValid() const
 bool QMLDebtTransactionModel::submit()
 {
     if (m_debtor.client.phoneNumber.trimmed().isEmpty()) {
-        emit error(NoPhoneNumberError);
+        emit error(ModelResult{ NoPhoneNumberError });
         return false;
     } else if (m_debtor.client.preferredName.trimmed().isEmpty()) {
-        emit error(NoPreferredNameError);
+        emit error(ModelResult{ NoPreferredNameError });
         return false;
     } else if (!m_dirty && !paymentsDirty()) {
-        emit error(DataUnchangedError);
+        emit error(ModelResult{ DataUnchangedError });
         return false;
     } else if (!paymentsDueDateValid()) {
-        emit error(InvalidDueDateError);
+        emit error(ModelResult{ InvalidDueDateError });
         return false;
     } else {
         setBusy(true);

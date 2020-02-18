@@ -224,16 +224,16 @@ void QMLStockProductPusher::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == StockQuery::AddStockProduct::COMMAND)
-            emit success(AddProductSuccess);
+            emit success(ModelResult{ AddProductSuccess });
         else if (result.request().command() == StockQuery::UpdateStockProduct::COMMAND)
-            emit success(UpdateProductSuccess);
+            emit success(ModelResult{ UpdateProductSuccess });
     } else {
         switch (result.errorCode()) {
         case static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException):
-            emit error(DuplicateEntryError);
+            emit error(ModelResult{ DuplicateEntryError });
             break;
         case static_cast<int>(DatabaseError::QueryErrorCode::ImageTooLarge):
-            emit error(ImageTooLargeError);
+            emit error(ModelResult{ ImageTooLargeError });
             break;
         default:
             emit error();

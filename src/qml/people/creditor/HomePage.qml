@@ -93,9 +93,10 @@ RRUi.Page {
                     filterColumn: RRModels.CreditorModel.PreferredNameColumn
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.CreditorModel.RemoveCreditorSuccess:
-                            homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Creditor removed"), qsTr("Undo"));
+                            homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Creditor removed"),
+                                                                                 qsTr("Undo"));
                             break;
                         case RRModels.CreditorModel.UndoRemoveCreditorSuccess:
                             homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successful"));

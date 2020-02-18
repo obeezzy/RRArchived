@@ -172,10 +172,10 @@ void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
             m_products = Utility::PurchasedProductList{ result.outcome().toMap().value("products").toList() };
             endResetModel();
 
-            emit success(ViewPurchaseTransactionItemsSuccess);
+            emit success();
         }
     } else {
-        emit error(UnknownError);
+        emit error();
     }
 }
 

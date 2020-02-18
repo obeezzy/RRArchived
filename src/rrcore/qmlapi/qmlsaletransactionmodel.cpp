@@ -163,11 +163,11 @@ void QMLSaleTransactionModel::processResult(const QueryResult result)
             m_transactions = Utility::SaleTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
 
-            emit success(ViewTransactionSuccess);
+            emit success(ModelResult{ ViewTransactionSuccess });
         } else {
-            emit success(UnknownSuccess);
+            emit success();
         }
     } else {
-        emit error(UnknownError);
+        emit error();
     }
 }

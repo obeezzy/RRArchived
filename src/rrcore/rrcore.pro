@@ -13,11 +13,13 @@ INCLUDEPATH += .
 SOURCES += \
     database/exceptions/amountoverpaidexception.cpp \
     database/exceptions/argumentmismatchexception.cpp \
+    database/exceptions/connectionfailedexception.cpp \
     database/exceptions/duplicateentryexception.cpp \
     database/exceptions/failedtocreateuserexception.cpp \
-    database/exceptions/incorrectcredentialsexception.cpp \
+    database/exceptions/imagetoolargeexception.cpp \
     database/exceptions/incorrectpasswordexception.cpp \
     database/exceptions/invalidargumentexception.cpp \
+    database/exceptions/invalidcredentialsexception.cpp \
     database/exceptions/invalidduedateexception.cpp \
     database/exceptions/missingargumentexception.cpp \
     database/exceptions/missingimplementationexception.cpp \
@@ -211,18 +213,21 @@ SOURCES += \
     qmlapi/qmlsalereportmodel.cpp \
     qmlapi/qmlpurchasereportmodel.cpp \
     qmlapi/qmlexpensereportmodel.cpp \
-    qmlapi/qmlincomereportmodel.cpp
+    qmlapi/qmlincomereportmodel.cpp \
+    models/modelresult.cpp
 
 HEADERS += \
     database/databaseerror.h \
     database/exceptions/amountoverpaidexception.h \
     database/exceptions/argumentmismatchexception.h \
+    database/exceptions/connectionfailedexception.h \
     database/exceptions/duplicateentryexception.h \
     database/exceptions/exceptions.h \
     database/exceptions/failedtocreateuserexception.h \
-    database/exceptions/incorrectcredentialsexception.h \
+    database/exceptions/imagetoolargeexception.h \
     database/exceptions/incorrectpasswordexception.h \
     database/exceptions/invalidargumentexception.h \
+    database/exceptions/invalidcredentialsexception.h \
     database/exceptions/invalidduedateexception.h \
     database/exceptions/missingargumentexception.h \
     database/exceptions/missingimplementationexception.h \
@@ -437,6 +442,7 @@ HEADERS += \
     qmlapi/qmlsalereportmodel.h \
     qmlapi/qmlpurchasereportmodel.h \
     qmlapi/qmlexpensereportmodel.h \
-    qmlapi/qmlincomereportmodel.h
+    qmlapi/qmlincomereportmodel.h \
+    models/modelresult.h
 
 DISTFILES +=

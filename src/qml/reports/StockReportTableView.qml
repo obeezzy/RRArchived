@@ -13,16 +13,16 @@ RRUi.DataTableView {
     property alias busy: stockReportModel.busy
     property alias autoQuery: stockReportModel.autoQuery
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function refresh() { stockReportModel.refresh(); }
 
     model: RRModels.StockReportModel {
         id: stockReportModel
         tableViewWidth: stockReportTableView.widthWithoutMargins
-        onSuccess: stockReportTableView.success(successCode);
-        onError: stockReportTableView.error(errorCode);
+        onSuccess: stockReportTableView.success(result);
+        onError: stockReportTableView.error(result);
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {

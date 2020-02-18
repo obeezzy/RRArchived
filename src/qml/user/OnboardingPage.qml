@@ -144,7 +144,7 @@ RRUi.Page {
         id: userProfile
 
         onSuccess: {
-            switch (successCode) {
+            switch (result.code) {
             case RR.UserProfile.LinkBusinessStoreSuccess:
                 busyOverlay.text = qsTr("Building database...");
                 databaseCreator.start();

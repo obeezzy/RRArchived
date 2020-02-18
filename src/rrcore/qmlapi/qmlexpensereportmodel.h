@@ -13,10 +13,6 @@ public:
         AmountRole
     };
 
-    enum SuccessCode {
-        ViewExpenseReportSuccess
-    }; Q_ENUM(SuccessCode)
-
     enum Columns {
         PurposeColumn,
         AmountColumn,

@@ -136,7 +136,7 @@ void QMLStockReportModel::processResult(const QueryResult result)
             beginResetModel();
             m_transactions = Utility::StockReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
-            emit success(ViewStockReportSuccess);
+            emit success();
         }
     } else {
         emit error();

@@ -94,9 +94,9 @@ void QMLUserProfile::signIn(const QString &userName,
 {
     qCInfo(lcqmluserprofile) << "signIn" << userName << password;
     if (userName.trimmed().isEmpty()) {
-        emit error(NoUserNameProvided);
+        emit error(ModelResult{ NoUserNameProvided });
     } else if (password.isEmpty()) {
-        emit error(NoPasswordProvided);
+        emit error(ModelResult{ NoPasswordProvided });
     } else {
         setBusy(true);
         emit execute(new UserQuery::SignInUser(Utility::User {
@@ -118,9 +118,9 @@ void QMLUserProfile::signUp(const QString &userName,
 {
     qCInfo(lcqmluserprofile) << "signUp" << userName << password;
     if (userName.trimmed().isEmpty()) {
-        emit error(NoUserNameProvided);
+        emit error(ModelResult{ NoUserNameProvided });
     } else if (password.isEmpty()) {
-        emit error(NoPasswordProvided);
+        emit error(ModelResult{ NoPasswordProvided });
     } else {
         setBusy(true);
         emit execute(new UserQuery::SignUpUser(Utility::User {
@@ -142,9 +142,9 @@ void QMLUserProfile::linkAccount(const QString &emailAddress,
 {
     qCInfo(lcqmluserprofile) << "linkAccount" << emailAddress << password;
     if (emailAddress.trimmed().isEmpty()) {
-        emit error(NoEmailAddressProvided);
+        emit error(ModelResult{ NoEmailAddressProvided });
     } else if (password.isEmpty()) {
-        emit error(NoPasswordProvided);
+        emit error(ModelResult{ NoPasswordProvided });
     } else {
         setBusy(true);
 
@@ -176,7 +176,7 @@ void QMLUserProfile::linkBusinessStore()
 void QMLUserProfile::changePassword(const QString &oldPassword, const QString &newPassword)
 {
     if (oldPassword.isEmpty() || newPassword.isEmpty()) {
-        emit error(IncorrectCredentials);
+        emit error(ModelResult{ IncorrectCredentials });
         return;
     }
 
@@ -203,27 +203,26 @@ void QMLUserProfile::processResult(const QueryResult &result)
                 || result.request().command() == UserQuery::SignUpUser::COMMAND) {
             const Utility::User &user{ result.outcome().toMap() };
             UserProfile::instance().setUser(user);
-            emit success(SignInSuccess);
+            emit success(ModelResult{ SignInSuccess });
         } else if (result.request().command() == UserQuery::SignOutUser::COMMAND) {
             UserProfile::instance().clearUser();
-            emit success(SignOutSuccess);
+            emit success(ModelResult{ SignOutSuccess });
         } else if (result.request().command() == UserQuery::ChangePassword::COMMAND) {
             UserProfile::instance().setDatabaseReady(true);
-            emit success(ChangePasswordSuccess);
+            emit success(ModelResult{ ChangePasswordSuccess });
         } else {
-            emit success(UnknownSuccess);
+            emit success();
         }
     } else {
         switch (result.errorCode()) {
         case DatabaseError::asInteger(DatabaseError::QueryErrorCode::UserAccountIsLocked):
-            emit error(UserAccountIsLockedError);
+            emit error(ModelResult{ UserAccountIsLockedError });
             break;
-        case DatabaseError::asInteger(DatabaseError::QueryErrorCode::SignInFailure):
-            emit error(IncorrectCredentials);
+        case DatabaseError::asInteger(DatabaseError::QueryErrorCode::InvalidCredentialsError):
+            emit error(ModelResult{ IncorrectCredentials });
             break;
         default:
-            emit error(UnknownError);
-            break;
+            emit error();
         }
     }
 }
@@ -238,7 +237,7 @@ void QMLUserProfile::processServerResponse(const ServerResponse &response)
         if (response.request().action() == QStringLiteral("link_account")) {
             UserProfile::instance()
                     .businessAdmin()->extractFromVariantMap(response.data().value("business_admin").toMap());
-            emit success(LinkAccountSuccess);
+            emit success(ModelResult{ LinkAccountSuccess });
         } else if (response.request().action() == QStringLiteral("link_business_store")) {
             const BusinessStore &businessStore(BusinessStore::fromVariantMap(response.data()
                                                                              .value("business_store").toMap()));
@@ -247,25 +246,25 @@ void QMLUserProfile::processServerResponse(const ServerResponse &response)
             UserProfile::instance().setRackId(businessStore.rackId());
             UserProfile::instance().businessDetails()->extractFromBusinessStore(businessStore);
             UserProfile::instance().businessAdmin()->setPassword(QString()); // Clear password from memory
-            emit success(LinkBusinessStoreSuccess);
+            emit success(ModelResult{ LinkBusinessStoreSuccess });
         }
     } else {
         if (!response.hasError()) {
             switch (response.statusCode()) {
             case NetworkError::asInteger(NetworkError::StatusCode::ConnectionRefusedError):
-                emit error(ConnectionRefusedError);
+                emit error(ModelResult{ ConnectionRefusedError });
                 break;
             default:
-                emit error(UnknownError);
+                emit error();
                 break;
             }
         } else {
             switch (response.errorCode()) {
-            case NetworkError::asInteger(NetworkError::ServerErrorCode::InvalidCredentialsError):
-                emit error(IncorrectCredentials);
+            case NetworkError::asInteger(NetworkError::ServerErrorCode::IncorrectCredentialsError):
+                emit error(ModelResult{ IncorrectCredentials });
                 break;
             default:
-                emit error(UnknownError);
+                emit error();
                 break;
             }
         }

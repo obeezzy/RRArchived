@@ -104,26 +104,22 @@ RRUi.Page {
         id: userProfile
         onSuccess: loginPage.loggedIn();
         onError: {
-            switch (errorCode) {
+            switch (result.code) {
             case RR.UserProfile.NoUserNameProvided:
                 errorDialog.show(qsTr("The user name field cannot be empty."),
-                                            qsTr("Failed to sign in"),
-                                            errorCode);
+                                 qsTr("Failed to sign in"));
                 break;
             case RR.UserProfile.IncorrectCredentials:
                 errorDialog.show(qsTr("Your user name or password is incorrect."),
-                                            qsTr("Failed to sign in"),
-                                            errorCode);
+                                 qsTr("Failed to sign in"));
                 break;
             case RR.UserProfile.UserAccountIsLockedError:
                 errorDialog.show(qsTr("This account has been locked. Please contact the administrator."),
-                                            qsTr("Failed to sign in"),
-                                            errorCode);
+                                 qsTr("Failed to sign in"));
                 break;
             default:
                 errorDialog.show(qsTr("The cause of the error could not be determined."),
-                                            qsTr("Failed to sign in"),
-                                            errorCode);
+                                 qsTr("Failed to sign in"));
                 break;
             }
         }

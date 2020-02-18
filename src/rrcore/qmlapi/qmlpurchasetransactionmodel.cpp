@@ -159,25 +159,25 @@ void QMLPurchaseTransactionModel::processResult(const QueryResult result)
             m_transactions = Utility::PurchaseTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
 
-            emit success(ViewTransactionSuccess);
+            emit success(ModelResult{ ViewTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::COMMAND) {
             Utility::PurchaseTransaction transaction{ result.request().params() };
             removeTransactionFromModel(transaction);
-            emit success(RemoveTransactionSuccess);
+            emit success(ModelResult{ RemoveTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::UNDO_COMMAND) {
             Utility::PurchaseTransaction transaction{ result.request().params() };
             undoRemoveTransactionFromModel(transaction);
-            emit success(UndoRemoveTransactionSuccess);
+            emit success(ModelResult{ UndoRemoveTransactionSuccess });
         } else {
-            emit success(UnknownSuccess);
+            emit success();
         }
     } else {
         if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::COMMAND) {
-            emit error(RemoveTransactionError);
+            emit error(ModelResult{ RemoveTransactionError });
         } else if (result.request().command() == PurchaseQuery::RemovePurchaseTransaction::UNDO_COMMAND) {
-            emit error(UndoRemoveTransactionError);
+            emit error(ModelResult{ UndoRemoveTransactionError });
         } else {
-            emit error(UnknownError);
+            emit error();
         }
     }
 }

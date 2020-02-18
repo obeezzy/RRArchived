@@ -58,7 +58,7 @@ void NetworkWorker::execute(const QueryRequest request)
                                    response.errorMessage(),
                                    networkReply->error(),
                                    networkReply->errorString());
-    } catch (NetworkException &e) {
+    } catch (const NetworkException &e) {
         response.setErrorCode(e.code());
         response.setErrorMessage(e.message());
         response.setStatusCode(e.statusCode());
@@ -102,7 +102,7 @@ void NetworkWorker::execute(const ServerRequest request)
                                    response.errorMessage(),
                                    networkReply->error(),
                                    networkReply->errorString());
-    } catch (NetworkException &e) {
+    } catch (const NetworkException &e) {
         response.setErrorCode(e.code());
         response.setErrorMessage(e.message());
         response.setStatusCode(e.statusCode());
@@ -194,7 +194,7 @@ void NetworkWorker::flushLoggedRequests()
 
             m_requestLogger->pop();
         }
-    } catch (NetworkException &e) {
+    } catch (const NetworkException &e) {
         qCWarning(networkThread) << "Exception caught while flushing backup:" << e.message() << e.statusMessage();
         throw;
     }

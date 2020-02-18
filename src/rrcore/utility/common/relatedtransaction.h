@@ -15,5 +15,6 @@ struct RelatedTransaction {
     QString toString() const;
 };
 }
+Q_DECLARE_TYPEINFO(Utility::RelatedTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // RELATEDTRANSACTION_H

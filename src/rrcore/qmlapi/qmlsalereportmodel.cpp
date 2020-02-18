@@ -120,7 +120,7 @@ void QMLSaleReportModel::processResult(const QueryResult result)
             beginResetModel();
             m_transactions = Utility::SaleReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
-            emit success(ViewSalesReportSuccess);
+            emit success();
         } else {
             emit error();
         }

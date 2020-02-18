@@ -166,9 +166,9 @@ RRUi.Page {
                     }
                     onError: {
                         if (!paymentWizard.opened) {
-                            switch (errorCode) {
+                            switch (result.code) {
                             default:
-                                errorDialog.show(qsTr("An unknown error has occurred."),
+                                errorDialog.show(result.extra,
                                                  qsTr("Failed to save transaction"));
                                 break;
                             }

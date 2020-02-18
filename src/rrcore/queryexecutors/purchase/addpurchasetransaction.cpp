@@ -69,7 +69,7 @@ QueryResult AddPurchaseTransaction::undoAddPurchaseTransaction()
 
         result.setOutcome(params);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

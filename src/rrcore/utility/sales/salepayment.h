@@ -32,6 +32,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::SalePayment, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::SalePayment, Q_PRIMITIVE_TYPE);
 
 #endif // SALEPAYMENT_H

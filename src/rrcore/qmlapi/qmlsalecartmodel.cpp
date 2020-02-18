@@ -249,8 +249,8 @@ void QMLSaleCartModel::removePayment(int index)
 
 void QMLSaleCartModel::submitTransaction(const QVariantMap &transactionInfo)
 {
-    if (m_transaction.balance != 0.0 && transactionInfo.value("due_date").isNull())
-        emit error(NoDueDateSetError);
+    if (m_transaction.balance != 0.0 && transactionInfo.value("due_date_time").isNull())
+        emit error(ModelResult{ NoDueDateSetError });
     else
         addTransaction(transactionInfo);
 }
@@ -308,7 +308,7 @@ void QMLSaleCartModel::addTransaction(const QVariantMap &transaction)
         m_transaction.note.note = transaction.value("note").toString();
         emit execute(new SaleQuery::AddSaleTransaction(m_transaction, this));
     } else {
-        emit error(EmptyCartError);
+        emit error(ModelResult{ EmptyCartError });
     }
 }
 
@@ -321,7 +321,7 @@ void QMLSaleCartModel::updateSuspendedTransaction(const QVariantMap &addOns)
                          m_transaction,
                          this));
     } else {
-        emit error(EmptyCartError);
+        emit error(ModelResult{ EmptyCartError });
     }
 }
 
@@ -365,48 +365,48 @@ void QMLSaleCartModel::processResult(const QueryResult result)
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-                emit success(SuspendTransactionSuccess);
+                emit success(ModelResult{ SuspendTransactionSuccess });
             } else {
                 setTransactionId(-1);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-                emit success(SubmitTransactionSuccess);
+                emit success(ModelResult{ SubmitTransactionSuccess });
             }
         } else if (result.request().command() == SaleQuery::AddSaleTransaction::UNDO_COMMAND) {
             setTransactionId(-1);
             setCustomerName(QString());
             setCustomerPhoneNumber(QString());
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
-            emit success(UndoSubmitTransactionSuccess);
+            emit success(ModelResult{ UndoSubmitTransactionSuccess });
         } else if (result.request().command() == SaleQuery::ViewSaleCart::COMMAND) {
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
-            emit success(RetrieveTransactionSuccess);
+            emit success(ModelResult{ RetrieveTransactionSuccess });
         } else if (result.request().command() == SaleQuery::UpdateSuspendedSaleTransaction::COMMAND) {
             setTransactionId(-1);
             setClientId(result.outcome().toMap().value("client_id", -1).toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
-            emit success(SuspendTransactionSuccess);
+            emit success(ModelResult{ SuspendTransactionSuccess });
         } else {
-            emit success(UnknownSuccess);
+            emit success();
         }
     } else {
         if (result.request().command() == SaleQuery::AddSaleTransaction::COMMAND) {
             if (result.request().params().value("suspended").toBool())
-                emit error(SuspendTransactionError);
+                emit error(ModelResult{ SuspendTransactionError });
             else
-                emit error(SubmitTransactionError);
+                emit error(ModelResult{ SubmitTransactionError });
         } else if (result.request().command() == SaleQuery::AddSaleTransaction::UNDO_COMMAND) {
-            emit error(UndoSubmitTransactionError);
+            emit error(ModelResult{ UndoSubmitTransactionError });
         } else if (result.request().command() == SaleQuery::ViewSaleCart::COMMAND) {
-            emit error(RetrieveTransactionError);
+            emit error(ModelResult{ RetrieveTransactionError });
         } else if (result.request().command() == SaleQuery::UpdateSuspendedSaleTransaction::COMMAND) {
-            emit error(SuspendTransactionError);
+            emit error(ModelResult{ SuspendTransactionError });
         } else {
-            emit error(UnknownError);
+            emit error();
         }
     }
 

@@ -67,12 +67,14 @@ RRUi.Page {
     Connections {
         target: businessDetailPage.userProfile
         onError: {
-            switch (errorCode) {
+            switch (result.code) {
             case RR.UserProfile.ConnectionRefusedError:
-                errorDialog.show(qsTr("Unable to connect to the server. Check your internet connection and try again."), qsTr("Error"));
+                errorDialog.show(qsTr("Unable to connect to the server. Check your internet connection and try again."),
+                                 qsTr("Error"));
                 break;
             default:
-                errorDialog.show(qsTr("An unknown error occurred."), qsTr("Error"));
+                errorDialog.show(qsTr("An unknown error occurred."),
+                                 qsTr("Error"));
                 break;
             }
         }

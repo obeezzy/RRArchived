@@ -6,6 +6,7 @@
 #include "database/queryexecutor.h"
 #include "utility/common/filtercriteria.h"
 #include "utility/common/sortcriteria.h"
+#include "models/modelresult.h"
 #include <QAbstractTableModel>
 #include <QQmlParserStatus>
 #include <QVariant>
@@ -81,8 +82,8 @@ signals:
 
     void tableViewWidthChanged();
 
-    void success(int successCode = -1);
-    void error(int errorCode = -1);
+    void success(ModelResult result = ModelResult());
+    void error(ModelResult result = ModelResult());
 private:
     bool m_autoQuery {true};
     bool m_busy {false};

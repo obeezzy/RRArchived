@@ -44,7 +44,7 @@ QueryResult FetchUser::execute()
                           });
 
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

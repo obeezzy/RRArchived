@@ -21,4 +21,6 @@ struct FilterCriteria {
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::FilterCriteria, Q_PRIMITIVE_TYPE);
+
 #endif // FILTERCRITERIA_H

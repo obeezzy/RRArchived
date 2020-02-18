@@ -13,9 +13,11 @@
 #include "database/exceptions/userpreviouslyarchivedexception.h"
 #include "database/exceptions/failedtocreateuserexception.h"
 #include "database/exceptions/incorrectpasswordexception.h"
-#include "database/exceptions/incorrectcredentialsexception.h"
+#include "database/exceptions/invalidcredentialsexception.h"
 #include "database/exceptions/useraccountlockedexception.h"
 #include "database/exceptions/sqlstatementfailedexception.h"
 #include "database/exceptions/procedurecallfailedexception.h"
+#include "database/exceptions/imagetoolargeexception.h"
+#include "database/exceptions/connectionfailedexception.h"
 
 #endif // EXCEPTIONS_H

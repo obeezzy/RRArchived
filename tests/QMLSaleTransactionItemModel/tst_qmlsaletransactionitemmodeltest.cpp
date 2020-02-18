@@ -94,8 +94,7 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
     m_saleTransactionItemModel->setTransactionId(1);
     QCOMPARE(transactionIdChangedSpy.count(), 1);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLSaleTransactionItemModel::SuccessCode>(),
-             QMLSaleTransactionItemModel::ViewSaleTransactionItemsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().toInt(), -1);
     QCOMPARE(m_saleTransactionItemModel->rowCount(), 1);
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::PurchasedProductIdRole).toInt(), 1);
     QCOMPARE(m_saleTransactionItemModel->index(0, 0).data(QMLSaleTransactionItemModel::CategoryIdRole).toInt(), 1);

@@ -20,13 +20,8 @@ public:
     }; Q_ENUM(FilterColumn)
 
     enum SuccessCode {
-        UnknownSuccess,
         ViewClientsSuccess
     }; Q_ENUM(SuccessCode)
-
-    enum ErrorCode {
-        UnknownError
-    }; Q_ENUM(ErrorCode)
 
     explicit QMLClientModel(QObject *parent = nullptr);
     explicit QMLClientModel(DatabaseThread &thread, QObject *parent = nullptr);

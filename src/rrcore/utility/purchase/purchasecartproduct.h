@@ -82,5 +82,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::PurchaseCartProduct, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASECARTPRODUCT_H

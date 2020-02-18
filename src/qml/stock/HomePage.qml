@@ -146,7 +146,7 @@ RRUi.Page {
             }
 
             onSuccess: {
-                switch (successCode) {
+                switch (result.code) {
                 case RRModels.StockProductModel.RemoveProductSuccess:
                     MainWindow.snackBar.show(qsTr("Product removed successfully."), qsTr("Undo"));
                     break;

@@ -97,7 +97,7 @@ void QMLExpensePusher::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == ExpenseQuery::AddExpenseTransaction::COMMAND)
-            emit success(AddExpenseSuccess);
+            emit success(ModelResult{ AddExpenseSuccess });
     } else {
         emit error();
     }

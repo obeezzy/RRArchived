@@ -14,5 +14,6 @@ struct Customer {
                       const Client &client);
 };
 }
+Q_DECLARE_TYPEINFO(Utility::Customer, Q_PRIMITIVE_TYPE);
 
 #endif // CUSTOMER_H

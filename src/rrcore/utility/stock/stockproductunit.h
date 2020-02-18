@@ -19,5 +19,6 @@ struct StockProductUnit
                               qreal baseUnitEquivalent);
 };
 }
+Q_DECLARE_TYPEINFO(Utility::StockProductUnit, Q_PRIMITIVE_TYPE);
 
 #endif // STOCKPRODUCTUNIT_H

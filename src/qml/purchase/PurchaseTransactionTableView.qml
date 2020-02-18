@@ -17,8 +17,8 @@ RRUi.DataTableView {
     property date from: new Date()
     property date to: new Date()
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function refresh() { purchaseTransactionModel.refresh(); }
     function undoLastCommit() { purchaseTransactionModel.undoLastCommit(); }
@@ -47,8 +47,8 @@ RRUi.DataTableView {
         keys: purchaseTransactionTableView.keys
         from: purchaseTransactionTableView.from
         to: purchaseTransactionTableView.to
-        onSuccess: purchaseTransactionTableView.success(successCode);
-        onError: purchaseTransactionTableView.error(errorCode);
+        onSuccess: purchaseTransactionTableView.success(result);
+        onError: purchaseTransactionTableView.error(result);
     }
 
 
