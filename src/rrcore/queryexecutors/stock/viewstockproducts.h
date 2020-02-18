@@ -2,7 +2,10 @@
 #define VIEWSTOCKPRODUCTS_H
 
 #include "stockexecutor.h"
-#include "utility/commonutils.h"
+
+namespace Utility {
+class SortCriteria;
+}
 
 namespace StockQuery {
 class ViewStockProducts : public StockExecutor

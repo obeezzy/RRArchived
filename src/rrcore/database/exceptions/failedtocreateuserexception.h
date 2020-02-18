@@ -6,7 +6,8 @@
 class FailedToCreateUserException : public DatabaseException
 {
 public:
-    explicit FailedToCreateUserException(const QString &message = QString());
+    explicit FailedToCreateUserException(const QString &message,
+                                         const QSqlError &error);
     QString toString() const override;
 };
 

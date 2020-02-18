@@ -1,5 +1,6 @@
 #include "filterstockcategoriesbyproduct.h"
 #include "database/databaseexception.h"
+#include "utility/commonutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -23,6 +24,7 @@ QueryResult StockQuery::FilterStockProductCategoriesByProduct::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
+
     const QVariantMap &params(request().params());
 
     try {

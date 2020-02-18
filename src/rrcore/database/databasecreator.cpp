@@ -1,4 +1,11 @@
 #include "databasecreator.h"
+#include "database/databaseexception.h"
+#include "config/config.h"
+#include "schema/schema.h"
+#include "user/userprofile.h"
+#include "user/businessdetails.h"
+#include "database/exceptions/exceptions.h"
+#include "queryexecutor.h"
 #include <QString>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -14,15 +21,9 @@
 #include <QSettings>
 #include <QByteArray>
 
-#include "database/databaseexception.h"
-#include "database/databaseutils.h"
-#include "config/config.h"
-#include "schema/schema.h"
-#include "user/userprofile.h"
-#include "user/businessdetails.h"
-
 Q_LOGGING_CATEGORY(lcdatabasecreator, "rrcore.database.databasecreator");
 
+const int MAX_FILE_SIZE {1024 * 50};
 const QString CONNECTION_NAME("databasecreator");
 
 const QString PROCEDURE_SEPARATOR("---");
@@ -60,27 +61,22 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
     QFile file(fileName);
     if (QFileInfo(fileName).suffix() != QStringLiteral("sql"))
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
-                                QString("File '%1' is not a sql file").arg(fileName));
+        throw DatabaseInitializationFailedException(QStringLiteral("File '%1' is not a sql file").arg(fileName));
     if (QFileInfo(fileName).size() > 1024 * 50)
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
-                                QString("File '%1' is too large (larger than 50MB).").arg(fileName));
+        throw DatabaseInitializationFailedException(QStringLiteral("File '%1' is too large (larger than 50MB).").arg(fileName));
     if (!file.open(QFile::ReadOnly))
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
-                                QString("Failed to open '%1'").arg(fileName));
+        throw DatabaseInitializationFailedException(QStringLiteral("Failed to open '%1'").arg(fileName));
 
     QSqlQuery q(m_connection);
     QString sqlData = file.readAll();
 
     if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                q.lastError().text(),
-                                QStringLiteral("Database name cannot be mysql."));
+        throw DatabaseInitializationFailedException(QStringLiteral("Database name cannot be mysql."));
 
     // Inject database name
     sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
 
-    if(m_connection.driver()->hasFeature(QSqlDriver::Transactions)) {
+    if (m_connection.driver()->hasFeature(QSqlDriver::Transactions)) {
         // Replace comments and tabs and new lines with space
         sqlData = sqlData.replace(QRegularExpression(SPACES_AND_TABS_PATTERN,
                                                      QRegularExpression::CaseInsensitiveOption
@@ -98,11 +94,11 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
         // Check if query file is already wrapped with a transaction
         bool isStartedWithTransaction = re_transaction.match(extractedQueries.at(0)).hasMatch();
-        if(!isStartedWithTransaction)
+        if (!isStartedWithTransaction)
             m_connection.transaction();     //<=== not wrapped with a transaction, so we wrap it with a transaction.
 
         //Execute each individual queries
-        for(const QString &s : extractedQueries) {
+        for (const QString &s : extractedQueries) {
             if(re_transaction.match(s).hasMatch())    //<== detecting special query
                 m_connection.transaction();
             else if(re_commit.match(s).hasMatch())    //<== detecting special query
@@ -115,21 +111,22 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
                 }
             }
         }
-        if(!isStartedWithTransaction)
+        if (!isStartedWithTransaction)
             m_connection.commit();          //<== ... completing of wrapping with transaction
 
         //Sql Driver doesn't supports transaction
     } else {
         //...so we need to remove special queries (`begin transaction` and `commit`)
         sqlData = sqlData.replace(QRegularExpression("(\\bbegin.transaction.*;|\\bcommit.*;|\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",
-                                                     QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption), " ");
+                                                     QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption),
+                                  QStringLiteral(" "));
         sqlData = sqlData.trimmed();
 
         //Execute each individual queries
         QStringList extractedQueries = sqlData.split(';', QString::SkipEmptyParts);
         for (const QString &s : extractedQueries) {
             q.exec(s);
-            if(q.lastError().type() != QSqlError::NoError)
+            if (q.lastError().type() != QSqlError::NoError)
                 qCInfo(lcdatabasecreator) << q.lastError().text();
         }
     }
@@ -147,7 +144,7 @@ bool DatabaseCreator::start()
         createProcedures();
         updateBusinessDetails();
     } catch (const DatabaseException &e) {
-        qCCritical(lcdatabasecreator) << "Exception caught:" << e.code() << e.message() << e.userMessage();
+        qCCritical(lcdatabasecreator) << e;
         return false;
     }
 
@@ -161,9 +158,8 @@ void DatabaseCreator::dropDatabase()
               .arg(Config::instance().databaseName()));
 
     if (!q.exec())
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                q.lastError().text(),
-                                QStringLiteral("Failed to drop database!"));
+        throw DatabaseInitializationFailedException(QStringLiteral("Failed to drop database!"),
+                                                    q.lastError());
 }
 
 void DatabaseCreator::initDatabase()
@@ -179,9 +175,7 @@ void DatabaseCreator::createProcedures()
         if (QFileInfo(file).suffix() != QStringLiteral("sql"))
             continue;
         if (!file.open(QFile::ReadOnly))
-            throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                    file.errorString(),
-                                    QStringLiteral("Failed to create procedures!"));
+            throw DatabaseInitializationFailedException(QStringLiteral("Failed to create procedures!"));
 
         executeStoredProcedures(QFileInfo(file).filePath());
     }
@@ -196,12 +190,11 @@ void DatabaseCreator::updateBusinessDetails()
               .arg(UserProfile::instance().businessDetails()->businessFamily())
               .arg(UserProfile::instance().businessDetails()->establishmentYear())
               .arg(UserProfile::instance().businessDetails()->phoneNumber())
-              .arg(QString(DatabaseUtils::imageUrlToByteArray(UserProfile::instance().businessDetails()->logoUrl()))));
+              .arg(QString(QueryExecutor::imageUrlToByteArray(UserProfile::instance().businessDetails()->logoUrl()))));
 
     if (!q.exec())
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                q.lastError().text(),
-                                QStringLiteral("Failed to update business details table!"));
+        throw DatabaseInitializationFailedException(QStringLiteral("Failed to update business details table!"),
+                                                    q.lastError());
 }
 
 void DatabaseCreator::executeStoredProcedures(const QString &fileName)
@@ -211,23 +204,21 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
 
     QFile file(fileName);
     if (QFileInfo(fileName).suffix() != QStringLiteral("sql"))
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
-                                QStringLiteral("File '%1' is not a sql file").arg(fileName));
-    if (QFileInfo(fileName).size() > 1024 * 50)
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
-                                QStringLiteral("File '%1' is too large (larger than 50MB).").arg(fileName));
+        throw DatabaseInitializationFailedException(QStringLiteral("File '%1' is not a sql file")
+                                                    .arg(fileName));
+    if (QFileInfo(fileName).size() > MAX_FILE_SIZE)
+        throw DatabaseInitializationFailedException(QStringLiteral("File '%1' is too large (larger than 50MB).")
+                                                    .arg(fileName));
     if (!file.open(QFile::ReadOnly))
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed, QString(),
-                                QStringLiteral("Failed to open '%1'").arg(fileName));
+        throw DatabaseInitializationFailedException(QStringLiteral("Failed to open '%1'")
+                                                    .arg(fileName));
 
     QSqlQuery q(m_connection);
     file.seek(0);
     QString sqlData = file.readAll();
 
     if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
-        throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                q.lastError().text(),
-                                QStringLiteral("Database name cannot be mysql."));
+        throw DatabaseInitializationFailedException(QStringLiteral("Database name cannot be mysql."));
 
     // Inject database name
     sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
@@ -244,10 +235,7 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
         // Remove waste spaces
         statement = statement.trimmed();
 
-        if (!q.exec(statement)) {
-            qCCritical(lcdatabasecreator) << "Invalid statement:" << statement;
-            throw DatabaseException(DatabaseError::QueryErrorCode::DatabaseInitializationFailed,
-                                    QString("Failed to execute query: %1").arg(statement));
-        }
+        if (!q.exec(statement))
+            throw SqlStatementFailedException(statement, q.lastError());
     }
 }

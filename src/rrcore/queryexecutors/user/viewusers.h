@@ -2,7 +2,7 @@
 #define VIEWUSERS_H
 
 #include "userexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
 
 namespace UserQuery {
 class ViewUsers : public UserExecutor

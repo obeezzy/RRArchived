@@ -1,8 +1,8 @@
 #include "removestockproduct.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "database/exceptions/exceptions.h"
 #include "user/userprofile.h"
+#include "utility/stockutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -43,7 +43,7 @@ QueryResult RemoveStockProduct::removeStockProduct()
     try {
         QueryExecutor::enforceArguments({ "product_id" }, params);
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         callProcedure("ArchiveStockProduct", {
                           ProcedureArgument {
@@ -58,10 +58,10 @@ QueryResult RemoveStockProduct::removeStockProduct()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
@@ -72,13 +72,13 @@ QueryResult RemoveStockProduct::undoRemoveStockProduct()
     result.setSuccessful(true);
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     QSqlQuery q(connection);
 
     try {
         QueryExecutor::enforceArguments({ "product_id" }, params);
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         const auto &records(callProcedure("UndoArchiveStockProduct", {
                                               ProcedureArgument {
@@ -105,10 +105,10 @@ QueryResult RemoveStockProduct::undoRemoveStockProduct()
                               { "row", params.value("row").toInt() }
                           });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

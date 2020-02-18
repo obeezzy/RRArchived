@@ -1,5 +1,4 @@
 #include "adddebtor.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
@@ -62,7 +61,7 @@ QueryResult AddDebtor::addDebtor()
             throw MissingArgumentException(QStringLiteral("No new debt transactions for debtor %1.")
                                            .arg(params.value("preferred_name").toString()));
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         affirmDebtorDoesNotExist(phoneNumber);
         noteId = addNotesForDebtor(params,
@@ -84,10 +83,10 @@ QueryResult AddDebtor::addDebtor()
                               { "debt_transaction_ids", debtTransactionIds }
                           });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
@@ -133,7 +132,7 @@ int AddDebtor::addNotesForDebtor(const QVariantMap &params,
 int AddDebtor::addClient(const QVariantMap &params,
                          int noteId)
 {
-    const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    const QByteArray &imageBlob = QueryExecutor::imageUrlToByteArray(params.value("image_url").toUrl());
     Q_UNUSED(imageBlob)
     const auto &records(callProcedure("AddClient", {
                                           ProcedureArgument {

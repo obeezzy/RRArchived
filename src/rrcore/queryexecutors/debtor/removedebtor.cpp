@@ -2,7 +2,6 @@
 #include "database/databaseerror.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-#include "database/databaseutils.h"
 #include "database/exceptions/exceptions.h"
 #include "utility/debtorutils.h"
 #include <QSqlDatabase>
@@ -48,7 +47,7 @@ QueryResult RemoveDebtor::removeDebtor()
         if (debtorId <= 0)
             throw InvalidArgumentException(QStringLiteral("Debtor ID is invalid."));
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         archiveDebtor();
         archiveDebtTransactions();
@@ -61,10 +60,10 @@ QueryResult RemoveDebtor::removeDebtor()
                               { "row", params.value("row") }
                           });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
@@ -88,7 +87,7 @@ QueryResult RemoveDebtor::undoRemoveDebtor()
         if (debtorId <= 0)
             throw InvalidArgumentException("Debtor ID is invalid.");
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         unarchiveDebtor();
         unarchiveDebtTransactions(debtTransactionIds);
@@ -101,10 +100,10 @@ QueryResult RemoveDebtor::undoRemoveDebtor()
                               { "row", params.value("row") }
                           });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

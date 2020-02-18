@@ -1,6 +1,5 @@
 #include "removeuser.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "utility/userutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -27,7 +26,7 @@ QueryResult RemoveUser::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         callProcedure("RemoveUser", {
                           ProcedureArgument {
@@ -37,10 +36,10 @@ QueryResult RemoveUser::execute()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

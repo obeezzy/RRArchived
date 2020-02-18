@@ -1,6 +1,5 @@
 #include "activateuser.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "utility/userutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -23,12 +22,14 @@ QueryResult ActivateUser::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    const QVariantMap &params = request().params();
+
+    const QVariantMap &params{ request().params() };
+
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         callProcedure("ActivateUser", {
                           ProcedureArgument {
@@ -43,9 +44,9 @@ QueryResult ActivateUser::execute()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
     return result;

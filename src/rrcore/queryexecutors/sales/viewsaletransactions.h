@@ -2,7 +2,11 @@
 #define VIEWSALETRANSACTIONS_H
 
 #include "saleexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
+
+namespace Utility {
+class DateTimeSpan;
+}
 
 namespace SaleQuery {
 class ViewSaleTransactions : public SaleExecutor

@@ -5,31 +5,27 @@
 #include <exception>
 #include <QString>
 #include <QDebug>
+#include <QSqlError>
 
 class DatabaseException : public std::exception
 {
 public:
-    explicit DatabaseException(int errorCode);
     explicit DatabaseException(int errorCode,
                                const QString &message,
-                               const QString &userMessage = "");
-
-    explicit DatabaseException(DatabaseError::QueryErrorCode errorCode);
+                               const QSqlError &error = QSqlError());
     explicit DatabaseException(DatabaseError::QueryErrorCode errorCode,
                                const QString &message,
-                               const QString &userMessage = "");
-
-    explicit DatabaseException(DatabaseError::MySqlErrorCode errorCode);
+                               const QSqlError &error = QSqlError());
     explicit DatabaseException(DatabaseError::MySqlErrorCode errorCode,
                                const QString &message,
-                               const QString &userMessage = "");
+                               const QSqlError &error = QSqlError());
 
     int code() const;
     QString message() const;
-    QString userMessage() const;
+    QSqlError sqlError() const;
     const char *what() const noexcept override final;
 
-    virtual QString toString() const;
+    virtual QString toString() const = 0;
 
     friend QDebug operator<<(QDebug debug,
                              const DatabaseException &databaseException)
@@ -42,10 +38,10 @@ public:
                                  QStringLiteral("\"%1\"")
                                  .arg(databaseException.message()));
         // Surround user message in quotes
-        if (!databaseException.userMessage().trimmed().isEmpty())
-            debugMessage.replace(databaseException.userMessage(),
+        if (!databaseException.sqlError().databaseText().trimmed().isEmpty())
+            debugMessage.replace(databaseException.sqlError().databaseText(),
                      QStringLiteral("\"%1\"")
-                     .arg(databaseException.userMessage()));
+                     .arg(databaseException.sqlError().databaseText()));
 
         debug << debugMessage.toStdString().c_str();
         return debug;
@@ -53,7 +49,7 @@ public:
 private:
     int m_code;
     QString m_message;
-    QString m_userMessage;
+    QSqlError m_sqlError;
 };
 
 #endif // DATABASEEXCEPTION_H

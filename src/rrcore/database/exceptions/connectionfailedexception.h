@@ -3,8 +3,6 @@
 
 #include "database/databaseexception.h"
 
-class QSqlError;
-
 class ConnectionFailedException : public DatabaseException
 {
 public:

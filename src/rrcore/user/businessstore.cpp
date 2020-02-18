@@ -1,7 +1,5 @@
 #include "businessstore.h"
 
-#include "database/databaseutils.h"
-
 BusinessStore::BusinessStore(QObject *parent) :
     QObject(parent),
     m_id(0),
@@ -97,7 +95,7 @@ BusinessStore BusinessStore::fromVariantMap(const QVariantMap &map)
     businessStore.setBusinessFamily(map.value("business_family").toString());
     businessStore.setEstablishmentYear(map.value("establishment_year").toInt());
     businessStore.setPhoneNumber(map.value("phone_number").toString());
-    businessStore.setLogoUrl(DatabaseUtils::byteArrayToImageUrl(map.value("logo").toByteArray()));
+    businessStore.setLogoUrl(map.value("logo_url").toString());
     businessStore.setRackId(map.value("rack_id").toString());
 
     return businessStore;
@@ -111,7 +109,7 @@ QVariantMap BusinessStore::toVariantMap() const
         { "business_family", m_businessFamily },
         { "establishment_year", m_establishmentYear },
         { "phone_number", m_phoneNumber },
-        { "logo", DatabaseUtils::imageUrlToByteArray(m_logoUrl) },
+        { "logo", m_logoUrl },
         { "rack_id", m_rackId }
     };
 }

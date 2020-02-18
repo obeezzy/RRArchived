@@ -2,7 +2,11 @@
 #define FILTERSTOCKPRODUCTS_H
 
 #include "stockexecutor.h"
-#include "utility/commonutils.h"
+
+namespace Utility {
+class FilterCriteria;
+class SortCriteria;
+}
 
 namespace StockQuery {
 class FilterStockProducts : public StockExecutor

@@ -2,7 +2,11 @@
 #define VIEWPURCHASETRANSACTIONS_H
 
 #include "purchaseexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
+
+namespace Utility {
+class DateTimeSpan;
+}
 
 namespace PurchaseQuery {
 class ViewPurchaseTransactions : public PurchaseExecutor

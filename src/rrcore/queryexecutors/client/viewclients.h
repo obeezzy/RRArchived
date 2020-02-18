@@ -2,7 +2,7 @@
 #define VIEWCLIENTS_H
 
 #include "clientexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
 
 namespace ClientQuery {
 class ViewClients : public ClientExecutor

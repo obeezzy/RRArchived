@@ -1,5 +1,4 @@
 #include "addincometransaction.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
@@ -29,7 +28,7 @@ QueryResult IncomeQuery::AddIncomeTransaction::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &note = params.value("note").toString();
     int noteId = 0;
 
@@ -37,7 +36,7 @@ QueryResult IncomeQuery::AddIncomeTransaction::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         noteId = QueryExecutor::addNote(note,
                                         QStringLiteral("income"),
@@ -86,10 +85,10 @@ QueryResult IncomeQuery::AddIncomeTransaction::execute()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

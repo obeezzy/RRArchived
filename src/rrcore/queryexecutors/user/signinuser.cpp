@@ -72,7 +72,6 @@ bool SignInUser::storeProfile(QueryResult &result,
                               { "record_count", 1 }
                           });
     } catch (const DatabaseException &e) {
-        qCWarning(lcsigninuser) << e;
         throw;
     }
 
@@ -85,7 +84,7 @@ void SignInUser::attemptSignIn(QueryResult &result)
     const QString &userName{ request().params().value("user").toString() };
     const QString &password{ request().params().value("password").toString() };
 
-    if (!QSqlDatabase::contains())
+    if (!QSqlDatabase::contains(connectionName()))
         connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
     else
         connection = QSqlDatabase::database(connectionName());
@@ -98,12 +97,11 @@ void SignInUser::attemptSignIn(QueryResult &result)
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection.open() || !storeProfile(result, userName, password)) {
-        qCDebug(lcsigninuser) << "Sign in SQL error code:"
-                              << connection.lastError().nativeErrorCode().toInt();
         if (connection.lastError().nativeErrorCode().toInt()
                 == static_cast<int>(DatabaseError::MySqlErrorCode::UserAccountIsLockedError))
             throw UserAccountLockedException(QStringLiteral("User account for '%1' is locked.")
-                                             .arg(userName));
+                                             .arg(userName),
+                                             connection.lastError());
         else
             throw InvalidCredentialsException(QStringLiteral("Failed to sign in as '%1'.")
                                               .arg(userName),

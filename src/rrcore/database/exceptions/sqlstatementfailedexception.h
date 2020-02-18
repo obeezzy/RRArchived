@@ -6,8 +6,8 @@
 class SqlStatementFailedException : public DatabaseException
 {
 public:
-    explicit SqlStatementFailedException(const QString &message = QString(),
-                                         const QString &databaseText = QString());
+    explicit SqlStatementFailedException(const QString &statement = QString(),
+                                         const QSqlError &error = QSqlError());
     QString toString() const override;
 };
 

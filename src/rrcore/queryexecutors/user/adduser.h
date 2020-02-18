@@ -2,7 +2,6 @@
 #define ADDUSER_H
 
 #include "userexecutor.h"
-#include "utility/userutils.h"
 
 namespace Utility {
 class User;

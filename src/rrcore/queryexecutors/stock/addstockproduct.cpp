@@ -1,6 +1,5 @@
 #include "addstockproduct.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "utility/stockutils.h"
 #include "database/exceptions/exceptions.h"
@@ -46,7 +45,7 @@ QueryResult AddStockProduct::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         productCategoryId = addStockProductCategory();
         productId = addStockProduct(productCategoryId);
@@ -56,9 +55,9 @@ QueryResult AddStockProduct::execute()
         addCurrentProductQuantity(productId,
                                   productUnitId);
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
     return result;
@@ -104,7 +103,7 @@ int AddStockProduct::addStockProductCategory()
 int AddStockProduct::addStockProduct(int productCategoryId)
 {
     const QVariantMap &params{ request().params() };
-    const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    const QByteArray &imageBlob = QueryExecutor::imageUrlToByteArray(params.value("image_url").toUrl());
     const QString &note = params.value("product_note").toString();
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("product"),

@@ -11,17 +11,17 @@ class DatabaseCreator
 public:
     explicit DatabaseCreator(QSqlDatabase connection = QSqlDatabase());
 
-    void executeSqlFile(const QString &fileName); // throws DatabaseException!
+    void executeSqlFile(const QString &fileName);
     bool start();
 private:
     QSqlDatabase m_connection;
 
-    void dropDatabase(); // throw DatabaseException!
-    void initDatabase(); // throws DatabaseException!
-    void createProcedures(); // throws DatabaseException!
-    void updateBusinessDetails(); // throws DatabseException!
+    void dropDatabase();
+    void initDatabase();
+    void createProcedures();
+    void updateBusinessDetails();
 
-    void executeStoredProcedures(const QString &fileName); // throws DatabaseException!
+    void executeStoredProcedures(const QString &fileName);
 };
 
 Q_DECLARE_LOGGING_CATEGORY(lcdatabasecreator);

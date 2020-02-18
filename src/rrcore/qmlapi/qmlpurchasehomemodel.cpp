@@ -1,6 +1,8 @@
 #include "qmlpurchasehomemodel.h"
 #include "database/databasethread.h"
 #include "queryexecutors/purchase.h"
+#include "utility/commonutils.h"
+#include <QDateTime>
 
 QMLPurchaseHomeModel::QMLPurchaseHomeModel(QObject *parent) :
     QMLPurchaseHomeModel(DatabaseThread::instance(), parent)

@@ -1,5 +1,4 @@
 #include "purchaseexecutor.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
@@ -20,7 +19,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &clientPhoneNumber = params.value("client_phone_number").toString().trimmed();
     const qreal balance = params.value("balance").toDouble();
     const bool suspended = params.value("suspended", false).toBool();
@@ -40,7 +39,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
         QueryExecutor::enforceArguments( { "action" }, params);
 
         if (mode == TransactionMode::UseSqlTransaction)
-            DatabaseUtils::beginTransaction(q);
+            QueryExecutor::beginTransaction(q);
 
         if (!clientPhoneNumber.isEmpty() && !suspended) {
             clientId = addClient();
@@ -63,7 +62,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
         }
 
         if (mode == TransactionMode::UseSqlTransaction)
-            DatabaseUtils::commitTransaction(q);
+            QueryExecutor::commitTransaction(q);
 
         result.setOutcome(QVariantMap {
                               { "client_id", clientId },
@@ -72,7 +71,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
         return result;
     } catch (const DatabaseException &) {
         if (mode == TransactionMode::UseSqlTransaction)
-            DatabaseUtils::rollbackTransaction(q);
+            QueryExecutor::rollbackTransaction(q);
 
         throw;
     }
@@ -80,7 +79,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
 
 int PurchaseExecutor::addClient()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &preferredName = params.value("client_preferred_name").toString().trimmed();
     const QString &phoneNumber = params.value("client_phone_number").toString().trimmed();
 
@@ -110,7 +109,7 @@ int PurchaseExecutor::addClient()
 
 int PurchaseExecutor::addVendor(int clientId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &note = params.value("note").toString();
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("sale_transaction"),
@@ -142,7 +141,7 @@ int PurchaseExecutor::addVendor(int clientId)
 
 int PurchaseExecutor::addPurchaseTransactionToDatabase(int clientId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const bool shouldGiveChange = params.value("action").toString() == QStringLiteral("give_change");
     const double balance = shouldGiveChange ? 0.0 : qAbs(params.value("balance").toDouble());
     const QString &note = params.value("note").toString();
@@ -196,7 +195,7 @@ int PurchaseExecutor::addPurchaseTransactionToDatabase(int clientId)
 
 void PurchaseExecutor::addPurchasePayments(int purchaseTransactionId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QVariantList &payments = params.value("payments").toList();
 
     for (const auto &paymentAsVariant : payments) {
@@ -237,7 +236,7 @@ void PurchaseExecutor::addPurchasePayments(int purchaseTransactionId)
 
 void PurchaseExecutor::addPurchasedProducts(int purchaseTransactionId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QVariantList &products = params.value("products").toList();
     const bool suspended = params.value("suspended").toBool();
 

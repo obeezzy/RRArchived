@@ -1,6 +1,5 @@
 #include "updateuserprivileges.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "utility/userutils.h"
 #include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
@@ -30,7 +29,7 @@ QueryResult UpdateUserPrivileges::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         callProcedure("UpdateUserPrivileges", {
                           ProcedureArgument {
@@ -45,15 +44,16 @@ QueryResult UpdateUserPrivileges::execute()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
     } catch (const DatabaseException &e) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
 
         switch (e.code()) {
         case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::DuplicateEntryError):
             throw DuplicateEntryException(e.message());
         case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::CreateUserError):
-            throw FailedToCreateUserException(e.message());
+            throw FailedToCreateUserException(e.message(),
+                                              q.lastError());
         default:
             throw;
         }

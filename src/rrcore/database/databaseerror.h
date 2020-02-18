@@ -12,7 +12,7 @@ namespace DatabaseError
         NotYetImplementedError,
         DatabaseInitializationFailed,
         SignUpFailure,
-        NoCommand,
+        MissingCommandError,
         BeginTransactionFailed,
         CommitTransationFailed,
         SqlStatementFailedError,

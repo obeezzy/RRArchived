@@ -13,7 +13,10 @@ INCLUDEPATH += .
 SOURCES += \
     database/exceptions/amountoverpaidexception.cpp \
     database/exceptions/argumentmismatchexception.cpp \
+    database/exceptions/begintransactionfailedexception.cpp \
+    database/exceptions/committransactionfailedexception.cpp \
     database/exceptions/connectionfailedexception.cpp \
+    database/exceptions/databaseinitializationfailedexception.cpp \
     database/exceptions/duplicateentryexception.cpp \
     database/exceptions/failedtocreateuserexception.cpp \
     database/exceptions/imagetoolargeexception.cpp \
@@ -22,6 +25,7 @@ SOURCES += \
     database/exceptions/invalidcredentialsexception.cpp \
     database/exceptions/invalidduedateexception.cpp \
     database/exceptions/missingargumentexception.cpp \
+    database/exceptions/missingcommandexception.cpp \
     database/exceptions/missingimplementationexception.cpp \
     database/exceptions/noexistingrecordexception.cpp \
     database/exceptions/procedurecallfailedexception.cpp \
@@ -130,7 +134,6 @@ SOURCES += \
     user/businessstore.cpp \
     user/businessstoremodel.cpp \
     user/userprofile.cpp \
-    database/databaseutils.cpp \
     models/abstractvisuallistmodel.cpp \
     pusher/abstractpusher.cpp \
     qmlapi/qmlsalecartmodel.cpp \
@@ -220,7 +223,10 @@ HEADERS += \
     database/databaseerror.h \
     database/exceptions/amountoverpaidexception.h \
     database/exceptions/argumentmismatchexception.h \
+    database/exceptions/begintransactionfailedexception.h \
+    database/exceptions/committransactionfailedexception.h \
     database/exceptions/connectionfailedexception.h \
+    database/exceptions/databaseinitializationfailedexception.h \
     database/exceptions/duplicateentryexception.h \
     database/exceptions/exceptions.h \
     database/exceptions/failedtocreateuserexception.h \
@@ -230,6 +236,7 @@ HEADERS += \
     database/exceptions/invalidcredentialsexception.h \
     database/exceptions/invalidduedateexception.h \
     database/exceptions/missingargumentexception.h \
+    database/exceptions/missingcommandexception.h \
     database/exceptions/missingimplementationexception.h \
     database/exceptions/noexistingrecordexception.h \
     database/exceptions/procedurecallfailedexception.h \
@@ -351,7 +358,6 @@ HEADERS += \
     user/businessstore.h \
     user/businessstoremodel.h \
     user/userprofile.h \
-    database/databaseutils.h \
     models/abstractvisuallistmodel.h \
     pusher/abstractpusher.h \
     qmlapi/qmlsalecartmodel.h \
