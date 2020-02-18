@@ -1,7 +1,7 @@
 #include "userexecutor.h"
-#include "database/databaseexception.h"
 #include "config/config.h"
 #include "database/databaseerror.h"
+#include "database/exceptions/exceptions.h"
 #include <QSqlQuery>
 #include <QDateTime>
 #include <QVariant>
@@ -19,8 +19,8 @@ void UserExecutor::createRRUser(const QString &userName, QSqlQuery &q)
 {
     const QDateTime currentDateTime = QDateTime::currentDateTime();
 
-    q.prepare(QString("INSERT INTO %1.user (user, photo, phone_number, email_address, active, pending, created, last_edited) "
-                      "VALUES (:user, :photo, :phone_number, :email_address, :active, :pending, :created, :last_edited)")
+    q.prepare(QStringLiteral("INSERT INTO %1.user (user, photo, phone_number, email_address, active, pending, created, last_edited) "
+                             "VALUES (:user, :photo, :phone_number, :email_address, :active, :pending, :created, :last_edited)")
               .arg(Config::instance().databaseName()));
     q.bindValue(":user", userName);
     q.bindValue(":photo", QVariant(QVariant::ByteArray));
@@ -32,9 +32,8 @@ void UserExecutor::createRRUser(const QString &userName, QSqlQuery &q)
     q.bindValue(":last_edited", currentDateTime);
 
     if (!q.exec())
-        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure,
-                                q.lastError().text(),
-                                QString("Failed to create RR user '%1'.").arg(userName));
+        throw FailedToCreateUserException(QStringLiteral("Failed to create RR user '%1'.").arg(userName),
+                                          q.lastError());
 }
 
 void UserExecutor::grantPrivilege(const QString &privilege, const QString &userName, QSqlQuery &q)
@@ -42,10 +41,9 @@ void UserExecutor::grantPrivilege(const QString &privilege, const QString &userN
     q.prepare(QString("GRANT %1 ON * . * TO :username@'localhost'").arg(privilege));
     q.bindValue(":username", userName);
     if (!q.exec())
-        throw DatabaseException(DatabaseError::QueryErrorCode::SignUpFailure,
-                                q.lastError().text(),
-                                QString("Failed to grant '%1' privileges to '%2'.")
-                                .arg(privilege, userName));
+        throw FailedToCreateUserException(QStringLiteral("Failed to grant '%1' privileges to '%2'.")
+                                          .arg(privilege, userName),
+                                          q.lastError());
 }
 
 QString UserExecutor::resolvedUserName(const QString &userName) const

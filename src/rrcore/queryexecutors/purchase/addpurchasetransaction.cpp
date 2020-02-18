@@ -2,7 +2,6 @@
 #include "utility/purchaseutils.h"
 #include "utility/commonutils.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
@@ -54,7 +53,7 @@ QueryResult AddPurchaseTransaction::undoAddPurchaseTransaction()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         if (transactionId > 0) {
             archivePurchaseTransaction(transactionId);
@@ -65,12 +64,12 @@ QueryResult AddPurchaseTransaction::undoAddPurchaseTransaction()
         }
 
         revertProductQuantityUpdate(transactionId);
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
 
         result.setOutcome(params);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

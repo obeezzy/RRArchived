@@ -4,18 +4,14 @@
 #include <QJsonDocument>
 
 QueryResult::QueryResult(QObject *parent) :
-    QObject(parent),
-    m_successful(false),
-    m_errorCode(-1)
+    QObject(parent)
 {
     qRegisterMetaType<QueryResult>("QueryResult");
 }
 
 QueryResult::QueryResult(const QueryRequest &request) :
     QObject(nullptr),
-    m_request(request),
-    m_successful(false),
-    m_errorCode(-1)
+    m_request(request)
 {
     qRegisterMetaType<QueryResult>("QueryResult");
 }
@@ -26,7 +22,7 @@ QueryResult::QueryResult(const QueryResult &other) :
     m_successful(other.isSuccessful()),
     m_errorCode(other.errorCode()),
     m_errorMessage(other.errorMessage()),
-    m_errorUserMessage(other.errorUserMessage()),
+    m_errorDetails(other.errorDetails()),
     m_outcome(other.outcome())
 {
 }
@@ -37,7 +33,7 @@ QueryResult &QueryResult::operator= (const QueryResult &other)
     setErrorCode(other.errorCode());
     setRequest(other.request());
     setErrorMessage(other.errorMessage());
-    setErrorUserMessage(other.errorUserMessage());
+    setErrorDetails(other.errorDetails());
     setOutcome(other.outcome());
 
     return *this;
@@ -73,7 +69,7 @@ int QueryResult::errorCode() const
     return m_errorCode;
 }
 
-void QueryResult::setErrorMessage(QString message)
+void QueryResult::setErrorMessage(const QString &message)
 {
     m_errorMessage = message;
 }
@@ -83,14 +79,14 @@ QString QueryResult::errorMessage() const
     return m_errorMessage;
 }
 
-void QueryResult::setErrorUserMessage(QString userMessage)
+void QueryResult::setErrorDetails(const QString &errorDetails)
 {
-    m_errorUserMessage = userMessage;
+    m_errorDetails = errorDetails;
 }
 
-QString QueryResult::errorUserMessage() const
+QString QueryResult::errorDetails() const
 {
-    return m_errorUserMessage;
+    return m_errorDetails;
 }
 
 void QueryResult::setOutcome(const QVariant &outcome)

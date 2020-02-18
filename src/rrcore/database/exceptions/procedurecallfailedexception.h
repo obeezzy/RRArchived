@@ -2,13 +2,12 @@
 #define PROCEDURECALLFAILEDEXCEPTION_H
 
 #include "database/databaseexception.h"
-#include <QSqlError>
 
 class ProcedureCallFailedException : public DatabaseException
 {
 public:
     explicit ProcedureCallFailedException(const QString &message,
-                                          const QSqlError &sqlError = QSqlError());
+                                          const QSqlError &error = QSqlError());
     QString toString() const override;
 };
 

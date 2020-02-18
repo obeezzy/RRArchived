@@ -8,3 +8,9 @@ ImageTooLargeException::ImageTooLargeException(int size,
 {
 
 }
+
+QString ImageTooLargeException::toString() const
+{
+    return QStringLiteral("ImageTooLargeException(%1)")
+            .arg(message());
+}

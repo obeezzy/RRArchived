@@ -1,5 +1,4 @@
 #include "changepassword.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
@@ -27,12 +26,12 @@ QueryResult ChangePassword::execute()
     result.setSuccessful(true);
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         callProcedure("ChangePassword", {
                           ProcedureArgument {
@@ -47,9 +46,9 @@ QueryResult ChangePassword::execute()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
     } catch (const DatabaseException &e) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
 
         switch (e.code()) {
         case DatabaseError::asInteger(DatabaseError::MySqlErrorCode::UserDefinedException):

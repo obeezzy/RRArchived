@@ -2,7 +2,12 @@
 #define FILTERSTOCKPRODUCTCATEGORIESBYPRODUCT_H
 
 #include "stockexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
+
+namespace Utility {
+class FilterCriteria;
+class SortCriteria;
+}
 
 namespace StockQuery {
 class FilterStockProductCategoriesByProduct : public StockExecutor

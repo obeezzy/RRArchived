@@ -3,18 +3,16 @@
 #include "database/databaseerror.h"
 #include "database/databasethread.h"
 #include "queryexecutors/user.h"
+#include "utility/commonutils.h"
+#include "utility/userutils.h"
 
 QMLUserPrivilegeModel::QMLUserPrivilegeModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
 {}
 
 QMLUserPrivilegeModel::QMLUserPrivilegeModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel (thread, parent),
-    m_privilegeModels(QList<UserPrivilegeModel *>()),
-    m_userId(-1)
-{
-
-}
+    AbstractVisualListModel (thread, parent)
+{}
 
 int QMLUserPrivilegeModel::rowCount(const QModelIndex &parent) const
 {

@@ -5,6 +5,7 @@
 #include "network/networkthread.h"
 #include "user/userprofile.h"
 #include "queryexecutors/user/userexecutor.h"
+#include "database/exceptions/exceptions.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QDebug>
@@ -37,7 +38,7 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 
     try {
         if (request.command().trimmed().isEmpty())
-            throw DatabaseException(DatabaseError::QueryErrorCode::NoCommand);
+            throw MissingCommandException(request.command());
 
         queryExecutor->setConnectionName(CONNECTION_NAME);
         result = queryExecutor->execute();
@@ -45,7 +46,7 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
         result.setSuccessful(false);
         result.setErrorCode(e.code());
         result.setErrorMessage(e.message());
-        result.setErrorUserMessage(e.userMessage());
+        result.setErrorDetails(e.sqlError().databaseText());
         qCCritical(lcdatabasethread) << e;
     }
 

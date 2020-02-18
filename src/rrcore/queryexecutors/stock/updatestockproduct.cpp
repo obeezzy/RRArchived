@@ -1,6 +1,5 @@
 #include "updatestockproduct.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
 #include "utility/stockutils.h"
@@ -53,16 +52,16 @@ QueryResult UpdateStockProduct::execute()
                                         << "-> This function is not responsible for updating quantity. Quantity will be ignored.";
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         productCategoryId = addOrUpdateStockProductCategory();
         updateStockProduct(productCategoryId);
         updateStockProductUnit();
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
@@ -107,7 +106,7 @@ int UpdateStockProduct::addOrUpdateStockProductCategory()
 void UpdateStockProduct::updateStockProduct(int productCategoryId)
 {
     const QVariantMap &params = request().params();
-    const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    const QByteArray &imageBlob = QueryExecutor::imageUrlToByteArray(params.value("image_url").toUrl());
     const QString &note = params.value("product_note").toString();
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("product"),

@@ -19,5 +19,9 @@
 #include "database/exceptions/procedurecallfailedexception.h"
 #include "database/exceptions/imagetoolargeexception.h"
 #include "database/exceptions/connectionfailedexception.h"
+#include "database/exceptions/begintransactionfailedexception.h"
+#include "database/exceptions/committransactionfailedexception.h"
+#include "database/exceptions/databaseinitializationfailedexception.h"
+#include "database/exceptions/missingcommandexception.h"
 
 #endif // EXCEPTIONS_H

@@ -1,8 +1,8 @@
 #include "updatedebtor.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
+#include "utility/debtorutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -55,7 +55,7 @@ QueryResult UpdateDebtor::execute()
                                           "phone_number"
                                         }, params);
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         affirmDirtyTransactionsExist();
         QueryExecutor::addOrUpdateNote(noteId,
@@ -84,10 +84,10 @@ QueryResult UpdateDebtor::execute()
                               { "archived_debt_payment_ids", archivedDebtPaymentIds }
                           });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
@@ -143,7 +143,7 @@ void UpdateDebtor::updateClientDetails()
 {
     const QVariantMap &params = request().params();
     const int clientId = params.value("client_id").toInt();
-    const QByteArray &imageBlob = DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl());
+    const QByteArray &imageBlob = QueryExecutor::imageUrlToByteArray(params.value("image_url").toUrl());
     Q_UNUSED(imageBlob)
     if (clientId <= 0)
         throw InvalidArgumentException(QStringLiteral("Client ID invalid."));

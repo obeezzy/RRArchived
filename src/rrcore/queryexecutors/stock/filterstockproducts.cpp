@@ -1,6 +1,6 @@
 #include "filterstockproducts.h"
+#include "utility/commonutils.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include <QUrl>
 
 using namespace StockQuery;
@@ -24,7 +24,7 @@ QueryResult FilterStockProducts::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     try {
         const QList<QSqlRecord> &records(callProcedure("FilterStockProducts", {
@@ -58,7 +58,7 @@ QueryResult FilterStockProducts::execute()
         QVariantList products;
         for (const auto &record : records) {
             QVariantMap product{ recordToMap(record) };
-            product.insert("image_url", DatabaseUtils::byteArrayToImageUrl(record.value("image").toByteArray()));
+            product.insert("image_url", QueryExecutor::byteArrayToImageUrl(record.value("image").toByteArray()));
             product.remove("image");
             products.append(product);
         }

@@ -1,5 +1,4 @@
 #include "updatesuspendedpurchasetransaction.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include "utility/purchaseutils.h"
 #include "user/userprofile.h"
@@ -38,23 +37,23 @@ QueryResult UpdateSuspendedPurchaseTransaction::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         affirmTransactionHasBeenSuspended();
         PurchaseExecutor::addPurchaseTransaction(TransactionMode::SkipSqlTransaction);
         archivePurchaseTransaction();
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
 
 void UpdateSuspendedPurchaseTransaction::affirmTransactionHasBeenSuspended()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     const auto &records(callProcedure("IsPurchaseTransactionSuspended", {
                                                        ProcedureArgument {
@@ -74,7 +73,7 @@ void UpdateSuspendedPurchaseTransaction::affirmTransactionHasBeenSuspended()
 
 void UpdateSuspendedPurchaseTransaction::archivePurchaseTransaction()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("ArchivePurchaseTransaction", {
                       ProcedureArgument {

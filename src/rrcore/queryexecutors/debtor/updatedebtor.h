@@ -2,8 +2,11 @@
 #define UPDATEDEBTOR_H
 
 #include "debtorexecutor.h"
-#include "utility/debtorutils.h"
 #include <QUrl>
+
+namespace Utility {
+class Debtor;
+}
 
 namespace DebtorQuery {
 class UpdateDebtor : public DebtorExecutor

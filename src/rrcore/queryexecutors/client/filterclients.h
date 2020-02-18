@@ -2,7 +2,11 @@
 #define FILTERCLIENTS_H
 
 #include "queryexecutors/client/clientexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
+
+namespace Utility {
+class FilterCriteria;
+}
 
 namespace ClientQuery {
 class FilterClients : public ClientExecutor

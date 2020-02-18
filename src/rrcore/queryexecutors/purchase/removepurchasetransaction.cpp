@@ -1,6 +1,5 @@
 #include "removepurchasetransaction.h"
-#include "database/databaseexception.h"
-#include "database/databaseutils.h"
+#include "database/exceptions/exceptions.h"
 #include "user/userprofile.h"
 #include "utility/purchaseutils.h"
 #include <QSqlDatabase>
@@ -42,28 +41,28 @@ QueryResult RemovePurchaseTransaction::removePurchaseTransaction()
     try {
         QueryExecutor::enforceArguments({ "transaction_id" }, params);
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         archivePurchaseTransaction();
         archiveDebtTransaction();
         archiveCreditTransaction();
         revertProductQuantityUpdate();
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         result.setOutcome(QVariantMap {
                               { "transaction_id", params.value("transaction_id").toInt() },
                               { "record_count", 1 }
                           });
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
 
 QueryResult RemovePurchaseTransaction::undoRemovePurchaseTransaction()
 {
-    throw DatabaseException(DatabaseError::QueryErrorCode::NotYetImplementedError);
+    throw MissingImplementationException();
 }
 
 void RemovePurchaseTransaction::archivePurchaseTransaction()
@@ -91,7 +90,7 @@ void RemovePurchaseTransaction::archivePurchaseTransaction()
 
 void RemovePurchaseTransaction::archiveDebtTransaction()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("ArchiveDebtTransactionByTransactionTable", {
                       ProcedureArgument {
@@ -119,7 +118,7 @@ void RemovePurchaseTransaction::archiveDebtTransaction()
 
 void RemovePurchaseTransaction::archiveCreditTransaction()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("ArchiveCreditTransaction", {
                       ProcedureArgument {
@@ -147,7 +146,7 @@ void RemovePurchaseTransaction::archiveCreditTransaction()
 
 void RemovePurchaseTransaction::revertProductQuantityUpdate()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("RevertPurchaseQuantityUpdate", {
                       ProcedureArgument {

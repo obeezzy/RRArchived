@@ -1,6 +1,5 @@
 #include "addsaletransaction.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
 #include "utility/saleutils.h"
@@ -61,7 +60,7 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
     try {
         QueryExecutor::enforceArguments({ "sale_transaction_id" }, params);
 
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         affirmSaleTransactionIdIsValid();
         archiveSaleTransaction();
@@ -69,17 +68,17 @@ QueryResult AddSaleTransaction::undoAddSaleTransaction()
         archiveCreditTransaction();
         revertProductQuantityUpdate();
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
 
 void AddSaleTransaction::affirmSaleTransactionIdIsValid()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const int saleTransactionId = params.value("sale_transaction_id").toInt();
 
     if (saleTransactionId <= 0)
@@ -88,7 +87,7 @@ void AddSaleTransaction::affirmSaleTransactionIdIsValid()
 
 void AddSaleTransaction::archiveSaleTransaction()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("ArchiveSaleTransaction", {
                       ProcedureArgument {
@@ -111,7 +110,7 @@ void AddSaleTransaction::archiveSaleTransaction()
 
 void AddSaleTransaction::archiveDebtTransaction()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("ArchiveDebtTransactionByTransactionTable", {
                       ProcedureArgument {
@@ -139,7 +138,7 @@ void AddSaleTransaction::archiveDebtTransaction()
 
 void AddSaleTransaction::archiveCreditTransaction()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("ArchiveCreditTransaction", {
                       ProcedureArgument {
@@ -167,7 +166,7 @@ void AddSaleTransaction::archiveCreditTransaction()
 
 void AddSaleTransaction::revertProductQuantityUpdate()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("RevertSaleQuantityUpdate", {
                       ProcedureArgument {

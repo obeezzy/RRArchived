@@ -1,6 +1,5 @@
 #include "viewsalecart.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -24,7 +23,7 @@ QueryResult ViewSaleCart::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);

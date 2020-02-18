@@ -10,6 +10,7 @@
 #include <QLoggingCategory>
 
 class QSqlRecord;
+class QSqlQuery;
 
 struct ProcedureArgument {
     enum class Type { In, Out, InOut };
@@ -31,6 +32,7 @@ public:
         AllowExceptions,
         DisallowExceptions
     }; Q_ENUM(ExceptionPolicy)
+
     explicit QueryExecutor(QObject *parent = nullptr);
     explicit QueryExecutor(const QueryRequest &request);
     explicit QueryExecutor(const QString &command,
@@ -80,9 +82,20 @@ protected:
                         const QString &note,
                         const QString &tableName,
                         ExceptionPolicy policy = ExceptionPolicy::AllowExceptions);
+
+    static QByteArray imageUrlToByteArray(const QUrl &imageUrl,
+                                          qint64 maxSize = 2 * 1024 * 1000 /* 2MB limit */);
+
+    static QUrl byteArrayToImageUrl(const QByteArray &imageData);
+
+    static void beginTransaction(QSqlQuery &q);
+    static void commitTransaction(QSqlQuery &q);
+    static void rollbackTransaction(QSqlQuery &q);
 private:
     QueryRequest m_request;
     QString m_connectionName;
+
+    static QString generateFileName(const QByteArray &imageData);
 };
 
 Q_DECLARE_LOGGING_CATEGORY(lcqueryexecutor);

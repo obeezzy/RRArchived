@@ -1,6 +1,5 @@
 #include "fetchstockproduct.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "database/exceptions/exceptions.h"
 #include <QUrl>
 
@@ -38,7 +37,7 @@ QueryResult FetchStockProduct::execute()
                                             .arg(params.value("product_id").toString()));
 
         QVariantMap product{ recordToMap(records.first()) };
-        product.insert("image_url", DatabaseUtils::byteArrayToImageUrl(product.value("image").toByteArray()));
+        product.insert("image_url", QueryExecutor::byteArrayToImageUrl(product.value("image").toByteArray()));
         product.remove("image");
         result.setOutcome(QVariantMap {
                               { "product", product },

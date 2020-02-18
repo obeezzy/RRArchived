@@ -1,6 +1,5 @@
 #include "adduser.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "utility/userutils.h"
 #include "database/exceptions/exceptions.h"
@@ -35,16 +34,16 @@ QueryResult AddUser::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         const int userId = addRRUser();
         addUserPrivileges(userId);
         addSqlUser();
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &e) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
 
         const QString &userName = request().params().value("user").toString();
         switch (e.code()) {
@@ -52,7 +51,8 @@ QueryResult AddUser::execute()
             throw DuplicateEntryException(QStringLiteral("User '%1' already exists.")
                                           .arg(userName));
         case static_cast<int>(DatabaseError::MySqlErrorCode::CreateUserError):
-            throw FailedToCreateUserException(e.message());
+            throw FailedToCreateUserException(e.message(),
+                                              q.lastError());
         case static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException):
             throw UserPreviouslyArchivedException(QStringLiteral("User '%1' has been archived. "
                                                                  "Unarchive the user or create a user with another name.")
@@ -65,7 +65,7 @@ QueryResult AddUser::execute()
 
 int AddUser::addRRUser()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &note = params.value("note").toString();
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("user"),
@@ -90,7 +90,7 @@ int AddUser::addRRUser()
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
                                               "photo",
-                                              DatabaseUtils::imageUrlToByteArray(params.value("image_url").toUrl())
+                                              QueryExecutor::imageUrlToByteArray(params.value("image_url").toUrl())
                                           },
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
@@ -122,7 +122,7 @@ int AddUser::addRRUser()
 
 void AddUser::addUserPrivileges(int userId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("AddUserPrivileges", {
                       ProcedureArgument {
@@ -140,7 +140,7 @@ void AddUser::addUserPrivileges(int userId)
 
 void AddUser::addSqlUser()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     callProcedure("AddSqlUser", {
                       ProcedureArgument {

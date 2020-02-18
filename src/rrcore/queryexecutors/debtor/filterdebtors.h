@@ -1,7 +1,7 @@
 #ifndef FILTERDEBTORS_H
 #define FILTERDEBTORS_H
 
-#include "queryexecutors/debtor/debtorexecutor.h"
+#include "debtorexecutor.h"
 
 namespace Utility {
 class FilterCriteria;

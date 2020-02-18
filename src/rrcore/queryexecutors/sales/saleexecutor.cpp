@@ -1,6 +1,5 @@
 #include "saleexecutor.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
 #include "singletons/settings.h"
@@ -43,7 +42,7 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
         QueryExecutor::enforceArguments( { "action" }, params);
 
         if (mode == TransactionMode::UseSqlTransaction)
-            DatabaseUtils::beginTransaction(q);
+            QueryExecutor::beginTransaction(q);
 
         if (!clientPhoneNumber.isEmpty() && !suspended) {
             clientId = addClient();
@@ -67,7 +66,7 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
         }
 
         if (mode == TransactionMode::UseSqlTransaction)
-            DatabaseUtils::commitTransaction(q);
+            QueryExecutor::commitTransaction(q);
 
         result.setOutcome(QVariantMap {
                               { "client_id", clientId },
@@ -76,7 +75,7 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
         return result;
     } catch (const DatabaseException &) {
         if (mode == TransactionMode::UseSqlTransaction)
-            DatabaseUtils::rollbackTransaction(q);
+            QueryExecutor::rollbackTransaction(q);
 
         throw;
     }
@@ -84,7 +83,7 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
 
 int SaleExecutor::addClient()
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
 
     const auto &records(callProcedure("AddClientLite", {
                                           ProcedureArgument {
@@ -112,7 +111,7 @@ int SaleExecutor::addClient()
 
 int SaleExecutor::addCustomer(int clientId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &note = params.value("note").toString();
     const int noteId = QueryExecutor::addNote(note,
                                               QStringLiteral("sale_transaction"),
@@ -143,7 +142,7 @@ int SaleExecutor::addCustomer(int clientId)
 
 int SaleExecutor::addSaleTransactionToDatabase(int clientId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const bool shouldGiveChange = params.value("action").toString() == QStringLiteral("give_change");
     const qreal balance = shouldGiveChange ? 0.0
                                            : qAbs(params.value("balance").toDouble());
@@ -197,7 +196,7 @@ int SaleExecutor::addSaleTransactionToDatabase(int clientId)
 
 void SaleExecutor::addSalePayments(int saleTransactionId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QVariantList &payments = params.value("payments").toList();
 
     for (const QVariant &paymentAsVariant : payments) {
@@ -244,7 +243,7 @@ void SaleExecutor::addSalePayments(int saleTransactionId)
 
 void SaleExecutor::addSoldProducts(int saleTransactionId)
 {
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QVariantList &products = params.value("products").toList();
     const bool suspended = params.value("suspended").toBool();
 

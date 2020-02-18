@@ -2,7 +2,11 @@
 #define VIEWEXPENSETRANSACTIONS_H
 
 #include "expenseexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
+
+namespace Utility {
+class DateTimeSpan;
+}
 
 namespace ExpenseQuery {
 class ViewExpenseTransactions : public ExpenseExecutor

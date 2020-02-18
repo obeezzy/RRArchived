@@ -2,7 +2,10 @@
 #define REMOVESTOCKPRODUCT_H
 
 #include "stockexecutor.h"
-#include "utility/stockutils.h"
+
+namespace Utility {
+class StockProduct;
+}
 
 namespace StockQuery {
 class RemoveStockProduct : public StockExecutor

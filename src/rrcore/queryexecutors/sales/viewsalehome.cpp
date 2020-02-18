@@ -1,6 +1,5 @@
 #include "viewsalehome.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "utility/saleutils.h"
 #include <QSqlDatabase>

@@ -4,40 +4,29 @@
 
 using namespace DatabaseError;
 
-DatabaseException::DatabaseException(int errorCode) :
-    m_code(errorCode)
-{
+DatabaseException::DatabaseException(int errorCode,
+                                     const QString &message,
+                                     const QSqlError &error) :
+    m_code(errorCode),
+    m_message(message),
+    m_sqlError(error)
+{}
 
-}
+DatabaseException::DatabaseException(QueryErrorCode errorCode,
+                                     const QString &message,
+                                     const QSqlError &error) :
+    m_code(static_cast<int>(errorCode)),
+    m_message(message),
+    m_sqlError(error)
+{}
 
-DatabaseException::DatabaseException(int errorCode, const QString &message, const QString &userMessage) :
-    m_code(errorCode), m_message(message), m_userMessage(userMessage)
-{
-
-}
-
-DatabaseException::DatabaseException(QueryErrorCode errorCode) :
-    m_code(static_cast<int>(errorCode))
-{
-    switch (errorCode) {
-    case QueryErrorCode::NotYetImplementedError:
-        m_message = QStringLiteral("Not yet implemented");
-        m_userMessage = QStringLiteral("Not yet implemented");
-        break;
-    case QueryErrorCode::NoCommand:
-        m_message = QStringLiteral("No command set.");
-        m_userMessage = QStringLiteral("No command set.");
-        break;
-    default:
-        break;
-    }
-}
-
-DatabaseException::DatabaseException(QueryErrorCode errorCode, const QString &message, const QString &userMessage) :
-    m_code(static_cast<int>(errorCode)), m_message(message), m_userMessage(userMessage)
-{
-
-}
+DatabaseException::DatabaseException(MySqlErrorCode errorCode,
+                                     const QString &message,
+                                     const QSqlError &error) :
+    m_code(static_cast<int>(errorCode)),
+    m_message(message),
+    m_sqlError(error)
+{}
 
 int DatabaseException::code() const
 {
@@ -49,20 +38,14 @@ QString DatabaseException::message() const
     return m_message;
 }
 
-QString DatabaseException::userMessage() const
+QSqlError DatabaseException::sqlError() const
 {
-    return m_userMessage;
+    return m_sqlError;
 }
 
 const char *DatabaseException::what() const noexcept
 {
     return QObject::tr("Error %1: %2 [%3]")
             .arg(QString::number(static_cast<int>(m_code)),
-                 m_message, m_userMessage).toStdString().c_str();
-}
-
-QString DatabaseException::toString() const
-{
-    return QStringLiteral("DatabaseException(code=%1, message=%2, details=%3")
-            .arg(QString::number(m_code), m_message, m_userMessage);
+                 m_message, m_sqlError.databaseText()).toStdString().c_str();
 }

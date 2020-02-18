@@ -25,11 +25,11 @@ public:
     void setErrorCode(int code);
     int errorCode() const;
 
-    void setErrorMessage(QString message);
+    void setErrorMessage(const QString &message);
     QString errorMessage() const;
 
-    void setErrorUserMessage(QString userMessage);
-    QString errorUserMessage() const;
+    void setErrorDetails(const QString &errorDetails);
+    QString errorDetails() const;
 
     void setOutcome(const QVariant &outcome);
     QVariant outcome() const;
@@ -41,7 +41,8 @@ public:
         debug.nospace() << "QueryResult(command=" << result.request().command()
                         << ", successful=" << result.isSuccessful()
                         << ", errorCode=" << result.errorCode()
-                        << ", errorMessage=" << (result.errorMessage().isEmpty() ? result.errorUserMessage() : result.errorMessage())
+                        << ", errorMessage=" << result.errorMessage()
+                        << ", errorDetails=" << result.errorDetails()
                         << ", recordCount=" << result.outcome().toMap().value("record_count").toInt()
                         << ", outcomeValid=" << result.outcome().isValid()
                         << ")";
@@ -50,10 +51,10 @@ public:
     }
 private:
     QueryRequest m_request;
-    bool m_successful;
-    int m_errorCode;
+    bool m_successful {false};
+    int m_errorCode {-1};
     QString m_errorMessage;
-    QString m_errorUserMessage;
+    QString m_errorDetails;
     QVariant m_outcome;
 };
 

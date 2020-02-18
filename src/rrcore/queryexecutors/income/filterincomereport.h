@@ -1,7 +1,7 @@
 #ifndef FILTERINCOMEREPORT_H
 #define FILTERINCOMEREPORT_H
 
-#include "queryexecutors/income/incomeexecutor.h"
+#include "incomeexecutor.h"
 
 namespace Utility {
 class DateTimeSpan;

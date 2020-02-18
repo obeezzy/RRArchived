@@ -2,7 +2,7 @@
 #define VIEWDEBTORS_H
 
 #include "debtorexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
 
 namespace DebtorQuery {
 class ViewDebtors : public DebtorExecutor

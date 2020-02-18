@@ -4,7 +4,6 @@
 #include "config/config.h"
 #include "database/databaseerror.h"
 #include "database/queryrequest.h"
-#include "database/databaseutils.h"
 #include "database/databaseexception.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -27,7 +26,7 @@ QueryResult SignUpUser::execute()
     QueryResult result{ request() };
     result.setSuccessful(true);
 
-    const QVariantMap &params = request().params();
+    const QVariantMap &params{ request().params() };
     const QString &userName = params.value("user").toString();
 
     QSqlDatabase connection;
@@ -36,15 +35,15 @@ QueryResult SignUpUser::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         addSqlUser(q);
         UserExecutor::createRRUser(userName, q);
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

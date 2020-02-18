@@ -1,6 +1,7 @@
 #include "qmldebtpaymentmodel.h"
 #include "database/databasethread.h"
 #include "queryexecutors/debtor.h"
+#include "utility/debtorutils.h"
 #include <QDateTime>
 
 Q_LOGGING_CATEGORY(lcqmldebtpaymentmodel, "rrcore.models.qmldebtpaymentmodel");
@@ -86,7 +87,7 @@ bool QMLDebtPaymentModel::setData(const QModelIndex &index, const QVariant &valu
     if (!index.isValid())
         return false;
 
-    Utility::DebtPayment &payment = m_payments[index.row()];
+    Utility::DebtPayment &payment{ m_payments[index.row()] };
 
     switch (role) {
     case AmountPaidRole:

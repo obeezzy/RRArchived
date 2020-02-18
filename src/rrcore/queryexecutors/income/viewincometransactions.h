@@ -2,7 +2,11 @@
 #define VIEWINCOMETRANSACTIONS_H
 
 #include "incomeexecutor.h"
-#include "utility/commonutils.h"
+#include "utility/common/recordgroup.h"
+
+namespace Utility {
+class DateTimeSpan;
+}
 
 namespace IncomeQuery {
 class ViewIncomeTransactions : public IncomeExecutor

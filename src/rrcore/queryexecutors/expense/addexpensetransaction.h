@@ -4,7 +4,6 @@
 #include "expenseexecutor.h"
 
 namespace Utility {
-class Client;
 class ExpenseTransaction;
 }
 

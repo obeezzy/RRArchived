@@ -1,6 +1,5 @@
 #include "addexpensetransaction.h"
 #include "database/databaseexception.h"
-#include "database/databaseutils.h"
 #include "user/userprofile.h"
 #include "singletons/settings.h"
 #include "utility/commonutils.h"
@@ -37,7 +36,7 @@ QueryResult AddExpenseTransaction::execute()
     QSqlQuery q(connection);
 
     try {
-        DatabaseUtils::beginTransaction(q);
+        QueryExecutor::beginTransaction(q);
 
         noteId = QueryExecutor::addNote(note,
                                         QStringLiteral("expense"),
@@ -86,10 +85,10 @@ QueryResult AddExpenseTransaction::execute()
                           }
                       });
 
-        DatabaseUtils::commitTransaction(q);
+        QueryExecutor::commitTransaction(q);
         return result;
     } catch (const DatabaseException &) {
-        DatabaseUtils::rollbackTransaction(q);
+        QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }

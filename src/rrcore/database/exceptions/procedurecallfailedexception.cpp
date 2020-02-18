@@ -1,17 +1,17 @@
 #include "procedurecallfailedexception.h"
 
 ProcedureCallFailedException::ProcedureCallFailedException(const QString &message,
-                                                           const QSqlError &sqlError) :
+                                                           const QSqlError &error) :
     DatabaseException(DatabaseError::QueryErrorCode::ProcedureFailed,
                       message,
-                      sqlError.databaseText())
+                      error)
 {}
 
 QString ProcedureCallFailedException::toString() const
 {
-    if (!userMessage().isEmpty())
+    if (!sqlError().databaseText().isEmpty())
         return QStringLiteral("ProcedureCallFailedException(%1, database=%2)")
-                .arg(message(), userMessage());
+                .arg(message(), sqlError().databaseText());
 
     return QStringLiteral("ProcedureCallFailedException(%1)")
             .arg(message());
