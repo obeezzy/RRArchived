@@ -81,5 +81,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::SaleCartProduct, Q_PRIMITIVE_TYPE);
 
 #endif // SALECARTPRODUCT_H

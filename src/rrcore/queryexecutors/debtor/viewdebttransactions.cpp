@@ -43,7 +43,7 @@ QueryResult ViewDebtTransactions::execute()
                               { "record_count", transactions.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

@@ -47,7 +47,7 @@ QueryResult ViewClients::execute()
                               { "record_count", clients.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

@@ -175,12 +175,12 @@ void QMLSaleTransactionItemModel::processResult(const QueryResult result)
             m_products = Utility::SoldProductList{ result.outcome().toMap().value("products").toList() };
             endResetModel();
 
-            emit success(ViewSaleTransactionItemsSuccess);
+            emit success();
         } else {
             emit success();
         }
     } else {
-        emit error(UnknownError);
+        emit error();
     }
 }
 

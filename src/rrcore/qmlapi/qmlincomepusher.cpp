@@ -92,7 +92,7 @@ void QMLIncomePusher::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == IncomeQuery::AddIncomeTransaction::COMMAND)
-            emit success(AddIncomeSuccess);
+            emit success(ModelResult{ AddIncomeSuccess });
     } else {
         emit error();
     }

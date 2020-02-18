@@ -13,5 +13,6 @@ struct DateTimeSpan {
                           const QDateTime &to);
 };
 }
+Q_DECLARE_TYPEINFO(Utility::DateTimeSpan, Q_PRIMITIVE_TYPE);
 
 #endif // DATETIMESPAN_H

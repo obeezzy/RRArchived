@@ -14,5 +14,6 @@ struct Vendor {
                     const Client &client);
 };
 }
+Q_DECLARE_TYPEINFO(Utility::Vendor, Q_PRIMITIVE_TYPE);
 
 #endif // VENDOR_H

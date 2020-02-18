@@ -86,5 +86,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::StockProduct, Q_PRIMITIVE_TYPE);
 
 #endif // STOCKPRODUCT_H

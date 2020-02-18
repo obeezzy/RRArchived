@@ -16,8 +16,8 @@ RRUi.DataTableView {
     property string filterText: ""
     property int filterColumn: -1
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function removeUser(userName) { userModel.removeUser(userName); }
     function refresh() { userModel.refresh(); }
@@ -47,8 +47,8 @@ RRUi.DataTableView {
         filterText: userTableView.filterText
         filterColumn: userTableView.filterColumn
         keys: userTableView.keys
-        onSuccess: userTableView.success(successCode);
-        onError: userTableView.error(errorCode);
+        onSuccess: userTableView.success(result.code);
+        onError: userTableView.error(result.code);
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {

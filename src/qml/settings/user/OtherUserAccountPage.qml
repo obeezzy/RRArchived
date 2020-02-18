@@ -81,7 +81,7 @@ RRUi.Page {
                     filterColumn: RRModels.UserModel.UserColumn
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.UserModel.RemoveUserSuccess:
                             MainWindow.snackBar.show(qsTr("User deleted."), qsTr("Undo"));
                             userTableView.refresh();
@@ -94,7 +94,7 @@ RRUi.Page {
                     }
 
                     onError: {
-                        switch (errorCode) {
+                        switch (result.code) {
                         case RRModels.UserModel.InsufficientPrivilegeError:
                             break;
                         }

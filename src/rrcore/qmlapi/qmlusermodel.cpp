@@ -125,18 +125,18 @@ void QMLUserModel::processResult(const QueryResult result)
     setBusy(false);
     if (result.isSuccessful()) {
         if (result.request().command() == UserQuery::ActivateUser::COMMAND) {
-            emit success(ActivateUserSuccess);
+            emit success(ModelResult{ ActivateUserSuccess });
         } else {
             beginResetModel();
             if (result.request().command() == UserQuery::ViewUsers::COMMAND) {
                 m_users = Utility::UserList{ result.outcome().toMap().value("users").toList() };
-                emit success(ViewUsersSuccess);
+                emit success(ModelResult{ ViewUsersSuccess });
             } else if (result.request().command() == UserQuery::RemoveUser::COMMAND) {
                 const Utility::User &user{ result.outcome().toMap() };
                 removeUserFromModel(user);
-                emit success(RemoveUserSuccess);
+                emit success(ModelResult{ RemoveUserSuccess });
             } else if (result.request().command() == UserQuery::RemoveUser::UNDO_COMMAND) {
-                emit success(UndoRemoveUserSuccess);
+                emit success(ModelResult{ UndoRemoveUserSuccess });
             }
             endResetModel();
         }
@@ -155,7 +155,7 @@ void QMLUserModel::removeUserFromModel(const Utility::User &user)
 void QMLUserModel::removeUser(int row)
 {
     setBusy(true);
-    Utility::User user{ m_users[row] };
+    Utility::User &user{ m_users[row] };
     user.row = row;
     emit execute(new UserQuery::RemoveUser(user,
                                            this));
@@ -164,7 +164,7 @@ void QMLUserModel::removeUser(int row)
 void QMLUserModel::activateUser(int row, bool active)
 {
     setBusy(true);
-    Utility::User user{ m_users[row] };
+    Utility::User &user{ m_users[row] };
     user.row = row;
     emit execute(new UserQuery::ActivateUser(active,
                                              user,

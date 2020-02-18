@@ -47,7 +47,6 @@ public:
     }; Q_ENUM(PaymentMethod)
 
     enum SuccessCode {
-        UnknownSuccess,
         RetrieveTransactionSuccess,
         SuspendTransactionSuccess,
         SubmitTransactionSuccess,
@@ -55,7 +54,6 @@ public:
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
-        UnknownError,
         ConnectionError,
         SuspendTransactionError,
         RetrieveTransactionError,

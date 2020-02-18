@@ -58,5 +58,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::Client, Q_PRIMITIVE_TYPE);
 
 #endif // CLIENT_H

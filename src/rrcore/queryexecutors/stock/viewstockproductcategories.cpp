@@ -44,7 +44,7 @@ QueryResult ViewStockProductCategories::execute()
                               { "categories", categories },
                               { "record_count", categories.count() }
                           });
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 

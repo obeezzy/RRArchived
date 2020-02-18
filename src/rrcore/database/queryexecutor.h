@@ -1,19 +1,19 @@
 #ifndef QUERYEXECUTOR_H
 #define QUERYEXECUTOR_H
 
+#include "database/queryrequest.h"
+#include "database/queryresult.h"
+#include <initializer_list>
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
-#include <QSqlRecord>
-#include <initializer_list>
 #include <QLoggingCategory>
 
-#include "database/queryrequest.h"
-#include "database/queryresult.h"
+class QSqlRecord;
 
 struct ProcedureArgument {
     enum class Type { In, Out, InOut };
-    Type type;
+    Type type {Type::In};
     QString name;
     QVariant value;
 };
@@ -62,24 +62,24 @@ public:
         return debug;
     }
 protected:
-    QVariantMap recordToMap(const QSqlRecord &);
-    QSqlRecord mapToRecord(const QVariantMap &);
+    QVariantMap recordToMap(const QSqlRecord &) noexcept;
+    QSqlRecord mapToRecord(const QVariantMap &) noexcept;
 
-    void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params); // throw DatabaseException
+    void enforceArguments(QStringList argumentsToEnforce, const QVariantMap &params);
     QList<QSqlRecord> callProcedure(const QString &procedure,
-                                    std::initializer_list<ProcedureArgument> arguments); // throw DatabaseException
+                                    std::initializer_list<ProcedureArgument> arguments);
 
     int addNote(const QString &note,
                 const QString &tableName,
-                ExceptionPolicy policy = ExceptionPolicy::AllowExceptions); // throw DatabaseException
+                ExceptionPolicy policy = ExceptionPolicy::AllowExceptions);
     void updateNote(int noteId,
                     const QString &note,
                     const QString &tableName = QString(),
-                    ExceptionPolicy policy = ExceptionPolicy::AllowExceptions); // throw DatabaseException
+                    ExceptionPolicy policy = ExceptionPolicy::AllowExceptions);
     int addOrUpdateNote(int noteId,
                         const QString &note,
                         const QString &tableName,
-                        ExceptionPolicy policy = ExceptionPolicy::AllowExceptions); // throw DatabaseException
+                        ExceptionPolicy policy = ExceptionPolicy::AllowExceptions);
 private:
     QueryRequest m_request;
     QString m_connectionName;

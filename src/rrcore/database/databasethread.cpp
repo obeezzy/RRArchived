@@ -1,18 +1,17 @@
 #include "databasethread.h"
-#include <QCoreApplication>
-#include <QElapsedTimer>
-#include <QDebug>
-#include <QLoggingCategory>
-#include <QSettings>
-
 #include "databaseexception.h"
 #include "queryrequest.h"
 #include "queryresult.h"
 #include "network/networkthread.h"
 #include "user/userprofile.h"
 #include "queryexecutors/user/userexecutor.h"
+#include <QCoreApplication>
+#include <QElapsedTimer>
+#include <QDebug>
+#include <QLoggingCategory>
+#include <QSettings>
 
-Q_LOGGING_CATEGORY(databaseThread, "rrcore.database.databasethread");
+Q_LOGGING_CATEGORY(lcdatabasethread, "rrcore.database.databasethread");
 
 const QString CONNECTION_NAME(QStringLiteral("db_thread"));
 
@@ -29,7 +28,7 @@ DatabaseWorker::~DatabaseWorker()
 
 void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 {
-    qCInfo(databaseThread) << queryExecutor->request();
+    qCInfo(lcdatabasethread) << queryExecutor->request();
     const QueryRequest &request(queryExecutor->request());
     QueryResult result{ request };
 
@@ -42,17 +41,17 @@ void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 
         queryExecutor->setConnectionName(CONNECTION_NAME);
         result = queryExecutor->execute();
-    } catch (DatabaseException &e) {
+    } catch (const DatabaseException &e) {
         result.setSuccessful(false);
         result.setErrorCode(e.code());
         result.setErrorMessage(e.message());
         result.setErrorUserMessage(e.userMessage());
-        qCCritical(databaseThread) << e;
+        qCCritical(lcdatabasethread) << e;
     }
 
     queryExecutor->deleteLater();
     emit resultReady(result);
-    qCInfo(databaseThread) << result << " [elapsed = " << timer.elapsed() << " ms]";
+    qCInfo(lcdatabasethread) << result << " [elapsed = " << timer.elapsed() << " ms]";
 }
 
 DatabaseThread::DatabaseThread(QObject *parent) :

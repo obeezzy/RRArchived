@@ -119,7 +119,7 @@ RRUi.Page {
                                  expenseTransactionPage.selectedDate.getDate() + 1)
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.IncomeTransactionModel.ViewIncomeTransactionsSuccess:
                             expenseTransactionPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
                             break;

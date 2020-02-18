@@ -48,7 +48,7 @@ QueryResult ChangePassword::execute()
                       });
 
         DatabaseUtils::commitTransaction(q);
-    } catch (DatabaseException &e) {
+    } catch (const DatabaseException &e) {
         DatabaseUtils::rollbackTransaction(q);
 
         switch (e.code()) {

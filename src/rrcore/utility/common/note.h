@@ -18,5 +18,6 @@ struct Note {
     QVariantMap toVariantMap() const;
 };
 }
+Q_DECLARE_TYPEINFO(Utility::Note, Q_PRIMITIVE_TYPE);
 
 #endif // NOTE_H

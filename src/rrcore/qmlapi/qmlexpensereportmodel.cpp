@@ -100,7 +100,7 @@ void QMLExpenseReportModel::processResult(const QueryResult result)
             beginResetModel();
             m_transactions = Utility::ExpenseReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
-            emit success(ViewExpenseReportSuccess);
+            emit success();
         } else {
             emit error();
         }

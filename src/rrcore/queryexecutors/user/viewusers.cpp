@@ -37,7 +37,7 @@ QueryResult ViewUsers::execute()
                               { "record_count", users.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

@@ -206,15 +206,15 @@ void QMLStockProductModel::processResult(const QueryResult result)
             m_products = Utility::StockProductList{ result.outcome().toMap().value("products").toList() };
             endResetModel();
 
-            emit success(ViewProductsSuccess);
+            emit success(ModelResult{ ViewProductsSuccess });
         } else if (result.request().command() == StockQuery::RemoveStockProduct::COMMAND) {
             const int row = result.request().params().value("row").toInt();
             removeProductFromModel(row);
-            emit success(RemoveProductSuccess);
+            emit success(ModelResult{ RemoveProductSuccess });
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
             const Utility::StockProduct &product{ result.request().params().value("product").toMap() };
             undoRemoveProductFromModel(product);
-            emit success(UndoRemoveProductSuccess);
+            emit success(ModelResult{ UndoRemoveProductSuccess });
         }
     } else {
         emit error();

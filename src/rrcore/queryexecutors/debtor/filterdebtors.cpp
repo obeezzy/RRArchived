@@ -40,7 +40,7 @@ QueryResult FilterDebtors::execute()
                               { "record_count", debtors.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

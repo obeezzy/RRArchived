@@ -15,8 +15,8 @@ ListView {
     property int filterColumn: -1
     property bool autoQuery: true
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     topMargin: 20
     bottomMargin: 20
@@ -27,8 +27,8 @@ ListView {
         filterText: debtorListView.filterText
         filterColumn: debtorListView.filterColumn
         autoQuery: debtorListView.autoQuery
-        onSuccess: debtorListView.success(successCode);
-        onError: debtorListView.error(errorCode);
+        onSuccess: debtorListView.success(result);
+        onError: debtorListView.error(result);
     }
 
     QQC2.ScrollBar.vertical: QQC2.ScrollBar {

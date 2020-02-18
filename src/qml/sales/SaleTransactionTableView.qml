@@ -17,8 +17,8 @@ RRUi.DataTableView {
     property date from: new Date()
     property date to: new Date()
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
 
     function refresh() { saleTransactionModel.refresh(); }
@@ -52,8 +52,8 @@ RRUi.DataTableView {
         keys: saleTransactionTableView.keys
         from: saleTransactionTableView.from
         to: saleTransactionTableView.to
-        onSuccess: saleTransactionTableView.success(successCode);
-        onError: saleTransactionTableView.error(errorCode);
+        onSuccess: saleTransactionTableView.success(result);
+        onError: saleTransactionTableView.error(result);
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {

@@ -22,7 +22,7 @@ SignInUser::SignInUser(const Utility::User &user,
                     { "password", user.password },
                     { "rack_id", UserProfile::instance().rackId() },
                     { "user_id", UserProfile::instance().userId() }
-                  }, receiver)
+                 }, receiver)
 {
 }
 
@@ -47,8 +47,8 @@ bool SignInUser::storeProfile(QueryResult &result,
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
 
     if (!connection.isOpen())
-        throw DatabaseException(DatabaseError::QueryErrorCode::UnknownError,
-                                QStringLiteral("Database connection is closed."));
+        throw ConnectionFailedException(QStringLiteral("Database connection is closed."),
+                                        connection.lastError());
 
     try {
         const auto &records(callProcedure("FetchUserByName", {
@@ -71,7 +71,7 @@ bool SignInUser::storeProfile(QueryResult &result,
                               { "user_privileges", user.value("user_privileges") },
                               { "record_count", 1 }
                           });
-    } catch (DatabaseException &e) {
+    } catch (const DatabaseException &e) {
         qCWarning(lcsigninuser) << e;
         throw;
     }
@@ -98,12 +98,15 @@ void SignInUser::attemptSignIn(QueryResult &result)
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection.open() || !storeProfile(result, userName, password)) {
-        qCDebug(lcsigninuser) << "Sign in SQL error code:" << connection.lastError().nativeErrorCode().toInt();
-        if (connection.lastError().nativeErrorCode().toInt() == static_cast<int>(DatabaseError::MySqlErrorCode::UserAccountIsLockedError))
-            throw UserAccountLockedException(QStringLiteral("Failed to sign in as '%1'.")
+        qCDebug(lcsigninuser) << "Sign in SQL error code:"
+                              << connection.lastError().nativeErrorCode().toInt();
+        if (connection.lastError().nativeErrorCode().toInt()
+                == static_cast<int>(DatabaseError::MySqlErrorCode::UserAccountIsLockedError))
+            throw UserAccountLockedException(QStringLiteral("User account for '%1' is locked.")
                                              .arg(userName));
         else
-            throw IncorrectCredentialsException(QString("Failed to sign in as '%1'.")
-                                                .arg(userName));
+            throw InvalidCredentialsException(QStringLiteral("Failed to sign in as '%1'.")
+                                              .arg(userName),
+                                              connection.lastError());
     }
 }

@@ -27,7 +27,11 @@ RRUi.Page {
                 right: parent.right
             }
 
-            text: qsTr("Welcome to Record Rack! To get started, we need to sync up your online account and your local account. Enter your username and password below. If you do not have an account, click the 'Sign up' link below. if you forgot your password, click the 'Forgot password' link below.")
+            text: qsTr("Welcome to Record Rack! "
+                       + "To get started, we need to sync up your online account and your local account. "
+                       + "Enter your username and password below. "
+                       + "If you do not have an account, click the 'Sign up' link below. "
+                       + "If you forgot your password, click the 'Forgot password' link below.")
             wrapMode: Text.WordWrap
         }
 
@@ -108,7 +112,7 @@ RRUi.Page {
     Connections {
         target: onlineLoginPage.userProfile
         onSuccess: {
-            switch (successCode) {
+            switch (result.code) {
             case RR.UserProfile.LinkAccountSuccess:
                 lottieCheckmark.animate();
                 break;
@@ -116,21 +120,27 @@ RRUi.Page {
         }
 
         onError: {
-            switch (errorCode) {
+            switch (result.code) {
             case RR.UserProfile.ConnectionRefusedError:
-                errorDialog.show(qsTr("Unable to connect to the server. Check your internet connection and try again."), qsTr("Error"));
+                errorDialog.show(qsTr("Unable to connect to the server. "
+                                      + "Check your internet connection and try again."),
+                                 qsTr("Error"));
                 break;
             case RR.UserProfile.NoEmailAddressProvided:
-                errorDialog.show(qsTr("Please enter your email address."), qsTr("Error"));
+                errorDialog.show(qsTr("Please enter your email address."),
+                                 qsTr("Error"));
                 break;
             case RR.UserProfile.NoPasswordProvided:
-                errorDialog.show(qsTr("Please enter your password."), qsTr("Error"));
+                errorDialog.show(qsTr("Please enter your password."),
+                                 qsTr("Error"));
                 break;
             case RR.UserProfile.IncorrectCredentials:
-                errorDialog.show(qsTr("The email address or password provided is incorrect."), qsTr("Authentication error"));
+                errorDialog.show(qsTr("The email address or password provided is incorrect."),
+                                 qsTr("Authentication error"));
                 break;
             default:
-                errorDialog.show(qsTr("An unknown error occurred."), qsTr("Error"));
+                errorDialog.show(qsTr("An unknown error occurred."),
+                                 qsTr("Error"));
                 break;
             }
         }

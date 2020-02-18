@@ -38,4 +38,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::IncomeReportTransaction, Q_PRIMITIVE_TYPE);
+
 #endif // INCOMEREPORTTRANSACTION_H

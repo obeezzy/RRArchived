@@ -1,6 +1,6 @@
 #include "databaseexception.h"
-#include <QObject>
 #include "databaseerror.h"
+#include <QObject>
 
 using namespace DatabaseError;
 

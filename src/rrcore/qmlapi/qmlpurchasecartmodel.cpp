@@ -246,7 +246,7 @@ void QMLPurchaseCartModel::submitTransaction(const QVariantMap &addOns)
 {
     if (m_transaction.balance != 0.0
             && addOns.value("due_date_time").isNull())
-        emit error(NoDueDateSetError);
+        emit error(ModelResult{ NoDueDateSetError });
     else
         addTransaction(addOns);
 }
@@ -299,7 +299,7 @@ void QMLPurchaseCartModel::addTransaction(const QVariantMap &transaction)
         setBusy(true);
         emit execute(new PurchaseQuery::AddPurchaseTransaction(m_transaction, this));
     } else {
-        emit error(EmptyCartError);
+        emit error(ModelResult{ EmptyCartError });
     }
 }
 
@@ -314,7 +314,7 @@ void QMLPurchaseCartModel::updateSuspendedTransaction(const QVariantMap &transac
     if (!m_transaction.products.isEmpty())
         emit execute(new PurchaseQuery::UpdateSuspendedPurchaseTransaction(m_transaction, this));
     else
-        emit error(EmptyCartError);
+        emit error(ModelResult{ EmptyCartError });
 }
 
 void QMLPurchaseCartModel::tryQuery()
@@ -359,46 +359,46 @@ void QMLPurchaseCartModel::processResult(const QueryResult result)
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(client.id);
-                emit success(SuspendTransactionSuccess);
+                emit success(ModelResult{ SuspendTransactionSuccess });
             } else {
                 const Utility::Client &client{ result.outcome().toMap() };
                 setTransactionId(-1);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(client.id);
-                emit success(SubmitTransactionSuccess);
+                emit success(ModelResult{ SubmitTransactionSuccess });
             }
         } else if (result.request().command() == PurchaseQuery::ViewPurchaseCart::COMMAND) {
             const Utility::Client &client{ result.outcome().toMap() };
             setClientId(client.id);
             setCustomerName(client.preferredName);
             setCustomerPhoneNumber(client.phoneNumber);
-            emit success(RetrieveTransactionSuccess);
+            emit success(ModelResult{ RetrieveTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::UpdateSuspendedPurchaseTransaction::COMMAND) {
             const Utility::Client &client{ result.outcome().toMap() };
             setTransactionId(-1);
             setClientId(client.id);
             setCustomerName(client.preferredName);
             setCustomerPhoneNumber(client.phoneNumber);
-            emit success(SuspendTransactionSuccess);
+            emit success(ModelResult{ SuspendTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::AddPurchaseTransaction::UNDO_COMMAND) {
-            emit success(UndoSubmitTransactionSuccess);
+            emit success(ModelResult{ UndoSubmitTransactionSuccess });
         } else {
-            emit success(UnknownSuccess);
+            emit success(ModelResult{ UnknownSuccess });
         }
     } else {
         if (result.request().command() == PurchaseQuery::AddPurchaseTransaction::COMMAND) {
             const auto transaction = Utility::PurchaseTransaction{ result.request().params() };
             if (transaction.flags.testFlag(Utility::RecordGroup::Suspended))
-                emit error(SuspendTransactionError);
+                emit error(ModelResult{ SuspendTransactionError });
             else
-                emit error(SubmitTransactionError);
+                emit error(ModelResult{ SubmitTransactionError });
         } else if (result.request().command() == PurchaseQuery::ViewPurchaseCart::COMMAND) {
-            emit error(RetrieveTransactionError);
+            emit error(ModelResult{ RetrieveTransactionError });
         } else if (result.request().command() == PurchaseQuery::UpdateSuspendedPurchaseTransaction::COMMAND) {
-            emit error(SuspendTransactionError);
+            emit error(ModelResult{ SuspendTransactionError });
         } else {
-            emit error(UnknownError);
+            emit error();
         }
     }
 

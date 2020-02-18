@@ -65,9 +65,9 @@ void QMLClientModel::processResult(const QueryResult result)
         m_clientList = Utility::ClientList { result.outcome().toMap().value("clients").toList() };
         endResetModel();
 
-        emit success(ViewClientsSuccess);
+        emit success(ModelResult{ ViewClientsSuccess });
     } else {
-        emit error(UnknownError);
+        emit error();
     }
 }
 

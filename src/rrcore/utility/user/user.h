@@ -72,6 +72,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::User, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::User, Q_PRIMITIVE_TYPE);
 
 #endif // USER_H

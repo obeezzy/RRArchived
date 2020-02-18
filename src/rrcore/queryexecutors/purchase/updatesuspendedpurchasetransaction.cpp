@@ -46,7 +46,7 @@ QueryResult UpdateSuspendedPurchaseTransaction::execute()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

@@ -146,7 +146,7 @@ RRUi.Page {
                 RRUi.ErrorDialog {
                     id: errorDialog
                     onAboutToHide: {
-                        switch (errorCode) {
+                        switch (result.code) {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:
                         case RRModels.DebtTransactionModel.NoPhoneNumberError:
                             tabBar.currentIndex = 0;
@@ -163,7 +163,7 @@ RRUi.Page {
                     target: debtTransactionSubView.listView
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.DebtTransactionModel.AddDebtorSuccess:
                             transitionView.trigger();
                             newDebtorPage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor added successfully."));
@@ -176,15 +176,18 @@ RRUi.Page {
                     }
 
                     onError: {
-                        switch (errorCode) {
+                        switch (result.code) {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:
-                            errorDialog.show(qsTr("The debtor's name must be provided."), qsTr("Error"), errorCode);
+                            errorDialog.show(qsTr("The debtor's name must be provided."),
+                                             qsTr("Error"));
                             break;
                         case RRModels.DebtTransactionModel.NoPhoneNumberError:
-                            errorDialog.show(qsTr("The debtor's primary phone number must be provided."), qsTr("Error"), errorCode);
+                            errorDialog.show(qsTr("The debtor's primary phone number must be provided."),
+                                             qsTr("Error"));
                             break;
                         case RRModels.DebtTransactionModel.DataUnchangedError:
-                            errorDialog.show(qsTr("No changes have been made to this debtor."), qsTr("Error"), errorCode);
+                            errorDialog.show(qsTr("No changes have been made to this debtor."),
+                                             qsTr("Error"));
                             break;
                         case RRModels.DebtTransactionModel.DuplicateEntryError:
                             errorDialog.show(qsTr("This debtor already exists."));

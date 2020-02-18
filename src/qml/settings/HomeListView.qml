@@ -22,7 +22,7 @@ Flickable {
     RR.UserProfile {
         id: userProfile
         onSuccess: {
-            switch (successCode) {
+            switch (result.code) {
             case RR.UserProfile.SignOutSuccess:
                 homeListView.signedOut();
                 break;

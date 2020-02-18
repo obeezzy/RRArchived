@@ -3,7 +3,7 @@
 
 #include "purchasecartproduct.h"
 #include "purchasepayment.h"
-#include "utility/commonutils.h"
+#include "utility/common/note.h"
 #include <QString>
 
 namespace Utility {
@@ -68,6 +68,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::PurchaseTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::PurchaseTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASETRANSACTION_H

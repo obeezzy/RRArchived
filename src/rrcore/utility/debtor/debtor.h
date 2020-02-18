@@ -56,5 +56,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::Debtor, Q_PRIMITIVE_TYPE);
 
 #endif // DEBTOR_H

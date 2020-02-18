@@ -38,6 +38,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::PurchaseReportTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::PurchaseReportTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASEREPORTTRANSACTION_H

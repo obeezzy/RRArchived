@@ -21,4 +21,6 @@ struct SortCriteria {
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::SortCriteria, Q_PRIMITIVE_TYPE);
+
 #endif // SORTCRITERIA_H

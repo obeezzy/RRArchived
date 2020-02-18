@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QSettings>
-
 #include <QUrl>
 
 class Settings : public QObject
@@ -19,7 +18,7 @@ public:
     void setDarkModeActive(bool darkModeActive);
 
     static QUrl defaultReceiptTemplateUrl();
-    inline static const QString DEFAULT_CURRENCY = QStringLiteral("NGN");
+    static inline const QString DEFAULT_CURRENCY = QStringLiteral("NGN");
 signals:
     void darkModeActiveChanged();
 private:

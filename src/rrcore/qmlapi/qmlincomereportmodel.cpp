@@ -99,7 +99,7 @@ void QMLIncomeReportModel::processResult(const QueryResult result)
             beginResetModel();
             m_transactions = Utility::IncomeReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
-            emit success(ViewIncomeReportSuccess);
+            emit success();
         } else {
             emit error();
         }

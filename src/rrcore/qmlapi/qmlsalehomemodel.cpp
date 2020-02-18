@@ -13,9 +13,7 @@ QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
 
 QMLSaleHomeModel::QMLSaleHomeModel(DatabaseThread &thread, QObject *parent) :
     AbstractVisualListModel(thread, parent)
-{
-
-}
+{}
 
 int QMLSaleHomeModel::rowCount(const QModelIndex &parent) const
 {

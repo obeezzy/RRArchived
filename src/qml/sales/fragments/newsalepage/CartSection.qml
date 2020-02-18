@@ -20,8 +20,8 @@ FocusScope {
     property alias customerName: customerInfo.name
     property alias customerPhoneNumber: customerInfo.phoneNumber
 
-    signal success(int successCode)
-    signal error(int errorCode, string errorMessage)
+    signal success(var result)
+    signal error(var result)
     signal viewRequested(int productId)
     signal checkoutRequested
 
@@ -53,7 +53,7 @@ FocusScope {
             QQLayouts.Layout.fillWidth: true
             QQLayouts.Layout.fillHeight: true
             onSuccess: {
-                switch (successCode) {
+                switch (result.code) {
                 case RRModels.SaleCartModel.RetrieveTransactionSuccess:
                     customerInfo.name = customerName;
                     MainWindow.snackBar.show(qsTr("Transaction retrieved."));
@@ -74,10 +74,10 @@ FocusScope {
                     MainWindow.snackBar.show(qsTr("Transaction reverted."));
                 }
 
-                cartSection.success(successCode);
+                cartSection.success(result);
             }
 
-            onError: cartSection.error(errorCode, errorMessage);
+            onError: cartSection.error(result);
             onEditRequested: cartProductEditorDialog.show(product);
             onViewRequested: cartSection.viewRequested(productId);
         }

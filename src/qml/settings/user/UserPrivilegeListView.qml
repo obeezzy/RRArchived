@@ -18,8 +18,8 @@ ListView {
     property string phoneNumber: ""
     property string emailAddress: ""
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function submit() { return userPrivilegeModel.submit(); }
 
@@ -44,8 +44,8 @@ ListView {
         phoneNumber: userPrivilegeListView.phoneNumber
         emailAddress: userPrivilegeListView.emailAddress
 
-        onSuccess: userPrivilegeListView.success(successCode);
-        onError: userPrivilegeListView.error(errorCode);
+        onSuccess: userPrivilegeListView.success(result);
+        onError: userPrivilegeListView.error(result);
     }
     delegate: RRUi.Card {
         id: card

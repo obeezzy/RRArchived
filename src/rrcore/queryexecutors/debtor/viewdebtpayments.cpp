@@ -33,7 +33,7 @@ QueryResult ViewDebtPayments::execute()
                               { "record_count", payments.count() }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

@@ -16,10 +16,6 @@ public:
         UnitRole
     };
 
-    enum SuccessCode {
-        ViewPurchaseReportSuccess
-    }; Q_ENUM(SuccessCode)
-
     enum Columns {
         CategoryColumn,
         ProductColumn,

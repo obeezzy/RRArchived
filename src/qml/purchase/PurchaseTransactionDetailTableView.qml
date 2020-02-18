@@ -13,8 +13,8 @@ RRUi.DataTableView {
     property alias busy: purchaseTransactionItemModel.busy
     property alias autoQuery: purchaseTransactionItemModel.autoQuery
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function refresh() { purchaseTransactionItemModel.refresh(); }
 
@@ -29,8 +29,8 @@ RRUi.DataTableView {
         id: purchaseTransactionItemModel
         tableViewWidth: purchaseTransactionDetailTableView.widthWithoutMargins
         transactionId: purchaseTransactionDetailTableView.transactionId
-        onSuccess: purchaseTransactionDetailTableView.success(successCode);
-        onError: purchaseTransactionDetailTableView.error(errorCode);
+        onSuccess: purchaseTransactionDetailTableView.success(result);
+        onError: purchaseTransactionDetailTableView.error(result);
     }
 
     delegate: DelegateChooser {

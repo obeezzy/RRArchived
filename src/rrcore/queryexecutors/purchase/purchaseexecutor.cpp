@@ -70,7 +70,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
                               { "sale_transaction_id", purchaseTransactionId }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         if (mode == TransactionMode::UseSqlTransaction)
             DatabaseUtils::rollbackTransaction(q);
 

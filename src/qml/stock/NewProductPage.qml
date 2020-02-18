@@ -118,7 +118,7 @@ RRUi.Page {
                         divisible: productDetails.divisible
 
                         onSuccess: {
-                            switch (successCode) {
+                            switch (result.code) {
                             case RRModels.StockProductPusher.AddProductSuccess:
                                 MainWindow.snackBar.show(qsTr("Product was successfully added!"));
                                 transitionView.trigger();
@@ -130,7 +130,7 @@ RRUi.Page {
                             }
                         }
                         onError: {
-                            switch (errorCode) {
+                            switch (result.code) {
                             case RRModels.StockProductPusher.InsertFailed:
                                 errorDialog.show(qsTr("Product could not be inserted into the database."),
                                                  qsTr("Failed to add product"));
@@ -140,7 +140,8 @@ RRUi.Page {
                                                  qsTr("Failed to add product"));
                                 break;
                             case RRModels.StockProductPusher.ImageTooLargeError:
-                                errorDialog.show(qsTr("The image selected for the product is too large. Please choose an image less than 2 MB."),
+                                errorDialog.show(qsTr("The image selected for the product is too large. "
+                                                      + "Please choose an image less than 2 MB."),
                                                  qsTr("Failed to add product"));
                                 break;
                             default:

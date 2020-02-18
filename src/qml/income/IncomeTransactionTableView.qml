@@ -18,8 +18,8 @@ RRUi.DataTableView {
     property date from: new Date()
     property date to: new Date()
 
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function removeTransaction(transactionId) { incomeTransactionTableView.model.removeTransaction(transactionId); }
     function refresh() { incomeTransactionTableView.model.refresh(); }
@@ -49,8 +49,8 @@ RRUi.DataTableView {
         keys: incomeTransactionTableView.keys
         from: incomeTransactionTableView.from
         to: incomeTransactionTableView.to
-        onSuccess: incomeTransactionTableView.success(successCode);
-        onError: incomeTransactionTableView.error(errorCode);
+        onSuccess: incomeTransactionTableView.success(result);
+        onError: incomeTransactionTableView.error(result);
     }
 
     QQC2.ScrollBar.vertical: QQC2.ScrollBar {

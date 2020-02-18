@@ -24,10 +24,6 @@ public:
         ColumnCount
     }; Q_ENUM(Columns)
 
-    enum SuccessCode {
-        ViewSalesReportSuccess
-    }; Q_ENUM(SuccessCode)
-
     explicit QMLSaleReportModel(QObject *parent = nullptr);
     explicit QMLSaleReportModel(DatabaseThread &thread, QObject *parent = nullptr);
 

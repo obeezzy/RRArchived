@@ -23,6 +23,6 @@ private:
     explicit RecordGroup() = default;
 };
 }
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utility::RecordGroup::Flags)
+
 #endif // RECORDGROUP_H

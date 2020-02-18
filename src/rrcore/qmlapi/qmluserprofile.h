@@ -4,6 +4,7 @@
 #include "user/businessstore.h"
 #include "database/queryexecutor.h"
 #include "utility/user/user.h"
+#include "models/modelresult.h"
 #include <QObject>
 #include <QUrl>
 #include <QLoggingCategory>
@@ -32,7 +33,6 @@ public:
     explicit QMLUserProfile(DatabaseThread &, QObject *parent = nullptr);
 
     enum SuccessCode {
-        UnknownSuccess,
         SignInSuccess,
         SignUpSuccess,
         LinkAccountSuccess,
@@ -42,7 +42,6 @@ public:
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
-        UnknownError,
         NoUserNameProvided,
         NoEmailAddressProvided,
         NoPasswordProvided,
@@ -84,8 +83,8 @@ signals:
     void execute(QueryExecutor *);
     void executeRequest(const ServerRequest &);
     void busyChanged();
-    void success(int successCode);
-    void error(int errorCode);
+    void success(ModelResult result = ModelResult());
+    void error(ModelResult result = ModelResult());
     void businessStoreModelChanged();
 
     void isFirstTimeChanged();

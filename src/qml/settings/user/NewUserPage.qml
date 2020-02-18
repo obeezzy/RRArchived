@@ -53,7 +53,8 @@ RRUi.Page {
 
             function validateInput() {
                 if (userDetailSubView.password !== userDetailSubView.passwordConfirmation) {
-                    errorDialog.show(qsTr("The passwords provided do not match."), qsTr("Error"));
+                    errorDialog.show(qsTr("The passwords provided do not match."),
+                                     qsTr("Error"));
                     return false;
                 }
 
@@ -156,7 +157,7 @@ RRUi.Page {
             RRUi.ErrorDialog {
                 id: errorDialog;
                 onAboutToHide: {
-                    switch (errorCode) {
+                    switch (result.code) {
                     case RRModels.UserPrivilegeModel.NoFirstNameSetError:
                     case RRModels.UserPrivilegeModel.NoLastNameSetError:
                     case RRModels.UserPrivilegeModel.NoUserNameSetError:
@@ -173,7 +174,7 @@ RRUi.Page {
                 target: userPrivilegeSubView.listView
 
                 onSuccess: {
-                    switch (successCode) {
+                    switch (result.code) {
                     case RRModels.UserPrivilegeModel.AddUserSuccess:
                         transitionView.trigger();
                         MainWindow.snackBar.show(qsTr("User added successfully."));
@@ -186,18 +187,22 @@ RRUi.Page {
                 }
 
                 onError: {
-                    switch (errorCode) {
+                    switch (result.code) {
                     case RRModels.UserPrivilegeModel.NoUserNameSetError:
-                        errorDialog.show(qsTr("The user's user name must be provided."), qsTr("Error"), errorCode);
+                        errorDialog.show(qsTr("The user's user name must be provided."),
+                                         qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoFirstNameSetError:
-                        errorDialog.show(qsTr("The user's first name must be provided."), qsTr("Error"), errorCode);
+                        errorDialog.show(qsTr("The user's first name must be provided."),
+                                         qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoLastNameSetError:
-                        errorDialog.show(qsTr("The user's last name must be provided."), qsTr("Error"), errorCode);
+                        errorDialog.show(qsTr("The user's last name must be provided."),
+                                         qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoPasswordSetError:
-                        errorDialog.show(qsTr("The user's password must be provided."), qsTr("Error"), errorCode);
+                        errorDialog.show(qsTr("The user's password must be provided."),
+                                         qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoPhoneNumberSetError:
                         errorDialog.show(qsTr("The user's phone number must be provided."));
@@ -212,7 +217,8 @@ RRUi.Page {
                         errorDialog.show(qsTr("The image provided is too large. The image must be less than 2 MB."));
                         break;
                     case RRModels.UserPrivilegeModel.UserPreviouslyArchivedError:
-                        errorDialog.show(qsTr("A user with the same user name was previously archived. You must use a different user name or unarchive the user."));
+                        errorDialog.show(qsTr("A user with the same user name was previously archived. "
+                                              + "You must use a different user name or unarchive the user."));
                         break;
                     default:
                         errorDialog.show();

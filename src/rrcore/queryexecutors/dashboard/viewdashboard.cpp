@@ -27,7 +27,7 @@ QueryResult ViewDashboard::execute()
                           });
 
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

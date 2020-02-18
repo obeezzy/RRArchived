@@ -45,7 +45,7 @@ QueryResult FetchStockProduct::execute()
                               { "record_count", 1 }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

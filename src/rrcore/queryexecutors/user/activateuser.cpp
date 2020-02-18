@@ -44,7 +44,7 @@ QueryResult ActivateUser::execute()
                       });
 
         DatabaseUtils::commitTransaction(q);
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

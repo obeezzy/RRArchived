@@ -1,11 +1,11 @@
 #ifndef DATABASETHREAD_H
 #define DATABASETHREAD_H
 
+#include "queryrequest.h"
+#include "queryresult.h"
 #include <QThread>
 #include <QSqlDatabase>
 #include <QLoggingCategory>
-#include "queryrequest.h"
-#include "queryresult.h"
 
 class QueryExecutor;
 
@@ -25,7 +25,8 @@ class DatabaseThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit DatabaseThread(QueryResult *, QObject *parent = nullptr); // For testing
+    explicit DatabaseThread(QueryResult *,
+                            QObject *parent = nullptr); // For testing
 
     static DatabaseThread &instance();
     virtual ~DatabaseThread() override;
@@ -41,6 +42,6 @@ private:
     explicit DatabaseThread(QObject *parent = nullptr);
 };
 
-Q_DECLARE_LOGGING_CATEGORY(databaseThread);
+Q_DECLARE_LOGGING_CATEGORY(lcdatabasethread);
 
 #endif // DATABASETHREAD_H

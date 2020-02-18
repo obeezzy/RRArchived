@@ -41,5 +41,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::ExpenseTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // EXPENSETRANSACTION_H

@@ -1,10 +1,10 @@
 #ifndef DATABASEEXCEPTION_H
 #define DATABASEEXCEPTION_H
 
+#include "databaseerror.h"
 #include <exception>
 #include <QString>
 #include <QDebug>
-#include "databaseerror.h"
 
 class DatabaseException : public std::exception
 {
@@ -34,11 +34,20 @@ public:
     friend QDebug operator<<(QDebug debug,
                              const DatabaseException &databaseException)
     {
+        QString debugMessage = databaseException.toString();
+
         // Surround message in quotes
-        debug << databaseException.toString().replace(databaseException.message(),
-                                                      QStringLiteral("\"%1\"")
-                                                      .arg(databaseException.message()))
-                 .toStdString().c_str();
+        if (!databaseException.message().trimmed().isEmpty())
+            debugMessage.replace(databaseException.message(),
+                                 QStringLiteral("\"%1\"")
+                                 .arg(databaseException.message()));
+        // Surround user message in quotes
+        if (!databaseException.userMessage().trimmed().isEmpty())
+            debugMessage.replace(databaseException.userMessage(),
+                     QStringLiteral("\"%1\"")
+                     .arg(databaseException.userMessage()));
+
+        debug << debugMessage.toStdString().c_str();
         return debug;
     }
 private:

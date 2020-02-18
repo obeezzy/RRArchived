@@ -105,7 +105,7 @@ void QueryExecutor::setConnectionName(const QString &connectionName)
     m_connectionName = connectionName;
 }
 
-QVariantMap QueryExecutor::recordToMap(const QSqlRecord &record)
+QVariantMap QueryExecutor::recordToMap(const QSqlRecord &record) noexcept
 {
     QVariantMap map;
     for (int i = 0; i < record.count(); i++)
@@ -114,7 +114,7 @@ QVariantMap QueryExecutor::recordToMap(const QSqlRecord &record)
     return map;
 }
 
-QSqlRecord QueryExecutor::mapToRecord(const QVariantMap &map)
+QSqlRecord QueryExecutor::mapToRecord(const QVariantMap &map) noexcept
 {
     QSqlRecord record;
 
@@ -278,7 +278,7 @@ int QueryExecutor::addNote(const QString &note,
                                           }));
 
         return records.first().value("id").toInt();
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         if (policy == ExceptionPolicy::AllowExceptions)
             throw;
     }
@@ -320,7 +320,7 @@ void QueryExecutor::updateNote(int noteId,
                               UserProfile::instance().userId()
                           }
                       });
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         if (policy == ExceptionPolicy::AllowExceptions)
             throw;
     }
@@ -340,7 +340,7 @@ int QueryExecutor::addOrUpdateNote(int noteId,
         }
 
         return noteId;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         if (policy == ExceptionPolicy::AllowExceptions)
             throw;
     }

@@ -60,7 +60,7 @@ QueryResult ViewSaleCart::execute()
         }
 
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

@@ -19,8 +19,8 @@ ListView {
 
     signal viewRequested(int productId)
     signal editRequested(var product)
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
 
     function addProduct(product) { cartListView.model.addProduct(product); }
     function submitTransaction(paymentInfo) { cartListView.model.submitTransaction(paymentInfo); }
@@ -39,8 +39,8 @@ ListView {
 
     model: RRModels.SaleCartModel {
         id: saleCartModel
-        onSuccess: cartListView.success(successCode);
-        onError: cartListView.error(errorCode);
+        onSuccess: cartListView.success(result);
+        onError: cartListView.error(result);
     }
 
     delegate: Item {

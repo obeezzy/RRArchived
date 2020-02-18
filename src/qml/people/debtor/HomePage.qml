@@ -93,7 +93,7 @@ RRUi.Page {
                     filterColumn: RRModels.DebtorModel.PreferredNameColumn
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.DebtorModel.RemoveDebtorSuccess:
                             homePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Debtor removed"), qsTr("Undo"));
                             break;

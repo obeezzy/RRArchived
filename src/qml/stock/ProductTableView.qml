@@ -12,8 +12,8 @@ RRUi.DataTableView {
     property string filterText: ""
     property int sortColumn: -1
     property Component buttonRow: null
-    signal success(int successCode)
-    signal error(int errorCode)
+    signal success(var result)
+    signal error(var result)
     signal productRemoved(int productId)
     signal modelReset
 
@@ -33,8 +33,8 @@ RRUi.DataTableView {
         filterColumn: productTableView.filterColumn
         sortColumn: productTableView.sortColumn
         onProductRemoved: productTableView.productRemoved(productId);
-        onSuccess: productTableView.success(successCode);
-        onError: productTableView.error(errorCode);
+        onSuccess: productTableView.success(result);
+        onError: productTableView.error(result);
         onModelReset: productTableView.modelReset();
     }
 

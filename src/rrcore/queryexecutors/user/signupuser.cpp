@@ -43,7 +43,7 @@ QueryResult SignUpUser::execute()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
@@ -70,9 +70,8 @@ void SignUpUser::connectToDatabase(QSqlDatabase &connection)
     connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
 
     if (!connection.open())
-        throw DatabaseException(DatabaseError::QueryErrorCode::SignInFailure,
-                                connection.lastError().text(),
-                                QString("Failed to open connection."));
+        throw ConnectionFailedException(QStringLiteral("Failed to open connection."),
+                                        connection.lastError());
 }
 
 void SignUpUser::addSqlUser(QSqlQuery &q)

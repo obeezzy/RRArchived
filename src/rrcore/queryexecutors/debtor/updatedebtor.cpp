@@ -86,7 +86,7 @@ QueryResult UpdateDebtor::execute()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

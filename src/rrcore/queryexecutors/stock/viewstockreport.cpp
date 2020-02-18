@@ -43,7 +43,7 @@ QueryResult ViewStockReport::execute()
                               { "record_count", products.count() },
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         throw;
     }
 }

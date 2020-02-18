@@ -120,9 +120,10 @@ RRUi.Page {
                                  saleTransactionPage.selectedDate.getDate() + 1)
 
                     onSuccess: {
-                        switch (successCode) {
+                        switch (result.code) {
                         case RRModels.SaleTransactionModel.RemoveTransactionSuccess:
-                            MainWindow.snackBar.show(qsTr("Transaction deleted."), qsTr("Undo"));
+                            MainWindow.snackBar.show(qsTr("Transaction deleted."),
+                                                     qsTr("Undo"));
                             break;
                         case RRModels.SaleTransactionModel.UndoRemoveTransactionSuccess:
                             MainWindow.snackBar.show(qsTr("Undo successful"));

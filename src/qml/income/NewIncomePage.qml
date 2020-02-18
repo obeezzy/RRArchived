@@ -190,7 +190,7 @@ RRUi.Page {
                                                                                                     : RRModels.IncomePusher.Cash
 
                         onSuccess: {
-                            switch (successCode) {
+                            switch (result.code) {
                             case RRModels.IncomePusher.AddIncomeSuccess:
                                 newIncomePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Your entry was successfully added!"));
                                 transitionView.trigger();
@@ -202,7 +202,7 @@ RRUi.Page {
                             }
                         }
                         onError: {
-                            switch (errorCode) {
+                            switch (result.code) {
                             case RRModels.IncomePusher.AddIncomeError:
                                 failureAlertDialogLoader.message = qsTr("Failed to add entry.");
                                 break;

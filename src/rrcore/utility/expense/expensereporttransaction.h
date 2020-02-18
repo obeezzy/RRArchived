@@ -38,5 +38,6 @@ public:
     }
 };
 }
+Q_DECLARE_TYPEINFO(Utility::ExpenseReportTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // EXPENSEREPORTTRANSACTION_H

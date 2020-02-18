@@ -117,7 +117,7 @@ void QMLPurchaseReportModel::processResult(const QueryResult result)
             beginResetModel();
             m_transactions = Utility::PurchaseReportTransactionList{ result.outcome().toMap().value("transactions").toList() };
             endResetModel();
-            emit success(ViewPurchaseReportSuccess);
+            emit success();
         } else {
             emit error();
         }

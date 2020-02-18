@@ -29,6 +29,7 @@ public:
         return list;
     }
 };
-} Q_DECLARE_TYPEINFO(Utility::PurchasePayment, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::PurchasePayment, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASEPAYMENT_H

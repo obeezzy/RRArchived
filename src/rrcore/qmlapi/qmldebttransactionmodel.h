@@ -19,7 +19,6 @@ class QMLDebtTransactionModel : public AbstractVisualListModel
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
 public:
     enum SuccessCode {
-        UnknownSuccess,
         AddDebtorSuccess,
         UpdateDebtorSuccess,
         UndoAddDebtorSuccess,
@@ -27,7 +26,6 @@ public:
     }; Q_ENUM(SuccessCode)
 
     enum ErrorCode {
-        UnknownError,
         NoPreferredNameError,
         NoPhoneNumberError,
         DataUnchangedError,

@@ -86,7 +86,6 @@ public:
     }
 };
 }
-
 Q_DECLARE_TYPEINFO(Utility::DebtPayment, Q_PRIMITIVE_TYPE);
 
 #endif // DEBTPAYMENT_H

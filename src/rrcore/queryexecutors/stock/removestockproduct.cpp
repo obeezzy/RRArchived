@@ -60,7 +60,7 @@ QueryResult RemoveStockProduct::removeStockProduct()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
@@ -107,7 +107,7 @@ QueryResult RemoveStockProduct::undoRemoveStockProduct()
 
         DatabaseUtils::commitTransaction(q);
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }

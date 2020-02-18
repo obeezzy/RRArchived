@@ -55,7 +55,7 @@ QueryResult RemovePurchaseTransaction::removePurchaseTransaction()
                               { "record_count", 1 }
                           });
         return result;
-    } catch (DatabaseException &) {
+    } catch (const DatabaseException &) {
         DatabaseUtils::rollbackTransaction(q);
         throw;
     }
