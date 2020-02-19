@@ -5,7 +5,6 @@
 #include "user/userprofile.h"
 #include "user/businessdetails.h"
 #include "database/exceptions/exceptions.h"
-#include "queryexecutor.h"
 #include <QString>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -190,7 +189,7 @@ void DatabaseCreator::updateBusinessDetails()
               .arg(UserProfile::instance().businessDetails()->businessFamily())
               .arg(UserProfile::instance().businessDetails()->establishmentYear())
               .arg(UserProfile::instance().businessDetails()->phoneNumber())
-              .arg(QString(QueryExecutor::imageUrlToByteArray(UserProfile::instance().businessDetails()->logoUrl()))));
+              .arg(QString(UserProfile::instance().businessDetails()->logo())));
 
     if (!q.exec())
         throw DatabaseInitializationFailedException(QStringLiteral("Failed to update business details table!"),

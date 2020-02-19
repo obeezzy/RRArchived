@@ -1,7 +1,6 @@
 #include "addexpensetransaction.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-#include "singletons/settings.h"
 #include "utility/commonutils.h"
 #include "utility/expenseutils.h"
 #include <QSqlDatabase>
@@ -17,7 +16,7 @@ AddExpenseTransaction::AddExpenseTransaction(const Utility::ExpenseTransaction &
                     { "purpose", transaction.purpose },
                     { "amount", transaction.amount },
                     { "payment_method", transaction.paymentMethod.toString() },
-                    { "currency", Settings::DEFAULT_CURRENCY },
+                    { "currency", transaction.currency },
                     }, receiver)
 {
 

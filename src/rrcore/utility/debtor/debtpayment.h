@@ -19,7 +19,7 @@ public:
     qreal totalAmount {0.0};
     qreal amountPaid {0.0};
     qreal balance {0.0};
-    QString currency;
+    QString currency {Settings::DEFAULT_CURRENCY};
     QDateTime dueDateTime;
     Note note;
     RecordGroup::Flags flags;

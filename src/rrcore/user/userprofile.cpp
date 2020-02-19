@@ -1,5 +1,4 @@
 #include "userprofile.h"
-#include "database/databaseutils.h"
 #include "businessdetails.h"
 #include "businessadmin.h"
 #include "utility/user/user.h"

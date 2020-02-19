@@ -1,7 +1,6 @@
 #include "addsaletransaction.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-#include "singletons/settings.h"
 #include "utility/saleutils.h"
 #include "database/exceptions/exceptions.h"
 #include <QSqlDatabase>
@@ -25,6 +24,7 @@ AddSaleTransaction::AddSaleTransaction(const Utility::SaleTransaction &transacti
                     { "due_date_time", transaction.dueDateTime },
                     { "action", transaction.action },
                     { "note", transaction.note.note },
+                    { "currency", transaction.currency },
                     { "payments", transaction.payments.toVariantList() },
                     { "products", transaction.products.toVariantList() }
                  }, receiver)

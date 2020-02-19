@@ -77,6 +77,7 @@ QueryRequest::CommandVerb QueryRequest::commandVerb() const
              || m_command == "change_password")
         return CommandVerb::Authenticate;
     else if (m_command.startsWith("view")
+             || m_command.startsWith("fetch")
              || m_command.startsWith("filter"))
         return CommandVerb::Read;
     else if (m_command.startsWith("update")

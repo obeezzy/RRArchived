@@ -1,7 +1,6 @@
 #include "updatestockproduct.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-#include "singletons/settings.h"
 #include "utility/stockutils.h"
 #include "database/exceptions/exceptions.h"
 #include <QSqlError>

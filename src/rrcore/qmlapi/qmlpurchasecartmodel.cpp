@@ -3,7 +3,6 @@
 #include "models/purchasepaymentmodel.h"
 #include "queryexecutors/purchase.h"
 #include "utility/purchaseutils.h"
-#include "singletons/settings.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -222,8 +221,7 @@ void QMLPurchaseCartModel::addPayment(qreal amount,
     Utility::PurchasePayment payment {
         amount,
                 static_cast<Utility::PaymentMethod>(method),
-                Utility::Note{ note },
-        Settings::DEFAULT_CURRENCY
+                Utility::Note{ note }
     };
     m_paymentModel->addPayment(payment);
     m_transaction.payments.append(payment);

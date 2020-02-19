@@ -2,10 +2,14 @@
 #include "businessstore.h"
 
 BusinessDetails::BusinessDetails(QObject *parent) :
-    QObject(parent),
-    m_establishmentYear(1959)
+    QObject(parent)
 {
 
+}
+
+QByteArray BusinessDetails::logo() const
+{
+    return m_logo;
 }
 
 QUrl BusinessDetails::logoUrl() const

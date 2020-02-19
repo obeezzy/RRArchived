@@ -2,7 +2,6 @@
 #include "database/databasethread.h"
 #include "database/databaseerror.h"
 #include "queryexecutors/stock.h"
-#include "singletons/settings.h"
 #include "utility/stockutils.h"
 #include <QUrl>
 

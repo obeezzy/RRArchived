@@ -1,9 +1,7 @@
 #include "businessstore.h"
 
 BusinessStore::BusinessStore(QObject *parent) :
-    QObject(parent),
-    m_id(0),
-    m_establishmentYear(0)
+    QObject(parent)
 {
 
 }

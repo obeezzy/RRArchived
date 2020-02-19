@@ -1,7 +1,9 @@
 #ifndef SALEPAYMENT_H
 #define SALEPAYMENT_H
 
-#include "utility/commonutils.h"
+#include "utility/common/note.h"
+#include "utility/common/paymentmethod.h"
+#include "singletons/settings.h"
 #include <QString>
 
 namespace Utility {
@@ -9,7 +11,7 @@ struct SalePayment {
     qreal amount {0.0};
     Utility::PaymentMethod method;
     Note note;
-    QString currency;
+    QString currency {Settings::DEFAULT_CURRENCY};
 
     explicit SalePayment(qreal amount,
                          const Utility::PaymentMethod &method,
