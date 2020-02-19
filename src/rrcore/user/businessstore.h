@@ -53,11 +53,11 @@ public:
         return debug;
     }
 private:
-    int m_id;
+    int m_id {-1};
     QString m_name;
     QString m_address;
     QString m_businessFamily;
-    int m_establishmentYear;
+    int m_establishmentYear {1901};
     QString m_phoneNumber;
     QUrl m_logoUrl;
     QString m_rackId;

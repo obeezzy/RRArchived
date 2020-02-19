@@ -31,7 +31,7 @@ public:
         return debug;
     }
 private:
-    int m_code {-1};
+    int m_code {0};
     QVariant m_extra;
 };
 Q_DECLARE_METATYPE(ModelResult)

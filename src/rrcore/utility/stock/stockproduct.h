@@ -5,6 +5,7 @@
 #include "utility/user/user.h"
 #include "stockproductcategory.h"
 #include "stockproductunit.h"
+#include "singletons/settings.h"
 #include <QVariantList>
 #include <QDateTime>
 
@@ -21,7 +22,7 @@ struct StockProduct {
     qreal costPrice {0.0};
     qreal retailPrice {0.0};
     qreal unitPrice {0.0};
-    QString currency;
+    QString currency {Settings::DEFAULT_CURRENCY};
     Note note;
     QDateTime created;
     QDateTime lastEdited;

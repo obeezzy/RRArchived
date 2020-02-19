@@ -1,7 +1,8 @@
 #ifndef SALETRANSACTION_H
 #define SALETRANSACTION_H
 
-#include "utility/commonutils.h"
+#include "utility/common/note.h"
+#include "singletons/settings.h"
 #include "salecartproduct.h"
 #include "salepayment.h"
 #include <QString>
@@ -22,6 +23,7 @@ struct SaleTransaction
     QDateTime dueDateTime;
     QString action;
     Note note;
+    QString currency {Settings::DEFAULT_CURRENCY};
     QDateTime created;
     QDateTime lastEdited;
     User user;

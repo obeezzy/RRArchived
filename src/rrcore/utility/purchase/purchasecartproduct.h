@@ -2,12 +2,11 @@
 #define PURCHASECARTPRODUCT_H
 
 #include "utility/user/user.h"
-#include "utility/commonutils.h"
-#include "utility/stockutils.h"
+#include "utility/common/note.h"
+#include "utility/stock/stockproductcategory.h"
+#include "utility/stock/stockproductunit.h"
+#include "singletons/settings.h"
 #include <QVariantList>
-#include <QList>
-#include <QVariantList>
-#include <QVariantMap>
 #include <QDateTime>
 
 namespace Utility {
@@ -25,7 +24,7 @@ struct PurchaseCartProduct {
     qreal unitPrice {0.0};
     qreal cost {0.0};
     qreal amountPaid {0.0};
-    QString currency;
+    QString currency {Settings::DEFAULT_CURRENCY};
     Note note;
     RecordGroup::Flags flags;
     QDateTime created;

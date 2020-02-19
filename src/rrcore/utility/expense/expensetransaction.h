@@ -3,6 +3,7 @@
 
 #include "utility/common/client.h"
 #include "utility/common/paymentmethod.h"
+#include "singletons/settings.h"
 #include <QString>
 #include <QVariantList>
 
@@ -14,6 +15,7 @@ struct ExpenseTransaction
     QString purpose;
     qreal amount {0.0};
     PaymentMethod paymentMethod;
+    QString currency {Settings::DEFAULT_CURRENCY};
 
     explicit ExpenseTransaction() = default;
     explicit ExpenseTransaction(const QVariantMap &map);

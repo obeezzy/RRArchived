@@ -3,7 +3,6 @@
 #include "user/userprofile.h"
 #include "utility/saleutils.h"
 #include "database/exceptions/exceptions.h"
-#include "singletons/settings.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -23,7 +22,7 @@ UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(const Utility::Sa
                     { "note_id", transaction.note.id },
                     { "note", transaction.note.note },
                     { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
-                    { "currency", Settings::DEFAULT_CURRENCY }
+                    { "currency", transaction.currency }
                  }, receiver)
 {
 

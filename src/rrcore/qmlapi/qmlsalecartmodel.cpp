@@ -4,7 +4,6 @@
 #include "queryexecutors/sales.h"
 #include "queryexecutors/stock.h"
 #include "utility/saleutils.h"
-#include "singletons/settings.h"
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>

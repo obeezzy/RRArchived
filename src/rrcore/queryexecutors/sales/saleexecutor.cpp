@@ -2,7 +2,6 @@
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "database/exceptions/exceptions.h"
-#include "singletons/settings.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>

@@ -17,6 +17,7 @@ class BusinessDetails : public QObject {
 public:
     explicit BusinessDetails(QObject *parent = nullptr);
 
+    QByteArray logo() const;
     QUrl logoUrl() const;
     void setLogoUrl(const QUrl &logoUrl);
 
@@ -42,12 +43,13 @@ signals:
     void phoneNumberChanged();
     void establishmentYearChanged();
 private:
+    QByteArray m_logo;
     QUrl m_logoUrl;
     QString m_name;
     QString m_address;
     QString m_businessFamily;
     QString m_phoneNumber;
-    int m_establishmentYear;
+    int m_establishmentYear {1959};
 
     void extractFromBusinessStore(const BusinessStore &businessStore);
 };

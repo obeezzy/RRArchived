@@ -71,7 +71,7 @@ int AddStockProduct::addStockProductCategory()
                                               QStringLiteral("product_category"),
                                               ExceptionPolicy::DisallowExceptions);
 
-    const auto &records(callProcedure("AddStockCategory", {
+    const auto &records(callProcedure("AddOrUpdateStockProductCategory", {
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
                                               "category",
@@ -171,7 +171,7 @@ int AddStockProduct::addStockProductUnit(int productId)
                                               QStringLiteral("unit"),
                                               ExceptionPolicy::DisallowExceptions);
 
-    const auto &records = callProcedure("AddStockUnit", {
+    const auto &records = callProcedure("AddStockProductUnit", {
                                             ProcedureArgument {
                                                 ProcedureArgument::Type::In,
                                                 "product_id",

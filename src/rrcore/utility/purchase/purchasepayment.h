@@ -1,7 +1,9 @@
 #ifndef PURCHASEPAYMENT_H
 #define PURCHASEPAYMENT_H
 
-#include "utility/commonutils.h"
+#include "utility/common/note.h"
+#include "utility/common/paymentmethod.h"
+#include "singletons/settings.h"
 #include <QString>
 #include <QList>
 
@@ -10,12 +12,11 @@ struct PurchasePayment {
     qreal amount {0.0};
     Utility::PaymentMethod method;
     Note note;
-    QString currency;
+    QString currency {Settings::DEFAULT_CURRENCY};
 
     explicit PurchasePayment(qreal amount,
                              const Utility::PaymentMethod &method,
-                             const Note &note,
-                             const QString &currency);
+                             const Note &note);
 
     QVariantMap toVariantMap() const;
 };
