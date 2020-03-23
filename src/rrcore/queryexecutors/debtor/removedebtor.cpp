@@ -116,6 +116,11 @@ void RemoveDebtor::archiveDebtor()
     callProcedure("ArchiveDebtor", {
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
+                          "archived",
+                          true
+                      },
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
                           "debtor_id",
                           debtorId
                       },
@@ -168,7 +173,12 @@ void RemoveDebtor::unarchiveDebtor()
     const QVariantMap &params = request().params();
     const int debtorId = params.value("debtor_id").toInt();
 
-    callProcedure("UndoArchiveDebtor", {
+    callProcedure("ArchiveDebtor", {
+                      ProcedureArgument {
+                          ProcedureArgument::Type::In,
+                          "archived",
+                          false
+                      },
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
                           "debtor_id",
