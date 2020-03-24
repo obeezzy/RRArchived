@@ -70,7 +70,7 @@ void AbstractVisualListModel::setFilterText(const QString &filterText)
 
 int AbstractVisualListModel::filterColumn() const
 {
-    return m_filterCriteria.columnAsInteger;
+    return m_filterCriteria.columnIndex;
 }
 
 QVariant AbstractVisualListModel::get(int row) const
@@ -89,11 +89,11 @@ QVariant AbstractVisualListModel::get(int row) const
 
 void AbstractVisualListModel::setFilterColumn(int filterColumn)
 {
-    if (m_filterCriteria.columnAsInteger == filterColumn)
+    if (m_filterCriteria.columnIndex == filterColumn)
         return;
 
     m_filterCriteria.column = columnName(filterColumn);
-    m_filterCriteria.columnAsInteger = filterColumn;
+    m_filterCriteria.columnIndex = filterColumn;
     emit filterColumnChanged();
 }
 
@@ -113,15 +113,15 @@ void AbstractVisualListModel::setSortOrder(Qt::SortOrder sortOrder)
 
 int AbstractVisualListModel::sortColumn() const
 {
-    return m_sortColumn;
+    return m_sortCriteria.columnIndex;
 }
 
 void AbstractVisualListModel::setSortColumn(int sortColumn)
 {
-    if (m_sortColumn == sortColumn)
+    if (m_sortCriteria.columnIndex == sortColumn)
         return;
 
-    m_sortColumn = sortColumn;
+    m_sortCriteria.columnIndex = sortColumn;
     emit sortColumnChanged();
 }
 

@@ -9,7 +9,7 @@ ViewStockProducts::ViewStockProducts(int productCategoryId,
                                      const Utility::SortCriteria &sortCriteria,
                                      QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "category_id", productCategoryId },
+                    { "product_category_id", productCategoryId },
                     { "sort_order", sortCriteria.orderAsString() }
                   }, receiver)
 {
@@ -27,8 +27,8 @@ QueryResult ViewStockProducts::execute()
         const auto &records(callProcedure("ViewStockProducts", {
                                               ProcedureArgument {
                                                   ProcedureArgument::Type::In,
-                                                  "category_id",
-                                                  params.value("category_id")
+                                                  "product_category_id",
+                                                  params.value("product_category_id")
                                               },
                                               ProcedureArgument {
                                                   ProcedureArgument::Type::In,

@@ -81,8 +81,8 @@ public:
 
     inline QVariantList toVariantList() const {
         QVariantList list;
-        for (const auto &stockProduct : *this)
-            list.append(stockProduct.toVariantMap());
+        for (const auto &product : *this)
+            list.append(product.toVariantMap());
         return list;
     }
 };

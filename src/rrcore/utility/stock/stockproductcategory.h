@@ -22,6 +22,16 @@ struct StockProductCategory
                                   const Note &note = Note{});
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const StockProductCategory &productCategory)
+    {
+        debug.nospace() << "StockProductCategory("
+                        << "id=" << productCategory.id
+                        << ", category=" << productCategory.category
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class StockProductCategoryList : public QList<StockProductCategory>
@@ -38,8 +48,8 @@ public:
 
     QVariantList toVariantList() const {
         QVariantList list;
-        for (const auto &product : *this)
-            list.append(product.toVariantMap());
+        for (const auto &productCategory : *this)
+            list.append(productCategory.toVariantMap());
         return list;
     }
 };

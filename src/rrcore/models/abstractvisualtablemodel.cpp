@@ -64,7 +64,7 @@ void AbstractVisualTableModel::setFilterText(const QString &filterText)
 
 int AbstractVisualTableModel::filterColumn() const
 {
-    return m_filterCriteria.columnAsInteger;
+    return m_filterCriteria.columnIndex;
 }
 
 QVariant AbstractVisualTableModel::get(int row, int column) const
@@ -83,10 +83,10 @@ QVariant AbstractVisualTableModel::get(int row, int column) const
 
 void AbstractVisualTableModel::setFilterColumn(int filterColumn)
 {
-    if (m_filterCriteria.columnAsInteger == filterColumn)
+    if (m_filterCriteria.columnIndex == filterColumn)
         return;
 
-    m_filterCriteria.columnAsInteger = filterColumn;
+    m_filterCriteria.columnIndex = filterColumn;
     m_filterCriteria.column = columnName(filterColumn);
     emit filterColumnChanged();
 }
@@ -107,15 +107,15 @@ void AbstractVisualTableModel::setSortOrder(Qt::SortOrder sortOrder)
 
 int AbstractVisualTableModel::sortColumn() const
 {
-    return m_sortCriteria.columnAsInteger;
+    return m_sortCriteria.columnIndex;
 }
 
 void AbstractVisualTableModel::setSortColumn(int sortColumn)
 {
-    if (m_sortCriteria.columnAsInteger == sortColumn)
+    if (m_sortCriteria.columnIndex == sortColumn)
         return;
 
-    m_sortCriteria.columnAsInteger = sortColumn;
+    m_sortCriteria.columnIndex = sortColumn;
     m_sortCriteria.column = columnName(sortColumn);
     emit sortColumnChanged();
 }

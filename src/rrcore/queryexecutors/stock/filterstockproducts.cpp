@@ -7,10 +7,10 @@ using namespace StockQuery;
 
 FilterStockProducts::FilterStockProducts(const Utility::FilterCriteria &filterCriteria,
                                          const Utility::SortCriteria &sortCriteria,
-                                         int categoryId,
+                                         int productCategoryId,
                                          QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "category_id", categoryId },
+                    { "product_category_id", productCategoryId },
                     { "filter_text", filterCriteria.text },
                     { "filter_column", filterCriteria.column },
                     { "sort_order", sortCriteria.orderAsString() },
@@ -30,8 +30,8 @@ QueryResult FilterStockProducts::execute()
         const QList<QSqlRecord> &records(callProcedure("FilterStockProducts", {
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
-                                                               "category_id",
-                                                               params.value("category_id")
+                                                               "filter_column",
+                                                               params.value("filter_column")
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
@@ -40,8 +40,8 @@ QueryResult FilterStockProducts::execute()
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
-                                                               "filter_column",
-                                                               params.value("filter_column")
+                                                               "sort_column",
+                                                               params.value("sort_column")
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
@@ -50,8 +50,8 @@ QueryResult FilterStockProducts::execute()
                                                            },
                                                            ProcedureArgument {
                                                                ProcedureArgument::Type::In,
-                                                               "sort_column",
-                                                               params.value("sort_column")
+                                                               "product_category_id",
+                                                               params.value("product_category_id")
                                                            }
                                                        }));
 

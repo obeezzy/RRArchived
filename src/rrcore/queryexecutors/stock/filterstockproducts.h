@@ -17,7 +17,7 @@ public:
 
     explicit FilterStockProducts(const Utility::FilterCriteria &filterCriteria,
                                  const Utility::SortCriteria &sortCriteria,
-                                 int categoryId,
+                                 int productCategoryId,
                                  QObject *receiver);
     QueryResult execute() override;
 };

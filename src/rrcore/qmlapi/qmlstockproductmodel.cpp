@@ -2,6 +2,7 @@
 #include "database/databasethread.h"
 #include "queryexecutors/stock.h"
 #include <QDateTime>
+#include <QDebug>
 
 QMLStockProductModel::QMLStockProductModel(QObject *parent) :
     QMLStockProductModel(DatabaseThread::instance(), parent)
@@ -86,7 +87,7 @@ QHash<int, QByteArray> QMLStockProductModel::roleNames() const
         { DivisibleRole, "divisible" },
         { ImageUrlRole, "image_url" },
         { QuantityRole, "quantity" },
-        { UnitRole, "unit" },
+        { UnitRole, "product_unit" },
         { UnitIdRole, "product_unit_id" },
         { CostPriceRole, "cost_price" },
         { RetailPriceRole, "retail_price" },

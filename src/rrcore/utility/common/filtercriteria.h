@@ -7,15 +7,14 @@ namespace Utility {
 struct FilterCriteria {
     QString column;
     QString text;
-    int columnAsInteger {-1};
+    int columnIndex {-1};
 
     explicit FilterCriteria() = default;
-    explicit FilterCriteria(const QString &text);
     explicit FilterCriteria(const QString &column,
                             const QString &text);
 
     inline bool isValid() const {
-        return columnAsInteger > -1
+        return columnIndex > -1
                 && !column.isEmpty()
                 && !text.isEmpty();
     }

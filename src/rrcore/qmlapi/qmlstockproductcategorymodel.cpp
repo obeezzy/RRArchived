@@ -12,7 +12,7 @@ QMLStockProductCategoryModel::QMLStockProductCategoryModel(QObject *parent) :
 QMLStockProductCategoryModel::QMLStockProductCategoryModel(DatabaseThread &thread,
                                                            QObject *parent) :
     AbstractVisualListModel(thread, parent),
-    m_productFilterCriteria{ QStringLiteral("product") }
+    m_productFilterCriteria{ QStringLiteral("product"), QString() }
 {
     connect(this, &QMLStockProductCategoryModel::productFilterTextChanged,
             this, &QMLStockProductCategoryModel::filter);
@@ -47,7 +47,7 @@ QVariant QMLStockProductCategoryModel::data(const QModelIndex &index, int role) 
         return QVariant();
 
     switch (role) {
-    case CategoryIdRole:
+    case ProductCategoryIdRole:
         return m_categories.at(index.row()).id;
     case CategoryRole:
         return m_categories.at(index.row()).category;
@@ -59,7 +59,7 @@ QVariant QMLStockProductCategoryModel::data(const QModelIndex &index, int role) 
 QHash<int, QByteArray> QMLStockProductCategoryModel::roleNames() const
 {
     return {
-        { CategoryIdRole, "category_id" },
+        { ProductCategoryIdRole, "product_category_id" },
         { CategoryRole, "category" }
     };
 }
@@ -70,8 +70,9 @@ void QMLStockProductCategoryModel::unarchiveProduct(int productId)
         return;
 
     setBusy(true);
-    StockQuery::RemoveStockProduct *removeStockProduct = new StockQuery::RemoveStockProduct(
-                Utility::StockProduct{ productId }, this);
+    auto removeStockProduct = new StockQuery::RemoveStockProduct(
+                Utility::StockProduct{ productId },
+                this);
     removeStockProduct->undoOnNextExecution();
     emit execute(removeStockProduct);
 }
@@ -134,7 +135,7 @@ int QMLStockProductCategoryModel::rowFromCategoryId(int categoryId) const
 {
     if (categoryId > 0) {
         for (int i = 0; i < rowCount(); ++i) {
-            const int categoryIdInModel = index(i).data(CategoryIdRole).toInt();
+            const int categoryIdInModel = index(i).data(ProductCategoryIdRole).toInt();
             if (categoryId == categoryIdInModel)
                 return i;
         }
