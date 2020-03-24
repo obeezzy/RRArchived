@@ -13,7 +13,7 @@ public:
     explicit QMLStockProductCategoryModel(DatabaseThread &thread, QObject *parent = nullptr);
 
     enum Roles {
-        CategoryIdRole = Qt::UserRole,
+        ProductCategoryIdRole = Qt::UserRole,
         CategoryRole
     };
 

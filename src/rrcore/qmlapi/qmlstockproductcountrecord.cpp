@@ -48,15 +48,15 @@ void QMLStockProductCountRecord::setFilterText(const QString &filterText)
 
 int QMLStockProductCountRecord::filterColumn() const
 {
-    return m_filterCriteria.columnAsInteger;
+    return m_filterCriteria.columnIndex;
 }
 
 void QMLStockProductCountRecord::setFilterColumn(int filterColumn)
 {
-    if (m_filterCriteria.columnAsInteger == filterColumn)
+    if (m_filterCriteria.columnIndex == filterColumn)
         return;
 
-    m_filterCriteria.columnAsInteger = filterColumn;
+    m_filterCriteria.columnIndex = filterColumn;
     m_filterCriteria.column = columnName(filterColumn);
     emit filterColumnChanged();
 }

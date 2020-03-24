@@ -83,7 +83,6 @@ private:
     bool m_busy {false};
     Utility::FilterCriteria m_filterCriteria;
     Utility::SortCriteria m_sortCriteria;
-    int m_sortColumn {-1};
     QueryRequest m_lastSuccessfulRequest;
 
     void saveRequest(const QueryResult &result);

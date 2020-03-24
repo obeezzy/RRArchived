@@ -7,7 +7,7 @@ namespace Utility {
 struct SortCriteria {
     QString column;
     Qt::SortOrder order {Qt::AscendingOrder};
-    int columnAsInteger {0};
+    int columnIndex {-1};
 
     explicit SortCriteria() = default;
     explicit SortCriteria(Qt::SortOrder order);
@@ -17,7 +17,7 @@ struct SortCriteria {
     QString orderAsString() const;
 
     inline bool isValid() const {
-        return !column.isEmpty() && columnAsInteger > -1;
+        return !column.isEmpty() && columnIndex > -1;
     }
 };
 }

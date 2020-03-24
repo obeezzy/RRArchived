@@ -75,11 +75,11 @@ StockProduct::StockProduct(int id,
 StockProduct::StockProduct(const QVariantMap &product) :
     id(product.value("product_id").toInt()),
     category(StockProductCategory{
-             product.value("category_id").toInt(),
-             product.value("category").toString(),
+             product.value("product_category_id").toInt(),
+             product.value("product_category").toString(),
              Note{
-             product.value("category_note_id").toInt(),
-             product.value("category_note").toString()
+             product.value("product_category_note_id").toInt(),
+             product.value("product_category_note").toString()
              }
              }),
     product(product.value("product").toString()),
@@ -87,8 +87,8 @@ StockProduct::StockProduct(const QVariantMap &product) :
     imageUrl(product.value("image_url").toUrl()),
     quantity(product.value("quantity").toDouble()),
     unit(StockProductUnit {
-         product.value("unit_id").toInt(),
-         product.value("unit").toString()
+         product.value("product_unit_id").toInt(),
+         product.value("product_unit").toString()
          }),
     costPrice(product.value("cost_price").toDouble()),
     retailPrice(product.value("retail_price").toDouble()),
@@ -113,10 +113,10 @@ QVariantMap StockProduct::toVariantMap() const
     return {
         { "product_id", id },
         { "product_category_id", category.id },
-        { "category", category.category },
+        { "product_category", category.category },
         { "quantity", quantity },
         { "product_unit_id", unit.id },
-        { "unit", unit.unit },
+        { "product_unit", unit.unit },
         { "cost_price", costPrice },
         { "retail_price", retailPrice },
         { "unit_price", unitPrice },

@@ -2,8 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
-import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
+import "../rrui" as RRUi
 import "fragments" as Fragments
 import "../singletons"
 
@@ -17,7 +17,7 @@ RRUi.Page {
     padding: 10
 
     onGoBack: {
-        if (transitionView.product.dirty && !isExistingProduct) {
+        if (transitionView.item.dirty && !isExistingProduct) {
             leaveConfirmationDialog.open();
             event.accepted = true;
         } else {
@@ -109,7 +109,7 @@ RRUi.Page {
                         product: productDetails.product
                         description: productDetails.description
                         quantity: productDetails.quantity
-                        unit:productDetails.unit
+                        unit: productDetails.unit
                         categoryNote: productDetails.categoryNote
                         productNote: productDetails.productNote
                         costPrice: productDetails.costPrice
@@ -131,10 +131,6 @@ RRUi.Page {
                         }
                         onError: {
                             switch (result.code) {
-                            case RRModels.StockProductPusher.InsertFailed:
-                                errorDialog.show(qsTr("Product could not be inserted into the database."),
-                                                 qsTr("Failed to add product"));
-                                break;
                             case RRModels.StockProductPusher.DuplicateEntryError:
                                 errorDialog.show(qsTr("A product of the same name already exists."),
                                                  qsTr("Failed to add product"));
@@ -145,7 +141,7 @@ RRUi.Page {
                                                  qsTr("Failed to add product"));
                                 break;
                             default:
-                                errorDialog.show(qsTr("The cause of the error could not be determined."),
+                                errorDialog.show(qsTr("Product could not be inserted into the database."),
                                                  qsTr("Failed to add product"));
                                 break;
                             }

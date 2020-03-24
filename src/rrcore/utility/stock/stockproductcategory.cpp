@@ -2,9 +2,14 @@
 
 using namespace Utility;
 
-StockProductCategory::StockProductCategory(const QVariantMap &map)
+StockProductCategory::StockProductCategory(const QVariantMap &map) :
+    id(map.value("product_category_id").toInt()),
+    category(map.value("product_category").toString()),
+    note(Note {
+         map.value("note_id").toInt(),
+         map.value("note").toString()
+         })
 {
-    Q_UNUSED(map)
 }
 
 StockProductCategory::StockProductCategory(const QString &category,
@@ -23,5 +28,10 @@ StockProductCategory::StockProductCategory(int id,
 
 QVariantMap StockProductCategory::toVariantMap() const
 {
-    return {};
+    return {
+        { "product_category_id", id },
+        { "product_category", category },
+        { "note_id", note.id },
+        { "note", note.note }
+    };
 }

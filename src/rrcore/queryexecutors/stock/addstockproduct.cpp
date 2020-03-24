@@ -14,9 +14,10 @@ AddStockProduct::AddStockProduct(const Utility::StockProduct &product,
     StockExecutor(COMMAND, {
                     { "image_url", product.imageUrl },
                     { "product_category_id", product.category.id },
+                    { "product_category", product.category.category },
                     { "product", product.product },
                     { "description", product.description },
-                    { "unit", product.unit.unit },
+                    { "product_unit", product.unit.unit },
                     { "category_note", product.category.note.note },
                     { "product_note", product.note.note },
                     { "tracked", product.flags.testFlag(Utility::RecordGroup::Tracked) },
@@ -39,7 +40,6 @@ QueryResult AddStockProduct::execute()
 
     int productCategoryId = 0;
     int productId = 0;
-    int productUnitId = 0;
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
     QSqlQuery q(connection);
@@ -49,11 +49,9 @@ QueryResult AddStockProduct::execute()
 
         productCategoryId = addStockProductCategory();
         productId = addStockProduct(productCategoryId);
-        productUnitId = addStockProductUnit(productId);
-        addInitialProductQuantity(productId,
-                                  productUnitId);
-        addCurrentProductQuantity(productId,
-                                  productUnitId);
+        addStockProductUnit(productId);
+        addInitialProductQuantity(productId);
+        addCurrentProductQuantity(productId);
 
         QueryExecutor::commitTransaction(q);
     } catch (const DatabaseException &) {
@@ -75,7 +73,7 @@ int AddStockProduct::addStockProductCategory()
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
                                               "category",
-                                              params.value("category")
+                                              params.value("product_category")
                                           },
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
@@ -112,7 +110,7 @@ int AddStockProduct::addStockProduct(int productCategoryId)
     const auto &records = callProcedure("AddStockProduct", {
                                 ProcedureArgument {
                                     ProcedureArgument::Type::In,
-                                    "category_id",
+                                    "product_category_id",
                                     productCategoryId
                                 },
                                 ProcedureArgument {
@@ -180,7 +178,7 @@ int AddStockProduct::addStockProductUnit(int productId)
                                             ProcedureArgument {
                                                 ProcedureArgument::Type::In,
                                                 "unit",
-                                                params.value("unit")
+                                                params.value("product_unit")
                                             },
                                             ProcedureArgument {
                                                 ProcedureArgument::Type::In,
@@ -230,12 +228,11 @@ int AddStockProduct::addStockProductUnit(int productId)
     return records.first().value("product_unit_id").toInt();
 }
 
-void AddStockProduct::addInitialProductQuantity(int productId,
-                                                int productUnitId)
+void AddStockProduct::addInitialProductQuantity(int productId)
 {
     const QVariantMap &params{ request().params() };
     const QString &reason{ request().command() };
-    callProcedure("AddInitialQuantity", {
+    callProcedure("AddInitialProductQuantity", {
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
                           "product_id",
@@ -245,11 +242,6 @@ void AddStockProduct::addInitialProductQuantity(int productId,
                           ProcedureArgument::Type::In,
                           "quantity",
                           params.value("quantity")
-                      },
-                      ProcedureArgument {
-                          ProcedureArgument::Type::In,
-                          "product_unit_id",
-                          productUnitId
                       },
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
@@ -264,11 +256,10 @@ void AddStockProduct::addInitialProductQuantity(int productId,
                   });
 }
 
-void AddStockProduct::addCurrentProductQuantity(int productId,
-                                                int productUnitId)
+void AddStockProduct::addCurrentProductQuantity(int productId)
 {
     const QVariantMap &params{ request().params() };
-    callProcedure("AddCurrentQuantity", {
+    callProcedure("AddCurrentProductQuantity", {
                       ProcedureArgument {
                           ProcedureArgument::Type::In,
                           "product_id",
@@ -278,11 +269,6 @@ void AddStockProduct::addCurrentProductQuantity(int productId,
                           ProcedureArgument::Type::In,
                           "quantity",
                           params.value("quantity")
-                      },
-                      ProcedureArgument {
-                          ProcedureArgument::Type::In,
-                          "product_unit_id",
-                          productUnitId
                       },
                       ProcedureArgument {
                           ProcedureArgument::Type::In,

@@ -68,7 +68,7 @@ void QMLStockProductCategoryModelTest::testViewStockCategories()
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockProductCategoryModel->rowCount(), 1);
-    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::CategoryIdRole).toInt(), 1);
+    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::ProductCategoryIdRole).toInt(), 1);
     QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::CategoryRole).toString(), QStringLiteral("Category"));
 }
 

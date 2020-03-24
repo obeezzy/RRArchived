@@ -4,8 +4,8 @@ import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
-import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
+import "../rrui" as RRUi
 
 ListView {
     id: productCategoryListView
@@ -106,7 +106,7 @@ ListView {
                     bottomMargin: 20
                 }
 
-                categoryId: category_id
+                categoryId: product_category_id
                 filterText: productCategoryListView.filterText
                 filterColumn: productCategoryListView.filterColumn
                 sortColumn: productCategoryListView.sortColumn
