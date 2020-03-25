@@ -350,7 +350,7 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
 
     // STEP: Ensure the transaction succeeded.
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
     QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 
@@ -409,7 +409,7 @@ void QMLDebtTransactionModelTest::testSubmitDebt()
     // STEP: Submit debt info.
     QVERIFY(m_debtTransactionModel->submit());
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtTransactionModel::SuccessCode>(), QMLDebtTransactionModel::AddDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtTransactionModel::AddDebtorSuccess);
     QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 

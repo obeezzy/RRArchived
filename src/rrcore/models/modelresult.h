@@ -21,6 +21,10 @@ public:
     QVariant extra() const;
     void setExtra(const QVariant &extra);
 
+    bool operator==(const ModelResult &other) {
+        return m_code == other.code();
+    }
+
     friend QDebug operator<<(QDebug debug,
                              const ModelResult &result)
     {
