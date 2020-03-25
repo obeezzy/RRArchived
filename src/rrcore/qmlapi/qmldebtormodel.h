@@ -3,6 +3,7 @@
 
 #include "models/abstractvisuallistmodel.h"
 #include "utility/debtor/debtor.h"
+#include <QLoggingCategory>
 
 class QMLDebtorModel : public AbstractVisualListModel
 {
@@ -53,5 +54,7 @@ private:
     void removeDebtorFromModel(const Utility::Debtor &debtor);
     void undoRemoveDebtorFromModel(const Utility::Debtor &debtor);
 };
+
+Q_DECLARE_LOGGING_CATEGORY(lcqmldebtormodel);
 
 #endif // QMLDEBTORMODEL_H

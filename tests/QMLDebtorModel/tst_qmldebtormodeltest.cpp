@@ -1,9 +1,8 @@
+#include "qmlapi/qmldebtormodel.h"
+#include "mockdatabasethread.h"
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-
-#include "qmlapi/qmldebtormodel.h"
-#include "mockdatabasethread.h"
 
 class QMLDebtorModelTest : public QObject
 {
@@ -73,10 +72,8 @@ void QMLDebtorModelTest::testViewDebtors()
     m_debtorModel->componentComplete();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 2);
-    busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::ViewDebtorsSuccess);
-    successSpy.clear();
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_debtorModel->rowCount(), 1);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(), 1);
@@ -113,7 +110,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariantMap {
                                 { "debtor_id", 1 },
-                                { "debtor_row", 1 }
+                                { "row", 0 }
                             });
     };
     auto databaseWillReturnEmptyResult = [this]() {
@@ -133,7 +130,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_debtorModel->rowCount(), 1);
@@ -141,13 +138,13 @@ void QMLDebtorModelTest::testRemoveDebtor()
     databaseWillReturnRemovedDebtor();
 
     // STEP: Remove a debtor from the database.
-    m_debtorModel->removeDebtor(1);
+    m_debtorModel->removeDebtor(0);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::RemoveDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::RemoveDebtorSuccess);
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
@@ -159,7 +156,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
     QCOMPARE(m_debtorModel->rowCount(), 0);
 }
 
@@ -226,7 +223,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 1);
 
@@ -239,7 +236,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::RemoveDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::RemoveDebtorSuccess);
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
@@ -251,7 +248,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLDebtorModel::SuccessCode>(), QMLDebtorModel::UndoRemoveDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::UndoRemoveDebtorSuccess);
     QCOMPARE(m_debtorModel->rowCount(), 1);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ClientIdRole).toInt(), 1);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(), 1);
