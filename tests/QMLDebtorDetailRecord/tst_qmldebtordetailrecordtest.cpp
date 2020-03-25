@@ -99,8 +99,6 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
     QCOMPARE(m_debtorDetailRecord->firstName(), QStringLiteral("First name"));
     QCOMPARE(m_debtorDetailRecord->lastName(), QStringLiteral("Last name"));
     QCOMPARE(m_debtorDetailRecord->phoneNumber(), QStringLiteral("123456789"));
-    QCOMPARE(m_debtorDetailRecord->addressModel(), addresses);
-    QCOMPARE(m_debtorDetailRecord->emailModel(), emails);
     QCOMPARE(m_debtorDetailRecord->created(), currentDateTime);
     QCOMPARE(m_debtorDetailRecord->lastEdited(), currentDateTime);
     QCOMPARE(m_debtorDetailRecord->userId(), 1);
