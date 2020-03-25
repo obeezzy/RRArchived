@@ -316,6 +316,7 @@ void QMLDebtTransactionModel::clearAll()
     setFirstName(QString());
     setLastName(QString());
     setPhoneNumber(QString());
+    m_debtor.transactions.clear();
     m_dirty = false;
 }
 
