@@ -5,6 +5,7 @@ using namespace Utility;
 Debtor::Debtor(const QVariantMap &map) :
     id(map.value("debtor_id").toInt()),
     client(Client {
+           map.value("client_id", -1).toInt(),
            map.value("preferred_name").toString(),
            map.value("phone_number").toString(),
            map.value("first_name").toString(),
@@ -12,12 +13,18 @@ Debtor::Debtor(const QVariantMap &map) :
            map.value("image_url").toUrl(),
            map.value("email_address").toString()
            }),
+    totalDebt(map.value("total_debt").toDouble()),
+    note(Note {
+         map.value("note_id", -1).toInt(),
+         map.value("note").toString()
+         }),
     created(map.value("created").toDateTime()),
     lastEdited(map.value("last_edited").toDateTime()),
     user(User {
          map.value("user_id").toInt(),
          map.value("user").toString()
-         })
+         }),
+    row(map.value("row", -1).toInt())
 { }
 
 Debtor::Debtor(int id) :
@@ -52,6 +59,7 @@ QVariantMap Debtor::toVariantMap() const
 {
     return {
         { "debtor_id", id },
+        { "client_id", client.id },
         { "preferred_name", client.preferredName },
         { "phone_number", client.phoneNumber },
         { "first_name", client.firstName },
@@ -63,6 +71,7 @@ QVariantMap Debtor::toVariantMap() const
         { "created", created },
         { "last_edited", lastEdited },
         { "user_id", user.id },
-        { "user", user.user }
+        { "user", user.user },
+        { "row", row }
     };
 }

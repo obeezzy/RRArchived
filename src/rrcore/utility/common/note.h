@@ -3,6 +3,7 @@
 
 #include <QVariantMap>
 #include <QString>
+#include <QDebug>
 
 namespace Utility {
 struct Note {
@@ -16,6 +17,16 @@ struct Note {
     explicit Note(const QVariantMap &map);
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const Note &note)
+    {
+        debug.nospace() << "Note("
+                        << "id=" << note.id
+                        << ", note=" << note.note
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 }
 Q_DECLARE_TYPEINFO(Utility::Note, Q_PRIMITIVE_TYPE);

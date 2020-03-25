@@ -4,6 +4,7 @@
 #include <QString>
 #include <QUrl>
 #include <QVariantList>
+#include <QDebug>
 
 namespace Utility {
 struct Client {
@@ -36,6 +37,21 @@ struct Client {
                     const QString &emailAddress = QString());
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const Client &client)
+    {
+        debug.nospace() << "Client("
+                        << "id=" << client.id
+                        << ", preferredName=" << client.preferredName
+                        << ", phoneNumber=" << client.phoneNumber
+                        << ", firstName=" << client.firstName
+                        << ", lastName=" << client.lastName
+                        << ", imageUrl=" << client.imageUrl
+                        << ", emailAddress=" << client.emailAddress
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class ClientList : public QList<Client>

@@ -4,6 +4,9 @@
 #include "database/databasethread.h"
 #include "queryexecutors/debtor.h"
 #include <QDateTime>
+#include <QDebug>
+
+Q_LOGGING_CATEGORY(lcqmldebtormodel, "rrcore.qmlapi.qmldebtormodel");
 
 QMLDebtorModel::QMLDebtorModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
@@ -110,6 +113,10 @@ void QMLDebtorModel::filter()
 
 void QMLDebtorModel::removeDebtor(int row)
 {
+    if (row < 0 || row >= m_debtorList.count()) {
+        qCWarning(lcqmldebtormodel) << Q_FUNC_INFO << "Invalid row:" << row;
+        return;
+    }
     setBusy(true);
 
     Utility::Debtor &debtor = m_debtorList[row];
@@ -120,20 +127,18 @@ void QMLDebtorModel::removeDebtor(int row)
 
 void QMLDebtorModel::removeDebtorFromModel(const Utility::Debtor &debtor)
 {
-    if (debtor.id <= 0)
+    if (debtor.row < 0 || debtor.row >= m_debtorList.count()) {
+        qCWarning(lcqmldebtormodel) << Q_FUNC_INFO << "Invalid row:" << debtor.row << debtor;
         return;
+    }
 
     beginRemoveRows(QModelIndex(), debtor.row, debtor.row);
-    m_debtorList.removeAt(debtor.id);
+    m_debtorList.removeAt(debtor.row);
     endRemoveRows();
-
 }
 
 void QMLDebtorModel::undoRemoveDebtorFromModel(const Utility::Debtor &debtor)
 {
-    if (debtor.id <= 0)
-        return;
-
     beginInsertRows(QModelIndex(), debtor.row, debtor.row);
     m_debtorList.insert(debtor.row, debtor);
     endInsertRows();

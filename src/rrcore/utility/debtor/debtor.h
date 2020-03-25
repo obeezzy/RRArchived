@@ -6,6 +6,7 @@
 #include "utility/user/user.h"
 #include <QString>
 #include <QUrl>
+#include <QDebug>
 
 namespace Utility {
 struct Debtor
@@ -34,6 +35,19 @@ struct Debtor
                     int row);
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const Debtor &debtor)
+    {
+        debug.nospace() << "Debtor("
+                        << "id=" << debtor.id
+                        << ", client=" << debtor.client
+                        << ", debtTransactionList=" << debtor.transactions
+                        << ", note=" << debtor.note
+                        << ", row=" << debtor.row
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class DebtorList : public QList<Debtor>
