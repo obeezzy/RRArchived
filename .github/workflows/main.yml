@@ -28,11 +28,10 @@ jobs:
         QT_VERSION_B: 5.13.1
         QT_VERSION_SCRIPT: 5131
       run: |
-        # sudo apt-get update
         sudo apt-get install unzip wget
         wget https://download.qt.io/archive/qt/${QT_VERSION_A}/${QT_VERSION_B}/qt-opensource-linux-x64-${QT_VERSION_B}.run
         chmod +x qt-opensource-linux-x64-${QT_VERSION_B}.run
-        ./qt-opensource-linux-x64-${QT_VERSION_B}.run --script deployment/qt-noninteractive.qs --silent
+        ./qt-opensource-linux-x64-${QT_VERSION_B}.run --script deployment/qt-noninteractive.qs -platform minimal
 
     - name: Build app and run tests
       run: |
