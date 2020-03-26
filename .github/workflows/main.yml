@@ -29,6 +29,6 @@ jobs:
       run: |
         qmake -project
         qmake CONFIG+=release
-        make
+        make -j`nproc`
         make check
         

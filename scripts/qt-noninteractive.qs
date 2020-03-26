@@ -29,7 +29,7 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
 
     var qtVersion = installer.environmentVariable("QT_VERSION_SCRIPT")
     if (qtVersion === "")
-        console.warn("QT_VERSION_SCRIPT not set.");
+        console.log("QT_VERSION_SCRIPT not set.");
 
     widget.deselectAll();
     widget.selectComponent("qt")
