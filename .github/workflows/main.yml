@@ -12,7 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      
+
+    - name: Print HOME directory
+      run: echo $HOME
+
     - name: Install Qt
       env:
         #5.13.1
