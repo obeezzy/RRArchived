@@ -13,7 +13,7 @@ console.log("WelcomePageCallback function");
 
 Controller.prototype.CredentialsPageCallback = function() {
 console.log("CredentialsPageCallback function");
-    gui.clickButton(buttons.NextButton);
+    gui.clickButton(buttons.NextButton, 6000);
 }
 
 Controller.prototype.IntroductionPageCallback = function() {
