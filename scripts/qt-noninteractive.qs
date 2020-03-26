@@ -15,6 +15,7 @@ console.log("WelcomePageCallback function");
 Controller.prototype.CredentialsPageCallback = function() {
 console.log("CredentialsPageCallback function");
     gui.clickButton(buttons.NextButton, 6000);
+    console.log("End of CredentialsPageCallback function");
 }
 
 Controller.prototype.IntroductionPageCallback = function() {
