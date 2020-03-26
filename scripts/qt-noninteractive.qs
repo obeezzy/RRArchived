@@ -32,16 +32,12 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
         console.warn("QT_VERSION_SCRIPT not set.");
 
     widget.deselectAll();
-    widget.selectComponent("qt." + qtVersion + ".gcc_64")
-    widget.selectComponent("qt." + qtVersion + ".doc")
-    widget.selectComponent("qt." + qtVersion + ".examples")
-    widget.selectComponent("qt." + qtVersion + ".qtcharts")
-    widget.selectComponent("qt." + qtVersion + ".qtcharts.gcc_64")
-    widget.selectComponent("qt." + qtVersion + ".qtnetworkauth")
-    widget.selectComponent("qt." + qtVersion + ".qtnetworkauth.gcc_64")
-    widget.selectComponent("qt." + qtVersion + ".qtremoteobjects")
-    widget.selectComponent("qt." + qtVersion + ".qtspeech")
-    widget.selectComponent("qt." + qtVersion + ".qtremoteobjects.gcc_64")
+    widget.selectComponent("qt")
+    widget.selectComponent("qt.qt5." + qtVersion + ".gcc_64")
+    widget.selectComponent("qt.qt5." + qtVersion + ".qtcharts")
+    widget.selectComponent("qt.qt5." + qtVersion + ".qtcharts.gcc_64")
+    widget.selectComponent("qt.qt5." + qtVersion + ".lottie")
+    widget.selectComponent("qt.qt5." + qtVersion + ".lottie.gcc_64")
 
     gui.clickButton(buttons.NextButton);
 }
