@@ -174,15 +174,15 @@ void QMLStockProductPusherTest::testSetDivisible()
 {
     QSignalSpy divisibleChangedSpy(m_stockProductPusher, &QMLStockProductPusher::divisibleChanged);
 
-    QCOMPARE(m_stockProductPusher->isDivisible(), false);
-
-    m_stockProductPusher->setDivisible(true);
-
     QCOMPARE(m_stockProductPusher->isDivisible(), true);
+
+    m_stockProductPusher->setDivisible(false);
+
+    QCOMPARE(m_stockProductPusher->isDivisible(), false);
     QCOMPARE(divisibleChangedSpy.count(), 1);
     divisibleChangedSpy.clear();
 
-    m_stockProductPusher->setDivisible(true);
+    m_stockProductPusher->setDivisible(false);
     QCOMPARE(divisibleChangedSpy.count(), 0);
 }
 
@@ -222,15 +222,15 @@ void QMLStockProductPusherTest::testSetTracked()
 {
     QSignalSpy trackedChangedSpy(m_stockProductPusher, &QMLStockProductPusher::trackedChanged);
 
-    QCOMPARE(m_stockProductPusher->isTracked(), false);
-
-    m_stockProductPusher->setTracked(true);
-
     QCOMPARE(m_stockProductPusher->isTracked(), true);
+
+    m_stockProductPusher->setTracked(false);
+
+    QCOMPARE(m_stockProductPusher->isTracked(), false);
     QCOMPARE(trackedChangedSpy.count(), 1);
     trackedChangedSpy.clear();
 
-    m_stockProductPusher->setTracked(true);
+    m_stockProductPusher->setTracked(false);
     QCOMPARE(trackedChangedSpy.count(), 0);
 }
 
@@ -312,7 +312,7 @@ void QMLStockProductPusherTest::testPushSameProduct()
     QCOMPARE(successSpy.count(), 0);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<QMLStockProductPusher::ErrorCode>(), QMLStockProductPusher::DuplicateEntryError);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLStockProductPusher::DuplicateEntryError);
     errorSpy.clear();
 }
 
@@ -350,7 +350,7 @@ void QMLStockProductPusherTest::testPushUpdatedProduct()
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLStockProductPusher::SuccessCode>(), QMLStockProductPusher::AddProductSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLStockProductPusher::AddProductSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     errorSpy.clear();
@@ -375,7 +375,7 @@ void QMLStockProductPusherTest::testPushUpdatedProduct()
     QCOMPARE(busyChangedSpy.count(), 2); // "busy" must be true, then false
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLStockProductPusher::SuccessCode>(), QMLStockProductPusher::UpdateProductSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLStockProductPusher::UpdateProductSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     errorSpy.clear();

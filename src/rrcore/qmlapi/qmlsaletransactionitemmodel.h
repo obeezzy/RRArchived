@@ -9,8 +9,7 @@ class QMLSaleTransactionItemModel : public AbstractTransactionItemModel
     Q_OBJECT
 public:
     enum Roles {
-        PurchasedProductIdRole = Qt::UserRole,
-        CategoryIdRole,
+        CategoryIdRole = Qt::UserRole,
         CategoryRole,
         ProductIdRole,
         UnitPriceRole,

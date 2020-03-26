@@ -52,6 +52,27 @@ struct SaleTransaction
                              const Note &note);
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const SaleTransaction &transaction)
+    {
+        debug.nospace() << "SaleTransaction("
+                        << "id=" << transaction.id
+                        << ", customer=" << transaction.customer
+                        << ", totalCost=" << transaction.totalCost
+                        << ", amountPaid=" << transaction.amountPaid
+                        << ", balance=" << transaction.balance
+                        << ", discount=" << transaction.discount
+                        << ", payments=" << transaction.payments
+                        << ", products=" << transaction.products
+                        << ", flags=" << transaction.flags
+                        << ", dueDateTime=" << transaction.dueDateTime
+                        << ", action=" << transaction.action
+                        << ", note=" << transaction.note
+                        << ", row=" << transaction.row
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class SaleTransactionList : public QList<SaleTransaction>

@@ -17,6 +17,8 @@ public:
 
     explicit RemoveStockProduct(const Utility::StockProduct &product,
                                 QObject *receiver);
+    explicit RemoveStockProduct(const QueryRequest &request,
+                                QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult removeStockProduct();

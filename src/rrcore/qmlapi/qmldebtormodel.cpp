@@ -156,3 +156,15 @@ QString QMLDebtorModel::columnName(int column) const
     return QString();
 }
 
+void QMLDebtorModel::undoLastCommit()
+{
+    QueryRequest request{ lastSuccessfulRequest() };
+    QVariantMap params{ lastSuccessfulRequest().params() };
+    if (lastSuccessfulRequest().command() == DebtorQuery::RemoveDebtor::COMMAND) {
+        setBusy(true);
+        auto query = new DebtorQuery::RemoveDebtor(request, this);
+        query->undoOnNextExecution(true);
+        emit execute(query);
+    }
+}
+

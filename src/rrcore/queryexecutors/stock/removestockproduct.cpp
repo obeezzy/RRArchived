@@ -19,9 +19,12 @@ RemoveStockProduct::RemoveStockProduct(const Utility::StockProduct &product,
                     { "product", product.toVariantMap() },
                     { "user_id", UserProfile::instance().userId() }
                   }, receiver)
-{
+{}
 
-}
+RemoveStockProduct::RemoveStockProduct(const QueryRequest &request,
+                                       QObject *receiver) :
+    StockExecutor(COMMAND, request.params(), receiver)
+{}
 
 QueryResult RemoveStockProduct::execute()
 {

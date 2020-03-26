@@ -41,6 +41,7 @@ SOURCES += \
     queryexecutors/income/filterincomereport.cpp \
     queryexecutors/purchase/filterpurchasereport.cpp \
     queryexecutors/sales/filtersalereport.cpp \
+    queryexecutors/sales/viewsoldproducts.cpp \
     queryexecutors/stock/filterstockreport.cpp \
     queryexecutors/transaction/transactionexecutor.cpp \
     models/salemostsoldproductmodel.cpp \
@@ -90,13 +91,11 @@ SOURCES += \
     queryexecutors/purchase/viewpurchasetransactions.cpp \
     queryexecutors/sales/addsaletransaction.cpp \
     queryexecutors/sales/removesaletransaction.cpp \
-    queryexecutors/sales/removesoldproduct.cpp \
     queryexecutors/sales/saleexecutor.cpp \
     queryexecutors/sales/updatesuspendedsaletransaction.cpp \
     queryexecutors/sales/viewsalecart.cpp \
     queryexecutors/sales/viewsalehome.cpp \
     queryexecutors/sales/viewsalereport.cpp \
-    queryexecutors/sales/viewsaletransactionproducts.cpp \
     queryexecutors/sales/viewsaletransactions.cpp \
     queryexecutors/stock/addstockproduct.cpp \
     queryexecutors/stock/fetchstockproduct.cpp \
@@ -252,6 +251,7 @@ HEADERS += \
     queryexecutors/income/filterincomereport.h \
     queryexecutors/purchase/filterpurchasereport.h \
     queryexecutors/sales/filtersalereport.h \
+    queryexecutors/sales/viewsoldproducts.h \
     queryexecutors/stock/filterstockreport.h \
     queryexecutors/transaction/transactionexecutor.h \
     models/salemostsoldproductmodel.h \
@@ -311,13 +311,11 @@ HEADERS += \
     queryexecutors/sales.h \
     queryexecutors/sales/addsaletransaction.h \
     queryexecutors/sales/removesaletransaction.h \
-    queryexecutors/sales/removesoldproduct.h \
     queryexecutors/sales/saleexecutor.h \
     queryexecutors/sales/updatesuspendedsaletransaction.h \
     queryexecutors/sales/viewsalecart.h \
     queryexecutors/sales/viewsalehome.h \
     queryexecutors/sales/viewsalereport.h \
-    queryexecutors/sales/viewsaletransactionproducts.h \
     queryexecutors/sales/viewsaletransactions.h \
     queryexecutors/stock.h \
     queryexecutors/stock/addstockproduct.h \

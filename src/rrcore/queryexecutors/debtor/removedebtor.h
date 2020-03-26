@@ -17,6 +17,8 @@ public:
 
     explicit RemoveDebtor(const Utility::Debtor &debtor,
                           QObject *receiver);
+    explicit RemoveDebtor(const QueryRequest &request,
+                          QObject *receiver);
     QueryResult execute() override;
 private:
     QueryResult removeDebtor();

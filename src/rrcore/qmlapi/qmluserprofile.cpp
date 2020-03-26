@@ -199,11 +199,14 @@ void QMLUserProfile::processResult(const QueryResult &result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == UserQuery::SignInUser::COMMAND
-                || result.request().command() == UserQuery::SignUpUser::COMMAND) {
+        if (result.request().command() == UserQuery::SignInUser::COMMAND) {
             const Utility::User &user{ result.outcome().toMap() };
             UserProfile::instance().setUser(user);
             emit success(ModelResult{ SignInSuccess });
+        } else if (result.request().command() == UserQuery::SignUpUser::COMMAND) {
+            const Utility::User &user{ result.outcome().toMap() };
+            UserProfile::instance().setUser(user);
+            emit success(ModelResult{ SignUpSuccess });
         } else if (result.request().command() == UserQuery::SignOutUser::COMMAND) {
             UserProfile::instance().clearUser();
             emit success(ModelResult{ SignOutSuccess });
