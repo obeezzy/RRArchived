@@ -37,9 +37,3 @@ Makefile*
 
 # QtCtreator CMake
 CMakeLists.txt.user*
-
-# Python
-tests/database/.vscode*
-*.pyc
-tests/database/env*
-tests/database/venv*
