@@ -44,45 +44,44 @@ void QMLStockProductModelTest::cleanup()
 
 void QMLStockProductModelTest::testViewStockProducts()
 {
-    auto databaseWillReturnThreeProducts = [this]() {
+    const QVariantMap product1 {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "product_id", 1 },
+        { "product", "Product1" },
+        { "description", "Description1" },
+        { "quantity", 1.0 },
+        { "unit_id", 1 },
+        { "unit", "Unit1" },
+        { "cost_price", 11.0 },
+        { "retail_price", 10.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    const QVariantMap product2 {
+        { "category_id", 1 },
+        { "category", "Category1" },
+        { "product_id", 2 },
+        { "product", "Product2" },
+        { "description", "Description2" },
+        { "quantity", 1.0 },
+        { "unit_id", 2 },
+        { "unit", "Unit2" },
+        { "cost_price", 11.0 },
+        { "retail_price", 10.0 },
+        { "unit_price", 13.0 },
+        { "available_quantity", 10.0 }
+    };
+
+    const QVariantList products {
+        product1,
+        product2
+    };
+
+    auto databaseWillReturn = [this](const QVariantList &products) {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
-
-        const QVariantMap product1 {
-            { "category_id", 1 },
-            { "category", "Category1" },
-            { "product_id", 1 },
-            { "product", "Product1" },
-            { "description", "Description1" },
-            { "quantity", 1.0 },
-            { "unit_id", 1 },
-            { "unit", "Unit1" },
-            { "cost_price", 11.0 },
-            { "retail_price", 10.0 },
-            { "unit_price", 13.0 },
-            { "available_quantity", 10.0 }
-        };
-
-        const QVariantMap product2 {
-            { "category_id", 1 },
-            { "category", "Category1" },
-            { "product_id", 2 },
-            { "product", "Product2" },
-            { "description", "Description2" },
-            { "quantity", 1.0 },
-            { "unit_id", 2 },
-            { "unit", "Unit2" },
-            { "cost_price", 11.0 },
-            { "retail_price", 10.0 },
-            { "unit_price", 13.0 },
-            { "available_quantity", 10.0 }
-        };
-
-        const QVariantList products {
-            product1,
-            product2
-        };
-
         m_result.setOutcome(QVariantMap {
                                 { "products", products },
                                 { "record_count", products.count() }
@@ -91,31 +90,47 @@ void QMLStockProductModelTest::testViewStockProducts()
     QSignalSpy successSpy(m_stockProductModel, &QMLStockProductModel::success);
     QSignalSpy busyChangedSpy(m_stockProductModel, &QMLStockProductModel::busyChanged);
 
-    databaseWillReturnThreeProducts();
+    databaseWillReturn(products);
 
     QCOMPARE(m_stockProductModel->rowCount(), 0);
 
     m_stockProductModel->setCategoryId(1);
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().toInt(), QMLStockProductModel::ViewProductsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLStockProductModel::ViewProductsSuccess);
     successSpy.clear();
 
     QCOMPARE(m_stockProductModel->rowCount(), 2);
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::CategoryRole).toString(), QStringLiteral("Category1"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::ProductRole).toString(), QStringLiteral("Product1"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::DescriptionRole).toString(), QStringLiteral("Description1"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::UnitRole).toString(), QStringLiteral("Unit1"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::CostPriceRole).toDouble(), 11.0);
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::RetailPriceRole).toDouble(), 10.0);
+    QCOMPARE(products.count(), 2);
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::CategoryRole).toString(),
+             products.at(0).toMap()["product_category"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::ProductRole).toString(),
+             products.at(0).toMap()["product"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::DescriptionRole).toString(),
+             products.at(0).toMap()["description"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::QuantityRole).toDouble(),
+             products.at(0).toMap()["quantity"].toDouble());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::UnitRole).toString(),
+             products.at(0).toMap()["product_unit"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::CostPriceRole).toDouble(),
+             products.at(0).toMap()["cost_price"].toDouble());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(0, 0), QMLStockProductModel::RetailPriceRole).toDouble(),
+             products.at(0).toMap()["retail_price"].toDouble());
 
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::ProductRole).toString(), QStringLiteral("Product2"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::DescriptionRole).toString(), QStringLiteral("Description2"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::UnitRole).toString(), QStringLiteral("Unit2"));
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::CostPriceRole).toDouble(), 11.0);
-    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::RetailPriceRole).toDouble(), 10.0);
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::CategoryRole).toString(),
+             products.at(1).toMap()["product_category"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::ProductRole).toString(),
+             products.at(1).toMap()["product"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::DescriptionRole).toString(),
+             products.at(1).toMap()["description"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::QuantityRole).toDouble(),
+             products.at(1).toMap()["quantity"].toDouble());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::UnitRole).toString(),
+             products.at(1).toMap()["product_unit"].toString());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::CostPriceRole).toDouble(),
+             products.at(1).toMap()["cost_price"].toDouble());
+    QCOMPARE(m_stockProductModel->data(m_stockProductModel->index(1, 0), QMLStockProductModel::RetailPriceRole).toDouble(),
+             products.at(1).toMap()["retail_price"].toDouble());
 }
 
 void QMLStockProductModelTest::testRefresh()
@@ -219,7 +234,7 @@ void QMLStockProductModelTest::testRemoveProduct()
     m_stockProductModel->removeProduct(0);
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_stockProductModel->rowCount(), 0);
-    QCOMPARE(successSpy.takeFirst().first().value<QMLStockProductModel::SuccessCode>(), QMLStockProductModel::RemoveProductSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLStockProductModel::RemoveProductSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
 

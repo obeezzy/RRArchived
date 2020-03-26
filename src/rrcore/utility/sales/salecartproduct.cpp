@@ -71,6 +71,7 @@ SaleCartProduct::SaleCartProduct(const QVariantMap &product) :
     description(product.value("description").toString()),
     imageUrl(product.value("image_url").toUrl()),
     quantity(product.value("quantity").toDouble()),
+    availableQuantity(product.value("available_quantity").toDouble()),
     unit(StockProductUnit {
          product.value("unit_id").toInt(),
          product.value("unit").toString()

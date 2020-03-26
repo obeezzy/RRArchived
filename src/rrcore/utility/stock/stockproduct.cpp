@@ -4,8 +4,12 @@
 
 using namespace Utility;
 
-StockProduct::StockProduct(int id) :
-    id(id)
+StockProduct::StockProduct(int id,
+                           const QString &product,
+                           const Note &note) :
+    id(id),
+    product(product),
+    note(note)
 {}
 
 StockProduct::StockProduct(const StockProductCategory &category,

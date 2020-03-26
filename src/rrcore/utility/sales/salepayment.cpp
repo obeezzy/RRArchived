@@ -12,6 +12,17 @@ SalePayment::SalePayment(qreal amount,
     currency(currency)
 { }
 
+SalePayment::SalePayment(const QVariantMap &map) :
+    amount(map.value("amount").toDouble()),
+    method(map.value("payment_method").toString()),
+    note(Note {
+         map.value("note_id").toInt(),
+         map.value("note").toString()
+         })
+{
+
+}
+
 QVariantMap SalePayment::toVariantMap() const
 {
     return {

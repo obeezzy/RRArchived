@@ -41,13 +41,15 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
+
+    Q_INVOKABLE void removeDebtor(int row);
 protected:
     void tryQuery() override final;
     void processResult(const QueryResult result) override final;
     void filter() override final;
     QString columnName(int column) const override final;
 public slots:
-    void removeDebtor(int row);
+    void undoLastCommit() override;
 private:
     Utility::DebtorList m_debtorList;
 

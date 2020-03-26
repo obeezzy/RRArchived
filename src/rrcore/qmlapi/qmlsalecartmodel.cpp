@@ -7,6 +7,9 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QDebug>
+
+Q_LOGGING_CATEGORY(lcqmlsalecartmodel, "rrcore.qmlapi.qmlsalecartmodel")
 
 const int CASH_PAYMENT_LIMIT = 1;
 const int CARD_PAYMENT_LIMIT = 2;
@@ -421,9 +424,9 @@ void QMLSaleCartModel::undoLastCommit()
                       params.value("outcome").toMap().value("sale_transaction_id").toInt());
         request.setParams(params);
 
-        auto addSaleTransaction = new SaleQuery::AddSaleTransaction(request, this);
-        addSaleTransaction->undoOnNextExecution(true);
-        emit execute(addSaleTransaction);
+        auto query = new SaleQuery::AddSaleTransaction(request, this);
+        query->undoOnNextExecution(true);
+        emit execute(query);
     }
 }
 
@@ -431,8 +434,10 @@ void QMLSaleCartModel::addProduct(const QVariantMap &product)
 {
     Utility::SaleCartProduct newProduct{ product };
 
-    if (newProduct.availableQuantity == 0.0)
+    if (newProduct.availableQuantity == 0.0) {
+        qCWarning(lcqmlsalecartmodel) << Q_FUNC_INFO << "Available quantity is zero.";
         return;
+    }
 
     if (!m_transaction.products.contains(newProduct)) {
         beginInsertRows(QModelIndex(), m_transaction.products.count(), m_transaction.products.count());
@@ -442,7 +447,7 @@ void QMLSaleCartModel::addProduct(const QVariantMap &product)
         const int row = m_transaction.products.indexOf(newProduct);
         Utility::SaleCartProduct &existingProduct = m_transaction.products[row];
         const double oldQuantity = existingProduct.quantity;
-        const double newQuantity = oldQuantity + 1;
+        const double newQuantity = oldQuantity + newProduct.quantity;
 
         existingProduct.quantity = qMin(newQuantity, existingProduct.availableQuantity);
         existingProduct.cost = existingProduct.quantity * existingProduct.unitPrice;
@@ -463,12 +468,11 @@ void QMLSaleCartModel::updateProduct(int productId, const QVariantMap &product)
     Utility::SaleCartProduct &existingProduct{ m_transaction.products[row] };
     const double oldQuantity = existingProduct.quantity;
     const double availableQuantity = existingProduct.availableQuantity;
-    const double quantity = existingProduct.quantity;
     const double oldUnitPrice = existingProduct.unitPrice;
     const double oldCost = existingProduct.cost;
-    const double newQuantity = qMin(quantity, availableQuantity);
-    const double newUnitPrice = existingProduct.unitPrice;
-    const double newCost = existingProduct.cost;
+    const double newQuantity = qMin(updatedProduct.quantity, availableQuantity);
+    const double newUnitPrice = updatedProduct.unitPrice;
+    const double newCost = updatedProduct.cost;
 
     if (product.contains("quantity"))
         existingProduct.quantity = newQuantity;
@@ -539,7 +543,7 @@ void QMLSaleCartModel::calculateTotal()
         totalCost += product.cost;
 
     setTotalCost(totalCost);
-    setBalance(m_transaction.totalCost - m_transaction.amountPaid);
+    setBalance(totalCost - m_transaction.amountPaid);
 }
 
 void QMLSaleCartModel::calculateAmountPaid()
@@ -549,7 +553,7 @@ void QMLSaleCartModel::calculateAmountPaid()
         amountPaid += payment.amount;
 
     setAmountPaid(amountPaid);
-    setBalance(m_transaction.totalCost - m_transaction.amountPaid);
+    setBalance(m_transaction.totalCost - amountPaid);
 }
 
 void QMLSaleCartModel::setClientId(int clientId)

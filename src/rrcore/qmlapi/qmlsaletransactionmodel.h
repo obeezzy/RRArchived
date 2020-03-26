@@ -29,8 +29,8 @@ public:
     }; Q_ENUM(Columns)
 
     enum Roles {
-        TransactionIdRole = Qt::UserRole,
-        ClientIdRole,
+        SaleTransactionIdRole = Qt::UserRole,
+        CustomerIdRole,
         CustomerNameRole,
         TotalCostRole,
         AmountPaidRole,

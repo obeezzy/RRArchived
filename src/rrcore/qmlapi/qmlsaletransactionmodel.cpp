@@ -21,10 +21,10 @@ QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     switch (role) {
-    case TransactionIdRole:
+    case SaleTransactionIdRole:
         return m_transactions.at(index.row()).id;
-    case ClientIdRole:
-        return m_transactions.at(index.row()).customer.client.id;
+    case CustomerIdRole:
+        return m_transactions.at(index.row()).customer.id;
     case CustomerNameRole:
         return m_transactions.at(index.row()).customer.client.preferredName;
     case TotalCostRole:
@@ -75,8 +75,8 @@ int QMLSaleTransactionModel::columnCount(const QModelIndex &parent) const
 QHash<int, QByteArray> QMLSaleTransactionModel::roleNames() const
 {
     return {
-        { TransactionIdRole, "transaction_id" },
-        { ClientIdRole, "client_id" },
+        { SaleTransactionIdRole, "sale_transaction_id" },
+        { CustomerIdRole, "customer_id" },
         { CustomerNameRole, "customer_name" },
         { TotalCostRole, "total_cost" },
         { AmountPaidRole, "amount_paid" },

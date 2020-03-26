@@ -1,4 +1,4 @@
-#include "viewsaletransactionproducts.h"
+#include "viewsoldproducts.h"
 #include "database/databaseexception.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>

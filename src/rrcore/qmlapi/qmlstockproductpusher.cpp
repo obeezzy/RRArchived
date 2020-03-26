@@ -167,7 +167,7 @@ bool QMLStockProductPusher::isDivisible() const
 
 void QMLStockProductPusher::setDivisible(bool divisible)
 {
-    if (m_product.flags.testFlag(Utility::RecordGroup::Divisible))
+    if (m_product.flags.testFlag(Utility::RecordGroup::Divisible) == divisible)
         return;
 
     m_product.flags.setFlag(Utility::RecordGroup::Divisible, divisible);

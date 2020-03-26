@@ -42,16 +42,16 @@ void QMLStockProductCategoryModelTest::cleanup()
 
 void QMLStockProductCategoryModelTest::testViewStockCategories()
 {
-    auto databsaeWillReturnSingleCategory = [this]() {
+    const QVariantList categories {
+        QVariantMap {
+            { "category_id", 1 },
+            { "category", QStringLiteral("Category") }
+        }
+    };
+
+    auto databaseWillReturn = [this](const QVariantList &categories) {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
-        const QVariantList categories {
-            QVariantMap {
-                { "category_id", 1 },
-                { "category", QStringLiteral("Category") }
-            }
-        };
-
         m_result.setOutcome(QVariantMap { { "categories", categories } });
     };
     QSignalSpy successSpy(m_stockProductCategoryModel, &QMLStockProductCategoryModel::success);
@@ -61,15 +61,18 @@ void QMLStockProductCategoryModelTest::testViewStockCategories()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockProductCategoryModel->rowCount(), 0);
 
-    databsaeWillReturnSingleCategory();
+    databaseWillReturn(categories);
 
     m_stockProductCategoryModel->componentComplete();
 
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockProductCategoryModel->rowCount(), 1);
-    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::ProductCategoryIdRole).toInt(), 1);
-    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::CategoryRole).toString(), QStringLiteral("Category"));
+    QCOMPARE(categories.isEmpty(), false);
+    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::ProductCategoryIdRole).toInt(),
+             categories.first().toMap()["product_category_id"].toInt());
+    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLStockProductCategoryModel::CategoryRole).toString(),
+             categories.first().toMap()["product_category"].toString());
 }
 
 void QMLStockProductCategoryModelTest::testFilterCategory()

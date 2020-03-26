@@ -21,6 +21,13 @@ RemoveDebtor::RemoveDebtor(const Utility::Debtor &debtor,
 
 }
 
+RemoveDebtor::RemoveDebtor(const QueryRequest &request,
+                           QObject *receiver) :
+    DebtorExecutor(COMMAND, request.params(), receiver)
+{
+
+}
+
 QueryResult RemoveDebtor::execute()
 {
     if (canUndo() && isUndoSet())

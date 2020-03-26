@@ -22,6 +22,15 @@ public:
 
     Enum enumValue() const;
     QString toString() const;
+
+    friend QDebug operator<<(QDebug debug, const PaymentMethod &method)
+    {
+        debug.nospace() << "PaymentMethod("
+                        << method.toString()
+                        << ")";
+
+        return debug.nospace();
+    }
 private:
     Enum m_enumValue {Cash};
 };

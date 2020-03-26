@@ -3,6 +3,7 @@
 
 #include "utility/common/recordgroup.h"
 #include <QString>
+#include <QDebug>
 
 namespace Utility {
 struct StockProductUnit
@@ -17,6 +18,17 @@ struct StockProductUnit
                               const QString &unit);
     explicit StockProductUnit(const QString &unit,
                               qreal baseUnitEquivalent);
+
+    friend QDebug operator<<(QDebug debug, const StockProductUnit &unit)
+    {
+        debug.nospace() << "StockProductUnit("
+                        << "id=" << unit.id
+                        << ", product=" << unit.unit
+                        << ", baseUnitEquivalent=" << unit.baseUnitEquivalent
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 }
 Q_DECLARE_TYPEINFO(Utility::StockProductUnit, Q_PRIMITIVE_TYPE);

@@ -250,6 +250,18 @@ void QMLStockProductModel::refresh()
     tryQuery();
 }
 
+void QMLStockProductModel::undoLastCommit()
+{
+    QueryRequest request{ lastSuccessfulRequest() };
+    QVariantMap params{ lastSuccessfulRequest().params() };
+    if (lastSuccessfulRequest().command() == StockQuery::RemoveStockProduct::COMMAND) {
+        setBusy(true);
+        auto query = new StockQuery::RemoveStockProduct(request, this);
+        query->undoOnNextExecution(true);
+        emit execute(query);
+    }
+}
+
 void QMLStockProductModel::removeProductFromModel(int row)
 {
     if (row < 0 || row >= rowCount())

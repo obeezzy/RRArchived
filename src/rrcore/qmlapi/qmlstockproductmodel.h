@@ -67,6 +67,7 @@ protected:
     void filter() override final;
 public slots:
     void refresh() override;
+    void undoLastCommit() override;
 private:
     int m_categoryId {-1};
     Utility::StockProductList m_products;

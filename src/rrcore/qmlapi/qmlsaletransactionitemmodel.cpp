@@ -3,6 +3,7 @@
 #include "queryexecutors/sales.h"
 #include "utility/saleutils.h"
 #include <QDateTime>
+#include <QDebug>
 
 QMLSaleTransactionItemModel::QMLSaleTransactionItemModel(QObject *parent) :
     AbstractTransactionItemModel(parent)
@@ -38,20 +39,18 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
         return QVariant();
 
     switch (role) {
-    case PurchasedProductIdRole:
-        return m_products.at(index.row()).id;
     case CategoryIdRole:
-        return m_products.at(index.row()).category.id;
+        return m_products.at(index.row()).product.category.id;
     case CategoryRole:
-        return m_products.at(index.row()).category.category;
+        return m_products.at(index.row()).product.category.category;
     case ProductIdRole:
         return m_products.at(index.row()).product.id;
     case ProductRole:
         return m_products.at(index.row()).product.product;
     case UnitPriceRole:
-        return m_products.at(index.row()).product.unitPrice;
+        return m_products.at(index.row()).unitPrice;
     case QuantityRole:
-        return m_products.at(index.row()).product.quantity;
+        return m_products.at(index.row()).quantity;
     case UnitIdRole:
         return m_products.at(index.row()).product.unit.id;
     case UnitRole:
@@ -84,7 +83,6 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
 QHash<int, QByteArray> QMLSaleTransactionItemModel::roleNames() const
 {
     return {
-        { PurchasedProductIdRole, "purchased_product_id" },
         { CategoryIdRole, "category_id" },
         { CategoryRole, "category" },
         { ProductIdRole, "product_id" },

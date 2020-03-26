@@ -3,6 +3,7 @@
 
 #include "models/abstractvisuallistmodel.h"
 #include "utility/sales/saletransaction.h"
+#include <QLoggingCategory>
 
 class SalePaymentModel;
 
@@ -14,8 +15,8 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(QString customerPhoneNumber READ customerPhoneNumber WRITE setCustomerPhoneNumber NOTIFY customerPhoneNumberChanged)
     Q_PROPERTY(int clientId READ clientId NOTIFY clientIdChanged)
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
-    Q_PROPERTY(double totalCost READ totalCost NOTIFY totalCostChanged)
-    Q_PROPERTY(double amountPaid READ amountPaid NOTIFY amountPaidChanged)
+    Q_PROPERTY(double totalCost READ totalCost WRITE setTotalCost NOTIFY totalCostChanged)
+    Q_PROPERTY(double amountPaid READ amountPaid WRITE setAmountPaid NOTIFY amountPaidChanged)
     Q_PROPERTY(double balance READ balance NOTIFY balanceChanged)
     Q_PROPERTY(bool canAcceptCash READ canAcceptCash NOTIFY canAcceptCashChanged)
     Q_PROPERTY(bool canAcceptCard READ canAcceptCard NOTIFY canAcceptCardChanged)
@@ -84,7 +85,11 @@ public:
     void setNote(const QString &note);
 
     double totalCost() const;
+    void setTotalCost(double totalCost);
+
     double amountPaid() const;
+    void setAmountPaid(double amountPaid);
+
     double balance() const;
 
     bool canAcceptCash() const;
@@ -130,8 +135,6 @@ private:
     void addTransaction(const QVariantMap &transaction);
     void updateSuspendedTransaction(const QVariantMap &addOns);
 
-    void setTotalCost(double totalCost);
-    void setAmountPaid(double amountPaid);
     void setBalance(double balance);
     void calculateTotal();
     void calculateAmountPaid();
@@ -141,5 +144,7 @@ private:
     void updateCanAcceptCash();
     void updateCanAcceptCard();
 };
+
+Q_DECLARE_LOGGING_CATEGORY(lcqmlsalecartmodel)
 
 #endif // QMLSALECARTMODEL_H

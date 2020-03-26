@@ -59,6 +59,27 @@ struct SaleCartProduct {
     inline bool operator==(const SaleCartProduct &other) {
         return id == other.id;
     }
+
+    friend QDebug operator<<(QDebug debug, const SaleCartProduct &product)
+    {
+        debug.nospace() << "SaleCartProduct("
+                        << "id=" << product.id
+                        << ", product=" << product.product
+                        << ", caetegory=" << product.category
+                        << ", description=" << product.description
+                        << ", imageUrl=" << product.imageUrl
+                        << ", quantity=" << product.quantity
+                        << ", availableQuantity=" << product.availableQuantity
+                        << ", unit=" << product.unit
+                        << ", costPrice=" << product.costPrice
+                        << ", retailPrice=" << product.retailPrice
+                        << ", unitPrice=" << product.unitPrice
+                        << ", cost=" << product.cost
+                        << ", note=" << product.note
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class SaleCartProductList : public QList<SaleCartProduct> {
