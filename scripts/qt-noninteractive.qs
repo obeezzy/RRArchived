@@ -27,7 +27,7 @@ Controller.prototype.TargetDirectoryPageCallback = function()
 Controller.prototype.ComponentSelectionPageCallback = function() {
     var widget = gui.currentPageWidget();
 
-    var qtVersion = installer.environmentVariable('QT_VERSION_SCRIPT")
+    var qtVersion = installer.environmentVariable("QT_VERSION_SCRIPT")
     if (qtVersion === "")
         console.warn("QT_VERSION_SCRIPT not set.");
 
