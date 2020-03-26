@@ -1,5 +1,6 @@
 function Controller() {
 console.log("Controller function");
+    installer.setDefaultPageVisible(QInstaller.Credentials, false);
     installer.autoRejectMessageBoxes();
     installer.installationFinished.connect(function() {
         gui.clickButton(buttons.NextButton);
@@ -21,8 +22,7 @@ console.log("IntroductionPageCallback function");
     gui.clickButton(buttons.NextButton);
 }
 
-Controller.prototype.TargetDirectoryPageCallback = function()
-{
+Controller.prototype.TargetDirectoryPageCallback = function() {
 console.log("TargetDirectoryPageCallback function");
     var homeDir = installer.environmentVariable("HOME")
     gui.currentPageWidget().TargetDirectoryLineEdit.setText(homeDir + "/Qt");
