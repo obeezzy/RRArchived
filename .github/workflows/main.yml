@@ -34,6 +34,7 @@ jobs:
         $QTDIR/bin/qmake CONFIG+=release
         make -j`nproc`
         export RRCORE=../../src/rrcore
+        export LD_LIBRARY_PATH=$QTDIR/lib
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RRCORE
         echo "Show me LD: $LD_LIBRARY_PATH"
         make check
