@@ -19,7 +19,6 @@ jobs:
 
     - name: Install Qt
       run: |
-        echo "Printing ${{ env.QT_VERSION }}"
         export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION | sed 's/\.[^.]*$//')
         export QT_VERSION_SCRIPT=$(echo $QT_VERSION | sed -e 's/\.//g')
         sudo apt-get install unzip wget build-essential mesa-common-dev -y
@@ -30,7 +29,6 @@ jobs:
     - name: Build app and run tests
       run: |
         export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
-        $QTDIR/bin/qmake -project
         $QTDIR/bin/qmake CONFIG+=release
         make -j`nproc`
         make check
