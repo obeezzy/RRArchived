@@ -24,13 +24,15 @@ jobs:
         wget https://download.qt.io/archive/qt/${QT_VERSION_MAJOR_MINOR}/${QT_VERSION_FULL}/qt-opensource-linux-x64-${QT_VERSION_FULL}.run
         chmod +x qt-opensource-linux-x64-${QT_VERSION_FULL}.run
         ./qt-opensource-linux-x64-${QT_VERSION_FULL}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
-        export QTDIR=$HOME/Qt/$QT_VERSION_FULL/gcc_64
-        export PATH=$PATH:$QTDIR
+        echo "export QTDIR=$HOME/Qt/$QT_VERSION_FULL/gcc_64" >> ~/.bashrc
+        echo "export PATH=$PATH:$QTDIR" >> ~/.bashrc
 
     - name: Build app and run tests
       run: |
         echo Print QTDIR
         echo $QTDIR
+        export QTDIR=$HOME/Qt/$QT_VERSION_FULL/gcc_64
+
         qmake -project
         qmake CONFIG+=release
         make -j`nproc`
