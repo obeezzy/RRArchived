@@ -18,10 +18,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Init submodules
-      run: |
-        pwd
-        ls -a
-        git submodule --init --recursive
+      run: git submodule update --init --recursive
 
     - name: Install Qt
       run: |
