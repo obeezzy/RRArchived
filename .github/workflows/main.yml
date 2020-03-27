@@ -28,12 +28,12 @@ jobs:
         chmod +x qt-opensource-linux-x64-${QT_VERSION_FULL}.run
         ./qt-opensource-linux-x64-${QT_VERSION_FULL}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
         export QTDIR=$HOME/Qt/$QT_VERSION_FULL/gcc_64
-        PATH=$PATH:$QTDIR
+        export PATH=$PATH:$QTDIR
 
     - name: Build app and run tests
       run: |
-        $QTDIR/qmake -project
-        $QTDIR/qmake CONFIG+=release
+        qmake -project
+        qmake CONFIG+=release
         make -j`nproc`
         make check
         
