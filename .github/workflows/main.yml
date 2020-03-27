@@ -6,12 +6,12 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  # Semver (e.g. 5.13.1)
+  QT_VERSION: 5.13.1
+
 jobs:
   build:
-    env:
-      # Semver (e.g. 5.13.1)
-      QT_VERSION: 5.13.1
-
     runs-on: ubuntu-18.04
 
     steps:
@@ -19,7 +19,7 @@ jobs:
 
     - name: Install Qt
       run: |
-        echo "Printing ${{ jobs.build.QT_VERSION }}"
+        echo "Printing ${{ env.QT_VERSION }}"
         export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION | sed 's/\.[^.]*$//')
         export QT_VERSION_SCRIPT=$(echo $QT_VERSION | sed -e 's/\.//g')
         sudo apt-get install unzip wget build-essential mesa-common-dev -y
