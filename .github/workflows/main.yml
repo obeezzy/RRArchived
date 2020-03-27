@@ -23,7 +23,7 @@ jobs:
       run: |
         export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION | sed 's/\.[^.]*$//')
         export QT_VERSION_SCRIPT=$(echo $QT_VERSION | sed -e 's/\.//g')
-        sudo apt-get install unzip wget build-essential mesa-common-dev libglu1-mesa-dev -y
+        sudo apt-get install unzip wget build-essential mesa-common-dev libglu1-mesa-dev xcb -y
         wget https://download.qt.io/archive/qt/${QT_VERSION_MAJOR_MINOR}/${QT_VERSION}/qt-opensource-linux-x64-${QT_VERSION}.run
         chmod +x qt-opensource-linux-x64-${QT_VERSION}.run
         ./qt-opensource-linux-x64-${QT_VERSION}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
