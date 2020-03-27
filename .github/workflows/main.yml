@@ -13,9 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Print HOME directory
-      run: echo $HOME
-
     - name: Install Qt
       env:
         #5.13.1
@@ -32,6 +29,8 @@ jobs:
 
     - name: Build app and run tests
       run: |
+        echo Print QTDIR
+        echo $QTDIR
         qmake -project
         qmake CONFIG+=release
         make -j`nproc`
