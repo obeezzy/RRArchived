@@ -32,8 +32,8 @@ jobs:
 
     - name: Build app and run tests
       run: |
-        qmake -project
-        qmake CONFIG+=release
+        $QTDIR/qmake -project
+        $QTDIR/qmake CONFIG+=release
         make -j`nproc`
         make check
         
