@@ -70,6 +70,7 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
 
     widget.deselectAll();
     widget.selectComponent("qt.qt5." + qtVersion + ".gcc_64")
+    widget.selectComponent("qt.qt5." + qtVersion + ".qtcharts")
     widget.selectComponent("qt.qt5." + qtVersion + ".qtcharts.gcc_64")
     widget.selectComponent("qt.qt5." + qtVersion + ".lottie.gcc_64")
 
