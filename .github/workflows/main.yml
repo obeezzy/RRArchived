@@ -9,28 +9,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-18.04
+    env:
+      # Semver (e.g. 5.13.1)
+      QT_VERSION: 5.13.1
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Install Qt
-      env:
-        #5.13.1
-        QT_VERSION_FULL: 5.13.1
       run: |
-        export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION_FULL | sed 's/\.[^.]*$//')
-        export QT_VERSION_SCRIPT=$(echo $QT_VERSION_FULL | sed -e 's/\.//g')
+        export QT_VERSION_MAJOR_MINOR=$(echo ${{ jobs.build.env.QT_VERSION }} | sed 's/\.[^.]*$//')
+        export QT_VERSION_SCRIPT=$(echo ${{ jobs.build.env.QT_VERSION }} | sed -e 's/\.//g')
         sudo apt-get install unzip wget build-essential mesa-common-dev -y
-        wget https://download.qt.io/archive/qt/${QT_VERSION_MAJOR_MINOR}/${QT_VERSION_FULL}/qt-opensource-linux-x64-${QT_VERSION_FULL}.run
-        chmod +x qt-opensource-linux-x64-${QT_VERSION_FULL}.run
-        ./qt-opensource-linux-x64-${QT_VERSION_FULL}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
+        wget https://download.qt.io/archive/qt/${QT_VERSION_MAJOR_MINOR}/${QT_VERSION}/qt-opensource-linux-x64-${QT_VERSION}.run
+        chmod +x qt-opensource-linux-x64-${QT_VERSION}.run
+        ./qt-opensource-linux-x64-${QT_VERSION}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
 
     - name: Build app and run tests
       env:
-        #5.13.1
-        QT_VERSION_FULL: 5.13.1
       run: |
-        export QTDIR=$HOME/Qt/$QT_VERSION_FULL/gcc_64
+        export QTDIR=$HOME/Qt/${{ jobs.build.env.QT_VERSION }}/gcc_64
         qmake -project
         qmake CONFIG+=release
         make -j`nproc`
