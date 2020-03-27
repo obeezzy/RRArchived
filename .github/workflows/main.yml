@@ -9,14 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-18.04
-
+      strategy:
+        matrix:
+          env:
+            # Semver (e.g. 5.13.1)
+            QT_VERSION: 5.13.1
     steps:
     - uses: actions/checkout@v2
 
     - name: Install Qt
-      env:
-        # Semver (e.g. 5.13.1)
-        QT_VERSION: 5.13.1
       run: |
         export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION | sed 's/\.[^.]*$//')
         export QT_VERSION_SCRIPT=$(echo $QT_VERSION | sed -e 's/\.//g')
@@ -26,12 +27,10 @@ jobs:
         ./qt-opensource-linux-x64-${QT_VERSION}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
 
     - name: Build app and run tests
-      env:
-        QT_VERSION: 5.13.1
       run: |
         export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
-        qmake -project
-        qmake CONFIG+=release
+        $QTDIR/bin/qmake -project
+        $QTDIR/bin/qmake CONFIG+=release
         make -j`nproc`
         make check
         
