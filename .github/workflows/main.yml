@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Semver (e.g. 5.13.1)
+  QT_VERSION: 5.13.1
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Install Qt
+      run: |
+        export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION | sed 's/\.[^.]*$//')
+        export QT_VERSION_SCRIPT=$(echo $QT_VERSION | sed -e 's/\.//g')
+        sudo apt-get install unzip wget build-essential mesa-common-dev libglu1-mesa-dev xcb -y
+        wget https://download.qt.io/archive/qt/${QT_VERSION_MAJOR_MINOR}/${QT_VERSION}/qt-opensource-linux-x64-${QT_VERSION}.run
+        chmod +x qt-opensource-linux-x64-${QT_VERSION}.run
+        ./qt-opensource-linux-x64-${QT_VERSION}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
+
+    - name: Build app and run tests
+      run: |
+        export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
+        $QTDIR/bin/qmake CONFIG+=release
+        make -j`nproc`
+        export RRCORE=../../src/rrcore
+        export LD_LIBRARY_PATH=$QTDIR/lib
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RRCORE
+        export QT_QPA_PLATFORM=offscreen
+        make check
+        
