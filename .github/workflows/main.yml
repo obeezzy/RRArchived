@@ -26,7 +26,7 @@ jobs:
         sudo apt-get install unzip wget build-essential mesa-common-dev -y
         wget https://download.qt.io/archive/qt/${QT_VERSION_MAJOR_MINOR}/${QT_VERSION_FULL}/qt-opensource-linux-x64-${QT_VERSION_FULL}.run
         chmod +x qt-opensource-linux-x64-${QT_VERSION_FULL}.run
-        ./qt-opensource-linux-x64-${QT_VERSION_FULL}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose
+        ./qt-opensource-linux-x64-${QT_VERSION_FULL}.run --script scripts/qt-noninteractive.qs -platform minimal --verbose email=${{ secrets.QT_INSTALLER_EMAIL }} password=${{ secrets.QT_INSTALLER_PASSWORD }}
 
     - name: Build app and run tests
       run: |
