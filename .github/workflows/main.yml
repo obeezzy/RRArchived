@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  id: buildtest
   build:
     env:
       # Semver (e.g. 5.13.1)
@@ -20,7 +19,7 @@ jobs:
 
     - name: Install Qt
       run: |
-        echo "Printing ${{ jobs.buildtest.QT_VERSION }}"
+        echo "Printing ${{ jobs.build.QT_VERSION }}"
         export QT_VERSION_MAJOR_MINOR=$(echo $QT_VERSION | sed 's/\.[^.]*$//')
         export QT_VERSION_SCRIPT=$(echo $QT_VERSION | sed -e 's/\.//g')
         sudo apt-get install unzip wget build-essential mesa-common-dev -y
