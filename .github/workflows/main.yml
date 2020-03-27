@@ -8,12 +8,14 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        env:
+          # Semver (e.g. 5.13.1)
+          QT_VERSION: 5.13.1
+
     runs-on: ubuntu-18.04
-      strategy:
-        matrix:
-          env:
-            # Semver (e.g. 5.13.1)
-            QT_VERSION: 5.13.1
+
     steps:
     - uses: actions/checkout@v2
 
