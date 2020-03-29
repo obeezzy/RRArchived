@@ -10,7 +10,7 @@ struct ExpenseReportTransaction
 {
     Client client;
     QString purpose;
-    qreal amount {0.0};
+    double amount {0.0};
 
     explicit ExpenseReportTransaction() = default;
     explicit ExpenseReportTransaction(const QVariantMap &map);

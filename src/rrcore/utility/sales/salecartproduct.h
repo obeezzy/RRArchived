@@ -1,11 +1,12 @@
 #ifndef SALECARTPRODUCT_H
 #define SALECARTPRODUCT_H
 
-#include "utility/user/user.h"
 #include "utility/common/note.h"
+#include "utility/common/recordtimestamp.h"
+#include "utility/sales/salemonies.h"
 #include "utility/stock/stockproductcategory.h"
 #include "utility/stock/stockproductunit.h"
-#include "singletons/settings.h"
+#include "utility/user/user.h"
 #include <QVariantList>
 #include <QDateTime>
 
@@ -16,43 +17,32 @@ struct SaleCartProduct {
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    qreal quantity {0.0};
-    qreal availableQuantity {0.0};
+    double quantity {0.0};
+    double availableQuantity {0.0};
     StockProductUnit unit;
+    SaleMonies monies;
     RecordGroup::Flags flags;
-    qreal costPrice {0.0};
-    qreal retailPrice {0.0};
-    qreal unitPrice {0.0};
-    qreal cost {0.0};
-    qreal amountPaid {0.0};
-    QString currency {Settings::DEFAULT_CURRENCY};
     Note note;
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     User user;
 
     explicit SaleCartProduct(int id);
-    explicit SaleCartProduct(const StockProductCategory &category,
-                             const QString &product,
+    explicit SaleCartProduct(const QString &product,
+                             const StockProductCategory &category,
                              const QString &description,
                              const QUrl &imageUrl,
-                             qreal quantity,
+                             double quantity,
                              const StockProductUnit &unit,
+                             const SaleMonies &monies,
                              const RecordGroup::Flags &flags,
-                             qreal costPrice,
-                             qreal retailPrice,
-                             const QString &currency,
-                             const Note &note);
+                             const Note &note = Note());
     explicit SaleCartProduct(int id,
                              const QString &product,
                              const StockProductCategory &category,
-                             qreal quantity,
+                             double quantity,
                              const StockProductUnit &unit,
-                             qreal retailPrice,
-                             qreal unitPrice,
-                             qreal cost,
-                             qreal amountPaid,
-                             const Note &note);
+                             const SaleMonies &monies,
+                             const Note &note = Note());
     explicit SaleCartProduct(const QVariantMap &product);
     QVariantMap toVariantMap() const;
 
@@ -71,10 +61,10 @@ struct SaleCartProduct {
                         << ", quantity=" << product.quantity
                         << ", availableQuantity=" << product.availableQuantity
                         << ", unit=" << product.unit
-                        << ", costPrice=" << product.costPrice
-                        << ", retailPrice=" << product.retailPrice
-                        << ", unitPrice=" << product.unitPrice
-                        << ", cost=" << product.cost
+                        << ", costPrice=" << product.monies.costPrice
+                        << ", retailPrice=" << product.monies.retailPrice
+                        << ", unitPrice=" << product.monies.unitPrice
+                        << ", cost=" << product.monies.cost
                         << ", note=" << product.note
                         << ")";
 

@@ -1,7 +1,7 @@
 #include "amountoverpaidexception.h"
 #include "database/databaseerror.h"
 
-AmountOverpaidException::AmountOverpaidException(qreal amount) :
+AmountOverpaidException::AmountOverpaidException(double amount) :
     DatabaseException(DatabaseError::QueryErrorCode::AmountOverpaid,
                       QStringLiteral("Total amount paid is greater than total debt by %1.").arg(qAbs(amount)))
 {

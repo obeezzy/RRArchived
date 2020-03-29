@@ -4,52 +4,42 @@
 
 using namespace Utility;
 
-PurchaseCartProduct::PurchaseCartProduct(const StockProductCategory &category,
-                                         const QString &product,
+PurchaseCartProduct::PurchaseCartProduct(const QString &product,
+                                         const StockProductCategory &category,
                                          const QString &description,
                                          const QUrl &imageUrl,
-                                         qreal quantity,
+                                         double quantity,
                                          const StockProductUnit &unit,
-                                         const RecordGroup::Flags &flags,
-                                         qreal costPrice,
-                                         qreal retailPrice,
-                                         const QString &currency,
-                                         const Note &note) :
+                                         const PurchaseMonies &monies,
+                                         const Note &note,
+                                         const RecordGroup::Flags &flags) :
     product(product),
     category(category),
     description(description),
     imageUrl(imageUrl),
     quantity(quantity),
     unit(unit),
-    costPrice(costPrice),
-    retailPrice(retailPrice),
-    currency(currency),
+    monies(monies),
     note(note),
     flags(flags)
-{ }
+{}
 
 PurchaseCartProduct::PurchaseCartProduct(int id,
                                          const QString &product,
                                          const StockProductCategory &category,
-                                         qreal quantity,
+                                         double quantity,
                                          const StockProductUnit &unit,
-                                         qreal retailPrice,
-                                         qreal unitPrice,
-                                         qreal cost,
-                                         qreal amountPaid,
+                                         const PurchaseMonies &monies,
                                          const Note &note) :
     id(id),
     product(product),
     category(category),
     quantity(quantity),
     unit(unit),
-    retailPrice(retailPrice),
-    unitPrice(unitPrice),
-    cost(cost),
-    amountPaid(amountPaid),
+    monies(monies),
     note(note),
     flags(RecordGroup::Tracked | RecordGroup::Divisible)
-{ }
+{}
 
 PurchaseCartProduct::PurchaseCartProduct(int id) :
     id(id)
@@ -74,18 +64,21 @@ PurchaseCartProduct::PurchaseCartProduct(const QVariantMap &product) :
          product.value("unit_id").toInt(),
          product.value("unit").toString()
          }),
-    costPrice(product.value("cost_price").toDouble()),
-    retailPrice(product.value("retail_price").toDouble()),
-    unitPrice(product.value("unit_price").toDouble()),
-    cost(product.value("cost", quantity * unitPrice).toDouble()),
-    amountPaid(product.value("amount_paid").toDouble()),
-    currency(product.value("currency").toString()),
+    monies(PurchaseMonies { QVariantMap {
+            { "cost_price", product.value("cost_price").toDouble() },
+            { "retail_price", product.value("retail_price").toDouble() },
+            { "unit_price", product.value("unit_price").toDouble() },
+            { "cost", product.value("cost") },
+            { "amount_paid", product.value("amount_paid").toDouble() }
+           }}),
     note(Note {
          product.value("note_id").toInt(),
          product.value("note").toString()
          }),
-    created(product.value("created").toDateTime()),
-    lastEdited(product.value("last_edited").toDateTime()),
+    timestamp(RecordTimestamp {
+              product.value("created").toDateTime(),
+              product.value("last_edited").toDateTime()
+              }),
     user(User {
          product.value("user_id").toInt(),
          product.value("user").toString()
@@ -105,10 +98,11 @@ QVariantMap PurchaseCartProduct::toVariantMap() const
         { "available_quantity", availableQuantity },
         { "product_unit_id", unit.id },
         { "unit", unit.unit },
-        { "retail_price", retailPrice },
-        { "unit_price", unitPrice },
-        { "cost", cost },
-        { "amount_paid", amountPaid },
+        { "retail_price", monies.retailPrice.toDouble() },
+        { "unit_price", monies.unitPrice.toDouble() },
+        { "cost", monies.cost.toDouble() },
+        { "amount_paid", monies.amountPaid.toDouble() },
+        { "currency", monies.retailPrice.currency().isoCode() },
         { "note_id", note.id },
         { "note", note.note }
     };

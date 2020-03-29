@@ -13,19 +13,14 @@ struct SaleTransaction
 {
     int id {-1};
     Customer customer;
-    qreal totalCost {0.0};
-    qreal amountPaid {0.0};
-    qreal balance {0.0};
-    qreal discount {0.0};
+    SaleMonies monies;
     SalePaymentList payments;
     SaleCartProductList products;
     RecordGroup::Flags flags;
     QDateTime dueDateTime;
     QString action;
     Note note;
-    QString currency {Settings::DEFAULT_CURRENCY};
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     User user;
     int row {-1};
 
@@ -34,9 +29,7 @@ struct SaleTransaction
     explicit SaleTransaction(qint64 id);
     explicit SaleTransaction(qint64 id,
                              const Customer &customer,
-                             qreal totalCost,
-                             qreal amountPaid,
-                             qreal balance,
+                             const SaleMonies &monies,
                              const RecordGroup::Flags &flags,
                              const QDateTime &dueDateTime,
                              const QString &action,
@@ -45,9 +38,7 @@ struct SaleTransaction
                              const SaleCartProductList &products);
     explicit SaleTransaction(qint64 id,
                              const Customer &customer,
-                             qreal totalCost,
-                             qreal amountPaid,
-                             qreal balance,
+                             const SaleMonies &monies,
                              const RecordGroup::Flags &flags,
                              const Note &note);
 
@@ -58,10 +49,10 @@ struct SaleTransaction
         debug.nospace() << "SaleTransaction("
                         << "id=" << transaction.id
                         << ", customer=" << transaction.customer
-                        << ", totalCost=" << transaction.totalCost
-                        << ", amountPaid=" << transaction.amountPaid
-                        << ", balance=" << transaction.balance
-                        << ", discount=" << transaction.discount
+                        << ", totalCost=" << transaction.monies.totalCost
+                        << ", amountPaid=" << transaction.monies.amountPaid
+                        << ", balance=" << transaction.monies.balance
+                        << ", discount=" << transaction.monies.discount
                         << ", payments=" << transaction.payments
                         << ", products=" << transaction.products
                         << ", flags=" << transaction.flags

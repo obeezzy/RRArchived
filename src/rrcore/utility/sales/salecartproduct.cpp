@@ -10,16 +10,14 @@ SaleCartProduct::SaleCartProduct(int id) :
     id(id)
 {}
 
-SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
-                                 const QString &product,
+SaleCartProduct::SaleCartProduct(const QString &product,
+                                 const StockProductCategory &category,
                                  const QString &description,
                                  const QUrl &imageUrl,
-                                 qreal quantity,
+                                 double quantity,
                                  const StockProductUnit &unit,
+                                 const SaleMonies &monies,
                                  const RecordGroup::Flags &flags,
-                                 qreal costPrice,
-                                 qreal retailPrice,
-                                 const QString &currency,
                                  const Note &note) :
     product(product),
     category(category),
@@ -27,33 +25,25 @@ SaleCartProduct::SaleCartProduct(const StockProductCategory &category,
     imageUrl(imageUrl),
     quantity(quantity),
     unit(unit),
+    monies(monies),
     flags(flags),
-    costPrice(costPrice),
-    retailPrice(retailPrice),
-    currency(currency),
     note(note)
 {}
 
 SaleCartProduct::SaleCartProduct(int id,
                                  const QString &product,
                                  const StockProductCategory &category,
-                                 qreal quantity,
+                                 double quantity,
                                  const StockProductUnit &unit,
-                                 qreal retailPrice,
-                                 qreal unitPrice,
-                                 qreal cost,
-                                 qreal amountPaid,
+                                 const SaleMonies &monies,
                                  const Note &note) :
     id(id),
     product(product),
     category(category),
     quantity(quantity),
     unit(unit),
+    monies(monies),
     flags(RecordGroup::Tracked | RecordGroup::Divisible),
-    retailPrice(retailPrice),
-    unitPrice(unitPrice),
-    cost(cost),
-    amountPaid(amountPaid),
     note(note)
 {}
 
@@ -76,18 +66,19 @@ SaleCartProduct::SaleCartProduct(const QVariantMap &product) :
          product.value("unit_id").toInt(),
          product.value("unit").toString()
          }),
-    costPrice(product.value("cost_price").toDouble()),
-    retailPrice(product.value("retail_price").toDouble()),
-    unitPrice(product.value("unit_price").toDouble()),
-    cost(product.value("cost").toDouble()),
-    amountPaid(product.value("amount_paid").toDouble()),
-    currency(product.value("currency").toString()),
+    monies(SaleMonies { QVariantMap {
+            { "cost_price", product.value("cost_price").toDouble() },
+            { "retail_price", product.value("retail_price").toDouble() },
+            { "unit_price", product.value("unit_price").toDouble() },
+            { "cost", product.value("cost").toDouble() },
+            { "amount_paid", product.value("amount_paid").toDouble() }
+           }}),
     note(Note {
          product.value("note_id").toInt(),
          product.value("note").toString()
          }),
-    created(product.value("created").toDateTime()),
-    lastEdited(product.value("last_edited").toDateTime()),
+    timestamp(product.value("created").toDateTime(),
+              product.value("last_edited").toDateTime()),
     user(User {
          product.value("user_id").toInt(),
          product.value("user").toString()
@@ -106,10 +97,10 @@ QVariantMap SaleCartProduct::toVariantMap() const
         { "quantity", quantity },
         { "product_unit_id", unit.id },
         { "unit", unit.unit },
-        { "retail_price", retailPrice },
-        { "unit_price", unitPrice },
-        { "cost", cost },
-        { "amount_paid", amountPaid },
+        { "retail_price", monies.retailPrice.toDouble() },
+        { "unit_price", monies.unitPrice.toDouble() },
+        { "cost", monies.cost.toDouble() },
+        { "amount_paid", monies.amountPaid.toDouble() },
         { "note_id", note.id },
         { "note", note.note }
     };

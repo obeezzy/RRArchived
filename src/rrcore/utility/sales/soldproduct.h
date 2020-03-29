@@ -11,13 +11,10 @@ struct SoldProduct
 {
     SaleTransaction transaction;
     StockProduct product;
-    qreal quantity;
-    qreal unitPrice;
-    qreal cost;
-    qreal discount;
+    double quantity;
+    SaleMonies monies;
     Note note;
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     User user;
     RecordGroup::Flags flags;
     int row {-1};
@@ -33,10 +30,10 @@ struct SoldProduct
         debug.nospace() << "SoldProduct("
                         << ", saleTransaction=" << soldProduct.transaction
                         << ", product=" << soldProduct.product
-                        << ", unitPrice=" << soldProduct.unitPrice
+                        << ", unitPrice=" << soldProduct.monies.unitPrice
                         << ", quantity=" << soldProduct.quantity
-                        << ", cost=" << soldProduct.cost
-                        << ", discount=" << soldProduct.discount
+                        << ", cost=" << soldProduct.monies.cost
+                        << ", discount=" << soldProduct.monies.discount
                         << ", note=" << soldProduct.note
                         << ", flags=" << soldProduct.flags
                         << ", row=" << soldProduct.row

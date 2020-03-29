@@ -7,6 +7,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+const QString DEFAULT_CURRENCY(Utility::Currency::DEFAULT_CURRENCY);
 using namespace DebtorQuery;
 
 UpdateDebtor::UpdateDebtor(const Utility::Debtor &debtor,
@@ -297,7 +298,7 @@ void UpdateDebtor::addNewPayments(QVariantList &newDebtPaymentIds)
         const double balance = paymentAsVariant.toMap().value("balance").toDouble();
         const QDateTime &dueDateTime = paymentAsVariant.toMap().value("due_date").toDateTime();
         const QString &note = paymentAsVariant.toMap().value("note").toString();
-        const QString &currency = Settings::DEFAULT_CURRENCY;
+        const QString &currency = DEFAULT_CURRENCY;
         const int noteId = QueryExecutor::addNote(note,
                                                   QStringLiteral("debtor"),
                                                   ExceptionPolicy::DisallowExceptions);
@@ -376,7 +377,7 @@ void UpdateDebtor::updateExistingPayments(QVariantList &updatedDebtPaymentIds)
         const double balance = paymentAsVariant.toMap().value("balance").toDouble();
         const QDateTime &dueDateTime = paymentAsVariant.toMap().value("due_date").toDateTime();
         const QString &note = paymentAsVariant.toMap().value("note").toString();
-        const QString &currency = Settings::DEFAULT_CURRENCY;
+        const QString &currency = DEFAULT_CURRENCY;
         const int noteId = QueryExecutor::addNote(note,
                                                   QStringLiteral("debtor"),
                                                   ExceptionPolicy::DisallowExceptions);

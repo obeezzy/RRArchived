@@ -9,7 +9,7 @@ StockProductUnit::StockProductUnit(int id,
 {}
 
 StockProductUnit::StockProductUnit(const QString &unit,
-                                   qreal baseUnitEquivalent) :
+                                   double baseUnitEquivalent) :
     unit(unit),
     baseUnitEquivalent(baseUnitEquivalent)
 {}

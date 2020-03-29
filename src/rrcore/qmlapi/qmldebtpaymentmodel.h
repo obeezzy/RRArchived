@@ -11,7 +11,7 @@ class QMLDebtPaymentModel : public AbstractVisualListModel
     Q_OBJECT
     Q_PROPERTY(int debtTransactionId READ debtTransactionId WRITE setDebtTransactionId NOTIFY debtTransactionIdChanged)
     Q_PROPERTY(QVariant debtTransactionRef READ debtTransactionRef WRITE setDebtTransactionRef NOTIFY debtTransactionRefChanged)
-    Q_PROPERTY(qreal totalAmountPaid READ totalAmountPaid NOTIFY totalAmountPaidChanged)
+    Q_PROPERTY(double totalAmountPaid READ totalAmountPaid NOTIFY totalAmountPaidChanged)
 public:
     enum Role {
         AmountOwedRole = Qt::UserRole,
@@ -42,8 +42,8 @@ public:
     QVariant debtTransactionRef() const;
     void setDebtTransactionRef(const QVariant &debtTransactionRef);
 
-    qreal totalAmountPaid() const;
-    void setTotalAmountPaid(qreal totalAmountPaid);
+    double totalAmountPaid() const;
+    void setTotalAmountPaid(double totalAmountPaid);
 
     Q_INVOKABLE void addPayment(double amount,
                                 const QString &note = QString());
@@ -57,7 +57,7 @@ protected:
     void processResult(const QueryResult result) override;
 private:
     int m_debtTransactionId {-1};
-    qreal m_totalAmountPaid {0.0};
+    double m_totalAmountPaid {0.0};
     QVariant m_debtTransactionRef;
     Utility::DebtPaymentList m_payments;
 

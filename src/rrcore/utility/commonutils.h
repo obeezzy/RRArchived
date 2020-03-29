@@ -11,5 +11,6 @@
 #include "utility/common/datetimespan.h"
 #include "utility/common/recordgroup.h"
 #include "utility/common/paymentmethod.h"
+#include "utility/common/money.h"
 
 #endif // COMMONUTILS_H

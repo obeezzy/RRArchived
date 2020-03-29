@@ -27,7 +27,7 @@ class AbstractVisualTableModel : public QAbstractTableModel, public QQmlParserSt
     Q_PROPERTY(int filterColumn READ filterColumn WRITE setFilterColumn NOTIFY filterColumnChanged)
     Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder NOTIFY sortOrderChanged)
     Q_PROPERTY(int sortColumn READ sortColumn WRITE setSortColumn NOTIFY sortColumnChanged)
-    Q_PROPERTY(qreal tableViewWidth READ tableViewWidth WRITE setTableViewWidth) // NOTE: Can only be set once!
+    Q_PROPERTY(double tableViewWidth READ tableViewWidth WRITE setTableViewWidth) // NOTE: Can only be set once!
 public:
     explicit AbstractVisualTableModel(QObject *parent = nullptr);
     explicit AbstractVisualTableModel(DatabaseThread &thread, QObject *parent = nullptr);
@@ -50,8 +50,8 @@ public:
     int sortColumn() const;
     void setSortColumn(int sortColumn);
 
-    qreal tableViewWidth() const;
-    void setTableViewWidth(qreal tableViewWidth);
+    double tableViewWidth() const;
+    void setTableViewWidth(double tableViewWidth);
 
     Q_INVOKABLE QVariant get(int row, int column) const;
 
@@ -89,7 +89,7 @@ private:
     bool m_busy {false};
     Utility::FilterCriteria m_filterCriteria;
     Utility::SortCriteria m_sortCriteria;
-    qreal m_tableViewWidth {0.0};
+    double m_tableViewWidth {0.0};
     QueryRequest m_lastSuccessfulRequest;
 
     void saveRequest(const QueryResult &result);

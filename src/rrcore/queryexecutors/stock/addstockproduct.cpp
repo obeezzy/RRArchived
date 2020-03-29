@@ -12,22 +12,22 @@ using namespace StockQuery;
 AddStockProduct::AddStockProduct(const Utility::StockProduct &product,
                                  QObject *receiver) :
     StockExecutor(COMMAND, {
-                    { "image_url", product.imageUrl },
+                    { "product", product.product },
                     { "product_category_id", product.category.id },
                     { "product_category", product.category.category },
-                    { "product", product.product },
                     { "description", product.description },
+                    { "image_url", product.imageUrl },
+                    { "quantity", product.quantity },
                     { "product_unit", product.unit.unit },
                     { "category_note", product.category.note.note },
                     { "product_note", product.note.note },
                     { "tracked", product.flags.testFlag(Utility::RecordGroup::Tracked) },
                     { "divisible", product.flags.testFlag(Utility::RecordGroup::Divisible) },
-                    { "cost_price", product.costPrice },
-                    { "retail_price", product.retailPrice },
+                    { "cost_price", product.monies.costPrice.toDouble() },
+                    { "retail_price", product.monies.retailPrice.toDouble() },
                     { "base_unit_equivalent", product.unit.baseUnitEquivalent },
                     { "unit_preferred", product.unit.flags.testFlag(Utility::RecordGroup::Preferred) },
-                    { "currency", product.currency },
-                    { "quantity", product.quantity },
+                    { "currency", product.monies.costPrice.currency().isoCode() },
                   }, receiver)
 {
 

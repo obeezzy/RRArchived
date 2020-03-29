@@ -17,14 +17,14 @@ AddSaleTransaction::AddSaleTransaction(const Utility::SaleTransaction &transacti
                     { "client_preferred_name", transaction.customer.client.preferredName },
                     { "client_id", transaction.customer.client.id },
                     { "client_phone_number", transaction.customer.client.phoneNumber },
-                    { "total_cost", transaction.totalCost },
-                    { "amount_paid", transaction.amountPaid },
-                    { "balance", transaction.balance },
+                    { "total_cost", transaction.monies.totalCost.toDouble() },
+                    { "amount_paid", transaction.monies.amountPaid.toDouble() },
+                    { "balance", transaction.monies.balance.toDouble() },
                     { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
                     { "due_date_time", transaction.dueDateTime },
                     { "action", transaction.action },
                     { "note", transaction.note.note },
-                    { "currency", transaction.currency },
+                    { "currency", transaction.monies.amountPaid.currency().isoCode() },
                     { "payments", transaction.payments.toVariantList() },
                     { "products", transaction.products.toVariantList() }
                  }, receiver)

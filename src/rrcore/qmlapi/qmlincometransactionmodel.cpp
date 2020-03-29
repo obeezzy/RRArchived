@@ -38,7 +38,7 @@ QVariant QMLIncomeTransactionModel::data(const QModelIndex &index, int role) con
     case ClientNameRole:
         return m_transactions.at(index.row()).client.preferredName;
     case AmountRole:
-        return m_transactions.at(index.row()).amount;
+        return m_transactions.at(index.row()).amount.toDouble();
     }
 
     return QVariant();

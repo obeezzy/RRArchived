@@ -27,7 +27,7 @@ QVariant PurchasePaymentModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case AmountRole:
-        return m_purchasePayments.at(index.row()).amount;
+        return m_purchasePayments.at(index.row()).amount.toDouble();
     case MethodRole:
         return m_purchasePayments.at(index.row()).method.toString();
     case NoteRole:

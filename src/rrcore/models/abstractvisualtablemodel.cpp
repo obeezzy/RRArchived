@@ -120,12 +120,12 @@ void AbstractVisualTableModel::setSortColumn(int sortColumn)
     emit sortColumnChanged();
 }
 
-qreal AbstractVisualTableModel::tableViewWidth() const
+double AbstractVisualTableModel::tableViewWidth() const
 {
     return m_tableViewWidth;
 }
 
-void AbstractVisualTableModel::setTableViewWidth(qreal tableViewWidth)
+void AbstractVisualTableModel::setTableViewWidth(double tableViewWidth)
 {
     if (m_tableViewWidth > 0.0)
         return;

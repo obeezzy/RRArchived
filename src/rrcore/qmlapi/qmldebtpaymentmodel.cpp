@@ -36,15 +36,15 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
         return debtTransaction->totalDebt;
     }
     case AmountPaidRole:
-        return m_payments.at(index.row()).amountPaid;
+        return m_payments.at(index.row()).monies.amountPaid.toDouble();
     case BalanceRole:
-        return m_payments.at(index.row()).balance;
+        return m_payments.at(index.row()).monies.balance.toDouble();
     case MaxPayableAmount: {
         auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
         return qMax(0.0, debtTransaction->totalDebt - m_totalAmountPaid);
     }
     case CurrencyRole:
-        return m_payments.at(index.row()).currency;
+        return m_payments.at(index.row()).currency.displayName();
     case DueDateRole:
         return m_payments.at(index.row()).dueDateTime;
     case NoteRole:
@@ -56,9 +56,9 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
     case ArchivedRole:
         return m_payments.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_payments.at(index.row()).created;
+        return m_payments.at(index.row()).timestamp.created;
     case LastEditedRole:
-        return m_payments.at(index.row()).lastEdited;
+        return m_payments.at(index.row()).timestamp.lastEdited;
     }
 
     return QVariant();
@@ -92,7 +92,7 @@ bool QMLDebtPaymentModel::setData(const QModelIndex &index, const QVariant &valu
     switch (role) {
     case AmountPaidRole:
         if (payment.state != Utility::DebtPayment::State::Clean) {
-            payment.amountPaid = value.toDouble();
+            payment.monies.amountPaid = Utility::Money{ value.toDouble() };
             updateRef(payment);
             emit dataChanged(index, index);
             calculateTotals();
@@ -142,12 +142,12 @@ void QMLDebtPaymentModel::setDebtTransactionRef(const QVariant &debtTransactionR
     emit debtTransactionRefChanged();
 }
 
-qreal QMLDebtPaymentModel::totalAmountPaid() const
+double QMLDebtPaymentModel::totalAmountPaid() const
 {
     return m_totalAmountPaid;
 }
 
-void QMLDebtPaymentModel::setTotalAmountPaid(qreal totalAmountPaid)
+void QMLDebtPaymentModel::setTotalAmountPaid(double totalAmountPaid)
 {
     if (m_totalAmountPaid == totalAmountPaid)
         return;
@@ -165,13 +165,21 @@ void QMLDebtPaymentModel::addPayment(double amount,
     auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!m_payments.isEmpty()) {
-        m_payments.append(Utility::DebtPayment{m_payments.last().balance,
-                                               amount,
+        m_payments.append(Utility::DebtPayment{Utility::DebtMonies {
+                                                   QVariantMap {
+                                                       { "total_debt", m_payments.last().monies.balance.toDouble() },
+                                                       { "amount", amount }
+                                                   }
+                                               },
                                                debtTransaction->dueDateTime,
                                                Utility::Note{ note }});
     } else {
-        m_payments.append(Utility::DebtPayment{debtTransaction->totalDebt,
-                                               amount,
+        m_payments.append(Utility::DebtPayment{Utility::DebtMonies {
+                                                   QVariantMap {
+                                                       { "total_debt", debtTransaction->totalDebt },
+                                                       { "amount", amount }
+                                                   }
+                                               },
                                                debtTransaction->dueDateTime,
                                                Utility::Note{ note }});
     }
@@ -221,11 +229,11 @@ void QMLDebtPaymentModel::processResult(const QueryResult result)
 
 void QMLDebtPaymentModel::calculateTotals()
 {
-    qreal totalAmountPaid = 0.0;
+    Utility::Money totalAmountPaid;
     for (const auto &payment : m_payments)
-        totalAmountPaid += payment.amountPaid;
+        totalAmountPaid += payment.monies.amountPaid;
 
-    setTotalAmountPaid(totalAmountPaid);
+    setTotalAmountPaid(totalAmountPaid.toDouble());
 }
 
 void QMLDebtPaymentModel::updateRef(Utility::DebtPayment payment)

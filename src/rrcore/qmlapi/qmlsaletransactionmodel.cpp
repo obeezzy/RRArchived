@@ -28,13 +28,14 @@ QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
     case CustomerNameRole:
         return m_transactions.at(index.row()).customer.client.preferredName;
     case TotalCostRole:
-        return m_transactions.at(index.row()).totalCost;
+        qDebug() << "TotalCost=" << m_transactions.at(index.row()).monies.totalCost.toDouble();
+        return m_transactions.at(index.row()).monies.totalCost.toDouble();
     case AmountPaidRole:
-        return m_transactions.at(index.row()).amountPaid;
+        return m_transactions.at(index.row()).monies.amountPaid.toDouble();
     case BalanceRole:
-        return m_transactions.at(index.row()).balance;
+        return m_transactions.at(index.row()).monies.balance.toDouble();
     case DiscountRole:
-        return m_transactions.at(index.row()).discount;
+        return m_transactions.at(index.row()).monies.discount.toDouble();
     case NoteIdRole:
         return m_transactions.at(index.row()).note.id;
     case NoteRole:
@@ -44,9 +45,9 @@ QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
     case ArchivedRole:
         return m_transactions.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_transactions.at(index.row()).created;
+        return m_transactions.at(index.row()).timestamp.created;
     case LastEditedRole:
-        return m_transactions.at(index.row()).lastEdited;
+        return m_transactions.at(index.row()).timestamp.lastEdited;
     case UserIdRole:
         return m_transactions.at(index.row()).user.id;
     case UserRole:

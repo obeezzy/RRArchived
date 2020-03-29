@@ -60,15 +60,15 @@ QVariant QMLStockProductModel::data(const QModelIndex &index, int role) const
     case UnitIdRole:
         return m_products.at(index.row()).unit.id;
     case CostPriceRole:
-        return m_products.at(index.row()).costPrice;
+        return m_products.at(index.row()).monies.costPrice.toDouble();
     case RetailPriceRole:
-        return m_products.at(index.row()).retailPrice;
+        return m_products.at(index.row()).monies.retailPrice.toDouble();
     case CurrencyRole:
-        return m_products.at(index.row()).currency;
+        return m_products.at(index.row()).monies.retailPrice.currency().displayName();
     case CreatedRole:
-        return m_products.at(index.row()).created;
+        return m_products.at(index.row()).timestamp.created;
     case LastEditedRole:
-        return m_products.at(index.row()).lastEdited;
+        return m_products.at(index.row()).timestamp.lastEdited;
     case UserRole:
         return m_products.at(index.row()).user.user;
     }

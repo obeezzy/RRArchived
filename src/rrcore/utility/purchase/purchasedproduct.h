@@ -16,8 +16,8 @@ struct PurchasedProduct
     PurchaseTransaction transaction;
     StockProductCategory category;
     StockProduct product;
-    qreal cost {0.0};
-    qreal discount {0.0};
+    double cost {0.0};
+    double discount {0.0};
     Note note;
     QDateTime created;
     QDateTime lastEdited;

@@ -4,47 +4,41 @@
 #include "purchasecartproduct.h"
 #include "purchasepayment.h"
 #include "utility/common/note.h"
+#include "utility/common/recordgroup.h"
+#include "utility/common/recordtimestamp.h"
 #include <QString>
 
 namespace Utility {
 struct PurchaseTransaction {
-    qint64 id {0};
+    qint64 id {-1};
     Vendor vendor;
-    qreal totalCost {0.0};
-    qreal amountPaid {0.0};
-    qreal balance {0.0};
-    qreal discount {0.0};
+    PurchaseMonies monies;
     PurchaseCartProductList products;
     PurchasePaymentList payments;
-    Note note;
     QDateTime dueDateTime;
     QString action;
     RecordGroup::Flags flags;
-    QDateTime created;
-    QDateTime lastEdited;
+    Note note;
+    RecordTimestamp timestamp;
     User user;
     int row {-1};
 
     explicit PurchaseTransaction() = default;
     explicit PurchaseTransaction(qint64 id,
                                  const Vendor &vendor,
-                                 qreal totalCost,
-                                 qreal amountPaid,
-                                 qreal balance,
-                                 const RecordGroup::Flags &flags,
+                                 const PurchaseMonies &monies,
                                  const PurchaseCartProductList &products,
                                  const PurchasePaymentList &payments,
+                                 const RecordGroup::Flags &flags,
                                  const QDateTime &dueDateTime = QDateTime(),
                                  const QString &action = QString(),
                                  const Note &note = Note());
     explicit PurchaseTransaction(qint64 id,
                                  const Vendor &vendor,
-                                 qreal totalCost,
-                                 qreal amountPaid,
-                                 qreal balance,
-                                 const RecordGroup::Flags &flags,
+                                 const PurchaseMonies &monies,
                                  const PurchaseCartProductList &products,
                                  const PurchasePaymentList &payments,
+                                 const RecordGroup::Flags &flags,
                                  const Note &note = Note());
     explicit PurchaseTransaction(const QVariantMap &transaction);
     QVariantMap toVariantMap() const;

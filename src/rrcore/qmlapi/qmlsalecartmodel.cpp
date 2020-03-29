@@ -63,13 +63,13 @@ QVariant QMLSaleCartModel::data(const QModelIndex &index, int role) const
     case UnitIdRole:
         return m_transaction.products.at(index.row()).unit.id;
     case CostPriceRole:
-        return m_transaction.products.at(index.row()).costPrice;
+        return m_transaction.products.at(index.row()).monies.costPrice.toDouble();
     case RetailPriceRole:
-        return m_transaction.products.at(index.row()).retailPrice;
+        return m_transaction.products.at(index.row()).monies.retailPrice.toDouble();
     case UnitPriceRole:
-        return m_transaction.products.at(index.row()).unitPrice;
+        return m_transaction.products.at(index.row()).monies.unitPrice.toDouble();
     case CostRole:
-        return m_transaction.products.at(index.row()).cost;
+        return m_transaction.products.at(index.row()).monies.cost.toDouble();
     }
 
     return QVariant();
@@ -161,26 +161,26 @@ void QMLSaleCartModel::setNote(const QString &note)
 
 double QMLSaleCartModel::totalCost() const
 {
-    return m_transaction.totalCost;
+    return m_transaction.monies.totalCost.toDouble();
 }
 
 void QMLSaleCartModel::setTotalCost(double totalCost)
 {
-    if (m_transaction.totalCost == totalCost)
+    if (m_transaction.monies.totalCost == Utility::Money(totalCost))
         return;
 
-    m_transaction.totalCost = totalCost;
+    m_transaction.monies.totalCost = Utility::Money(totalCost);
     emit totalCostChanged();
 }
 
 double QMLSaleCartModel::amountPaid() const
 {
-    return m_transaction.amountPaid;
+    return m_transaction.monies.amountPaid.toDouble();
 }
 
 double QMLSaleCartModel::balance() const
 {
-    return m_transaction.balance;
+    return m_transaction.monies.balance.toDouble();
 }
 
 bool QMLSaleCartModel::canAcceptCash() const
@@ -200,19 +200,19 @@ SalePaymentModel *QMLSaleCartModel::paymentModel() const
 
 void QMLSaleCartModel::setAmountPaid(double amountPaid)
 {
-    if (m_transaction.amountPaid == amountPaid)
+    if (m_transaction.monies.amountPaid == Utility::Money(amountPaid))
         return;
 
-    m_transaction.amountPaid = amountPaid;
+    m_transaction.monies.amountPaid = Utility::Money(amountPaid);
     emit amountPaidChanged();
 }
 
 void QMLSaleCartModel::setBalance(double balance)
 {
-    if (m_transaction.balance == balance)
+    if (m_transaction.monies.balance == Utility::Money(balance))
         return;
 
-    m_transaction.balance = balance;
+    m_transaction.monies.balance = Utility::Money(balance);
     emit balanceChanged();
 }
 
@@ -229,8 +229,7 @@ void QMLSaleCartModel::addPayment(double amount, QMLSaleCartModel::PaymentMethod
     Utility::SalePayment payment {
         amount,
                 Utility::PaymentMethod{ method },
-                Utility::Note{ note },
-                Settings::DEFAULT_CURRENCY
+                Utility::Note{ note }
     };
     m_paymentModel->addPayment(payment);
     m_transaction.payments.append(payment);
@@ -251,7 +250,7 @@ void QMLSaleCartModel::removePayment(int index)
 
 void QMLSaleCartModel::submitTransaction(const QVariantMap &transactionInfo)
 {
-    if (m_transaction.balance != 0.0 && transactionInfo.value("due_date_time").isNull())
+    if (!m_transaction.monies.balance.isZero() && transactionInfo.value("due_date_time").isNull())
         emit error(ModelResult{ NoDueDateSetError });
     else
         addTransaction(transactionInfo);
@@ -450,7 +449,7 @@ void QMLSaleCartModel::addProduct(const QVariantMap &product)
         const double newQuantity = oldQuantity + newProduct.quantity;
 
         existingProduct.quantity = qMin(newQuantity, existingProduct.availableQuantity);
-        existingProduct.cost = existingProduct.quantity * existingProduct.unitPrice;
+        existingProduct.monies.cost = Utility::Money(existingProduct.quantity * existingProduct.monies.unitPrice.toDouble());
 
         emit dataChanged(index(row), index(row));
     }
@@ -468,18 +467,18 @@ void QMLSaleCartModel::updateProduct(int productId, const QVariantMap &product)
     Utility::SaleCartProduct &existingProduct{ m_transaction.products[row] };
     const double oldQuantity = existingProduct.quantity;
     const double availableQuantity = existingProduct.availableQuantity;
-    const double oldUnitPrice = existingProduct.unitPrice;
-    const double oldCost = existingProduct.cost;
+    const Utility::Money &oldUnitPrice = existingProduct.monies.unitPrice;
+    const Utility::Money &oldCost = existingProduct.monies.cost;
     const double newQuantity = qMin(updatedProduct.quantity, availableQuantity);
-    const double newUnitPrice = updatedProduct.unitPrice;
-    const double newCost = updatedProduct.cost;
+    const Utility::Money &newUnitPrice = updatedProduct.monies.unitPrice;
+    const Utility::Money &newCost = updatedProduct.monies.cost;
 
     if (product.contains("quantity"))
         existingProduct.quantity = newQuantity;
     if (product.contains("cost"))
-        existingProduct.cost = newCost;
+        existingProduct.monies.cost = newCost;
     if (product.contains("unit_price"))
-        existingProduct.unitPrice = newUnitPrice;
+        existingProduct.monies.unitPrice = newUnitPrice;
 
     if (oldQuantity != newQuantity || oldUnitPrice != newUnitPrice || oldCost != newCost) {
         emit dataChanged(index(row), index(row));
@@ -497,10 +496,10 @@ void QMLSaleCartModel::setProductQuantity(int productId, double quantity)
     const double oldQuantity = existingProduct.quantity;
     const double availableQuantity = existingProduct.availableQuantity;
     const double newQuantity = qMin(quantity, availableQuantity);
-    const double unitPrice = existingProduct.unitPrice;
+    const Utility::Money &unitPrice = existingProduct.monies.unitPrice;
 
     existingProduct.quantity = newQuantity;
-    existingProduct.cost = newQuantity * unitPrice;
+    existingProduct.monies.cost = Utility::Money{ newQuantity * unitPrice.toDouble() };
 
     if (oldQuantity != newQuantity) {
         emit dataChanged(index(row), index(row));
@@ -538,22 +537,24 @@ void QMLSaleCartModel::removeProduct(int productId)
 
 void QMLSaleCartModel::calculateTotal()
 {
-    double totalCost = 0.0;
+    Utility::Money totalCost {0.0};
     for (const auto &product : m_transaction.products)
-        totalCost += product.cost;
+        totalCost += product.monies.cost;
+    setTotalCost(totalCost.toDouble());
 
-    setTotalCost(totalCost);
-    setBalance(totalCost - m_transaction.amountPaid);
+    const Utility::Money balance {totalCost - m_transaction.monies.amountPaid};
+    setBalance(balance.toDouble());
 }
 
 void QMLSaleCartModel::calculateAmountPaid()
 {
-    double amountPaid = 0.0;
+    Utility::Money amountPaid {0.0};
     for (const auto &payment : m_transaction.payments)
         amountPaid += payment.amount;
+    setAmountPaid(amountPaid.toDouble());
 
-    setAmountPaid(amountPaid);
-    setBalance(m_transaction.totalCost - amountPaid);
+    const Utility::Money balance {m_transaction.monies.totalCost - amountPaid};
+    setBalance(balance.toDouble());
 }
 
 void QMLSaleCartModel::setClientId(int clientId)

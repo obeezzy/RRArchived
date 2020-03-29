@@ -19,9 +19,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
                            double quantity,
                            const StockProductUnit &unit,
                            const RecordGroup::Flags &flags,
-                           qreal costPrice,
-                           qreal retailPrice,
-                           const QString &currency,
+                           const StockMonies &monies,
                            const Note &note) :
     category(category),
     product(product),
@@ -30,9 +28,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
     quantity(quantity),
     unit(unit),
     flags(flags),
-    costPrice(costPrice),
-    retailPrice(retailPrice),
-    currency(currency),
+    monies(monies),
     note(note)
 { }
 
@@ -43,9 +39,7 @@ StockProduct::StockProduct(int id,
                            const QUrl &imageUrl,
                            const StockProductUnit &unit,
                            const RecordGroup::Flags &flags,
-                           qreal costPrice,
-                           qreal retailPrice,
-                           const QString &currency,
+                           const StockMonies &monies,
                            const Note &note) :
     id(id),
     category(category),
@@ -54,25 +48,21 @@ StockProduct::StockProduct(int id,
     imageUrl(imageUrl),
     unit(unit),
     flags(flags),
-    costPrice(costPrice),
-    retailPrice(retailPrice),
-    currency(currency),
+    monies(monies),
     note(note)
 { }
 
 StockProduct::StockProduct(int id,
                            const StockProductCategory &category,
-                           qreal quantity,
+                           double quantity,
                            const StockProductUnit &unit,
-                           qreal retailPrice,
-                           qreal unitPrice,
+                           const StockMonies &monies,
                            const Note &note) :
     id(id),
     category(category),
     quantity(quantity),
     unit(unit),
-    retailPrice(retailPrice),
-    unitPrice(unitPrice),
+    monies(monies),
     note(note)
 { }
 
@@ -94,15 +84,18 @@ StockProduct::StockProduct(const QVariantMap &product) :
          product.value("product_unit_id").toInt(),
          product.value("product_unit").toString()
          }),
-    costPrice(product.value("cost_price").toDouble()),
-    retailPrice(product.value("retail_price").toDouble()),
-    unitPrice(product.value("unit_price").toDouble()),
-    currency(product.value("currency").toString()),
+    monies(StockMonies { QVariantMap {
+            { "cost_price", product.value("cost_price").toDouble() },
+            { "retail_price", product.value("retail_price").toDouble() },
+            { "unit_price", product.value("unit_price").toDouble() }
+           }}),
     note(Note {product.value("note_id").toInt(),
          product.value("note").toString()
          }),
-    created(product.value("created").toDateTime()),
-    lastEdited(product.value("last_edited").toDateTime()),
+    timestamp(RecordTimestamp {
+              product.value("created").toDateTime(),
+              product.value("last_edited").toDateTime()
+              }),
     user(User{
          product.value("user_id").toInt(),
          product.value("user").toString()
@@ -121,9 +114,9 @@ QVariantMap StockProduct::toVariantMap() const
         { "quantity", quantity },
         { "product_unit_id", unit.id },
         { "product_unit", unit.unit },
-        { "cost_price", costPrice },
-        { "retail_price", retailPrice },
-        { "unit_price", unitPrice },
+        { "cost_price", monies.costPrice.toDouble() },
+        { "retail_price", monies.retailPrice.toDouble() },
+        { "unit_price", monies.unitPrice.toDouble() },
         { "divisible", flags.testFlag(RecordGroup::Divisible) },
         { "note_id", note.id },
         { "note", note.note }

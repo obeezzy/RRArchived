@@ -4,9 +4,7 @@
 
 using namespace Utility;
 
-PurchaseReportTransaction::PurchaseReportTransaction(const QVariantMap &map) :
-    quantityBought(0.0),
-    totalAmount(0.0)
+PurchaseReportTransaction::PurchaseReportTransaction(const QVariantMap &map)
 {
     Q_UNUSED(map)
 }

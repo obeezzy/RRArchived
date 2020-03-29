@@ -20,7 +20,7 @@ QVariantMap ExpenseTransaction::toVariantMap() const
         { "expense_transaction_id", id },
         { "client_name", client.preferredName },
         { "purpose", purpose },
-        { "amount", amount },
+        { "amount", amount.toDouble() },
         { "payment_method", paymentMethod.toString() }
     };
 }

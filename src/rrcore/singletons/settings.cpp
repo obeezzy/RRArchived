@@ -6,7 +6,7 @@ Settings::Settings(QObject *parent) :
     QObject(parent),
     m_darkModeActive(m_settings.value("appearance/theme").toString() == "dark")
 {
-
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::Nigeria));
 }
 
 Settings &Settings::instance()
@@ -29,6 +29,11 @@ void Settings::setDarkModeActive(bool darkModeActive)
     m_settings.setValue("appearance/theme", darkModeActive ? "dark" : "light");
 
     emit darkModeActiveChanged();
+}
+
+QLocale Settings::locale() const
+{
+    return QLocale();
 }
 
 QUrl Settings::defaultReceiptTemplateUrl()

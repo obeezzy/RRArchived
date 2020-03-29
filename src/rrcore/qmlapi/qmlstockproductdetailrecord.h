@@ -20,8 +20,8 @@ class QMLStockProductDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(double quantity READ quantity NOTIFY quantityChanged)
     Q_PROPERTY(int unitId READ unitId NOTIFY unitIdChanged)
     Q_PROPERTY(QString unit READ unit NOTIFY unitChanged)
-    Q_PROPERTY(qreal costPrice READ costPrice NOTIFY costPriceChanged)
-    Q_PROPERTY(qreal retailPrice READ retailPrice NOTIFY retailPriceChanged)
+    Q_PROPERTY(double costPrice READ costPrice NOTIFY costPriceChanged)
+    Q_PROPERTY(double retailPrice READ retailPrice NOTIFY retailPriceChanged)
     Q_PROPERTY(QString currency READ currency NOTIFY currencyChanged)
     Q_PROPERTY(QDateTime created READ created NOTIFY createdChanged)
     Q_PROPERTY(QDateTime lastEdited READ lastEdited NOTIFY lastEditedChanged)
@@ -44,8 +44,8 @@ public:
     double quantity() const;
     int unitId() const;
     QString unit() const;
-    qreal costPrice() const;
-    qreal retailPrice() const;
+    double costPrice() const;
+    double retailPrice() const;
     QString currency() const;
 
     QDateTime created() const;
@@ -86,9 +86,8 @@ private:
     void setQuantity(double quantity);
     void setUnitId(int unitId);
     void setUnit(const QString &unit);
-    void setCostPrice(qreal costPrice);
-    void setRetailPrice(qreal retailPrice);
-    void setCurrency(const QString &currency);
+    void setCostPrice(double costPrice);
+    void setRetailPrice(double retailPrice);
     void setCreated(const QDateTime &created);
     void setLastEdited(const QDateTime &lastEdited);
     void setUserId(int userId);

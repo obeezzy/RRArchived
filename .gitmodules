@@ -4,3 +4,6 @@
 [submodule "3rdparty/fluid"]
 	path = 3rdparty/fluid
 	url = git@github.com:obeezzy/fluid.git
+[submodule "3rdparty/BigDecimal-CPP"]
+	path = 3rdparty/BigDecimal-CPP
+	url = git@github.com:obeezzy/BigDecimal-CPP.git

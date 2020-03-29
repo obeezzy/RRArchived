@@ -10,10 +10,10 @@ struct StockReportTransaction
 {
     StockProductCategory category;
     StockProduct product;
-    qreal openingStockQuantity {0.0};
-    qreal quantitySold {0.0};
-    qreal quantityBought {0.0};
-    qreal quantityInStock {0.0};
+    double openingStockQuantity {0.0};
+    double quantitySold {0.0};
+    double quantityBought {0.0};
+    double quantityInStock {0.0};
 
     explicit StockReportTransaction() = default;
     explicit StockReportTransaction(const QVariantMap &map);

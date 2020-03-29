@@ -56,7 +56,7 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
         { "unit_price", 13.0 },
         { "available_quantity", 10.0 },
         { "divisible", true },
-        { "currency", QStringLiteral("NGN") },
+        { "currency", Settings::instance().locale().currencySymbol(QLocale::CurrencyIsoCode) },
         { "created", currentDateTime },
         { "last_edited", currentDateTime },
         { "user", QStringLiteral("user") }
@@ -113,7 +113,8 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
     QCOMPARE(costPriceChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->retailPrice(), 0.0);
     QCOMPARE(retailPriceChangedSpy.count(), 0);
-    QCOMPARE(m_stockProductDetailRecord->currency(), Settings::DEFAULT_CURRENCY);
+    QCOMPARE(m_stockProductDetailRecord->currency(),
+             Settings::instance().locale().currencySymbol(QLocale::CurrencyIsoCode));
     QCOMPARE(currencyChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->created(), QDateTime());
     QCOMPARE(createdChangedSpy.count(), 0);

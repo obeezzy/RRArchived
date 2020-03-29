@@ -48,7 +48,7 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
     case ProductRole:
         return m_products.at(index.row()).product.product;
     case UnitPriceRole:
-        return m_products.at(index.row()).unitPrice;
+        return m_products.at(index.row()).monies.unitPrice.toDouble();
     case QuantityRole:
         return m_products.at(index.row()).quantity;
     case UnitIdRole:
@@ -56,9 +56,9 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
     case UnitRole:
         return m_products.at(index.row()).product.unit.unit;
     case CostRole:
-        return m_products.at(index.row()).cost;
+        return m_products.at(index.row()).monies.cost.toDouble();
     case DiscountRole:
-        return m_products.at(index.row()).discount;
+        return m_products.at(index.row()).monies.discount.toDouble();
     case NoteIdRole:
         return m_products.at(index.row()).note.id;
     case NoteRole:
@@ -68,9 +68,9 @@ QVariant QMLSaleTransactionItemModel::data(const QModelIndex &index, int role) c
     case ArchivedRole:
         return m_products.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_products.at(index.row()).created;
+        return m_products.at(index.row()).timestamp.created;
     case LastEditedRole:
-        return m_products.at(index.row()).lastEdited;
+        return m_products.at(index.row()).timestamp.lastEdited;
     case UserIdRole:
         return m_products.at(index.row()).user.id;
     case UserRole:

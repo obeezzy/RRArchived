@@ -21,7 +21,7 @@ QueryResult PurchaseExecutor::addPurchaseTransaction(TransactionMode mode)
 
     const QVariantMap &params{ request().params() };
     const QString &clientPhoneNumber = params.value("client_phone_number").toString().trimmed();
-    const qreal balance = params.value("balance").toDouble();
+    const double balance = params.value("balance").toDouble();
     const bool suspended = params.value("suspended", false).toBool();
     const bool overlookBalance = params.value("overlook_balance").toBool();
     int clientId = 0;
