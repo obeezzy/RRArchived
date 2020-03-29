@@ -34,6 +34,10 @@ SOURCES += \
     database/exceptions/userpreviouslyarchivedexception.cpp \
     database/queryexecutor.cpp \
     models/abstractreportmodel.cpp \
+    qmlapi/qmlmostsoldproductmodel.cpp \
+    qmlapi/qmlpurchasepaymentmodel.cpp \
+    qmlapi/qmlsalepaymentmodel.cpp \
+    qmlapi/qmltotalrevenuemodel.cpp \
     queryexecutors/client/filterclients.cpp \
     queryexecutors/debtor/filterdebtors.cpp \
     queryexecutors/expense/filterexpensereport.cpp \
@@ -43,7 +47,6 @@ SOURCES += \
     queryexecutors/sales/viewsoldproducts.cpp \
     queryexecutors/stock/filterstockreport.cpp \
     queryexecutors/transaction/transactionexecutor.cpp \
-    models/salemostsoldproductmodel.cpp \
     network/exceptions/indeterminatedestinationurlexception.cpp \
     network/networkexception.cpp \
     network/networkthread.cpp \
@@ -140,7 +143,6 @@ SOURCES += \
     qmlapi/qmlsaletransactionitemmodel.cpp \
     qmlapi/qmldebtormodel.cpp \
     qmlapi/qmlsalehomemodel.cpp \
-    models/saletotalrevenuemodel.cpp \
     detailrecord/abstractdetailrecord.cpp \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
@@ -190,7 +192,6 @@ SOURCES += \
     qmlapi/qmlclientmodel.cpp \
     qmlapi/qmldebttransactionmodel.cpp \
     qmlapi/qmldebtordetailrecord.cpp \
-    models/salepaymentmodel.cpp \
     qmlapi/qmldatabasecreator.cpp \
     config/config.cpp \
     json/messagecenter.cpp \
@@ -198,7 +199,6 @@ SOURCES += \
     qmlapi/qmlnotifier.cpp \
     qmlapi/qmlpurchasehomemodel.cpp \
     qmlapi/qmlpurchasecartmodel.cpp \
-    models/purchasepaymentmodel.cpp \
     qmlapi/qmlincomehomemodel.cpp \
     qmlapi/qmlincomepusher.cpp \
     qmlapi/qmlexpensepusher.cpp \
@@ -209,14 +209,12 @@ SOURCES += \
     qmlapi/qmlusermodel.cpp \
     qmlapi/qmluserprivilegemodel.cpp \
     json/userprivilegecenter.cpp \
-    models/userprivilegemodel.cpp \
     qmlapi/qmluserdetailrecord.cpp \
     qmlapi/qmlsettings.cpp \
     singletons/settings.cpp \
     qmlapi/qmlpurchasetransactionmodel.cpp \
     qmlapi/qmlpurchasetransactionitemmodel.cpp \
     qmlapi/qmlreceiptprinter.cpp \
-    models/receiptcartmodel.cpp \
     singletons/logger.cpp \
     qmlapi/qmlstockreportmodel.cpp \
     qmlapi/qmlsalereportmodel.cpp \
@@ -253,6 +251,10 @@ HEADERS += \
     database/exceptions/userpreviouslyarchivedexception.h \
     database/queryexecutor.h \
     models/abstractreportmodel.h \
+    qmlapi/qmlmostsoldproductmodel.h \
+    qmlapi/qmlpurchasepaymentmodel.h \
+    qmlapi/qmlsalepaymentmodel.h \
+    qmlapi/qmltotalrevenuemodel.h \
     queryexecutors/client/filterclients.h \
     queryexecutors/debtor/filterdebtors.h \
     queryexecutors/expense/filterexpensereport.h \
@@ -262,7 +264,6 @@ HEADERS += \
     queryexecutors/sales/viewsoldproducts.h \
     queryexecutors/stock/filterstockreport.h \
     queryexecutors/transaction/transactionexecutor.h \
-    models/salemostsoldproductmodel.h \
     network/exceptions/exceptions.h \
     network/exceptions/indeterminatedestinationurlexception.h \
     network/networkerror.h \
@@ -372,7 +373,6 @@ HEADERS += \
     qmlapi/qmlsaletransactionitemmodel.h \
     qmlapi/qmldebtormodel.h \
     qmlapi/qmlsalehomemodel.h \
-    models/saletotalrevenuemodel.h \
     detailrecord/abstractdetailrecord.h \
     models/abstracttransactionmodel.h \
     models/abstracttransactionitemmodel.h \
@@ -430,7 +430,6 @@ HEADERS += \
     qmlapi/qmldebtordetailrecord.h \
     utility/debtorutils.h \
     utility/saleutils.h \
-    models/salepaymentmodel.h \
     qmlapi/qmldatabasecreator.h \
     config/config.h \
     json/messagecenter.h \
@@ -438,7 +437,6 @@ HEADERS += \
     qmlapi/qmlnotifier.h \
     qmlapi/qmlpurchasehomemodel.h \
     qmlapi/qmlpurchasecartmodel.h \
-    models/purchasepaymentmodel.h \
     qmlapi/qmlincomehomemodel.h \
     qmlapi/qmlincomepusher.h \
     qmlapi/qmlexpensepusher.h \
@@ -449,14 +447,12 @@ HEADERS += \
     qmlapi/qmlusermodel.h \
     qmlapi/qmluserprivilegemodel.h \
     json/userprivilegecenter.h \
-    models/userprivilegemodel.h \
     qmlapi/qmluserdetailrecord.h \
     qmlapi/qmlsettings.h \
     singletons/settings.h \
     qmlapi/qmlpurchasetransactionmodel.h \
     qmlapi/qmlpurchasetransactionitemmodel.h \
     qmlapi/qmlreceiptprinter.h \
-    models/receiptcartmodel.h \
     singletons/logger.h \
     qmlapi/qmlstockreportmodel.h \
     qmlapi/qmlsalereportmodel.h \

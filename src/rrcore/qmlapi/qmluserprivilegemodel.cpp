@@ -1,5 +1,4 @@
 #include "qmluserprivilegemodel.h"
-#include "models/userprivilegemodel.h"
 #include "database/databaseerror.h"
 #include "database/databasethread.h"
 #include "queryexecutors/user.h"
@@ -33,7 +32,7 @@ QVariant QMLUserPrivilegeModel::data(const QModelIndex &index, int role) const
     case TitleRole:
         return m_titles.at(index.row());
     case PrivilegeModelRole:
-        return QVariant::fromValue(m_privilegeModels.at(index.row()));
+        return QVariant();
     }
 
     return QVariant();
@@ -167,18 +166,9 @@ void QMLUserPrivilegeModel::setEmailAddress(const QString &emailAddress)
 
 void QMLUserPrivilegeModel::setPrivilegeValue(int groupIndex, int privilegeIndex, bool value)
 {
-    if (groupIndex < 0 || groupIndex >= m_privilegeModels.count()) {
-        qWarning() << "Out of range group index detected!";
-        return;
-    }
-
-    UserPrivilegeModel *model = m_privilegeModels.at(groupIndex);
-    if (privilegeIndex < 0 || privilegeIndex >= model->rowCount()) {
-        qWarning() << "Out of range privilege index detected!";
-        return;
-    }
-
-    model->setPrivilegeValue(privilegeIndex, value);
+    Q_UNUSED(groupIndex)
+    Q_UNUSED(privilegeIndex)
+    Q_UNUSED(value)
 }
 
 bool QMLUserPrivilegeModel::submit()
@@ -196,18 +186,6 @@ bool QMLUserPrivilegeModel::submit()
     } else if (m_emailAddress.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoEmailAddressSetError });
     } else {
-        QVariantMap groups;
-        for (auto model : m_privilegeModels) {
-            groups.insert(model->privilegeGroup(),
-                          QVariantMap {
-                              { "title", model->title() },
-                              { "privileges", model->privileges() },
-                          });
-        }
-
-        QVariantMap params;
-        params.insert("user_privileges", groups);
-
         if (isExistingUser()) {
             emit execute(new UserQuery::UpdateUserPrivileges(m_userId,
                                                              Utility::UserPrivilegeList { },
@@ -253,21 +231,7 @@ void QMLUserPrivilegeModel::processResult(const QueryResult &result)
     if (result.isSuccessful()) {
         if (result.request().command() == UserQuery::FetchUserPrivileges::COMMAND) {
             beginResetModel();
-            QMapIterator<QString, QVariant> mapIter(result.outcome().toMap().value("user_privileges").toMap());
-            while (mapIter.hasNext()) {
-                auto pair = mapIter.next();
-
-                UserPrivilegeModel *model = new UserPrivilegeModel(this);
-                QVariantMap privilegeDetails = pair.value().toMap();
-                model->setPrivileges(pair.key(),
-                                     privilegeDetails.value("title").toString(),
-                                     privilegeDetails.value("privileges").toList());
-
-                m_titles.append(privilegeDetails.value("title").toString());
-                m_privilegeGroups.append(pair.key());
-                m_privilegeModels.append(model);
-            }
-
+            // Missing implementation
             endResetModel();
             emit success();
         } else if (result.request().command() == UserQuery::AddUser::COMMAND) {

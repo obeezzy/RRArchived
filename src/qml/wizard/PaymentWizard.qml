@@ -39,6 +39,5 @@ RRUi.Wizard {
 
     onClosed: {
         privateProperties.resetCustomerDetails();
-        paymentWizard.cartModel.clearPayments();
     }
 }

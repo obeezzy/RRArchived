@@ -13,17 +13,15 @@ class QMLSaleCartModel : public AbstractVisualListModel
     Q_PROPERTY(int transactionId READ transactionId WRITE setTransactionId NOTIFY transactionIdChanged)
     Q_PROPERTY(QString customerName READ customerName WRITE setCustomerName NOTIFY customerNameChanged)
     Q_PROPERTY(QString customerPhoneNumber READ customerPhoneNumber WRITE setCustomerPhoneNumber NOTIFY customerPhoneNumberChanged)
-    Q_PROPERTY(int clientId READ clientId NOTIFY clientIdChanged)
+    Q_PROPERTY(int customerId READ customerId NOTIFY customerIdChanged)
     Q_PROPERTY(QString note READ note WRITE setNote NOTIFY noteChanged)
-    Q_PROPERTY(double totalCost READ totalCost WRITE setTotalCost NOTIFY totalCostChanged)
+    Q_PROPERTY(double totalCost READ totalCost NOTIFY totalCostChanged)
     Q_PROPERTY(double amountPaid READ amountPaid WRITE setAmountPaid NOTIFY amountPaidChanged)
     Q_PROPERTY(double balance READ balance NOTIFY balanceChanged)
-    Q_PROPERTY(bool canAcceptCash READ canAcceptCash NOTIFY canAcceptCashChanged)
-    Q_PROPERTY(bool canAcceptCard READ canAcceptCard NOTIFY canAcceptCardChanged)
-    Q_PROPERTY(SalePaymentModel *paymentModel READ paymentModel NOTIFY paymentModelChanged)
 public:
     explicit QMLSaleCartModel(QObject *parent = nullptr);
-    explicit QMLSaleCartModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLSaleCartModel(DatabaseThread &thread,
+                              QObject *parent = nullptr);
     ~QMLSaleCartModel() override = default;
 
     enum Roles {
@@ -79,34 +77,24 @@ public:
     QString customerPhoneNumber() const;
     void setCustomerPhoneNumber(const QString &customerPhoneNumber);
 
-    int clientId() const;
+    int customerId() const;
 
     QString note() const;
     void setNote(const QString &note);
 
     double totalCost() const;
-    void setTotalCost(double totalCost);
+    double balance() const;
 
     double amountPaid() const;
     void setAmountPaid(double amountPaid);
 
-    double balance() const;
-
-    bool canAcceptCash() const;
-    bool canAcceptCard() const;
-
-    SalePaymentModel *paymentModel() const;
-
-    Utility::SalePaymentList payments() const;
-
     Q_INVOKABLE void addProduct(const QVariantMap &product);
-    Q_INVOKABLE void updateProduct(int productId, const QVariantMap &product);
-    Q_INVOKABLE void setProductQuantity(int productId, double quantity);
+    Q_INVOKABLE void updateProduct(int productId,
+                                   const QVariantMap &product);
+    Q_INVOKABLE void setProductQuantity(int productId,
+                                        double quantity);
     Q_INVOKABLE void removeProduct(int productId);
 
-    Q_INVOKABLE void addPayment(double amount, PaymentMethod method, const QString &note = QString());
-    Q_INVOKABLE void removePayment(int index);
-    Q_INVOKABLE void clearPayments();
     Q_INVOKABLE void submitTransaction(const QVariantMap &transactionInfo = QVariantMap());
     Q_INVOKABLE void suspendTransaction(const QVariantMap &transactionInfo = QVariantMap());
     Q_INVOKABLE void clearAll();
@@ -120,30 +108,22 @@ signals:
     void transactionIdChanged();
     void customerNameChanged();
     void customerPhoneNumberChanged();
-    void clientIdChanged();
+    void customerIdChanged();
     void noteChanged();
     void totalCostChanged();
     void amountPaidChanged();
     void balanceChanged();
-    void canAcceptCashChanged();
-    void canAcceptCardChanged();
-
-    void paymentModelChanged();
 private:
     Utility::SaleTransaction m_transaction;
-    SalePaymentModel *m_paymentModel;
 
     void addTransaction(const QVariantMap &transaction);
     void updateSuspendedTransaction(const QVariantMap &addOns);
+    void calculateTotalCost();
+    void calculateBalance();
 
+    void setCustomerId(int customerId);
+    void setTotalCost(double totalCost);
     void setBalance(double balance);
-    void calculateTotal();
-    void calculateAmountPaid();
-
-    void setClientId(int clientId);
-
-    void updateCanAcceptCash();
-    void updateCanAcceptCard();
 };
 
 Q_DECLARE_LOGGING_CATEGORY(lcqmlsalecartmodel)

@@ -14,8 +14,8 @@ SaleTransaction::SaleTransaction(const QVariantMap &map) :
             { "balance", map.value("balance").toDouble() },
             { "discount", map.value("discount").toDouble() }
            }}),
-    payments(SalePaymentList{ map.value("payments").toList() }),
     products(SaleCartProductList{ map.value("products").toList() }),
+    payments(SalePaymentList{ map.value("payments").toList() }),
     flags((map.value("suspended").toBool() ? RecordGroup::Suspended : RecordGroup::None)
           | (map.value("archived").toBool() ? RecordGroup::Archived : RecordGroup::None)),
     dueDateTime(map.value("due_date_time").toDateTime()),
@@ -33,17 +33,17 @@ SaleTransaction::SaleTransaction(int id) :
 SaleTransaction::SaleTransaction(int id,
                                  const Customer &customer,
                                  const SaleMonies &monies,
+                                 const SaleCartProductList &products,
+                                 const SalePaymentList &payments,
                                  const RecordGroup::Flags &flags,
                                  const QDateTime &dueDateTime,
                                  const QString &action,
-                                 const Note &note,
-                                 const SalePaymentList &payments,
-                                 const SaleCartProductList &products) :
+                                 const Note &note) :
     id(id),
     customer(customer),
     monies(monies),
-    payments(payments),
     products(products),
+    payments(payments),
     flags(flags),
     dueDateTime(dueDateTime),
     action(action),

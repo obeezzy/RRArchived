@@ -11,9 +11,7 @@ QMLSaleTransactionModel::QMLSaleTransactionModel(QObject *parent) :
 QMLSaleTransactionModel::QMLSaleTransactionModel(DatabaseThread &thread,
                                                  QObject *parent) :
     AbstractTransactionModel(thread, parent)
-{
-
-}
+{}
 
 QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
 {

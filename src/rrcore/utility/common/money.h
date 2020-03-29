@@ -4,15 +4,15 @@
 #include "currency.h"
 #include "singletons/settings.h"
 #include "../../3rdparty/BigDecimal-CPP/BigDecimal.h"
-#include <QString>
 #include <QDebug>
-#include <QWeakPointer>
+#include <QString>
 
 namespace Utility {
 class Money
 {
 public:
     explicit Money();
+    explicit Money(const Money &other);
     explicit Money(const QString &num,
                    const Currency &currency = Currency());
     explicit Money(int num,
@@ -27,8 +27,7 @@ public:
                    const Currency &currency = Currency());
     explicit Money(long double num,
                    const Currency &currency = Currency());
-    explicit Money(const Money &other);
-    ~Money();
+    ~Money() = default;
 
     Money &operator=(const Money &other);
     Money operator+(const Money& other) const;

@@ -1,14 +1,18 @@
-#include "saletotalrevenuemodel.h"
+#include "qmltotalrevenuemodel.h"
+#include "database/databasethread.h"
 #include <QDate>
 #include <QDebug>
 
-SaleTotalRevenueModel::SaleTotalRevenueModel(const QVariantList &records, QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_records(records)
-{
-}
+QMLTotalRevenueModel::QMLTotalRevenueModel(QObject *parent) :
+    QMLTotalRevenueModel(DatabaseThread::instance(), parent)
+{}
 
-int SaleTotalRevenueModel::rowCount(const QModelIndex &parent) const
+QMLTotalRevenueModel::QMLTotalRevenueModel(DatabaseThread &thread,
+                                           QObject *parent) :
+    AbstractVisualListModel(thread, parent)
+{}
+
+int QMLTotalRevenueModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -16,7 +20,7 @@ int SaleTotalRevenueModel::rowCount(const QModelIndex &parent) const
     return m_records.count();
 }
 
-int SaleTotalRevenueModel::columnCount(const QModelIndex &parent) const
+int QMLTotalRevenueModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -24,7 +28,7 @@ int SaleTotalRevenueModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-QVariant SaleTotalRevenueModel::data(const QModelIndex &index, int role) const
+QVariant QMLTotalRevenueModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -46,7 +50,7 @@ QVariant SaleTotalRevenueModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QHash<int, QByteArray> SaleTotalRevenueModel::roleNames() const
+QHash<int, QByteArray> QMLTotalRevenueModel::roleNames() const
 {
     QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
     roles.insert(CreatedRole, "created");
@@ -55,18 +59,18 @@ QHash<int, QByteArray> SaleTotalRevenueModel::roleNames() const
     return roles;
 }
 
-void SaleTotalRevenueModel::tryQuery()
+void QMLTotalRevenueModel::tryQuery()
 {
 
 }
 
-bool SaleTotalRevenueModel::canProcessResult(const QueryResult &result) const
+bool QMLTotalRevenueModel::canProcessResult(const QueryResult &result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void SaleTotalRevenueModel::processResult(const QueryResult &result)
+void QMLTotalRevenueModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

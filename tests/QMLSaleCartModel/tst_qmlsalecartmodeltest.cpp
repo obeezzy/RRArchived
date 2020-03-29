@@ -1,9 +1,9 @@
-#include "qmlapi/qmlsalecartmodel.h"
 #include "mockdatabasethread.h"
+#include "qmlapi/qmlsalecartmodel.h"
 #include "utility/saleutils.h"
+#include <QCoreApplication>
 #include <QString>
 #include <QtTest>
-#include <QCoreApplication>
 
 class QMLSaleCartModelTest : public QObject
 {
@@ -28,11 +28,8 @@ private Q_SLOTS:
 
     void testGetTotalCost();
     void testGetAmountPaid();
-    void testGetClientId();
+    void testGetCustomerId();
 
-    void testAddPayment();
-    void testRemovePayment();
-    void testClearPayments();
     void testNoDueDateSet();
 
     void testSubmitTransaction();
@@ -126,7 +123,11 @@ void QMLSaleCartModelTest::testSetNote()
 
 void QMLSaleCartModelTest::testClearAll()
 {
-    const QVariantMap productInfo {
+    const QVariantMap customer {
+        { "customer_name", "Customer" },
+        { "customer_phone_number", "123456789"}
+    };
+    const QVariantMap product {
         { "category_id", 1 },
         { "category", "Category1" },
         { "product_id", 1 },
@@ -139,16 +140,16 @@ void QMLSaleCartModelTest::testClearAll()
         { "unit_price", 13.0 },
         { "available_quantity", 10.0 }
     };
+    QSignalSpy modelResetSpy(m_saleCartModel, &QMLSaleCartModel::modelReset);
 
-    // STEP: Add an product to the model.
-    m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->setCustomerPhoneNumber("123456789");
-    m_saleCartModel->addProduct(productInfo);
+    m_saleCartModel->setCustomerName(customer["customer_name"].toString());
+    m_saleCartModel->setCustomerPhoneNumber(customer["customer_phone_number"].toString());
+    m_saleCartModel->addProduct(product);
+    QCOMPARE(m_saleCartModel->rowCount(), 1);
 
-    // STEP: Clear all products in the model.
     m_saleCartModel->clearAll();
 
-    // STEP: Ensure all products are cleared from the model.
+    QCOMPARE(modelResetSpy.count(), 1);
     QCOMPARE(m_saleCartModel->customerName(), QString());
     QCOMPARE(m_saleCartModel->customerPhoneNumber(), QString());
     QCOMPARE(m_saleCartModel->rowCount(), 0);
@@ -310,7 +311,6 @@ void QMLSaleCartModelTest::testUpdateProduct()
 
 void QMLSaleCartModelTest::testGetTotalCost()
 {
-    QSignalSpy totalCostChangedSpy(m_saleCartModel, &QMLSaleCartModel::totalCostChanged);
     const QVariantMap product1 {
         { "category_id", 1 },
         { "category", "Category1" },
@@ -339,12 +339,11 @@ void QMLSaleCartModelTest::testGetTotalCost()
         { "available_quantity", 10.0 },
         { "cost", 44.0 }
     };
+    QSignalSpy totalCostChangedSpy(m_saleCartModel, &QMLSaleCartModel::totalCostChanged);
 
-    // STEP: Add 2 distinct products to the model.
     m_saleCartModel->addProduct(product1);
     m_saleCartModel->addProduct(product2);
 
-    // STEP: Ensure that the total cost is updated properly.
     QCOMPARE(totalCostChangedSpy.count(), 2);
     QCOMPARE(m_saleCartModel->totalCost(), product1["cost"].toDouble() + product2["cost"].toDouble());
 }
@@ -352,17 +351,22 @@ void QMLSaleCartModelTest::testGetTotalCost()
 void QMLSaleCartModelTest::testGetAmountPaid()
 {
     QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
+    const auto amountPaid {12.35};
 
-    // STEP: Add payments.
-    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::Cash);
-    m_saleCartModel->addPayment(1.5, QMLSaleCartModel::Cash);
+    QCOMPARE(m_saleCartModel->amountPaid(), 0.0);
+    m_saleCartModel->setAmountPaid(0.0);
+    QCOMPARE(amountPaidChangedSpy.count(), 0);
 
-    // STEP: Ensure that the amount paid is updated properly.
-    QCOMPARE(amountPaidChangedSpy.count(), 2);
-    QCOMPARE(m_saleCartModel->amountPaid(), 4.5);
+    m_saleCartModel->setAmountPaid(amountPaid);
+    QCOMPARE(m_saleCartModel->amountPaid(), amountPaid);
+    QCOMPARE(amountPaidChangedSpy.count(), 1);
+    amountPaidChangedSpy.clear();
+
+    m_saleCartModel->setAmountPaid(amountPaid);
+    QCOMPARE(amountPaidChangedSpy.count(), 0);
 }
 
-void QMLSaleCartModelTest::testGetClientId()
+void QMLSaleCartModelTest::testGetCustomerId()
 {
     const QVariantMap customer {
         { "client_id", 1 },
@@ -410,7 +414,6 @@ void QMLSaleCartModelTest::testGetClientId()
 
     // STEP: Sell one product to the client.
     m_saleCartModel->addProduct(product);
-    m_saleCartModel->addPayment(13.0, QMLSaleCartModel::Cash);
 
     databaseWillReturnEmptyResult();
 
@@ -436,8 +439,8 @@ void QMLSaleCartModelTest::testGetClientId()
     QCOMPARE(errorSpy.count(), 0);
 
     // STEP: Ensure that the correct values are returned to the model.
-    QCOMPARE(m_saleCartModel->clientId(),
-             customer["client_id"].toInt());
+    QCOMPARE(m_saleCartModel->customerId(),
+             customer["customer_id"].toInt());
     QCOMPARE(m_saleCartModel->customerName(),
              customer["customer_name"].toString());
     QCOMPARE(m_saleCartModel->customerPhoneNumber(),
@@ -465,79 +468,6 @@ void QMLSaleCartModelTest::testGetClientId()
              product["retail_price"].toDouble());
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::UnitPriceRole).toDouble(),
              product["unit_price"].toDouble());
-}
-
-void QMLSaleCartModelTest::testAddPayment()
-{
-    QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
-
-    // STEP: Add payments.
-    m_saleCartModel->addPayment(9.0, QMLSaleCartModel::Cash);
-    m_saleCartModel->addPayment(1.0, QMLSaleCartModel::DebitCard);
-    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::CreditCard);
-
-    QCOMPARE(amountPaidChangedSpy.count(), 3);
-
-    // STEP: Ensure payments were added properly.
-    QCOMPARE(m_saleCartModel->payments().count(), 3);
-    QCOMPARE(m_saleCartModel->payments().at(0).amount.toDouble(), 9.0);
-    QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::Cash));
-    QCOMPARE(m_saleCartModel->payments().at(1).amount.toDouble(), 1.0);
-    QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::DebitCard));
-    QCOMPARE(m_saleCartModel->payments().at(2).amount.toDouble(), 3.0);
-    QCOMPARE(m_saleCartModel->payments().at(2).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::CreditCard));
-
-    // STEP: Ensure amount paid was updated properly.
-    QCOMPARE(m_saleCartModel->amountPaid(), 13.0);
-}
-
-void QMLSaleCartModelTest::testRemovePayment()
-{
-    QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
-
-    // STEP: Add payments.
-    m_saleCartModel->addPayment(9.0, QMLSaleCartModel::Cash);
-    m_saleCartModel->addPayment(1.0, QMLSaleCartModel::DebitCard);
-    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::CreditCard);
-    amountPaidChangedSpy.clear();
-
-    // STEP: Ensure amount paid was updated properly.
-    QCOMPARE(m_saleCartModel->amountPaid(), 13.0);
-
-    // STEP: Remove first payment.
-    m_saleCartModel->removePayment(0);
-
-    // STEP: Ensure payment was removed properly.
-    QCOMPARE(m_saleCartModel->payments().count(), 2);
-    QCOMPARE(m_saleCartModel->payments().at(0).amount.toDouble(), 1.0);
-    QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::DebitCard));
-    QCOMPARE(m_saleCartModel->payments().at(1).amount.toDouble(), 3.0);
-    QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::CreditCard));
-
-    // STEP: Ensure amount paid was updated properly.
-    QCOMPARE(m_saleCartModel->amountPaid(), 4.0);
-    QCOMPARE(amountPaidChangedSpy.count(), 1);
-}
-
-void QMLSaleCartModelTest::testClearPayments()
-{
-    QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
-
-    // STEP: Add payments.
-    m_saleCartModel->addPayment(9.0, QMLSaleCartModel::Cash);
-    m_saleCartModel->addPayment(1.0, QMLSaleCartModel::DebitCard);
-    m_saleCartModel->addPayment(3.0, QMLSaleCartModel::CreditCard);
-    amountPaidChangedSpy.clear();
-
-    // STEP: Clear payments.
-    m_saleCartModel->clearPayments();
-
-    // STEP: Ensure payments were cleared.
-    QCOMPARE(m_saleCartModel->payments().count(), 0);
-
-    // STEP: Ensure amount paid was updated properly.
-    QCOMPARE(m_saleCartModel->amountPaid(), 0);
-    QCOMPARE(amountPaidChangedSpy.count(), 1);
 }
 
 void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
@@ -705,14 +635,7 @@ void QMLSaleCartModelTest::testSetProductQuantity()
 
 void QMLSaleCartModelTest::testNoDueDateSet()
 {
-    auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-    };
-    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
-    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
-    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
-
+    const QString customerName = QStringLiteral("Customer");
     const QVariantMap product {
         { "category_id", 1 },
         { "category", "Category1" },
@@ -727,17 +650,22 @@ void QMLSaleCartModelTest::testNoDueDateSet()
         { "available_quantity", 10.0 },
         { "cost", 11.0 }
     };
+    auto databaseWillReturnEmptyResult = [this]() {
+        m_result.setSuccessful(true);
+        m_result.setOutcome(QVariant());
+    };
+    QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
+    QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
+    QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
-    // STEP: Add product to the model.
-    m_saleCartModel->setCustomerName("Customer");
+    m_saleCartModel->setCustomerName(customerName);
     m_saleCartModel->addProduct(product);
-    m_saleCartModel->setTotalCost(product["cost"].toDouble());
     m_saleCartModel->setAmountPaid(5.0);
 
     databaseWillReturnEmptyResult();
 
-    // STEP: Submit transaction.
     m_saleCartModel->submitTransaction();
+    QCOMPARE(busyChangedSpy.count(), 0); // NOTE: Caught in model, without crossing to database thread
     QCOMPARE(errorSpy.count(), 1);
     QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLSaleCartModel::NoDueDateSetError);
     QCOMPARE(successSpy.count(), 0);

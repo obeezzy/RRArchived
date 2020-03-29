@@ -39,15 +39,18 @@ public:
     explicit SalePaymentList(const QVariantList &list) :
         QList<SalePayment>() {
         for (const auto &variant : list)
-            append(SalePayment{variant.toMap()});
+            append(SalePayment{ variant.toMap() });
     }
-    QVariantList toVariantList() const {
+    inline QVariantList toVariantList() const {
         QVariantList list;
         for (const auto &payment : *this)
             list.append(payment.toVariantMap());
 
         return list;
     }
+
+    int count(const PaymentMethod &method = PaymentMethod()) const;
+    Money total() const;
 };
 }
 Q_DECLARE_TYPEINFO(Utility::SalePayment, Q_PRIMITIVE_TYPE);

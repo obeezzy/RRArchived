@@ -14,8 +14,8 @@ struct SaleTransaction
     int id {0};
     Customer customer;
     SaleMonies monies;
-    SalePaymentList payments;
     SaleCartProductList products;
+    SalePaymentList payments;
     RecordGroup::Flags flags;
     QDateTime dueDateTime;
     QString action;
@@ -30,17 +30,17 @@ struct SaleTransaction
     explicit SaleTransaction(int id,
                              const Customer &customer,
                              const SaleMonies &monies,
+                             const SaleCartProductList &products,
+                             const SalePaymentList &payments,
                              const RecordGroup::Flags &flags,
                              const QDateTime &dueDateTime,
                              const QString &action,
-                             const Note &note,
-                             const SalePaymentList &payments,
-                             const SaleCartProductList &products);
+                             const Note &note);
     explicit SaleTransaction(int id,
                              const Customer &customer,
                              const SaleMonies &monies,
                              const RecordGroup::Flags &flags,
-                             const Note &note);
+                             const Note &note = Note());
 
     QVariantMap toVariantMap() const;
 
