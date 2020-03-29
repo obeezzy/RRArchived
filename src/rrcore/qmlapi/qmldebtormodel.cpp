@@ -74,7 +74,13 @@ void QMLDebtorModel::tryQuery()
     emit execute(new DebtorQuery::ViewDebtors(this));
 }
 
-void QMLDebtorModel::processResult(const QueryResult result)
+bool QMLDebtorModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLDebtorModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

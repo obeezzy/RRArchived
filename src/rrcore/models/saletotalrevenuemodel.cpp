@@ -60,7 +60,13 @@ void SaleTotalRevenueModel::tryQuery()
 
 }
 
-void SaleTotalRevenueModel::processResult(const QueryResult result)
+bool SaleTotalRevenueModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void SaleTotalRevenueModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

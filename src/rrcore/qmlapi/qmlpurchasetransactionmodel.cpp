@@ -147,7 +147,13 @@ void QMLPurchaseTransactionModel::tryQuery()
                                                              this));
 }
 
-void QMLPurchaseTransactionModel::processResult(const QueryResult result)
+bool QMLPurchaseTransactionModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLPurchaseTransactionModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

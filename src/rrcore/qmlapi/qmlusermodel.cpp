@@ -117,7 +117,13 @@ void QMLUserModel::tryQuery()
                                           this));
 }
 
-void QMLUserModel::processResult(const QueryResult result)
+bool QMLUserModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLUserModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

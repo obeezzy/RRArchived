@@ -189,6 +189,17 @@ Utility::SortCriteria AbstractVisualListModel::sortCriteria() const
     return m_sortCriteria;
 }
 
+void AbstractVisualListModel::validateResult(const QueryResult result)
+{
+    if (canProcessResult(result))
+        processResult(result);
+    else
+        qFatal("Validation failed for %s.\nActual returned keys: %s.\nExpected returned keys: %s",
+               result.request().command().toStdString().c_str(),
+               result.outcome().toMap().keys().join(", ").toStdString().c_str(),
+               result.errorDetails().toStdString().c_str());
+}
+
 void AbstractVisualListModel::refresh()
 {
     tryQuery();

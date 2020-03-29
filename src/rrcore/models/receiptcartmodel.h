@@ -35,7 +35,8 @@ public:
     QString paymentType() const;
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override final;
     QString columnName(int column) const override final;
 private:
     QVariantList m_records;

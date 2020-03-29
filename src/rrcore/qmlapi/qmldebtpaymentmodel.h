@@ -54,7 +54,8 @@ signals:
     void totalAmountPaidChanged();
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override;
 private:
     int m_debtTransactionId {0};
     Utility::Money m_totalAmountPaid;

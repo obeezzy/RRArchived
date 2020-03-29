@@ -3,6 +3,7 @@
 
 #include "models/abstracttransactionitemmodel.h"
 #include "utility/purchase/purchasedproduct.h"
+#include <QLoggingCategory>
 
 class QMLPurchaseTransactionItemModel : public AbstractTransactionItemModel
 {
@@ -54,10 +55,12 @@ public:
     Q_INVOKABLE void removeSoldProduct(int row);
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
     QString columnName(int column) const override;
 private:
     Utility::PurchasedProductList m_products;
 };
+Q_DECLARE_LOGGING_CATEGORY(lcpurchasetransactionitemmodel);
 
 #endif // QMLPURCHASETRANSACTIONITEMMODEL_H

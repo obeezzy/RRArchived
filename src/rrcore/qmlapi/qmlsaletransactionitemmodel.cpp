@@ -160,7 +160,13 @@ void QMLSaleTransactionItemModel::tryQuery()
                                                  this));
 }
 
-void QMLSaleTransactionItemModel::processResult(const QueryResult result)
+bool QMLSaleTransactionItemModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLSaleTransactionItemModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

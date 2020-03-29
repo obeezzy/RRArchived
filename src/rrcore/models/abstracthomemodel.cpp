@@ -21,6 +21,17 @@ QVariantList AbstractHomeModel::records() const
     return m_records;
 }
 
+void AbstractHomeModel::tryQuery()
+{
+
+}
+
+bool AbstractHomeModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
 int AbstractHomeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -68,7 +79,7 @@ QHash<int, QByteArray> AbstractHomeModel::roleNames() const
     };
 }
 
-void AbstractHomeModel::processResult(const QueryResult result)
+void AbstractHomeModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

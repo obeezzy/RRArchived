@@ -6,6 +6,8 @@
 #include "utility/purchaseutils.h"
 #include <QDateTime>
 
+Q_LOGGING_CATEGORY(lcpurchasetransactionitemmodel, "rrcore.qmlapi.qmlpurchasetransactionitemmodel", QtWarningMsg);
+
 QMLPurchaseTransactionItemModel::QMLPurchaseTransactionItemModel(QObject *parent) :
     QMLPurchaseTransactionItemModel(DatabaseThread::instance(), parent)
 {}
@@ -55,9 +57,9 @@ QVariant QMLPurchaseTransactionItemModel::data(const QModelIndex &index, int rol
     case UnitRole:
         return m_products.at(index.row()).product.unit.unit;
     case CostRole:
-        return m_products.at(index.row()).cost;
+        return m_products.at(index.row()).monies.cost.toDouble();
     case DiscountRole:
-        return m_products.at(index.row()).discount;
+        return m_products.at(index.row()).monies.discount.toDouble();
     case NoteIdRole:
         return m_products.at(index.row()).note.id;
     case NoteRole:
@@ -67,9 +69,9 @@ QVariant QMLPurchaseTransactionItemModel::data(const QModelIndex &index, int rol
     case ArchivedRole:
         return m_products.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_products.at(index.row()).created;
+        return m_products.at(index.row()).timestamp.created;
     case LastEditedRole:
-        return m_products.at(index.row()).lastEdited;
+        return m_products.at(index.row()).timestamp.lastEdited;
     case UserIdRole:
         return m_products.at(index.row()).user.id;
     case UserRole:
@@ -159,7 +161,13 @@ void QMLPurchaseTransactionItemModel::tryQuery()
                                                           this));
 }
 
-void QMLPurchaseTransactionItemModel::processResult(const QueryResult result)
+bool QMLPurchaseTransactionItemModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLPurchaseTransactionItemModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;
@@ -194,6 +202,7 @@ QString QMLPurchaseTransactionItemModel::columnName(int column) const
         return QStringLiteral("cost");
     }
 
+    qCWarning(lcpurchasetransactionitemmodel) << "Invalid column:" << column;
     return QString();
 }
 

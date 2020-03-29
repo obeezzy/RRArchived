@@ -89,7 +89,13 @@ void QMLExpenseReportModel::tryQuery()
                                                      this));
 }
 
-void QMLExpenseReportModel::processResult(const QueryResult result)
+bool QMLExpenseReportModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLExpenseReportModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

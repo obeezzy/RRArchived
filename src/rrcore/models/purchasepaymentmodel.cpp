@@ -109,7 +109,13 @@ void PurchasePaymentModel::tryQuery()
 
 }
 
-void PurchasePaymentModel::processResult(const QueryResult result)
+bool PurchasePaymentModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void PurchasePaymentModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

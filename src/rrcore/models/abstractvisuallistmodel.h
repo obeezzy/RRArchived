@@ -57,7 +57,8 @@ public slots:
     virtual void refresh();
 protected:
     virtual void tryQuery() = 0;
-    virtual void processResult(const QueryResult result) = 0;
+    virtual bool canProcessResult(const QueryResult &result) const = 0;
+    virtual void processResult(const QueryResult &result) = 0;
     virtual void filter();
     virtual QString columnName(int column) const;
     const QueryRequest &lastSuccessfulRequest() const;
@@ -85,6 +86,7 @@ private:
     Utility::SortCriteria m_sortCriteria;
     QueryRequest m_lastSuccessfulRequest;
 
+    void validateResult(const QueryResult result);
     void saveRequest(const QueryResult &result);
 };
 

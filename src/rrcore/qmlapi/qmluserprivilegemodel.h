@@ -88,7 +88,8 @@ public slots:
     bool submit() override;
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override;
 private:
     QStringList m_titles;
     QStringList m_privilegeGroups;

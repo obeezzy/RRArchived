@@ -28,6 +28,10 @@ PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
     flags.setFlag(RecordGroup::Archived, transaction.value("archived").toBool());
 }
 
+PurchaseTransaction::PurchaseTransaction(int id) :
+    id(id)
+{}
+
 PurchaseTransaction::PurchaseTransaction(int id,
                                          const Vendor &vendor,
                                          const PurchaseMonies &monies,

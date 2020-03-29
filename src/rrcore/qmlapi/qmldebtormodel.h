@@ -45,7 +45,8 @@ public:
     Q_INVOKABLE void removeDebtor(int row);
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override final;
     void filter() override final;
     QString columnName(int column) const override final;
 public slots:

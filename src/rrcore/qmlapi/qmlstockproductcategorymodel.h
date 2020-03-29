@@ -37,7 +37,8 @@ signals:
     void productFilterTextChanged();
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
     void filter() override final;
 private:
     Utility::StockProductCategoryList m_categories;

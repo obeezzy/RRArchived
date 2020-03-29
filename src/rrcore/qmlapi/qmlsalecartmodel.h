@@ -113,7 +113,8 @@ public:
     Q_INVOKABLE QString toPrintableFormat() const;
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
     void undoLastCommit() override;
 signals:
     void transactionIdChanged();

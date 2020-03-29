@@ -62,7 +62,8 @@ signals:
     void productRemoved(int productId);
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
     QString columnName(int column) const override final;
     void filter() override final;
 public slots:

@@ -24,6 +24,7 @@ struct PurchaseTransaction {
     int row {-1};
 
     explicit PurchaseTransaction() = default;
+    explicit PurchaseTransaction(int id);
     explicit PurchaseTransaction(int id,
                                  const Vendor &vendor,
                                  const PurchaseMonies &monies,

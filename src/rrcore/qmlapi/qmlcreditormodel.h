@@ -43,7 +43,8 @@ public:
     QHash<int, QByteArray> roleNames() const override final;
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override;
 };
 
 #endif // QMLCREDITORMODEL_H

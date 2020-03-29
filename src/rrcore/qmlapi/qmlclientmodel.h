@@ -31,7 +31,8 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override final;
     void filter() override final;
     QString columnName(int column) const override;
 private:

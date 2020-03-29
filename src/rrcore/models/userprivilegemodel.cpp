@@ -103,7 +103,13 @@ void UserPrivilegeModel::tryQuery()
 
 }
 
-void UserPrivilegeModel::processResult(const QueryResult result)
+bool UserPrivilegeModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void UserPrivilegeModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

@@ -54,7 +54,13 @@ void QMLSaleHomeModel::tryQuery()
     emit execute(new SaleQuery::ViewSaleHome(this));
 }
 
-void QMLSaleHomeModel::processResult(const QueryResult result)
+bool QMLSaleHomeModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLSaleHomeModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

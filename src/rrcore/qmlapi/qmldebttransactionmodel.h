@@ -99,7 +99,8 @@ signals:
     void clientIdChanged();
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
 private:
     bool m_dirty {false};
     Utility::Debtor m_debtor;
