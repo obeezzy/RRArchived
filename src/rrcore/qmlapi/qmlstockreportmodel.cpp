@@ -39,13 +39,13 @@ QVariant QMLStockReportModel::data(const QModelIndex &index, int role) const
     case ProductRole:
         return m_transactions.at(index.row()).product.product;
     case OpeningStockQuantityRole:
-        return m_transactions.at(index.row()).openingStockQuantity;
+        return m_transactions.at(index.row()).openingStockQuantity.toDouble();
     case QuantitySoldRole:
-        return m_transactions.at(index.row()).quantitySold;
+        return m_transactions.at(index.row()).quantitySold.toDouble();
     case QuantityBoughtRole:
-        return m_transactions.at(index.row()).quantityBought;
+        return m_transactions.at(index.row()).quantityBought.toDouble();
     case QuantityInStockRole:
-        return m_transactions.at(index.row()).quantityInStock;
+        return m_transactions.at(index.row()).quantityInStock.toDouble();
     case UnitRole:
         return m_transactions.at(index.row()).product.unit.unit;
     }

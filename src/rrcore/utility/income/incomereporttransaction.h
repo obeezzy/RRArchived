@@ -2,6 +2,7 @@
 #define INCOMEREPORTTRANSACTION_H
 
 #include "utility/common/client.h"
+#include "utility/common/money.h"
 #include <QString>
 #include <QVariantList>
 
@@ -10,7 +11,7 @@ struct IncomeReportTransaction
 {
     Client client;
     QString purpose;
-    double amount {0.0};
+    Money amount;
 
     explicit IncomeReportTransaction() = default;
     explicit IncomeReportTransaction(const QVariantMap &map);

@@ -37,7 +37,7 @@ QVariant QMLIncomeReportModel::data(const QModelIndex &index, int role) const
     case PurposeRole:
         return m_transactions.at(index.row()).purpose;
     case AmountRole:
-        return m_transactions.at(index.row()).amount;
+        return m_transactions.at(index.row()).amount.toDouble();
     }
 
     return QVariant();

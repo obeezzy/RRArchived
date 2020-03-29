@@ -12,7 +12,7 @@ public:
         CategoryRole = Qt::UserRole,
         ProductRole,
         QuantitySoldRole,
-        TotalAmountRole,
+        TotalRevenueRole,
         UnitRole
     };
 
@@ -20,7 +20,7 @@ public:
         CategoryColumn,
         ProductColumn,
         QuantitySoldColumn,
-        TotalAmountColumn,
+        TotalRevenueColumn,
         ColumnCount
     }; Q_ENUM(Columns)
 

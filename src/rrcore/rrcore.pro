@@ -181,6 +181,7 @@ SOURCES += \
     utility/stock/stockmonies.cpp \
     utility/stock/stockproduct.cpp \
     utility/stock/stockproductcategory.cpp \
+    utility/stock/stockproductquantity.cpp \
     utility/stock/stockproductunit.cpp \
     utility/stock/stockreporttransaction.cpp \
     utility/user/user.cpp \
@@ -416,6 +417,7 @@ HEADERS += \
     utility/stock/stockmonies.h \
     utility/stock/stockproduct.h \
     utility/stock/stockproductcategory.h \
+    utility/stock/stockproductquantity.h \
     utility/stock/stockproductunit.h \
     utility/stock/stockreporttransaction.h \
     utility/stockutils.h \

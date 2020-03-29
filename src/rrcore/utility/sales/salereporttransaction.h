@@ -1,18 +1,18 @@
 #ifndef SALEREPORTTRANSACTION_H
 #define SALEREPORTTRANSACTION_H
 
-#include "utility/stock/stockproductcategory.h"
 #include "utility/stock/stockproduct.h"
-#include <initializer_list>
+#include "utility/stock/stockproductcategory.h"
 #include <QVariantList>
+#include <initializer_list>
 
 namespace Utility {
 struct SaleReportTransaction
 {
     StockProductCategory category;
     StockProduct product;
-    double quantitySold {0.0};
-    Money totalAmount;
+    StockProductQuantity quantitySold;
+    Money totalRevenue;
 
     explicit SaleReportTransaction() = default;
     explicit SaleReportTransaction(const QVariantMap &map);

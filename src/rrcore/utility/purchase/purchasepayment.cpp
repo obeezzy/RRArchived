@@ -13,10 +13,7 @@ PurchasePayment::PurchasePayment(const Money &amount,
 PurchasePayment::PurchasePayment(const QVariantMap &map) :
     amount(map.value("amount").toDouble()),
     method(map.value("payment_method").toString()),
-    note(Note {
-         map.value("note_id").toInt(),
-         map.value("note").toString()
-         })
+    note(Note{ map })
 {
 
 }

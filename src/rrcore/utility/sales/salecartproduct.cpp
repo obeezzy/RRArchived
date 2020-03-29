@@ -1,8 +1,8 @@
 #include "salecartproduct.h"
+#include <QDateTime>
 #include <QList>
 #include <QVariantList>
 #include <QVariantMap>
-#include <QDateTime>
 
 using namespace Utility;
 
@@ -14,7 +14,7 @@ SaleCartProduct::SaleCartProduct(const QString &product,
                                  const StockProductCategory &category,
                                  const QString &description,
                                  const QUrl &imageUrl,
-                                 double quantity,
+                                 const StockProductQuantity &quantity,
                                  const StockProductUnit &unit,
                                  const SaleMonies &monies,
                                  const RecordGroup::Flags &flags,
@@ -33,7 +33,7 @@ SaleCartProduct::SaleCartProduct(const QString &product,
 SaleCartProduct::SaleCartProduct(int id,
                                  const QString &product,
                                  const StockProductCategory &category,
-                                 double quantity,
+                                 const StockProductQuantity &quantity,
                                  const StockProductUnit &unit,
                                  const SaleMonies &monies,
                                  const Note &note) :
@@ -47,46 +47,31 @@ SaleCartProduct::SaleCartProduct(int id,
     note(note)
 {}
 
-SaleCartProduct::SaleCartProduct(const QVariantMap &product) :
-    id(product.value("product_id").toInt()),
-    product(product.value("product").toString()),
+SaleCartProduct::SaleCartProduct(const QVariantMap &map) :
+    id(map.value("product_id").toInt()),
+    product(map.value("product").toString()),
     category(StockProductCategory{
-             product.value("category_id").toInt(),
-             product.value("category").toString(),
+             map.value("category_id").toInt(),
+             map.value("category").toString(),
              Note{
-             product.value("category_note_id").toInt(),
-             product.value("category_note").toString()
+             map.value("category_note_id").toInt(),
+             map.value("category_note").toString()
              }
              }),
-    description(product.value("description").toString()),
-    imageUrl(product.value("image_url").toUrl()),
-    quantity(product.value("quantity").toDouble()),
-    availableQuantity(product.value("available_quantity").toDouble()),
-    unit(StockProductUnit {
-         product.value("unit_id").toInt(),
-         product.value("unit").toString()
-         }),
-    monies(SaleMonies { QVariantMap {
-            { "cost_price", product.value("cost_price").toDouble() },
-            { "retail_price", product.value("retail_price").toDouble() },
-            { "unit_price", product.value("unit_price").toDouble() },
-            { "cost", product.value("cost").toDouble() },
-            { "amount_paid", product.value("amount_paid").toDouble() }
-           }}),
-    note(Note {
-         product.value("note_id").toInt(),
-         product.value("note").toString()
-         }),
-    timestamp(product.value("created").toDateTime(),
-              product.value("last_edited").toDateTime()),
-    user(User {
-         product.value("user_id").toInt(),
-         product.value("user").toString()
-         })
-{
-    flags.setFlag(RecordGroup::Tracked, product.value("tracked").toBool());
-    flags.setFlag(RecordGroup::Divisible, product.value("divisible").toBool());
-}
+    description(map.value("description").toString()),
+    imageUrl(map.value("image_url").toUrl()),
+    quantity(map.value("quantity").toDouble()),
+    availableQuantity(StockProductQuantity{ QVariantMap {
+                        { "quantity", map.value("available_quantity").toDouble() }
+                      }}),
+    unit(StockProductUnit{ map }),
+    monies(SaleMonies{ map }),
+    flags((map.value("tracked").toBool() ? RecordGroup::Tracked : RecordGroup::None)
+          | (map.value("divisible").toBool() ? RecordGroup::Divisible : RecordGroup::None)),
+    note(Note{ map }),
+    timestamp(RecordTimestamp{ map }),
+    user(User{ map })
+{}
 
 QVariantMap SaleCartProduct::toVariantMap() const
 {
@@ -94,9 +79,10 @@ QVariantMap SaleCartProduct::toVariantMap() const
         { "product_id", id },
         { "product_category_id", category.id },
         { "category", category.category },
-        { "quantity", quantity },
+        { "quantity", quantity.toDouble() },
+        { "available_quantity", availableQuantity.toDouble() },
         { "product_unit_id", unit.id },
-        { "unit", unit.unit },
+        { "product_unit", unit.unit },
         { "retail_price", monies.retailPrice.toDouble() },
         { "unit_price", monies.unitPrice.toDouble() },
         { "cost", monies.cost.toDouble() },

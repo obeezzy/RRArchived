@@ -1,7 +1,5 @@
 #include "money.h"
 #include "../../3rdparty/BigDecimal-CPP/BigDecimal.h"
-#include <QWeakPointer>
-#include <QSharedPointer>
 
 using namespace Utility;
 

@@ -4,7 +4,7 @@
 using namespace Utility;
 
 SoldProduct::SoldProduct(int saleTransactionId) :
-    transaction(saleTransactionId)
+    transaction(SaleTransaction{ saleTransactionId })
 {}
 
 SoldProduct::SoldProduct(const QVariantMap &map) :
@@ -51,7 +51,7 @@ QVariantMap SoldProduct::toVariantMap() const
         { "product_category", product.category.category },
         { "product_id", product.id },
         { "product", product.product },
-        { "quantity", quantity },
+        { "quantity", quantity.toDouble() },
         { "product_unit_id", product.unit.id },
         { "product_unit", product.unit.unit },
         { "unit_price", monies.unitPrice.toDouble() },

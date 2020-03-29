@@ -3,6 +3,7 @@
 
 #include "stockproductcategory.h"
 #include "stockproductunit.h"
+#include "stockproductquantity.h"
 #include "stockmonies.h"
 #include "utility/common/note.h"
 #include "utility/common/money.h"
@@ -19,7 +20,7 @@ struct StockProduct {
     QString product;
     QString description;
     QUrl imageUrl;
-    double quantity {0.0};
+    StockProductQuantity quantity;
     StockProductUnit unit;
     RecordGroup::Flags flags{ RecordGroup::Tracked | RecordGroup::Divisible };
     StockMonies monies;
@@ -36,11 +37,11 @@ struct StockProduct {
                           const QString &product,
                           const QString &description,
                           const QUrl &imageUrl,
-                          double quantity,
+                          const StockProductQuantity &quantity,
                           const StockProductUnit &unit,
                           const RecordGroup::Flags &flags,
                           const StockMonies &monies,
-                          const Note &note);
+                          const Note &note = Note());
     explicit StockProduct(int id,
                           const StockProductCategory &category,
                           const QString &product,
@@ -49,14 +50,14 @@ struct StockProduct {
                           const StockProductUnit &unit,
                           const RecordGroup::Flags &flags,
                           const StockMonies &monies,
-                          const Note &note);
+                          const Note &note = Note());
     explicit StockProduct(int id,
                           const StockProductCategory &category,
-                          double quantity,
+                          const StockProductQuantity &quantity,
                           const StockProductUnit &unit,
                           const StockMonies &monies,
-                          const Note &note);
-    explicit StockProduct(const QVariantMap &product);
+                          const Note &note = Note());
+    explicit StockProduct(const QVariantMap &map);
     QVariantMap toVariantMap() const;
 
     inline bool operator==(const StockProduct &other) {

@@ -6,5 +6,6 @@
 #include "stock/stockproductunit.h"
 #include "stock/stockreporttransaction.h"
 #include "stock/stockmonies.h"
+#include "stock/stockproductquantity.h"
 
 #endif // STOCKUTILS_H

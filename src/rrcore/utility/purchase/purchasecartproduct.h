@@ -2,6 +2,7 @@
 #define PURCHASECARTPRODUCT_H
 
 #include "purchasemonies.h"
+#include "utility/stock/stockproductquantity.h"
 #include "utility/common/note.h"
 #include "utility/common/recordtimestamp.h"
 #include "utility/stock/stockproductcategory.h"
@@ -18,34 +19,34 @@ struct PurchaseCartProduct {
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    double quantity {0.0};
-    double availableQuantity {0.0};
+    StockProductQuantity quantity;
+    StockProductQuantity availableQuantity;
     StockProductUnit unit;
     PurchaseMonies monies;
-    Note note;
     RecordGroup::Flags flags;
+    Note note;
     RecordTimestamp timestamp;
     User user;
 
     explicit PurchaseCartProduct() = default;
     explicit PurchaseCartProduct(int id);
-    explicit PurchaseCartProduct(const QVariantMap &product);
+    explicit PurchaseCartProduct(const QVariantMap &map);
     explicit PurchaseCartProduct(const QString &product,
                                  const StockProductCategory &category,
                                  const QString &description,
                                  const QUrl &imageUrl,
-                                 double quantity,
+                                 const StockProductQuantity &quantity,
                                  const StockProductUnit &unit,
                                  const PurchaseMonies &monies,
-                                 const Note &note,
-                                 const RecordGroup::Flags &flags);
+                                 const RecordGroup::Flags &flags,
+                                 const Note &note = Note());
     explicit PurchaseCartProduct(int id,
                                  const QString &product,
                                  const StockProductCategory &category,
-                                 double quantity,
+                                 const StockProductQuantity &quantity,
                                  const StockProductUnit &unit,
                                  const PurchaseMonies &monies,
-                                 const Note &note);
+                                 const Note &note = Note());
     QVariantMap toVariantMap() const;
 
     inline bool operator==(const PurchaseCartProduct &other) {

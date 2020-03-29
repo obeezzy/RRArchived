@@ -12,7 +12,7 @@ public:
         CategoryRole = Qt::UserRole,
         ProductRole,
         QuantityBoughtRole,
-        TotalAmountRole,
+        TotalExpenditureRole,
         UnitRole
     };
 

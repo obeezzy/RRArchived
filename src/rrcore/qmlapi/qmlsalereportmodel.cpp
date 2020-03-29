@@ -41,11 +41,11 @@ QVariant QMLSaleReportModel::data(const QModelIndex &index, int role) const
     case ProductRole:
         return m_transactions.at(index.row()).product.product;
     case QuantitySoldRole:
-        return m_transactions.at(index.row()).quantitySold;
+        return m_transactions.at(index.row()).quantitySold.toDouble();
     case UnitRole:
         return m_transactions.at(index.row()).product.unit.unit;
-    case TotalAmountRole:
-        return m_transactions.at(index.row()).totalAmount.toDouble();
+    case TotalRevenueRole:
+        return m_transactions.at(index.row()).totalRevenue.toDouble();
     }
 
     return QVariant();
@@ -58,7 +58,7 @@ QHash<int, QByteArray> QMLSaleReportModel::roleNames() const
         { ProductRole, "product" },
         { QuantitySoldRole, "quantity_sold" },
         { UnitRole, "unit" },
-        { TotalAmountRole, "total_amount" }
+        { TotalRevenueRole, "total_revenue" }
     };
 }
 
@@ -73,8 +73,8 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
                 return tr("Product");
             case QuantitySoldColumn:
                 return tr("Qty sold");
-            case TotalAmountColumn:
-                return tr("Total amount");
+            case TotalRevenueColumn:
+                return tr("Total revenue");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
@@ -82,7 +82,7 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
             case ProductColumn:
                 return Qt::AlignLeft;
             case QuantitySoldColumn:
-            case TotalAmountColumn:
+            case TotalRevenueColumn:
                 return Qt::AlignRight;
             }
         } else if (role == Qt::SizeHintRole) {
@@ -93,7 +93,7 @@ QVariant QMLSaleReportModel::headerData(int section, Qt::Orientation orientation
                 return tableViewWidth() - 180 - 180 - 180;
             case QuantitySoldColumn:
                 return 180;
-            case TotalAmountColumn:
+            case TotalRevenueColumn:
                 return 180;
             }
         }

@@ -61,7 +61,7 @@ QUrl QMLStockProductDetailRecord::imageUrl() const
 
 double QMLStockProductDetailRecord::quantity() const
 {
-    return m_product.quantity;
+    return m_product.quantity.toDouble();
 }
 
 int QMLStockProductDetailRecord::unitId() const
@@ -134,7 +134,7 @@ void QMLStockProductDetailRecord::processResult(const QueryResult result)
         setDescription(product.description);
         setDivisible(product.flags.testFlag(Utility::RecordGroup::Divisible));
         setImageUrl(product.imageUrl);
-        setQuantity(product.quantity);
+        setQuantity(product.quantity.toDouble());
         setUnitId(product.id);
         setUnit(product.unit.unit);
         setCostPrice(product.monies.costPrice.toDouble());
@@ -205,10 +205,10 @@ void QMLStockProductDetailRecord::setImageUrl(const QUrl &imageUrl)
 
 void QMLStockProductDetailRecord::setQuantity(double quantity)
 {
-    if (m_product.quantity == quantity)
+    if (m_product.quantity == Utility::StockProductQuantity(quantity))
         return;
 
-    m_product.quantity = quantity;
+    m_product.quantity = Utility::StockProductQuantity(quantity);
     emit quantityChanged();
 }
 
