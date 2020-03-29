@@ -54,7 +54,7 @@ QVariant QMLStockProductModel::data(const QModelIndex &index, int role) const
     case ImageUrlRole:
         return m_products.at(index.row()).imageUrl;
     case QuantityRole:
-        return m_products.at(index.row()).quantity;
+        return m_products.at(index.row()).quantity.toDouble();
     case UnitRole:
         return m_products.at(index.row()).unit.unit;
     case UnitIdRole:

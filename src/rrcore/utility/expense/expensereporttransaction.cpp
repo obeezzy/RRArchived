@@ -15,6 +15,6 @@ QVariantMap ExpenseReportTransaction::toVariantMap() const
     return {
         { "client_name", client.preferredName },
         { "purpose", purpose },
-        { "amount", amount }
+        { "amount", amount.toDouble() }
     };
 }

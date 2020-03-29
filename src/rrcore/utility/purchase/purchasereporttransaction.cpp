@@ -4,12 +4,22 @@
 
 using namespace Utility;
 
-PurchaseReportTransaction::PurchaseReportTransaction(const QVariantMap &map)
+PurchaseReportTransaction::PurchaseReportTransaction(const QVariantMap &map) :
+    category(StockProductCategory{ map }),
+    product(StockProduct{ map }),
+    quantityBought(map.value("quantity_bought").toDouble()),
+    totalExpenditure(map.value("total_expenditure").toDouble())
 {
-    Q_UNUSED(map)
 }
 
 QVariantMap PurchaseReportTransaction::toVariantMap() const
 {
-    return { };
+    return {
+        { "product_category_id", category.id },
+        { "product_category", category.category },
+        { "product_id", product.id },
+        { "product", product.product },
+        { "quantity_bought", quantityBought.toDouble() },
+        { "total_expenditure", totalExpenditure.toDouble() }
+    };
 }

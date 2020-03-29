@@ -16,10 +16,10 @@ struct StockProductCategory
     explicit StockProductCategory() = default;
     explicit StockProductCategory(const QVariantMap &map);
     explicit StockProductCategory(const QString &category,
-                                  const Note &note = Note{});
+                                  const Note &note = Note());
     explicit StockProductCategory(int id,
                                   const QString &category,
-                                  const Note &note = Note{});
+                                  const Note &note = Note());
 
     QVariantMap toVariantMap() const;
 

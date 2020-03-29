@@ -49,7 +49,7 @@ QVariant QMLPurchaseTransactionItemModel::data(const QModelIndex &index, int rol
     case UnitPriceRole:
         return m_products.at(index.row()).product.monies.unitPrice.toDouble();
     case QuantityRole:
-        return m_products.at(index.row()).product.quantity;
+        return m_products.at(index.row()).product.quantity.toDouble();
     case UnitIdRole:
         return m_products.at(index.row()).product.unit.id;
     case UnitRole:

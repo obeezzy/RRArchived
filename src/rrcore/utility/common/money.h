@@ -70,7 +70,6 @@ public:
 
     friend QDebug operator<<(QDebug debug, const Money &money)
     {
-        Q_UNUSED(money)
         debug.nospace() << "Money("
                         << money.toCurrencyString()
                         << ")";

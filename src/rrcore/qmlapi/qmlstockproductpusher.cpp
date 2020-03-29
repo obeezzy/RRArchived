@@ -92,15 +92,15 @@ void QMLStockProductPusher::setDescription(const QString &description)
 
 double QMLStockProductPusher::quantity() const
 {
-    return m_product.quantity;
+    return m_product.quantity.toDouble();
 }
 
 void QMLStockProductPusher::setQuantity(double quantity)
 {
-    if (m_product.quantity == quantity)
+    if (m_product.quantity == Utility::StockProductQuantity(quantity))
         return;
 
-    m_product.quantity = quantity;
+    m_product.quantity = Utility::StockProductQuantity(quantity);
     emit quantityChanged();
 }
 

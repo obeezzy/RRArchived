@@ -16,7 +16,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
                            const QString &product,
                            const QString &description,
                            const QUrl &imageUrl,
-                           double quantity,
+                           const StockProductQuantity &quantity,
                            const StockProductUnit &unit,
                            const RecordGroup::Flags &flags,
                            const StockMonies &monies,
@@ -30,7 +30,7 @@ StockProduct::StockProduct(const StockProductCategory &category,
     flags(flags),
     monies(monies),
     note(note)
-{ }
+{}
 
 StockProduct::StockProduct(int id,
                            const StockProductCategory &category,
@@ -50,11 +50,11 @@ StockProduct::StockProduct(int id,
     flags(flags),
     monies(monies),
     note(note)
-{ }
+{}
 
 StockProduct::StockProduct(int id,
                            const StockProductCategory &category,
-                           double quantity,
+                           const StockProductQuantity &quantity,
                            const StockProductUnit &unit,
                            const StockMonies &monies,
                            const Note &note) :
@@ -64,46 +64,30 @@ StockProduct::StockProduct(int id,
     unit(unit),
     monies(monies),
     note(note)
-{ }
+{}
 
-StockProduct::StockProduct(const QVariantMap &product) :
-    id(product.value("product_id").toInt()),
-    category(StockProductCategory{
-             product.value("product_category_id").toInt(),
-             product.value("product_category").toString(),
-             Note{
-             product.value("product_category_note_id").toInt(),
-             product.value("product_category_note").toString()
+StockProduct::StockProduct(const QVariantMap &map) :
+    id(map.value("product_id").toInt()),
+    category(StockProductCategory {
+             map.value("product_category_id").toInt(),
+             map.value("product_category").toString(),
+             Note {
+             map.value("product_category_note_id").toInt(),
+             map.value("product_category_note").toString()
              }
              }),
-    product(product.value("product").toString()),
-    description(product.value("description").toString()),
-    imageUrl(product.value("image_url").toUrl()),
-    quantity(product.value("quantity").toDouble()),
-    unit(StockProductUnit {
-         product.value("product_unit_id").toInt(),
-         product.value("product_unit").toString()
-         }),
-    monies(StockMonies { QVariantMap {
-            { "cost_price", product.value("cost_price").toDouble() },
-            { "retail_price", product.value("retail_price").toDouble() },
-            { "unit_price", product.value("unit_price").toDouble() }
-           }}),
-    note(Note {product.value("note_id").toInt(),
-         product.value("note").toString()
-         }),
-    timestamp(RecordTimestamp {
-              product.value("created").toDateTime(),
-              product.value("last_edited").toDateTime()
-              }),
-    user(User{
-         product.value("user_id").toInt(),
-         product.value("user").toString()
-         })
-{
-    flags.setFlag(RecordGroup::Tracked, product.value("tracked").toBool());
-    flags.setFlag(RecordGroup::Divisible, product.value("divisible").toBool());
-}
+    product(map.value("product").toString()),
+    description(map.value("description").toString()),
+    imageUrl(map.value("image_url").toUrl()),
+    quantity(map.value("quantity").toDouble()),
+    unit(StockProductUnit{ map }),
+    flags((map.value("tracked").toBool() ? RecordGroup::Tracked : RecordGroup::None)
+          | map.value("divisible").toBool() ? RecordGroup::Divisible : RecordGroup::None),
+    monies(StockMonies{ map }),
+    note(Note{ map }),
+    timestamp(RecordTimestamp{ map }),
+    user(User{ map })
+{}
 
 QVariantMap StockProduct::toVariantMap() const
 {
@@ -111,7 +95,7 @@ QVariantMap StockProduct::toVariantMap() const
         { "product_id", id },
         { "product_category_id", category.id },
         { "product_category", category.category },
-        { "quantity", quantity },
+        { "quantity", quantity.toDouble() },
         { "product_unit_id", unit.id },
         { "product_unit", unit.unit },
         { "cost_price", monies.costPrice.toDouble() },

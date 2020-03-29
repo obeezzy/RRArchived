@@ -5,10 +5,7 @@ using namespace Utility;
 StockProductCategory::StockProductCategory(const QVariantMap &map) :
     id(map.value("product_category_id").toInt()),
     category(map.value("product_category").toString()),
-    note(Note {
-         map.value("note_id").toInt(),
-         map.value("note").toString()
-         })
+    note(Note{ map })
 {
 }
 

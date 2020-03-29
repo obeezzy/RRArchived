@@ -6,6 +6,7 @@
 #include "utility/sales/salemonies.h"
 #include "utility/stock/stockproductcategory.h"
 #include "utility/stock/stockproductunit.h"
+#include "utility/stock/stockproductquantity.h"
 #include "utility/user/user.h"
 #include <QVariantList>
 #include <QDateTime>
@@ -17,8 +18,8 @@ struct SaleCartProduct {
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    double quantity {0.0};
-    double availableQuantity {0.0};
+    StockProductQuantity quantity;
+    StockProductQuantity availableQuantity;
     StockProductUnit unit;
     SaleMonies monies;
     RecordGroup::Flags flags;
@@ -31,7 +32,7 @@ struct SaleCartProduct {
                              const StockProductCategory &category,
                              const QString &description,
                              const QUrl &imageUrl,
-                             double quantity,
+                             const StockProductQuantity &quantity,
                              const StockProductUnit &unit,
                              const SaleMonies &monies,
                              const RecordGroup::Flags &flags,
@@ -39,11 +40,11 @@ struct SaleCartProduct {
     explicit SaleCartProduct(int id,
                              const QString &product,
                              const StockProductCategory &category,
-                             double quantity,
+                             const StockProductQuantity &quantity,
                              const StockProductUnit &unit,
                              const SaleMonies &monies,
                              const Note &note = Note());
-    explicit SaleCartProduct(const QVariantMap &product);
+    explicit SaleCartProduct(const QVariantMap &map);
     QVariantMap toVariantMap() const;
 
     inline bool operator==(const SaleCartProduct &other) {

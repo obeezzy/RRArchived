@@ -28,7 +28,6 @@ QVariant QMLSaleTransactionModel::data(const QModelIndex &index, int role) const
     case CustomerNameRole:
         return m_transactions.at(index.row()).customer.client.preferredName;
     case TotalCostRole:
-        qDebug() << "TotalCost=" << m_transactions.at(index.row()).monies.totalCost.toDouble();
         return m_transactions.at(index.row()).monies.totalCost.toDouble();
     case AmountPaidRole:
         return m_transactions.at(index.row()).monies.amountPaid.toDouble();

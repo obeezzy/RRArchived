@@ -1,8 +1,8 @@
 #ifndef STOCKREPORTTRANSACTION_H
 #define STOCKREPORTTRANSACTION_H
 
-#include "utility/stock/stockproductcategory.h"
 #include "utility/stock/stockproduct.h"
+#include "utility/stock/stockproductcategory.h"
 #include <QVariantList>
 
 namespace Utility {
@@ -10,10 +10,10 @@ struct StockReportTransaction
 {
     StockProductCategory category;
     StockProduct product;
-    double openingStockQuantity {0.0};
-    double quantitySold {0.0};
-    double quantityBought {0.0};
-    double quantityInStock {0.0};
+    StockProductQuantity openingStockQuantity;
+    StockProductQuantity quantitySold;
+    StockProductQuantity quantityBought;
+    StockProductQuantity quantityInStock;
 
     explicit StockReportTransaction() = default;
     explicit StockReportTransaction(const QVariantMap &map);

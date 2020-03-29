@@ -1,17 +1,17 @@
 #ifndef PURCHASEREPORTTRANSACTION_H
 #define PURCHASEREPORTTRANSACTION_H
 
-#include <QVariantList>
-#include "utility/stock/stockproductcategory.h"
 #include "utility/stock/stockproduct.h"
+#include "utility/stock/stockproductcategory.h"
+#include <QVariantList>
 
 namespace Utility {
 struct PurchaseReportTransaction
 {
     StockProductCategory category;
     StockProduct product;
-    double quantityBought {0.0};
-    Money totalAmount;
+    StockProductQuantity quantityBought;
+    Money totalExpenditure;
 
     explicit PurchaseReportTransaction() = default;
     explicit PurchaseReportTransaction(const QVariantMap &map);

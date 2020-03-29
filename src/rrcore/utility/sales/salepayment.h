@@ -10,11 +10,11 @@
 namespace Utility {
 struct SalePayment {
     Money amount;
-    Utility::PaymentMethod method;
+    PaymentMethod method;
     Note note;
 
     explicit SalePayment(double amount,
-                         const Utility::PaymentMethod &method,
+                         const PaymentMethod &method,
                          const Note &note = Note());
     explicit SalePayment(const QVariantMap &map);
     QVariantMap toVariantMap() const;

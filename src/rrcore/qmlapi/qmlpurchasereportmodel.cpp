@@ -22,11 +22,11 @@ QVariant QMLPurchaseReportModel::data(const QModelIndex &index, int role) const
     case ProductRole:
         return m_transactions.at(index.row()).product.product;
     case QuantityBoughtRole:
-        return m_transactions.at(index.row()).quantityBought;
+        return m_transactions.at(index.row()).quantityBought.toDouble();
     case UnitRole:
         return m_transactions.at(index.row()).product.unit.unit;
-    case TotalAmountRole:
-        return m_transactions.at(index.row()).totalAmount.toDouble();
+    case TotalExpenditureRole:
+        return m_transactions.at(index.row()).totalExpenditure.toDouble();
     }
 
     return QVariant();
@@ -54,7 +54,7 @@ QHash<int, QByteArray> QMLPurchaseReportModel::roleNames() const
         { CategoryRole, "category" },
         { ProductRole, "product" },
         { QuantityBoughtRole, "quantity_bought" },
-        { TotalAmountRole, "total_amount" },
+        { TotalExpenditureRole, "total_expenditure" },
         { UnitRole, "unit" }
     };
 }

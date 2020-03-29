@@ -258,7 +258,10 @@ void QMLSaleCartModelTest::testAddDifferentProducts()
 void QMLSaleCartModelTest::testUpdateProduct()
 {
     QSignalSpy dataChangedSpy(m_saleCartModel, &QMLSaleCartModel::dataChanged);
-
+    const QVariantMap customer {
+        { "customer_name", QStringLiteral("Customer") },
+        { "customer_phone_number", QStringLiteral("1234567890") }
+    };
     const QVariantMap product {
         { "product_category_id", 1 },
         { "product_category", "Category" },
@@ -272,8 +275,8 @@ void QMLSaleCartModelTest::testUpdateProduct()
     };
 
     // STEP: Add product to the model
-    m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->setCustomerPhoneNumber("1234567890");
+    m_saleCartModel->setCustomerName(customer["customer_name"].toString());
+    m_saleCartModel->setCustomerPhoneNumber(customer["customer_phone_number"].toString());
     m_saleCartModel->addProduct(product);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
@@ -289,13 +292,20 @@ void QMLSaleCartModelTest::testUpdateProduct()
     QCOMPARE(dataChangedSpy.count(), 1);
 
     // STEP: Ensure model is updated properly.
-    QCOMPARE(m_saleCartModel->customerName(), "Customer");
-    QCOMPARE(m_saleCartModel->customerPhoneNumber(), "1234567890");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductRole).toString(), QStringLiteral("Product"));
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 4.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitPriceRole).toDouble(), 30.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostRole).toDouble(), 120.0);
+    QCOMPARE(m_saleCartModel->customerName(),
+             customer["customer_name"].toString());
+    QCOMPARE(m_saleCartModel->customerPhoneNumber(),
+             customer["customer_phone_number"].toString());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0),QMLSaleCartModel::ProductIdRole).toInt(),
+             product["product_id"].toInt());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductRole).toString(),
+             product["product"].toString());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(),
+             productUpdate["quantity"].toDouble());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitPriceRole).toDouble(),
+             productUpdate["unit_price"].toDouble());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostRole).toDouble(),
+             productUpdate["cost"].toDouble());
 }
 
 void QMLSaleCartModelTest::testGetTotalCost()
@@ -362,12 +372,12 @@ void QMLSaleCartModelTest::testGetClientId()
     const QVariantMap product {
         { "sale_transaction_id", 1 },
         { "category_id", 1 },
-        { "category", "Category" },
+        { "category", QStringLiteral("Category") },
         { "product_id", 1 },
-        { "product", "Product" },
+        { "product", QStringLiteral("Product") },
         { "quantity", 1.0 },
-        { "unit_id", 1 },
-        { "unit", "Unit" },
+        { "product_unit_id", 1 },
+        { "product_unit", QStringLiteral("Unit") },
         { "cost_price", 11.0 },
         { "retail_price", 10.0 },
         { "unit_price", 13.0 },
@@ -446,9 +456,9 @@ void QMLSaleCartModelTest::testGetClientId()
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::AvailableQuantityRole).toDouble(),
              product["available_quantity"].toDouble());
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::UnitIdRole).toInt(),
-             product["unit_id"].toInt());
+             product["product_unit_id"].toInt());
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::UnitRole).toString(),
-             product["unit"].toString());
+             product["product_unit"].toString());
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::CostPriceRole).toDouble(),
              product["cost_price"].toDouble());
     QCOMPARE(m_saleCartModel->index(0).data(QMLSaleCartModel::RetailPriceRole).toDouble(),
@@ -544,8 +554,8 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
         { "product_id", 1 },
         { "product", "Product1" },
         { "quantity", 1.38 },
-        { "unit_id", 1 },
-        { "unit", "Unit1" },
+        { "product_unit_id", 1 },
+        { "product_unit", "Unit1" },
         { "cost_price", 2.52 },
         { "retail_price", 3.95 },
         { "unit_price", 13.23 },
@@ -557,8 +567,6 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     };
     auto databaseWillReturn = [this](const QVariantMap &customer, const QVariantList &products) {
         m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-
         m_result.setOutcome(QVariantMap {
                                 { "client_id", customer["client_id"] },
                                 { "customer_name", customer["customer_name"] },
@@ -615,9 +623,9 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(),
              product["quantity"].toDouble());
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitIdRole).toInt(),
-             product["unit_id"].toInt());
+             product["product_unit_id"].toInt());
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitRole).toString(),
-             product["unit"].toString());
+             product["product_unit"].toString());
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostPriceRole).toDouble(),
              product["cost_price"].toDouble());
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::RetailPriceRole).toDouble(),

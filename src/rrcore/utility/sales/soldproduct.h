@@ -11,7 +11,7 @@ struct SoldProduct
 {
     SaleTransaction transaction;
     StockProduct product;
-    double quantity;
+    StockProductQuantity quantity;
     SaleMonies monies;
     Note note;
     RecordTimestamp timestamp;
