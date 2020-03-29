@@ -40,17 +40,17 @@ void QMLIncomePusher::setPurpose(const QString &purpose)
     emit purposeChanged();
 }
 
-qreal QMLIncomePusher::amount() const
+double QMLIncomePusher::amount() const
 {
-    return m_transaction.amount;
+    return m_transaction.amount.toDouble();
 }
 
-void QMLIncomePusher::setAmount(qreal amount)
+void QMLIncomePusher::setAmount(double amount)
 {
-    if (m_transaction.amount == amount)
+    if (m_transaction.amount == Utility::Money(amount))
         return;
 
-    m_transaction.amount = amount;
+    m_transaction.amount = Utility::Money(amount);
     emit amountChanged();
 }
 

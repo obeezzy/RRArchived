@@ -21,7 +21,7 @@ QueryResult SaleExecutor::addSaleTransaction(TransactionMode mode)
 
     const QVariantMap &params = request().params();
     const QString &clientPhoneNumber = params.value("client_phone_number").toString().trimmed();
-    const qreal balance = params.value("balance").toDouble();
+    const double balance = params.value("balance").toDouble();
     const bool suspended = params.value("suspended").toBool();
     const bool overlookBalance = params.value("overlook_balance").toBool();
     int clientId = 0;
@@ -143,7 +143,7 @@ int SaleExecutor::addSaleTransactionToDatabase(int clientId)
 {
     const QVariantMap &params{ request().params() };
     const bool shouldGiveChange = params.value("action").toString() == QStringLiteral("give_change");
-    const qreal balance = shouldGiveChange ? 0.0
+    const double balance = shouldGiveChange ? 0.0
                                            : qAbs(params.value("balance").toDouble());
     const QString &note = params.value("note").toString();
     const int noteId = QueryExecutor::addNote(note,

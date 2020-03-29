@@ -45,7 +45,7 @@ QVariant QMLSaleReportModel::data(const QModelIndex &index, int role) const
     case UnitRole:
         return m_transactions.at(index.row()).product.unit.unit;
     case TotalAmountRole:
-        return m_transactions.at(index.row()).totalAmount;
+        return m_transactions.at(index.row()).totalAmount.toDouble();
     }
 
     return QVariant();

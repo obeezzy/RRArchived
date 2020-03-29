@@ -16,13 +16,13 @@ UpdateSuspendedSaleTransaction::UpdateSuspendedSaleTransaction(const Utility::Sa
                     { "client_preferred_name", transaction.customer.client.preferredName },
                     { "client_id", transaction.customer.client.id },
                     { "customer_phone_number", transaction.customer.client.phoneNumber },
-                    { "total_cost", transaction.totalCost },
-                    { "amount_paid", transaction.amountPaid },
-                    { "balance", transaction.balance },
+                    { "total_cost", transaction.monies.totalCost.toDouble() },
+                    { "amount_paid", transaction.monies.amountPaid.toDouble() },
+                    { "balance", transaction.monies.balance.toDouble() },
                     { "note_id", transaction.note.id },
                     { "note", transaction.note.note },
                     { "suspended", transaction.flags.testFlag(Utility::RecordGroup::Suspended) },
-                    { "currency", transaction.currency }
+                    { "currency", transaction.monies.amountPaid.currency().isoCode() }
                  }, receiver)
 {
 

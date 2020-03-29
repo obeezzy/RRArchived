@@ -2,23 +2,18 @@
 
 using namespace Utility;
 
-SalePayment::SalePayment(qreal amount,
+SalePayment::SalePayment(double amount,
                          const Utility::PaymentMethod &method,
-                         const Note &note,
-                         const QString &currency) :
+                         const Note &note) :
     amount(amount),
     method(method),
-    note(note),
-    currency(currency)
+    note(note)
 { }
 
 SalePayment::SalePayment(const QVariantMap &map) :
     amount(map.value("amount").toDouble()),
     method(map.value("payment_method").toString()),
-    note(Note {
-         map.value("note_id").toInt(),
-         map.value("note").toString()
-         })
+    note(Note{ map.value("note").toString() })
 {
 
 }
@@ -26,7 +21,7 @@ SalePayment::SalePayment(const QVariantMap &map) :
 QVariantMap SalePayment::toVariantMap() const
 {
     return {
-        { "amount", amount },
+        { "amount", amount.toDouble() },
         { "payment_method", method.toString()},
         { "note", note.note }
     };

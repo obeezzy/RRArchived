@@ -453,11 +453,11 @@ void QMLSaleCartModelTest::testAddPayment()
 
     // STEP: Ensure payments were added properly.
     QCOMPARE(m_saleCartModel->payments().count(), 3);
-    QCOMPARE(m_saleCartModel->payments().at(0).amount, 9.0);
+    QCOMPARE(m_saleCartModel->payments().at(0).amount.toDouble(), 9.0);
     QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::Cash));
-    QCOMPARE(m_saleCartModel->payments().at(1).amount, 1.0);
+    QCOMPARE(m_saleCartModel->payments().at(1).amount.toDouble(), 1.0);
     QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::DebitCard));
-    QCOMPARE(m_saleCartModel->payments().at(2).amount, 3.0);
+    QCOMPARE(m_saleCartModel->payments().at(2).amount.toDouble(), 3.0);
     QCOMPARE(m_saleCartModel->payments().at(2).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::CreditCard));
 
     // STEP: Ensure amount paid was updated properly.
@@ -482,9 +482,9 @@ void QMLSaleCartModelTest::testRemovePayment()
 
     // STEP: Ensure payment was removed properly.
     QCOMPARE(m_saleCartModel->payments().count(), 2);
-    QCOMPARE(m_saleCartModel->payments().at(0).amount, 1.0);
+    QCOMPARE(m_saleCartModel->payments().at(0).amount.toDouble(), 1.0);
     QCOMPARE(m_saleCartModel->payments().at(0).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::DebitCard));
-    QCOMPARE(m_saleCartModel->payments().at(1).amount, 3.0);
+    QCOMPARE(m_saleCartModel->payments().at(1).amount.toDouble(), 3.0);
     QCOMPARE(m_saleCartModel->payments().at(1).method, static_cast<Utility::PaymentMethod>(QMLSaleCartModel::CreditCard));
 
     // STEP: Ensure amount paid was updated properly.
@@ -515,32 +515,38 @@ void QMLSaleCartModelTest::testClearPayments()
 
 void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 {
-    const QVariantMap productInfo {
+    const QVariantMap customer {
+        { "client_id", 1 },
+        { "customer_name", QStringLiteral("Customer") },
+        { "customer_phone_number", QStringLiteral("123456789") }
+    };
+    const QVariantMap product {
+        { "sale_transaction_id", 1 },
         { "category_id", 1 },
         { "category", "Category1" },
         { "product_id", 1 },
         { "product", "Product1" },
-        { "quantity", 1.0 },
+        { "quantity", 1.38 },
         { "unit_id", 1 },
         { "unit", "Unit1" },
-        { "cost_price", 2.0 },
-        { "retail_price", 3.0 },
-        { "unit_price", 13.0 },
-        { "available_quantity", 10.0 }
+        { "cost_price", 2.52 },
+        { "retail_price", 3.95 },
+        { "unit_price", 13.23 },
+        { "available_quantity", 10.34 }
     };
     auto databaseWillReturnEmptyResult = [this]() {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
     };
-    auto databaseWillReturnSubmittedTransaction = [this, &productInfo]() {
+    auto databaseWillReturn = [this](const QVariantMap &customer, const QVariantList &products) {
         m_result.setSuccessful(true);
         m_result.setOutcome(QVariant());
 
         m_result.setOutcome(QVariantMap {
-                                { "client_id", 1 },
-                                { "customer_name", QStringLiteral("Customer") },
-                                { "customer_phone_number", QStringLiteral("123456789") },
-                                { "products", QVariantList { { productInfo } } }
+                                { "client_id", customer["client_id"] },
+                                { "customer_name", customer["customer_name"] },
+                                { "customer_phone_number", customer["customer_phone_number"] },
+                                { "products", products }
                             });
     };
 
@@ -549,8 +555,8 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     QSignalSpy busyChangedSpy(m_saleCartModel, &QMLSaleCartModel::busyChanged);
 
     // STEP: Add product to the model.
-    m_saleCartModel->setCustomerName("Customer");
-    m_saleCartModel->addProduct(productInfo);
+    m_saleCartModel->setCustomerName(customer["customer_name"].toString());
+    m_saleCartModel->addProduct(product);
 
     databaseWillReturnEmptyResult();
 
@@ -565,10 +571,10 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
 
-    databaseWillReturnSubmittedTransaction();
+    databaseWillReturn(customer, QVariantList{ product });
 
     // STEP: Retrieve suspended transaction.
-    m_saleCartModel->setTransactionId(1);
+    m_saleCartModel->setTransactionId(product["sale_transaction_id"].toInt());
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
@@ -579,18 +585,30 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
 
     // STEP: Ensure that model is re-populated correctly.
     QCOMPARE(m_saleCartModel->rowCount(), 1);
-    QCOMPARE(m_saleCartModel->customerName(), "Customer");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryRole).toString(), "Category1");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductRole).toString(), "Product1");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitIdRole).toInt(), 1);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitRole).toString(), "Unit1");
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostPriceRole).toDouble(), 2.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::RetailPriceRole).toDouble(), 3.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitPriceRole).toDouble(), 13.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::AvailableQuantityRole).toDouble(), 10.0);
+    QCOMPARE(m_saleCartModel->customerName(),
+             customer["customer_name"].toString());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryIdRole).toInt(),
+             product["category_id"].toInt());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CategoryRole).toString(),
+             product["category"].toString());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductIdRole).toInt(),
+             product["product_id"].toInt());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::ProductRole).toString(),
+             product["product"].toString());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(),
+             product["quantity"].toDouble());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitIdRole).toInt(),
+             product["unit_id"].toInt());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitRole).toString(),
+             product["unit"].toString());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::CostPriceRole).toDouble(),
+             product["cost_price"].toDouble());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::RetailPriceRole).toDouble(),
+             product["retail_price"].toDouble());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::UnitPriceRole).toDouble(),
+             product["unit_price"].toDouble());
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::AvailableQuantityRole).toDouble(),
+             product["available_quantity"].toDouble());
 }
 
 void QMLSaleCartModelTest::testRemoveProduct()
@@ -620,12 +638,12 @@ void QMLSaleCartModelTest::testRemoveProduct()
 
 void QMLSaleCartModelTest::testSetProductQuantity()
 {
-    const QVariantMap productInfo {
+    const QVariantMap product {
         { "category_id", 1 },
         { "category", "Category1" },
         { "product_id", 1 },
         { "product", "Product1" },
-        { "quantity", 1.0 },
+        { "quantity", 1.56 },
         { "unit_id", 1 },
         { "unit", "Unit1" },
         { "cost_price", 2.0 },
@@ -635,25 +653,28 @@ void QMLSaleCartModelTest::testSetProductQuantity()
     };
 
     // STEP: Add product to the model.
-    m_saleCartModel->addProduct(productInfo);
+    m_saleCartModel->addProduct(product);
     QCOMPARE(m_saleCartModel->rowCount(), 1);
 
     // STEP: Ensure a quantity of 1 is set.
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(),
+             product["quantity"].toDouble());
 
     // STEP: Set the quantity to an invalid value.
-    m_saleCartModel->setProductQuantity(1, 0.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
-    m_saleCartModel->setProductQuantity(1, -1.0);
-    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 1.0);
+    m_saleCartModel->setProductQuantity(product["product_id"].toInt(), 0.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(),
+             product["quantity"].toDouble());
+    m_saleCartModel->setProductQuantity(product["product_id"].toInt(), -1.0);
+    QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(),
+             product["quantity"].toDouble());
 
     // STEP: Set the quantity to a value greater than the available quantity. Ensure the value caps at
     // the available quantity.
-    m_saleCartModel->setProductQuantity(1, 11.0);
+    m_saleCartModel->setProductQuantity(product["product_id"].toInt(), 11.0);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 10.0);
 
     // STEP: Set the quantity to an valid value.
-    m_saleCartModel->setProductQuantity(1, 5.5);
+    m_saleCartModel->setProductQuantity(product["product_id"].toInt(), 5.5);
     QCOMPARE(m_saleCartModel->data(m_saleCartModel->index(0), QMLSaleCartModel::QuantityRole).toDouble(), 5.5);
 }
 
@@ -717,9 +738,9 @@ void QMLSaleCartModelTest::testSubmitTransaction()
         { "quantity", 1.0 },
         { "unit_id", 1 },
         { "unit", "Unit" },
-        { "cost_price", 11.0 },
-        { "retail_price", 10.0 },
-        { "unit_price", 13.0 },
+        { "cost_price", 11.35 },
+        { "retail_price", 10.56 },
+        { "unit_price", 13.45 },
         { "available_quantity", 10.0 }
     };
 

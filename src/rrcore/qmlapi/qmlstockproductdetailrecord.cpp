@@ -74,29 +74,29 @@ QString QMLStockProductDetailRecord::unit() const
     return m_product.unit.unit;
 }
 
-qreal QMLStockProductDetailRecord::costPrice() const
+double QMLStockProductDetailRecord::costPrice() const
 {
-    return m_product.costPrice;
+    return m_product.monies.costPrice.toDouble();
 }
 
-qreal QMLStockProductDetailRecord::retailPrice() const
+double QMLStockProductDetailRecord::retailPrice() const
 {
-    return m_product.retailPrice;
+    return m_product.monies.retailPrice.toDouble();
 }
 
 QString QMLStockProductDetailRecord::currency() const
 {
-    return m_product.currency;
+    return m_product.monies.retailPrice.currency().isoCode();
 }
 
 QDateTime QMLStockProductDetailRecord::created() const
 {
-    return m_product.created;
+    return m_product.timestamp.created;
 }
 
 QDateTime QMLStockProductDetailRecord::lastEdited() const
 {
-    return m_product.lastEdited;
+    return m_product.timestamp.lastEdited;
 }
 
 int QMLStockProductDetailRecord::userId() const
@@ -137,11 +137,10 @@ void QMLStockProductDetailRecord::processResult(const QueryResult result)
         setQuantity(product.quantity);
         setUnitId(product.id);
         setUnit(product.unit.unit);
-        setCostPrice(product.costPrice);
-        setRetailPrice(product.retailPrice);
-        setCurrency(product.currency);
-        setCreated(product.created);
-        setLastEdited(product.lastEdited);
+        setCostPrice(product.monies.costPrice.toDouble());
+        setRetailPrice(product.monies.retailPrice.toDouble());
+        setCreated(product.timestamp.created);
+        setLastEdited(product.timestamp.lastEdited);
         setUserId(product.user.id);
         setUser(product.user.user);
         emit success();
@@ -231,48 +230,39 @@ void QMLStockProductDetailRecord::setUnit(const QString &unit)
     emit unitChanged();
 }
 
-void QMLStockProductDetailRecord::setCostPrice(qreal costPrice)
+void QMLStockProductDetailRecord::setCostPrice(double costPrice)
 {
-    if (m_product.costPrice == costPrice)
+    if (m_product.monies.costPrice == Utility::Money(costPrice))
         return;
 
-    m_product.costPrice = costPrice;
+    m_product.monies.costPrice = Utility::Money(costPrice);
     emit costPriceChanged();
 }
 
-void QMLStockProductDetailRecord::setRetailPrice(qreal retailPrice)
+void QMLStockProductDetailRecord::setRetailPrice(double retailPrice)
 {
-    if (m_product.retailPrice == retailPrice)
+    if (m_product.monies.retailPrice == Utility::Money(retailPrice))
         return;
 
-    m_product.retailPrice = retailPrice;
+    m_product.monies.retailPrice = Utility::Money(retailPrice);
     emit retailPriceChanged();
-}
-
-void QMLStockProductDetailRecord::setCurrency(const QString &currency)
-{
-    if (m_product.currency == currency)
-        return;
-
-    m_product.currency = currency;
-    emit currencyChanged();
 }
 
 void QMLStockProductDetailRecord::setCreated(const QDateTime &created)
 {
-    if (m_product.created == created)
+    if (m_product.timestamp.created == created)
         return;
 
-    m_product.created = created;
+    m_product.timestamp.created = created;
     emit createdChanged();
 }
 
 void QMLStockProductDetailRecord::setLastEdited(const QDateTime &lastEdited)
 {
-    if (m_product.lastEdited == lastEdited)
+    if (m_product.timestamp.lastEdited == lastEdited)
         return;
 
-    m_product.lastEdited = lastEdited;
+    m_product.timestamp.lastEdited = lastEdited;
     emit lastEditedChanged();
 }
 

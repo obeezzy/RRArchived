@@ -8,16 +8,20 @@ PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
            transaction.value("client_id").toInt(),
            transaction.value("client_preferred_name").toString()
            }),
-    totalCost(transaction.value("total_cost").toDouble()),
-    amountPaid(transaction.value("amount_paid").toDouble()),
-    balance(transaction.value("balance").toDouble()),
-    discount(transaction.value("discount").toDouble()),
+    monies(PurchaseMonies { QVariantMap {
+            { "total_cost", transaction.value("total_cost").toDouble() },
+            { "amount_paid", transaction.value("amount_paid").toDouble() },
+            { "balance", transaction.value("balance").toDouble() },
+            { "discount", transaction.value("discount").toDouble() }
+           }}),
     note(Note {
          transaction.value("note_id").toInt(),
          transaction.value("note").toString()
          }),
-    created(transaction.value("created").toDateTime()),
-    lastEdited(transaction.value("last_edited").toDateTime()),
+    timestamp(RecordTimestamp {
+              transaction.value("created").toDateTime(),
+              transaction.value("last_edited").toDateTime()
+              }),
     user(User{ transaction.value("user_id").toInt() })
 {
     flags.setFlag(RecordGroup::Suspended, transaction.value("suspended").toBool());
@@ -26,46 +30,38 @@ PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
 
 PurchaseTransaction::PurchaseTransaction(qint64 id,
                                          const Vendor &vendor,
-                                         qreal totalCost,
-                                         qreal amountPaid,
-                                         qreal balance,
-                                         const RecordGroup::Flags &flags,
+                                         const PurchaseMonies &monies,
                                          const PurchaseCartProductList &products,
                                          const PurchasePaymentList &payments,
+                                         const RecordGroup::Flags &flags,
                                          const QDateTime &dueDateTime,
                                          const QString &action,
                                          const Note &note) :
     id(id),
     vendor(vendor),
-    totalCost(totalCost),
-    amountPaid(amountPaid),
-    balance(balance),
+    monies(monies),
     products(products),
     payments(payments),
-    note(note),
     dueDateTime(dueDateTime),
     action(action),
-    flags(flags)
+    flags(flags),
+    note(note)
 {}
 
 PurchaseTransaction::PurchaseTransaction(qint64 id,
                                          const Vendor &vendor,
-                                         qreal totalCost,
-                                         qreal amountPaid,
-                                         qreal balance,
-                                         const RecordGroup::Flags &flags,
+                                         const PurchaseMonies &monies,
                                          const PurchaseCartProductList &products,
                                          const PurchasePaymentList &payments,
+                                         const RecordGroup::Flags &flags,
                                          const Note &note) :
     id(id),
     vendor(vendor),
-    totalCost(totalCost),
-    amountPaid(amountPaid),
-    balance(balance),
+    monies(monies),
     products(products),
     payments(payments),
-    note(note),
-    flags(flags)
+    flags(flags),
+    note(note)
 {}
 
 
@@ -76,16 +72,16 @@ QVariantMap PurchaseTransaction::toVariantMap() const
         { "client_id", vendor.client.id },
         { "client_preferred_name", vendor.client.preferredName },
         { "client_phone_number", vendor.client.phoneNumber },
-        { "total_cost", totalCost },
-        { "amount_paid", amountPaid },
-        { "balance", balance },
-        { "discount", discount },
+        { "total_cost", monies.totalCost.toDouble() },
+        { "amount_paid", monies.amountPaid.toDouble() },
+        { "balance", monies.balance.toDouble() },
+        { "discount", monies.discount.toDouble() },
         { "note_id", note.id },
         { "note", note.note },
         { "suspended", flags.testFlag(RecordGroup::Suspended) },
         { "archived", flags.testFlag(RecordGroup::Archived) },
-        { "created", created },
-        { "last_edited", lastEdited },
+        { "created", timestamp.created },
+        { "last_edited", timestamp.lastEdited },
         { "user_id", user.id }
     };
 }

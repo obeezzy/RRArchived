@@ -11,8 +11,8 @@ struct SaleReportTransaction
 {
     StockProductCategory category;
     StockProduct product;
-    qreal quantitySold {0.0};
-    qreal totalAmount {0.0};
+    double quantitySold {0.0};
+    Money totalAmount;
 
     explicit SaleReportTransaction() = default;
     explicit SaleReportTransaction(const QVariantMap &map);

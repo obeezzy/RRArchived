@@ -8,9 +8,8 @@ RESOURCES += config/config.qrc \
     json/json.qrc \
     schema/schema.qrc
 
-INCLUDEPATH += .
-
 SOURCES += \
+    ../../3rdparty/BigDecimal-CPP/BigDecimal.cpp \
     database/exceptions/amountoverpaidexception.cpp \
     database/exceptions/argumentmismatchexception.cpp \
     database/exceptions/begintransactionfailedexception.cpp \
@@ -147,15 +146,19 @@ SOURCES += \
     models/abstracttransactionitemmodel.cpp \
     user/businessdetails.cpp \
     utility/common/client.cpp \
+    utility/common/currency.cpp \
     utility/common/customer.cpp \
     utility/common/datetimespan.cpp \
     utility/common/filtercriteria.cpp \
+    utility/common/money.cpp \
     utility/common/note.cpp \
     utility/common/paymentmethod.cpp \
     utility/common/recordgroup.cpp \
+    utility/common/recordtimestamp.cpp \
     utility/common/relatedtransaction.cpp \
     utility/common/sortcriteria.cpp \
     utility/common/vendor.cpp \
+    utility/debtor/debtmonies.cpp \
     utility/debtor/debtor.cpp \
     utility/debtor/debtpayment.cpp \
     utility/debtor/debttransaction.cpp \
@@ -165,14 +168,17 @@ SOURCES += \
     utility/income/incometransaction.cpp \
     utility/purchase/purchasecartproduct.cpp \
     utility/purchase/purchasedproduct.cpp \
+    utility/purchase/purchasemonies.cpp \
     utility/purchase/purchasepayment.cpp \
     utility/purchase/purchasereporttransaction.cpp \
     utility/purchase/purchasetransaction.cpp \
     utility/sales/salecartproduct.cpp \
+    utility/sales/salemonies.cpp \
     utility/sales/salepayment.cpp \
     utility/sales/salereporttransaction.cpp \
     utility/sales/saletransaction.cpp \
     utility/sales/soldproduct.cpp \
+    utility/stock/stockmonies.cpp \
     utility/stock/stockproduct.cpp \
     utility/stock/stockproductcategory.cpp \
     utility/stock/stockproductunit.cpp \
@@ -219,6 +225,7 @@ SOURCES += \
     models/modelresult.cpp
 
 HEADERS += \
+    ../../3rdparty/BigDecimal-CPP/BigDecimal.h \
     database/databaseerror.h \
     database/exceptions/amountoverpaidexception.h \
     database/exceptions/argumentmismatchexception.h \
@@ -370,16 +377,20 @@ HEADERS += \
     models/abstracttransactionitemmodel.h \
     user/businessdetails.h \
     utility/common/client.h \
+    utility/common/currency.h \
     utility/common/customer.h \
     utility/common/datetimespan.h \
     utility/common/filtercriteria.h \
+    utility/common/money.h \
     utility/common/note.h \
     utility/common/paymentmethod.h \
     utility/common/recordgroup.h \
+    utility/common/recordtimestamp.h \
     utility/common/relatedtransaction.h \
     utility/common/sortcriteria.h \
     utility/common/vendor.h \
     utility/commonutils.h \
+    utility/debtor/debtmonies.h \
     utility/debtor/debtor.h \
     utility/debtor/debtpayment.h \
     utility/debtor/debttransaction.h \
@@ -391,15 +402,18 @@ HEADERS += \
     utility/incomeutils.h \
     utility/purchase/purchasecartproduct.h \
     utility/purchase/purchasedproduct.h \
+    utility/purchase/purchasemonies.h \
     utility/purchase/purchasepayment.h \
     utility/purchase/purchasereporttransaction.h \
     utility/purchase/purchasetransaction.h \
     utility/purchaseutils.h \
     utility/sales/salecartproduct.h \
+    utility/sales/salemonies.h \
     utility/sales/salepayment.h \
     utility/sales/salereporttransaction.h \
     utility/sales/saletransaction.h \
     utility/sales/soldproduct.h \
+    utility/stock/stockmonies.h \
     utility/stock/stockproduct.h \
     utility/stock/stockproductcategory.h \
     utility/stock/stockproductunit.h \

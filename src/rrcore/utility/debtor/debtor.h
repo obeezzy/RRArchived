@@ -13,7 +13,7 @@ struct Debtor
 {
     int id {-1};
     Client client;
-    qreal totalDebt {0.0};
+    double totalDebt {0.0};
     DebtTransactionList transactions;
     Note note;
     QDateTime created;

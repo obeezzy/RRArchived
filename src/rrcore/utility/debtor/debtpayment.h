@@ -1,12 +1,15 @@
 #ifndef DEBTPAYMENT_H
 #define DEBTPAYMENT_H
 
-#include "utility/commonutils.h"
+#include "debtmonies.h"
+#include "utility/common/note.h"
+#include "utility/common/recordgroup.h"
+#include "utility/common/recordtimestamp.h"
 #include "singletons/settings.h"
-#include <QString>
 #include <QDateTime>
-#include <QVariantList>
 #include <QDebug>
+#include <QString>
+#include <QVariantList>
 
 namespace Utility {
 struct DebtPayment {
@@ -16,36 +19,26 @@ public:
     enum class State { Clean, Dirty, Fresh, Trash }; Q_ENUM(State)
     int id {-1};
     int debtTransactionId {-1};
-    qreal totalAmount {0.0};
-    qreal amountPaid {0.0};
-    qreal balance {0.0};
-    QString currency {Settings::DEFAULT_CURRENCY};
+    DebtMonies monies;
+    Currency currency;
     QDateTime dueDateTime;
-    Note note;
     RecordGroup::Flags flags;
-    QDateTime created;
-    QDateTime lastEdited;
-    State state;
+    Note note;
+    RecordTimestamp timestamp;
+    State state {State::Fresh};
     static int temporaryId;
 
-    explicit DebtPayment(qreal totalAmount,
-                         qreal amountPaid,
+    explicit DebtPayment(const DebtMonies &monies,
                          const QDateTime &dueDateTime,
-                         const Note &note);
+                         const Note &note = Note());
     explicit DebtPayment(int id,
-                         qreal totalAmount,
-                         qreal amountPaid,
-                         qreal balance,
-                         const QString &currency,
+                         const DebtMonies &monies,
                          const QDateTime &dueDateTime,
-                         const Note &note,
                          const RecordGroup::Flags &flags,
-                         const QDateTime &created,
-                         const QDateTime &lastEdited,
-                         State state);
+                         State state,
+                         const Note &note = Note());
 
     explicit DebtPayment(const QVariantMap &map);
-
     QVariantMap toVariantMap() const;
 
     bool operator==(const DebtPayment &other) {
@@ -56,9 +49,9 @@ public:
     {
         debug.nospace() << "DebtPayment("
                         << "id=" << debtPayment.id
-                        << ", totalAmount=" << debtPayment.totalAmount
-                        << ", amountPaid=" << debtPayment.amountPaid
-                        << ", balance=" << debtPayment.balance
+                        << ", totalAmount=" << debtPayment.monies.totalAmount
+                        << ", amountPaid=" << debtPayment.monies.amountPaid
+                        << ", balance=" << debtPayment.monies.balance
                         << ", state=" << debtPayment.state
                         << ")";
 

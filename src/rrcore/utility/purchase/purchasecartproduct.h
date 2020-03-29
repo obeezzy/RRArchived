@@ -1,10 +1,12 @@
 #ifndef PURCHASECARTPRODUCT_H
 #define PURCHASECARTPRODUCT_H
 
-#include "utility/user/user.h"
+#include "purchasemonies.h"
 #include "utility/common/note.h"
+#include "utility/common/recordtimestamp.h"
 #include "utility/stock/stockproductcategory.h"
 #include "utility/stock/stockproductunit.h"
+#include "utility/user/user.h"
 #include "singletons/settings.h"
 #include <QVariantList>
 #include <QDateTime>
@@ -16,44 +18,33 @@ struct PurchaseCartProduct {
     StockProductCategory category;
     QString description;
     QUrl imageUrl;
-    qreal quantity;
-    qreal availableQuantity;
+    double quantity {0.0};
+    double availableQuantity {0.0};
     StockProductUnit unit;
-    qreal costPrice {0.0};
-    qreal retailPrice {0.0};
-    qreal unitPrice {0.0};
-    qreal cost {0.0};
-    qreal amountPaid {0.0};
-    QString currency {Settings::DEFAULT_CURRENCY};
+    PurchaseMonies monies;
     Note note;
     RecordGroup::Flags flags;
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     User user;
 
     explicit PurchaseCartProduct() = default;
     explicit PurchaseCartProduct(int id);
     explicit PurchaseCartProduct(const QVariantMap &product);
-    explicit PurchaseCartProduct(const StockProductCategory &category,
-                                 const QString &product,
+    explicit PurchaseCartProduct(const QString &product,
+                                 const StockProductCategory &category,
                                  const QString &description,
                                  const QUrl &imageUrl,
-                                 qreal quantity,
+                                 double quantity,
                                  const StockProductUnit &unit,
-                                 const RecordGroup::Flags &flags,
-                                 qreal costPrice,
-                                 qreal retailPrice,
-                                 const QString &currency,
-                                 const Note &note);
+                                 const PurchaseMonies &monies,
+                                 const Note &note,
+                                 const RecordGroup::Flags &flags);
     explicit PurchaseCartProduct(int id,
                                  const QString &product,
                                  const StockProductCategory &category,
-                                 qreal quantity,
+                                 double quantity,
                                  const StockProductUnit &unit,
-                                 qreal retailPrice,
-                                 qreal unitPrice,
-                                 qreal cost,
-                                 qreal amountPaid,
+                                 const PurchaseMonies &monies,
                                  const Note &note);
     QVariantMap toVariantMap() const;
 

@@ -176,29 +176,29 @@ void QMLStockProductPusher::setDivisible(bool divisible)
 
 double QMLStockProductPusher::costPrice() const
 {
-    return m_product.costPrice;
+    return m_product.monies.costPrice.toDouble();
 }
 
 void QMLStockProductPusher::setCostPrice(double costPrice)
 {
-    if (m_product.costPrice == costPrice)
+    if (m_product.monies.costPrice == Utility::Money(costPrice))
         return;
 
-    m_product.costPrice = costPrice;
+    m_product.monies.costPrice = Utility::Money(costPrice);
     emit costPriceChanged();
 }
 
 double QMLStockProductPusher::retailPrice() const
 {
-    return m_product.retailPrice;
+    return m_product.monies.retailPrice.toDouble();
 }
 
 void QMLStockProductPusher::setRetailPrice(double retailPrice)
 {
-    if (m_product.retailPrice == retailPrice)
+    if (m_product.monies.retailPrice == Utility::Money(retailPrice))
         return;
 
-    m_product.retailPrice = retailPrice;
+    m_product.monies.retailPrice = Utility::Money(retailPrice);
     emit retailPriceChanged();
 }
 

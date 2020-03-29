@@ -8,6 +8,7 @@
 #include <QSqlError>
 
 using namespace DebtorQuery;
+const QString DEFAULT_CURRENCY(Utility::Currency::DEFAULT_CURRENCY);
 
 AddDebtor::AddDebtor(const Utility::Debtor &debtor,
                      QObject *receiver) :
@@ -250,6 +251,7 @@ void AddDebtor::addDebtPayments(int debtTransactionId,
         const double totalDebt = debtPaymentAsVariant.toMap().value("total_debt").toDouble();
         const double amountPaid = debtPaymentAsVariant.toMap().value("amount").toDouble();
         const double balance = debtPaymentAsVariant.toMap().value("balance").toDouble();
+        const QString &currency = DEFAULT_CURRENCY;
         const QString &note = debtPaymentAsVariant.toMap().value("note").toString();
         const int noteId = QueryExecutor::addNote(note,
                                                   QStringLiteral("debtor"),
@@ -282,7 +284,7 @@ void AddDebtor::addDebtPayments(int debtTransactionId,
                                                 ProcedureArgument {
                                                     ProcedureArgument::Type::In,
                                                     "currency",
-                                                    Settings::DEFAULT_CURRENCY
+                                                    currency
                                                 },
                                                 ProcedureArgument {
                                                     ProcedureArgument::Type::In,

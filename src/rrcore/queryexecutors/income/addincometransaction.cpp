@@ -14,9 +14,9 @@ AddIncomeTransaction::AddIncomeTransaction(const Utility::IncomeTransaction &tra
     IncomeExecutor(COMMAND, {
                         { "client_name", transaction.client.preferredName },
                         { "purpose", transaction.purpose },
-                        { "amount", transaction.amount },
+                        { "amount", transaction.amount.toDouble() },
                         { "payment_method", transaction.paymentMethod.toString() },
-                        { "currency", transaction.currency }
+                        { "currency", transaction.amount.currency().isoCode() }
                    }, receiver)
 {
 

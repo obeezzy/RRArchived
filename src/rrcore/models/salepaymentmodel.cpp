@@ -29,7 +29,7 @@ QVariant SalePaymentModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case AmountRole:
-        return m_salePayments.at(index.row()).amount;
+        return m_salePayments.at(index.row()).amount.toDouble();
     case MethodRole:
         return m_salePayments.at(index.row()).method.toString();
     case NoteRole:

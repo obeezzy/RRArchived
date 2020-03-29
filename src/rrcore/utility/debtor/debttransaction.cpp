@@ -5,7 +5,7 @@ using namespace Utility;
 DebtTransaction::DebtTransaction()
 {}
 
-DebtTransaction::DebtTransaction(qreal totalDebt,
+DebtTransaction::DebtTransaction(double totalDebt,
                                  const QDateTime &dueDateTime,
                                  const Note &note) :
     totalDebt(totalDebt),
@@ -15,7 +15,7 @@ DebtTransaction::DebtTransaction(qreal totalDebt,
 { }
 
 DebtTransaction::DebtTransaction(int id,
-                                 qreal totalDebt,
+                                 double totalDebt,
                                  const QDateTime &dueDateTime,
                                  const RelatedTransaction &relatedTransaction,
                                  const Note &note,

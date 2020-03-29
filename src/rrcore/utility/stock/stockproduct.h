@@ -1,10 +1,13 @@
 #ifndef STOCKPRODUCT_H
 #define STOCKPRODUCT_H
 
-#include "utility/common/note.h"
-#include "utility/user/user.h"
 #include "stockproductcategory.h"
 #include "stockproductunit.h"
+#include "stockmonies.h"
+#include "utility/common/note.h"
+#include "utility/common/money.h"
+#include "utility/common/recordtimestamp.h"
+#include "utility/user/user.h"
 #include "singletons/settings.h"
 #include <QVariantList>
 #include <QDateTime>
@@ -19,13 +22,9 @@ struct StockProduct {
     double quantity {0.0};
     StockProductUnit unit;
     RecordGroup::Flags flags{ RecordGroup::Tracked | RecordGroup::Divisible };
-    qreal costPrice {0.0};
-    qreal retailPrice {0.0};
-    qreal unitPrice {0.0};
-    QString currency {Settings::DEFAULT_CURRENCY};
+    StockMonies monies;
     Note note;
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     User user;
     int row {-1};
 
@@ -40,9 +39,7 @@ struct StockProduct {
                           double quantity,
                           const StockProductUnit &unit,
                           const RecordGroup::Flags &flags,
-                          qreal costPrice,
-                          qreal retailPrice,
-                          const QString &currency,
+                          const StockMonies &monies,
                           const Note &note);
     explicit StockProduct(int id,
                           const StockProductCategory &category,
@@ -51,16 +48,13 @@ struct StockProduct {
                           const QUrl &imageUrl,
                           const StockProductUnit &unit,
                           const RecordGroup::Flags &flags,
-                          qreal costPrice,
-                          qreal retailPrice,
-                          const QString &currency,
+                          const StockMonies &monies,
                           const Note &note);
     explicit StockProduct(int id,
                           const StockProductCategory &category,
-                          qreal quantity,
+                          double quantity,
                           const StockProductUnit &unit,
-                          qreal retailPrice,
-                          qreal unitPrice,
+                          const StockMonies &monies,
                           const Note &note);
     explicit StockProduct(const QVariantMap &product);
     QVariantMap toVariantMap() const;
@@ -80,9 +74,9 @@ struct StockProduct {
                         << ", quantity=" << product.quantity
                         << ", unit=" << product.unit
                         << ", flags=" << product.flags
-                        << ", costPrice=" << product.costPrice
-                        << ", retailPrice=" << product.retailPrice
-                        << ", unitPrice=" << product.unitPrice
+                        << ", costPrice=" << product.monies.costPrice
+                        << ", retailPrice=" << product.monies.retailPrice
+                        << ", unitPrice=" << product.monies.unitPrice
                         << ", note=" << product.note
                         << ", row=" << product.row
                         << ")";

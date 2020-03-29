@@ -18,7 +18,7 @@ private:
 public:
     enum class State { Clean, Dirty, Fresh, Trash }; Q_ENUM(State)
     int id {-1};
-    qreal totalDebt {0.0};
+    double totalDebt {0.0};
     QDateTime dueDateTime;
     RelatedTransaction relatedTransaction;
     Note note;
@@ -29,11 +29,11 @@ public:
     State state{ State::Clean };
 
     explicit DebtTransaction();
-    explicit DebtTransaction(qreal totalDebt,
+    explicit DebtTransaction(double totalDebt,
                              const QDateTime &dueDateTime,
                              const Note &note);
     explicit DebtTransaction(int id,
-                             qreal totalDebt,
+                             double totalDebt,
                              const QDateTime &dueDateTime,
                              const RelatedTransaction &relatedTransaction,
                              const Note &note,

@@ -14,15 +14,19 @@ SoldProduct::SoldProduct(const QVariantMap &map) :
             map.value("product").toString()
             }),
     quantity(map.value("quantity").toDouble()),
-    unitPrice(map.value("unit_price").toDouble()),
-    cost(map.value("cost").toDouble()),
-    discount(map.value("discount").toDouble()),
+    monies(SaleMonies { QVariantMap {
+            { "unit_price", map.value("unit_price").toDouble() },
+            { "cost", map.value("cost").toDouble() },
+            { "discount", map.value("discount").toDouble() }
+           }}),
     note(Note {
          map.value("note_id").toInt(),
          map.value("note").toString()
          }),
-    created(map.value("created").toDateTime()),
-    lastEdited(map.value("last_edited").toDateTime()),
+    timestamp(RecordTimestamp {
+              map.value("created").toDateTime(),
+              map.value("last_edited").toDateTime()
+              }),
     user(User {
          map.value("user_id", -1).toInt(),
          map.value("user").toString()
@@ -50,9 +54,9 @@ QVariantMap SoldProduct::toVariantMap() const
         { "quantity", quantity },
         { "product_unit_id", product.unit.id },
         { "product_unit", product.unit.unit },
-        { "unit_price", unitPrice },
-        { "cost_price", cost },
-        { "discount", discount },
+        { "unit_price", monies.unitPrice.toDouble() },
+        { "cost_price", monies.cost.toDouble() },
+        { "discount", monies.discount.toDouble() },
         { "note_id", note.id },
         { "note", note.note },
         { "user_id", user.id },

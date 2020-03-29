@@ -6,7 +6,7 @@
 class AmountOverpaidException : public DatabaseException
 {
 public:
-    explicit AmountOverpaidException(qreal amount);
+    explicit AmountOverpaidException(double amount);
     QString toString() const override;
 };
 

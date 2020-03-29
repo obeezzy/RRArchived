@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QUrl>
+#include <QLocale>
 
 class Settings : public QObject
 {
@@ -17,8 +18,9 @@ public:
     bool darkModeActive() const;
     void setDarkModeActive(bool darkModeActive);
 
+    QLocale locale() const;
+
     static QUrl defaultReceiptTemplateUrl();
-    static inline const QString DEFAULT_CURRENCY = QStringLiteral("NGN");
 signals:
     void darkModeActiveChanged();
 private:

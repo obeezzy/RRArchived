@@ -90,7 +90,7 @@ RRUi.DataTableView {
 
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
-                    text: Number(quantity).toLocaleString(Qt.locale(GlobalSettings.localeName)) + " " + unit
+                    text: Number(quantity).toLocaleString(Qt.locale(GlobalSettings.localeName)) + " " + product_unit
                 }
             }
         }

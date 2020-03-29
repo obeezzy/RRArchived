@@ -11,13 +11,13 @@ struct StockProductUnit
     int id {-1};
     QString unit;
     RecordGroup::Flags flags;
-    qreal baseUnitEquivalent {1.0};
+    double baseUnitEquivalent {1.0};
 
     explicit StockProductUnit() = default;
     explicit StockProductUnit(int id,
                               const QString &unit);
     explicit StockProductUnit(const QString &unit,
-                              qreal baseUnitEquivalent);
+                              double baseUnitEquivalent);
 
     friend QDebug operator<<(QDebug debug, const StockProductUnit &unit)
     {

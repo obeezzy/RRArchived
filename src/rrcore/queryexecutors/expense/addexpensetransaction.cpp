@@ -14,9 +14,9 @@ AddExpenseTransaction::AddExpenseTransaction(const Utility::ExpenseTransaction &
     ExpenseExecutor(COMMAND, {
                     { "name", transaction.client.preferredName },
                     { "purpose", transaction.purpose },
-                    { "amount", transaction.amount },
+                    { "amount", transaction.amount.toDouble() },
                     { "payment_method", transaction.paymentMethod.toString() },
-                    { "currency", transaction.currency },
+                    { "currency", transaction.amount.currency().isoCode() },
                     }, receiver)
 {
 
