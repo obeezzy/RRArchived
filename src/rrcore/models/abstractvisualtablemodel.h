@@ -62,7 +62,8 @@ public slots:
     virtual void refresh();
 protected:
     virtual void tryQuery() = 0;
-    virtual void processResult(const QueryResult result) = 0;
+    virtual bool canProcessResult(const QueryResult &result) const = 0;
+    virtual void processResult(const QueryResult &result) = 0;
     virtual QString columnName(int column) const;
     virtual void filter();
     void setBusy(bool);
@@ -92,6 +93,7 @@ private:
     double m_tableViewWidth {0.0};
     QueryRequest m_lastSuccessfulRequest;
 
+    void validateResult(const QueryResult result);
     void saveRequest(const QueryResult &result);
 };
 

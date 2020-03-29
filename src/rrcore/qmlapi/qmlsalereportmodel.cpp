@@ -109,7 +109,13 @@ void QMLSaleReportModel::tryQuery()
                                                this));
 }
 
-void QMLSaleReportModel::processResult(const QueryResult result)
+bool QMLSaleReportModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLSaleReportModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

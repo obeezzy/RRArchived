@@ -23,7 +23,8 @@ public:
     QHash<int, QByteArray> roleNames() const override final;
 protected:
     virtual void tryQuery() override final;
-    virtual void processResult(const QueryResult result) override final;
+    virtual bool canProcessResult(const QueryResult &result) const override final;
+    virtual void processResult(const QueryResult &result) override final;
 private:
     QVariantList m_records;
     QList<AbstractVisualListModel *> m_dataModels;

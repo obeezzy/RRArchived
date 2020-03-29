@@ -28,7 +28,8 @@ public:
     QVariantList privileges() const;
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override;
 private:
     QVariantList m_records;
     QString m_privilegeGroup;

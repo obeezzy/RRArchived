@@ -105,7 +105,13 @@ void QMLExpenseTransactionModel::tryQuery()
                                                            this));
 }
 
-void QMLExpenseTransactionModel::processResult(const QueryResult result)
+bool QMLExpenseTransactionModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLExpenseTransactionModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

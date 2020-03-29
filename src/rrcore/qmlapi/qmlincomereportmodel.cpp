@@ -88,7 +88,13 @@ void QMLIncomeReportModel::tryQuery()
                                                    this));
 }
 
-void QMLIncomeReportModel::processResult(const QueryResult result)
+bool QMLIncomeReportModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLIncomeReportModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

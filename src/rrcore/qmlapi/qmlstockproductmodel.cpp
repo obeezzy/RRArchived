@@ -193,7 +193,13 @@ void QMLStockProductModel::tryQuery()
     }
 }
 
-void QMLStockProductModel::processResult(const QueryResult result)
+bool QMLStockProductModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLStockProductModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

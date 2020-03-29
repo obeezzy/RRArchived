@@ -111,7 +111,13 @@ void SalePaymentModel::tryQuery()
 
 }
 
-void SalePaymentModel::processResult(const QueryResult result)
+bool SalePaymentModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void SalePaymentModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

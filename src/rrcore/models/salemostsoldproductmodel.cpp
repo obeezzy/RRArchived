@@ -79,7 +79,13 @@ void SaleMostSoldProductModel::tryQuery()
 
 }
 
-void SaleMostSoldProductModel::processResult(const QueryResult result)
+bool SaleMostSoldProductModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void SaleMostSoldProductModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

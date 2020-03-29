@@ -105,7 +105,13 @@ void QMLIncomeTransactionModel::tryQuery()
                                                          this));
 }
 
-void QMLIncomeTransactionModel::processResult(const QueryResult result)
+bool QMLIncomeTransactionModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLIncomeTransactionModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

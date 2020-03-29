@@ -330,7 +330,13 @@ void QMLPurchaseCartModel::tryQuery()
     }
 }
 
-void QMLPurchaseCartModel::processResult(const QueryResult result)
+bool QMLPurchaseCartModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLPurchaseCartModel::processResult(const QueryResult &result)
 {
     if (this != result.request().receiver())
         return;

@@ -22,7 +22,8 @@ public:
     QHash<int, QByteArray> roleNames() const override final;
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override final;
 private:
     QVariantList m_records;
 };

@@ -257,7 +257,13 @@ void QMLDebtTransactionModel::tryQuery()
     emit execute(new DebtorQuery::ViewDebtTransactions(m_debtor, this));
 }
 
-void QMLDebtTransactionModel::processResult(const QueryResult result)
+bool QMLDebtTransactionModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLDebtTransactionModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

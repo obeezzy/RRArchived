@@ -51,7 +51,8 @@ public:
                         int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override final;
-    void processResult(const QueryResult result) override final;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
     QString columnName(int column) const override;
 private:
     Utility::SoldProductList m_products;

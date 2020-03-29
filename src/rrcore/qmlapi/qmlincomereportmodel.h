@@ -31,7 +31,8 @@ public:
                         int role = Qt::DisplayRole) const override;
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override final;
+    void processResult(const QueryResult &result) override final;
 private:
     Utility::IncomeReportTransactionList m_transactions;
 };

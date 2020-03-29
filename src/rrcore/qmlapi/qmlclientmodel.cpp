@@ -53,7 +53,13 @@ void QMLClientModel::tryQuery()
     emit execute(new ClientQuery::ViewClients(this));
 }
 
-void QMLClientModel::processResult(const QueryResult result)
+bool QMLClientModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLClientModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

@@ -208,7 +208,13 @@ void QMLDebtPaymentModel::tryQuery()
                                                    this));
 }
 
-void QMLDebtPaymentModel::processResult(const QueryResult result)
+bool QMLDebtPaymentModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLDebtPaymentModel::processResult(const QueryResult &result)
 {
     if (result.request().receiver() != this)
         return;

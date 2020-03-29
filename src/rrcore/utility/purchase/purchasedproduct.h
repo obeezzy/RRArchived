@@ -1,12 +1,13 @@
 #ifndef PURCHASEDPRODUCT_H
 #define PURCHASEDPRODUCT_H
 
-#include "utility/stock/stockproductcategory.h"
-#include "utility/stock/stockproduct.h"
 #include "utility/common/note.h"
 #include "utility/common/recordgroup.h"
-#include "utility/user/user.h"
+#include "utility/common/recordtimestamp.h"
 #include "utility/purchase/purchasetransaction.h"
+#include "utility/stock/stockproduct.h"
+#include "utility/stock/stockproductcategory.h"
+#include "utility/user/user.h"
 #include <QVariantList>
 
 namespace Utility {
@@ -16,13 +17,11 @@ struct PurchasedProduct
     PurchaseTransaction transaction;
     StockProductCategory category;
     StockProduct product;
-    double cost {0.0};
-    double discount {0.0};
-    Note note;
-    QDateTime created;
-    QDateTime lastEdited;
-    User user;
+    PurchaseMonies monies;
     RecordGroup::Flags flags;
+    Note note;
+    RecordTimestamp timestamp;
+    User user;
     int row {-1};
 
     explicit PurchasedProduct() = default;

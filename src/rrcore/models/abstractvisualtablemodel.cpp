@@ -15,7 +15,7 @@ AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObje
     QAbstractTableModel(parent)
 {
     connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
-    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::processResult);
+    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::validateResult);
 
     connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::saveRequest);
 
@@ -160,9 +160,7 @@ void AbstractVisualTableModel::saveRequest(const QueryResult &result)
             && result.request().canUndo()
             && !result.request().isUndoSet()) {
         m_lastSuccessfulRequest = result.request();
-        QVariantMap params{ result.request().params() };
-        params.insert("outcome", result.outcome());
-        m_lastSuccessfulRequest.setParams(params);
+        m_lastSuccessfulRequest.params().insert("outcome", result.outcome());
         qCDebug(lcabstractvisualtablemodel) << "Request saved:" << result.request().command() << this;
     }
 }
@@ -189,6 +187,17 @@ Utility::FilterCriteria AbstractVisualTableModel::filterCriteria() const
 Utility::SortCriteria AbstractVisualTableModel::sortCriteria() const
 {
     return m_sortCriteria;
+}
+
+void AbstractVisualTableModel::validateResult(const QueryResult result)
+{
+    if (canProcessResult(result))
+        processResult(result);
+    else
+        qFatal("Validation failed for %s.\nActual returned keys: %s.\nExpected returned keys: %s",
+               result.request().command().toStdString().c_str(),
+               result.outcome().toMap().keys().join(", ").toStdString().c_str(),
+               result.errorDetails().toStdString().c_str());
 }
 
 void AbstractVisualTableModel::refresh()
