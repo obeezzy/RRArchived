@@ -1,14 +1,12 @@
-#ifndef SALEPAYMENTMODEL_H
-#define SALEPAYMENTMODEL_H
+#ifndef QMLSALEPAYMENTMODEL_H
+#define QMLSALEPAYMENTMODEL_H
 
 #include "models/abstractvisuallistmodel.h"
-#include "utility/saleutils.h"
+#include "utility/sales/salepayment.h"
 
-namespace Utility {
-class SalePayment;
-}
+class DatabaseThread;
 
-class SalePaymentModel : public AbstractVisualListModel
+class QMLSalePaymentModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
@@ -18,8 +16,10 @@ public:
         NoteRole
     }; Q_ENUM(Roles)
 
-    explicit SalePaymentModel(QObject *parent = nullptr);
-    ~SalePaymentModel() override;
+    explicit QMLSalePaymentModel(QObject *parent = nullptr);
+    explicit QMLSalePaymentModel(DatabaseThread &thread,
+                                 QObject *parent = nullptr);
+    ~QMLSalePaymentModel() override = default;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
@@ -31,19 +31,23 @@ public:
 
     int cashPaymentCount() const;
     int cardPaymentCount() const;
-
-    void calculatePaymentCount();
 protected:
     void tryQuery() override;
     bool canProcessResult(const QueryResult &result) const override;
     void processResult(const QueryResult &result) override;
 signals:
+    void totalCostChanged();
+    void amountPaidChanged();
+    void balanceChanged();
+    void totalAmountChanged();
     void cashPaymentCountChanged();
     void cardPaymentCountChanged();
 private:
-    Utility::SalePaymentList m_salePayments;
-    int m_cashPaymentCount;
-    int m_cardPaymentCount;
-}; Q_DECLARE_METATYPE(SalePaymentModel *)
+    Utility::SalePaymentList m_payments;
+    Utility::Money m_totalAmount;
 
-#endif // SALEPAYMENTMODEL_H
+    void setTotalAmount(double totalAmount);
+    void calculateTotalAmount();
+};
+
+#endif // QMLSALEPAYMENTMODEL_H

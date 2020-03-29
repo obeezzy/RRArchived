@@ -2,6 +2,9 @@
 #include <QFileInfo>
 #include <QDebug>
 
+const int CASH_PAYMENT_LIMIT = 1;
+const int CARD_PAYMENT_LIMIT = 2;
+
 Settings::Settings(QObject *parent) :
     QObject(parent),
     m_darkModeActive(m_settings.value("appearance/theme").toString() == "dark")
@@ -29,6 +32,16 @@ void Settings::setDarkModeActive(bool darkModeActive)
     m_settings.setValue("appearance/theme", darkModeActive ? "dark" : "light");
 
     emit darkModeActiveChanged();
+}
+
+int Settings::cashPaymentLimit() const
+{
+    return CASH_PAYMENT_LIMIT;
+}
+
+int Settings::cardPaymentLimit() const
+{
+    return CARD_PAYMENT_LIMIT;
 }
 
 QLocale Settings::locale() const

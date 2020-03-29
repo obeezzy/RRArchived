@@ -12,6 +12,9 @@ struct Vendor {
     explicit Vendor(const Client &client);
     explicit Vendor(int id,
                     const Client &client);
+
+    explicit Vendor(const QVariantMap &map);
+    QVariantMap toVariantMap() const;
 };
 }
 Q_DECLARE_TYPEINFO(Utility::Vendor, Q_PRIMITIVE_TYPE);

@@ -18,6 +18,9 @@ public:
     bool darkModeActive() const;
     void setDarkModeActive(bool darkModeActive);
 
+    int cashPaymentLimit() const;
+    int cardPaymentLimit() const;
+
     QLocale locale() const;
 
     static QUrl defaultReceiptTemplateUrl();

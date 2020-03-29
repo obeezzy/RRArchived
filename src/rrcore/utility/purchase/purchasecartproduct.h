@@ -2,10 +2,11 @@
 #define PURCHASECARTPRODUCT_H
 
 #include "purchasemonies.h"
-#include "utility/stock/stockproductquantity.h"
+#include "utility/common/money.h"
 #include "utility/common/note.h"
 #include "utility/common/recordtimestamp.h"
 #include "utility/stock/stockproductcategory.h"
+#include "utility/stock/stockproductquantity.h"
 #include "utility/stock/stockproductunit.h"
 #include "utility/user/user.h"
 #include "singletons/settings.h"

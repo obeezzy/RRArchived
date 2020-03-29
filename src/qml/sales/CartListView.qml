@@ -29,7 +29,7 @@ ListView {
     function clearAll() { cartListView.model.clearAll(); }
     function updateProduct(productId, product) { cartListView.model.updateProduct(productId, product); }
     function addPayment(amount, method) { cartListView.model.addPayment(amount, method); }
-    function clearPayments() { cartListView.model.clearPayments(); }
+    function clearPayments() { console.warn("Missing implementation in sales/CartListView"); }
 
     spacing: 10
     clip: true

@@ -4,9 +4,8 @@
 #include "utility/common/money.h"
 #include "utility/common/note.h"
 #include "utility/common/paymentmethod.h"
-#include "singletons/settings.h"
-#include <QString>
 #include <QList>
+#include <QString>
 
 namespace Utility {
 struct PurchasePayment {
@@ -24,12 +23,15 @@ struct PurchasePayment {
 
 class PurchasePaymentList : public QList<PurchasePayment> {
 public:
-    QVariantList toVariantList() const {
+    inline QVariantList toVariantList() const {
         QVariantList list;
         for (const auto &payment : *this)
             list.append(payment.toVariantMap());
         return list;
     }
+
+    int count(const PaymentMethod &method = PaymentMethod()) const;
+    Money total() const;
 };
 }
 Q_DECLARE_TYPEINFO(Utility::PurchasePayment, Q_PRIMITIVE_TYPE);

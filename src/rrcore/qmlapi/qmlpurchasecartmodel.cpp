@@ -1,14 +1,10 @@
 #include "qmlpurchasecartmodel.h"
 #include "database/databasethread.h"
-#include "models/purchasepaymentmodel.h"
 #include "queryexecutors/purchase.h"
 #include "utility/purchaseutils.h"
-#include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
-
-const int CASH_PAYMENT_LIMIT = 1;
-const int CARD_PAYMENT_LIMIT = 2;
 
 QMLPurchaseCartModel::QMLPurchaseCartModel(QObject *parent) :
     AbstractVisualListModel(DatabaseThread::instance(), parent)
@@ -17,12 +13,6 @@ QMLPurchaseCartModel::QMLPurchaseCartModel(QObject *parent) :
 QMLPurchaseCartModel::QMLPurchaseCartModel(DatabaseThread &thread, QObject *parent) :
     AbstractVisualListModel(thread, parent)
 {
-    m_paymentModel = new PurchasePaymentModel(this);
-
-    connect(m_paymentModel, &PurchasePaymentModel::cashPaymentCountChanged,
-            this, &QMLPurchaseCartModel::updateCanAcceptCash);
-    connect(m_paymentModel, &PurchasePaymentModel::cardPaymentCountChanged,
-            this, &QMLPurchaseCartModel::updateCanAcceptCard);
     connect(this, &QMLPurchaseCartModel::transactionIdChanged,
             this, &QMLPurchaseCartModel::tryQuery);
 }
@@ -130,9 +120,9 @@ void QMLPurchaseCartModel::setCustomerPhoneNumber(const QString &customerPhoneNu
     emit customerPhoneNumberChanged();
 }
 
-int QMLPurchaseCartModel::clientId() const
+int QMLPurchaseCartModel::vendorId() const
 {
-    return m_transaction.vendor.client.id;
+    return m_transaction.vendor.id;
 }
 
 QString QMLPurchaseCartModel::note() const
@@ -163,40 +153,6 @@ void QMLPurchaseCartModel::setTotalCost(double totalCost)
     emit totalCostChanged();
 }
 
-double QMLPurchaseCartModel::amountPaid() const
-{
-    return m_transaction.monies.amountPaid.toDouble();
-}
-
-double QMLPurchaseCartModel::balance() const
-{
-    return m_transaction.monies.balance.toDouble();
-}
-
-bool QMLPurchaseCartModel::canAcceptCash() const
-{
-    return m_transaction.flags.testFlag(Utility::RecordGroup::AcceptsCash);
-}
-
-bool QMLPurchaseCartModel::canAcceptCard() const
-{
-    return m_transaction.flags.testFlag(Utility::RecordGroup::AcceptsCard);
-}
-
-PurchasePaymentModel *QMLPurchaseCartModel::paymentModel() const
-{
-    return m_paymentModel;
-}
-
-void QMLPurchaseCartModel::setAmountPaid(double amountPaid)
-{
-    if (m_transaction.monies.amountPaid == Utility::Money(amountPaid))
-        return;
-
-    m_transaction.monies.amountPaid = Utility::Money(amountPaid);
-    emit amountPaidChanged();
-}
-
 void QMLPurchaseCartModel::setBalance(double balance)
 {
     if (m_transaction.monies.balance == Utility::Money(balance))
@@ -206,38 +162,9 @@ void QMLPurchaseCartModel::setBalance(double balance)
     emit balanceChanged();
 }
 
-Utility::PurchasePaymentList QMLPurchaseCartModel::payments() const
+double QMLPurchaseCartModel::balance() const
 {
-    return m_transaction.payments;
-}
-
-void QMLPurchaseCartModel::addPayment(double amount,
-                                      PaymentMethod method,
-                                      const QString &note)
-{
-    if (amount <= 0.0)
-        return;
-
-    Utility::PurchasePayment payment {
-        Utility::Money{ amount },
-        static_cast<Utility::PaymentMethod>(method),
-                Utility::Note{ note }
-    };
-    m_paymentModel->addPayment(payment);
-    m_transaction.payments.append(payment);
-
-    calculateAmountPaid();
-}
-
-void QMLPurchaseCartModel::removePayment(int index)
-{
-    if (index <= -1 || index >= m_transaction.payments.count())
-        return;
-
-    m_paymentModel->removePayment(index);
-    m_transaction.payments.removeAt(index);
-
-    calculateAmountPaid();
+    return m_transaction.monies.balance.toDouble();
 }
 
 void QMLPurchaseCartModel::submitTransaction(const QVariantMap &addOns)
@@ -256,15 +183,6 @@ void QMLPurchaseCartModel::suspendTransaction(const QVariantMap &params)
                           { "note", params.value("note") } });
     else
         updateSuspendedTransaction({ { "note", params.value("note") } });
-}
-
-void QMLPurchaseCartModel::clearPayments()
-{
-    if (!m_transaction.payments.isEmpty()) {
-        m_paymentModel->clearPayments();
-        m_transaction.payments.clear();
-        calculateAmountPaid();
-    }
 }
 
 void QMLPurchaseCartModel::clearAll()
@@ -324,8 +242,7 @@ void QMLPurchaseCartModel::tryQuery()
         setCustomerName(QString());
         setCustomerPhoneNumber(QString());
         m_transaction.products.clear();
-        m_transaction.payments.clear();
-        calculateTotal();
+        calculateTotalCost();
         endResetModel();
     }
 }
@@ -349,40 +266,38 @@ void QMLPurchaseCartModel::processResult(const QueryResult &result)
     if (result.isSuccessful()) {
         beginResetModel();
 
-        clearPayments();
         m_transaction.products = Utility::PurchaseCartProductList{ result.outcome().toMap().value("products").toList() };
-        calculateTotal();
-
+        calculateTotalCost();
         endResetModel();
 
         if (result.request().command() == PurchaseQuery::AddPurchaseTransaction::COMMAND) {
             if (result.request().params().value("suspended").toBool()) {
-                const Utility::Client &client{ result.outcome().toMap() };
+                const Utility::Vendor &vendor{ result.outcome().toMap() };
                 setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
-                setClientId(client.id);
+                setVendorId(vendor.id);
                 emit success(ModelResult{ SuspendTransactionSuccess });
             } else {
-                const Utility::Client &client{ result.outcome().toMap() };
+                const Utility::Vendor &vendor{ result.outcome().toMap() };
                 setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
-                setClientId(client.id);
+                setVendorId(vendor.id);
                 emit success(ModelResult{ SubmitTransactionSuccess });
             }
         } else if (result.request().command() == PurchaseQuery::ViewPurchaseCart::COMMAND) {
-            const Utility::Client &client{ result.outcome().toMap() };
-            setClientId(client.id);
-            setCustomerName(client.preferredName);
-            setCustomerPhoneNumber(client.phoneNumber);
+            const Utility::Vendor &vendor{ result.outcome().toMap() };
+            setVendorId(vendor.client.id);
+            setCustomerName(vendor.client.preferredName);
+            setCustomerPhoneNumber(vendor.client.phoneNumber);
             emit success(ModelResult{ RetrieveTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::UpdateSuspendedPurchaseTransaction::COMMAND) {
-            const Utility::Client &client{ result.outcome().toMap() };
+            const Utility::Vendor &vendor{ result.outcome().toMap() };
             setTransactionId(0);
-            setClientId(client.id);
-            setCustomerName(client.preferredName);
-            setCustomerPhoneNumber(client.phoneNumber);
+            setVendorId(vendor.id);
+            setCustomerName(vendor.client.preferredName);
+            setCustomerPhoneNumber(vendor.client.phoneNumber);
             emit success(ModelResult{ SuspendTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::AddPurchaseTransaction::UNDO_COMMAND) {
             emit success(ModelResult{ UndoSubmitTransactionSuccess });
@@ -434,7 +349,7 @@ void QMLPurchaseCartModel::addProduct(const QVariantMap &product)
         emit dataChanged(index(row), index(row));
     }
 
-    calculateTotal();
+    calculateTotalCost();
 }
 
 void QMLPurchaseCartModel::updateProduct(int productId,
@@ -453,16 +368,16 @@ void QMLPurchaseCartModel::updateProduct(int productId,
     const Utility::Money &newUnitPrice = newProduct.monies.unitPrice;
     const Utility::Money &newCost = newProduct.monies.cost;
 
-    if (product.contains("quantity"))
-        existingProduct.quantity = newQuantity;
-    if (product.contains("cost"))
-        existingProduct.monies.cost = newCost;
-    if (product.contains("unit_price"))
-        existingProduct.monies.unitPrice = newUnitPrice;
-
     if (oldQuantity != newQuantity || oldUnitPrice != newUnitPrice || oldCost != newCost) {
+        if (product.contains("quantity"))
+            existingProduct.quantity = newQuantity;
+        if (product.contains("cost"))
+            existingProduct.monies.cost = newCost;
+        if (product.contains("unit_price"))
+            existingProduct.monies.unitPrice = newUnitPrice;
+
         emit dataChanged(index(row), index(row));
-        calculateTotal();
+        calculateTotalCost();
     }
 }
 
@@ -482,25 +397,7 @@ void QMLPurchaseCartModel::setProductQuantity(int productId,
         existingProduct.monies.cost = Utility::Money{ quantity * unitPrice.toDouble() };
 
         emit dataChanged(index(row), index(row));
-        calculateTotal();
-    }
-}
-
-void QMLPurchaseCartModel::updateCanAcceptCash()
-{
-    const bool canAcceptCash = m_paymentModel->cashPaymentCount() < CASH_PAYMENT_LIMIT;
-    if (m_transaction.flags.testFlag(Utility::RecordGroup::AcceptsCash) != canAcceptCash) {
-        m_transaction.flags.setFlag(Utility::RecordGroup::AcceptsCash, canAcceptCash);
-        emit canAcceptCashChanged();
-    }
-}
-
-void QMLPurchaseCartModel::updateCanAcceptCard()
-{
-    const bool canAcceptCard = m_paymentModel->cardPaymentCount() < CARD_PAYMENT_LIMIT;
-    if (m_transaction.flags.testFlag(Utility::RecordGroup::AcceptsCard) != canAcceptCard) {
-        m_transaction.flags.setFlag(Utility::RecordGroup::AcceptsCard, canAcceptCard);
-        emit canAcceptCardChanged();
+        calculateTotalCost();
     }
 }
 
@@ -511,36 +408,22 @@ void QMLPurchaseCartModel::removeProduct(int productId)
     m_transaction.products.removeAt(row);
     endRemoveRows();
 
-    calculateTotal();
+    calculateTotalCost();
 }
 
-void QMLPurchaseCartModel::calculateTotal()
+void QMLPurchaseCartModel::calculateTotalCost()
 {
     Utility::Money totalCost;
     for (const auto &product : m_transaction.products)
         totalCost += product.monies.cost;
     setTotalCost(totalCost.toDouble());
-
-    const Utility::Money balance {totalCost - m_transaction.monies.amountPaid};
-    setBalance(balance.toDouble());
 }
 
-void QMLPurchaseCartModel::calculateAmountPaid()
+void QMLPurchaseCartModel::setVendorId(int vendorId)
 {
-    Utility::Money amountPaid;
-    for (const auto &payment : m_transaction.payments)
-        amountPaid += payment.amount;
-    setAmountPaid(amountPaid.toDouble());
-
-    const Utility::Money balance {m_transaction.monies.totalCost - amountPaid};
-    setBalance(balance.toDouble());
-}
-
-void QMLPurchaseCartModel::setClientId(int clientId)
-{
-    if (m_transaction.vendor.client.id == clientId)
+    if (m_transaction.vendor.id == vendorId)
         return;
 
-    m_transaction.vendor.client.id = clientId;
-    emit clientIdChanged();
+    m_transaction.vendor.id = vendorId;
+    emit vendorIdChanged();
 }

@@ -2,7 +2,6 @@
 #include "user/userprofile.h"
 #include "user/businessdetails.h"
 #include "singletons/settings.h"
-#include "models/receiptcartmodel.h"
 #include <QVariantMap>
 #include <QQuickItem>
 #include <QQmlComponent>
@@ -73,6 +72,7 @@ void QMLReceiptPrinter::print(const QString &job)
 
 QQuickItem *QMLReceiptPrinter::createReceipt(const QString &job)
 {
+    Q_UNUSED(job)
     QSettings settings;
     QQmlComponent component(qmlEngine(this), settings.value("settings/receipt/template",
                                                             Settings::instance().defaultReceiptTemplateUrl()).toUrl());
@@ -91,9 +91,6 @@ QQuickItem *QMLReceiptPrinter::createReceipt(const QString &job)
     receiptTemplate->setParentItem(rootItem->contentItem());
     receiptTemplate->setVisible(false);
 
-    ReceiptCartModel model(this);
-    model.setRecords(job);
-
     //QQmlProperty::write(receiptTemplate, "businessLogoUrl", UserProfile::instance().businessDetails()->logoUrl());
     QQmlProperty::write(receiptTemplate, "businessName", UserProfile::instance().businessDetails()->name());
     QQmlProperty::write(receiptTemplate, "businessAddress", UserProfile::instance().businessDetails()->address());
@@ -109,7 +106,6 @@ QQuickItem *QMLReceiptPrinter::createReceipt(const QString &job)
     QQmlProperty::write(receiptTemplate, "receiptNumber", 1 /* Generate receipt number */);
     QQmlProperty::write(receiptTemplate, "date", QDateTime::currentDateTime());
     QQmlProperty::write(receiptTemplate, "cashier", UserProfile::instance().userName());
-    QQmlProperty::write(receiptTemplate, "paymentType", model.paymentType());
     //QQmlProperty::write(receiptTemplate, "model", QVariant::fromValue(model));
 
     return receiptTemplate;

@@ -1,15 +1,17 @@
-#include "salemostsoldproductmodel.h"
+#include "qmlmostsoldproductmodel.h"
+#include "database/databasethread.h"
 #include <QDebug>
 
-SaleMostSoldProductModel::SaleMostSoldProductModel(const QVariantList &records,
-                                                   QObject *parent) :
-    AbstractVisualListModel(parent),
-    m_records(records)
-{
+QMLMostSoldProductModel::QMLMostSoldProductModel(QObject *parent) :
+    QMLMostSoldProductModel(DatabaseThread::instance(), parent)
+{}
 
-}
+QMLMostSoldProductModel::QMLMostSoldProductModel(DatabaseThread &thread,
+                                                 QObject *parent) :
+    AbstractVisualListModel(thread, parent)
+{}
 
-int SaleMostSoldProductModel::rowCount(const QModelIndex &parent) const
+int QMLMostSoldProductModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -17,7 +19,7 @@ int SaleMostSoldProductModel::rowCount(const QModelIndex &parent) const
     return m_records.count();
 }
 
-int SaleMostSoldProductModel::columnCount(const QModelIndex &parent) const
+int QMLMostSoldProductModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -25,7 +27,7 @@ int SaleMostSoldProductModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-QVariant SaleMostSoldProductModel::data(const QModelIndex &index, int role) const
+QVariant QMLMostSoldProductModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -59,7 +61,7 @@ QVariant SaleMostSoldProductModel::data(const QModelIndex &index, int role) cons
     return QVariant();
 }
 
-QHash<int, QByteArray> SaleMostSoldProductModel::roleNames() const
+QHash<int, QByteArray> QMLMostSoldProductModel::roleNames() const
 {
     QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
     roles.insert(CategoryIdRole, "category_id");
@@ -74,18 +76,18 @@ QHash<int, QByteArray> SaleMostSoldProductModel::roleNames() const
     return roles;
 }
 
-void SaleMostSoldProductModel::tryQuery()
+void QMLMostSoldProductModel::tryQuery()
 {
 
 }
 
-bool SaleMostSoldProductModel::canProcessResult(const QueryResult &result) const
+bool QMLMostSoldProductModel::canProcessResult(const QueryResult &result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void SaleMostSoldProductModel::processResult(const QueryResult &result)
+void QMLMostSoldProductModel::processResult(const QueryResult &result)
 {
     Q_UNUSED(result)
 }

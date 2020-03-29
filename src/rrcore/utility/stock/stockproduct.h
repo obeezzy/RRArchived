@@ -1,17 +1,17 @@
 #ifndef STOCKPRODUCT_H
 #define STOCKPRODUCT_H
 
-#include "stockproductcategory.h"
-#include "stockproductunit.h"
-#include "stockproductquantity.h"
 #include "stockmonies.h"
-#include "utility/common/note.h"
+#include "stockproductcategory.h"
+#include "stockproductquantity.h"
+#include "stockproductunit.h"
+#include "singletons/settings.h"
 #include "utility/common/money.h"
+#include "utility/common/note.h"
 #include "utility/common/recordtimestamp.h"
 #include "utility/user/user.h"
-#include "singletons/settings.h"
-#include <QVariantList>
 #include <QDateTime>
+#include <QVariantList>
 
 namespace Utility {
 struct StockProduct {

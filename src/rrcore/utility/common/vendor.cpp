@@ -11,3 +11,8 @@ Vendor::Vendor(int id,
     id(id),
     client(client)
 {}
+
+Vendor::Vendor(const QVariantMap &map) :
+    id(map.value("vendor_id").toInt()),
+    client(Client{ map })
+{}

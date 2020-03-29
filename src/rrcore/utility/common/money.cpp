@@ -68,10 +68,6 @@ Money &Money::operator=(const Money &other)
     return *this;
 }
 
-Money::~Money()
-{
-}
-
 Money Money::operator+(const Money &other) const
 {
     const BigDecimal &a = m_value;

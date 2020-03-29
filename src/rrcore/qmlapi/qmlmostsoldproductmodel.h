@@ -1,20 +1,29 @@
-#ifndef SALETOTALREVENUEMODEL_H
-#define SALETOTALREVENUEMODEL_H
+#ifndef QMLMOSTSOLDPRODUCTMODEL_H
+#define QMLMOSTSOLDPRODUCTMODEL_H
 
-#include <QObject>
-#include <QVariantList>
 #include "models/abstractvisuallistmodel.h"
+#include <QVariantList>
 
-class SaleTotalRevenueModel : public AbstractVisualListModel
+class DatabaseThread;
+
+class QMLMostSoldProductModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
     enum Roles {
-        CreatedRole = Qt::UserRole,
-        AmountPaidRole
+        CategoryIdRole = Qt::UserRole,
+        CategoryRole,
+        ProductIdRole,
+        ProductRole,
+        TotalRevenueRole,
+        TotalQuantityRole,
+        UnitIdRole,
+        UnitRole
     };
 
-    explicit SaleTotalRevenueModel(const QVariantList &records, QObject *parent = nullptr);
+    explicit QMLMostSoldProductModel(QObject *parent = nullptr);
+    explicit QMLMostSoldProductModel(DatabaseThread &thread, QObject *parent = nullptr);
+    ~QMLMostSoldProductModel() override = default;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override final;
@@ -28,4 +37,4 @@ private:
     QVariantList m_records;
 };
 
-#endif // SALETOTALREVENUEMODEL_H
+#endif // QMLMOSTSOLDPRODUCTMODEL_H

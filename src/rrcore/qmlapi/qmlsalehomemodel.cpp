@@ -3,8 +3,6 @@
 #include "database/queryresult.h"
 #include "database/databasethread.h"
 #include "utility/saleutils.h"
-#include "models/saletotalrevenuemodel.h"
-#include "models/salemostsoldproductmodel.h"
 #include "queryexecutors/sales.h"
 
 QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
@@ -78,11 +76,9 @@ void QMLSaleHomeModel::processResult(const QueryResult &result)
             const QVariantMap record = r.toMap();
 
             if (record.value("data_type").toString() == "total_revenue") {
-                SaleTotalRevenueModel *model = new SaleTotalRevenueModel(record.value("data_model").toList(), this);
-                m_dataModels.append(model);
+                // Missing implementation
             } else if (record.value("data_type").toString() == "most_sold_products") {
-                SaleMostSoldProductModel *model = new SaleMostSoldProductModel(record.value("data_model").toList(), this);
-                m_dataModels.append(model);
+                // Missing implementation
             }
         }
 
