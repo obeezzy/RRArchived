@@ -152,7 +152,7 @@ QVariant QMLSaleTransactionItemModel::headerData(int section, Qt::Orientation or
 
 void QMLSaleTransactionItemModel::tryQuery()
 {
-    if (transactionId() <= -1)
+    if (transactionId() <= 0)
         return;
 
     setBusy(true);

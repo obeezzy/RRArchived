@@ -31,7 +31,7 @@ RRUi.Page {
         property var filterModel: ["Search by product name", "Search by category name"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
 
-        property int transactionId: -1
+        property int transactionId: 0
     }
 
     actions: [

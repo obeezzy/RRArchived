@@ -21,7 +21,7 @@ struct SoldProduct
 
     explicit SoldProduct() = default;
     explicit SoldProduct(const QVariantMap &map);
-    explicit SoldProduct(qint64 saleTransactionId);
+    explicit SoldProduct(int saleTransactionId);
 
     QVariantMap toVariantMap() const;
 

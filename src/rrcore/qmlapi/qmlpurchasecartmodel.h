@@ -10,7 +10,7 @@ class PurchasePaymentModel;
 class QMLPurchaseCartModel : public AbstractVisualListModel
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 transactionId READ transactionId WRITE setTransactionId NOTIFY transactionIdChanged)
+    Q_PROPERTY(int transactionId READ transactionId WRITE setTransactionId NOTIFY transactionIdChanged)
     Q_PROPERTY(QString customerName READ customerName WRITE setCustomerName NOTIFY customerNameChanged)
     Q_PROPERTY(QString customerPhoneNumber READ customerPhoneNumber WRITE setCustomerPhoneNumber NOTIFY customerPhoneNumberChanged)
     Q_PROPERTY(int clientId READ clientId NOTIFY clientIdChanged)
@@ -69,8 +69,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 
-    qint64 transactionId() const;
-    void setTransactionId(qint64 transactionId);
+    int transactionId() const;
+    void setTransactionId(int transactionId);
 
     QString customerName() const;
     void setCustomerName(const QString &customerName);

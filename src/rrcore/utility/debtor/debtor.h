@@ -1,23 +1,22 @@
 #ifndef DEBTOR_H
 #define DEBTOR_H
 
-#include "utility/commonutils.h"
 #include "debttransaction.h"
+#include "utility/commonutils.h"
 #include "utility/user/user.h"
+#include <QDebug>
 #include <QString>
 #include <QUrl>
-#include <QDebug>
 
 namespace Utility {
 struct Debtor
 {
-    int id {-1};
+    int id {0};
     Client client;
-    double totalDebt {0.0};
+    Money totalDebt;
     DebtTransactionList transactions;
     Note note;
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     User user;
     int row {-1};
 
@@ -26,13 +25,11 @@ struct Debtor
     explicit Debtor(int id);
     explicit Debtor(const Client &client,
                     const DebtTransactionList &transactions,
-                    const Note &note);
+                    const Note &note = Note());
     explicit Debtor(int id,
                     const Client &client,
                     const DebtTransactionList &transactions,
-                    const Note &note);
-    explicit Debtor(int id,
-                    int row);
+                    const Note &note = Note());
 
     QVariantMap toVariantMap() const;
 

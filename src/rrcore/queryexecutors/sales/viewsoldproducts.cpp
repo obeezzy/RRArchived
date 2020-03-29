@@ -6,7 +6,7 @@
 
 using namespace SaleQuery;
 
-ViewSoldProducts::ViewSoldProducts(qint64 transactionId,
+ViewSoldProducts::ViewSoldProducts(int transactionId,
                                    QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "transaction_id", transactionId },

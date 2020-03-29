@@ -88,12 +88,12 @@ QHash<int, QByteArray> QMLPurchaseCartModel::roleNames() const
     };
 }
 
-qint64 QMLPurchaseCartModel::transactionId() const
+int QMLPurchaseCartModel::transactionId() const
 {
     return m_transaction.id;
 }
 
-void QMLPurchaseCartModel::setTransactionId(qint64 transactionId)
+void QMLPurchaseCartModel::setTransactionId(int transactionId)
 {
     if (m_transaction.id == transactionId)
         return;
@@ -250,7 +250,7 @@ void QMLPurchaseCartModel::submitTransaction(const QVariantMap &addOns)
 
 void QMLPurchaseCartModel::suspendTransaction(const QVariantMap &params)
 {
-    if (m_transaction.id == -1)
+    if (!m_transaction.id)
         addTransaction( { { "suspended", true },
                           { "action", "suspend" },
                           { "note", params.value("note") } });
@@ -270,7 +270,7 @@ void QMLPurchaseCartModel::clearPayments()
 void QMLPurchaseCartModel::clearAll()
 {
     beginResetModel();
-    setTransactionId(-1);
+    setTransactionId(0);
     setCustomerName(QString());
     setCustomerPhoneNumber(QString());
     m_transaction.payments.clear();
@@ -316,7 +316,7 @@ void QMLPurchaseCartModel::updateSuspendedTransaction(const QVariantMap &transac
 
 void QMLPurchaseCartModel::tryQuery()
 {
-    if (m_transaction.id > -1) {
+    if (m_transaction.id > 0) {
         setBusy(true);
         emit execute(new PurchaseQuery::ViewPurchaseCart(m_transaction.id, this));
     } else {
@@ -352,14 +352,14 @@ void QMLPurchaseCartModel::processResult(const QueryResult result)
         if (result.request().command() == PurchaseQuery::AddPurchaseTransaction::COMMAND) {
             if (result.request().params().value("suspended").toBool()) {
                 const Utility::Client &client{ result.outcome().toMap() };
-                setTransactionId(-1);
+                setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(client.id);
                 emit success(ModelResult{ SuspendTransactionSuccess });
             } else {
                 const Utility::Client &client{ result.outcome().toMap() };
-                setTransactionId(-1);
+                setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setClientId(client.id);
@@ -373,7 +373,7 @@ void QMLPurchaseCartModel::processResult(const QueryResult result)
             emit success(ModelResult{ RetrieveTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::UpdateSuspendedPurchaseTransaction::COMMAND) {
             const Utility::Client &client{ result.outcome().toMap() };
-            setTransactionId(-1);
+            setTransactionId(0);
             setClientId(client.id);
             setCustomerName(client.preferredName);
             setCustomerPhoneNumber(client.phoneNumber);

@@ -4,7 +4,7 @@ import "../singletons"
 
 ListModel {
     id: productDetailModel
-    property int productId: -1
+    property int productId: 0
     readonly property var record: RRModels.StockProductDetailRecord {
         id: stockProductDetailRecord
         productId: productDetailModel.productId

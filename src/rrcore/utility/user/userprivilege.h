@@ -7,8 +7,8 @@
 namespace Utility {
 struct UserPrivilege
 {
-    int id {-1};
-    int userId {-1};
+    int id {0};
+    int userId {0};
 
     explicit UserPrivilege() = default;
     explicit UserPrivilege(int userId);

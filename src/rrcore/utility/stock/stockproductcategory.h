@@ -8,7 +8,7 @@
 namespace Utility {
 struct StockProductCategory
 {
-    int id {-1};
+    int id {0};
     QString category;
     Note note;
     int row {-1};

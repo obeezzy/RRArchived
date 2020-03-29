@@ -28,7 +28,7 @@ PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
     flags.setFlag(RecordGroup::Archived, transaction.value("archived").toBool());
 }
 
-PurchaseTransaction::PurchaseTransaction(qint64 id,
+PurchaseTransaction::PurchaseTransaction(int id,
                                          const Vendor &vendor,
                                          const PurchaseMonies &monies,
                                          const PurchaseCartProductList &products,
@@ -48,7 +48,7 @@ PurchaseTransaction::PurchaseTransaction(qint64 id,
     note(note)
 {}
 
-PurchaseTransaction::PurchaseTransaction(qint64 id,
+PurchaseTransaction::PurchaseTransaction(int id,
                                          const Vendor &vendor,
                                          const PurchaseMonies &monies,
                                          const PurchaseCartProductList &products,

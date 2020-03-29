@@ -8,7 +8,7 @@
 namespace Utility {
 struct StockProductUnit
 {
-    int id {-1};
+    int id {0};
     QString unit;
     RecordGroup::Flags flags;
     double baseUnitEquivalent {1.0};

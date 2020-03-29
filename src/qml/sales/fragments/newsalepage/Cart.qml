@@ -19,7 +19,7 @@ RRUi.Card {
     readonly property real totalCost: cartListView.totalCost
 
     property string customerName: ""
-    property int transactionId: -1
+    property int transactionId: 0
 
     signal success(var result)
     signal error(var result)
@@ -34,7 +34,7 @@ RRUi.Card {
 
     function clearAll() {
         cartListView.clearAll();
-        transactionId = -1;
+        transactionId = 0;
     }
 
 

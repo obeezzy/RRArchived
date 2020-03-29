@@ -50,7 +50,7 @@ QHash<int, QByteArray> QMLUserPrivilegeModel::roleNames() const
 
 bool QMLUserPrivilegeModel::isExistingUser() const
 {
-    return m_userId > -1;
+    return m_userId > 0;
 }
 
 int QMLUserPrivilegeModel::userId() const
@@ -183,17 +183,17 @@ void QMLUserPrivilegeModel::setPrivilegeValue(int groupIndex, int privilegeIndex
 
 bool QMLUserPrivilegeModel::submit()
 {
-    if (m_userName.trimmed().isEmpty() && m_userId == -1) {
+    if (m_userName.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoUserNameSetError });
-    } else if (m_firstName.trimmed().isEmpty() && m_userId == -1) {
+    } else if (m_firstName.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoFirstNameSetError });
-    } else if (m_lastName.trimmed().isEmpty() && m_userId == -1) {
+    } else if (m_lastName.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoLastNameSetError });
-    } else if (m_password.trimmed().isEmpty() && m_userId == -1) {
+    } else if (m_password.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoPasswordSetError });
-    } else if (m_phoneNumber.trimmed().isEmpty() && m_userId == -1) {
+    } else if (m_phoneNumber.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoPhoneNumberSetError });
-    } else if (m_emailAddress.trimmed().isEmpty() && m_userId == -1) {
+    } else if (m_emailAddress.trimmed().isEmpty() && !isExistingUser()) {
         emit error(ModelResult{ NoEmailAddressSetError });
     } else {
         QVariantMap groups;

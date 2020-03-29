@@ -7,7 +7,7 @@
 
 namespace Utility {
 struct Note {
-    int id {-1};
+    int id {0};
     QString note;
 
     explicit Note() = default;

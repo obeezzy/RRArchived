@@ -1,15 +1,15 @@
 #ifndef USER_H
 #define USER_H
 
-#include "utility/commonutils.h"
 #include "userprivilege.h"
+#include "utility/commonutils.h"
+#include <QDateTime>
 #include <QString>
 #include <QUrl>
-#include <QDateTime>
 
 namespace Utility {
 struct User {
-    int id {-1};
+    int id {0};
     QString user;
     QString password;
     QString firstName;
@@ -19,12 +19,11 @@ struct User {
     QString emailAddress;
     QString preset;
     UserPrivilegeList privileges;
-    Note note;
     RecordGroup::Flags flags; // Active, Archived
-    QDateTime created;
-    QDateTime lastEdited;
+    Note note;
+    RecordTimestamp timestamp;
     QByteArray accessToken;
-    int userId {-1};
+    int userId {0};
     int row {-1};
 
     explicit User() = default;
@@ -40,8 +39,8 @@ struct User {
                   const QUrl &imageUrl,
                   const QString &phoneNumber,
                   const QString &emailAddress,
-                  const Note &note,
-                  const RecordGroup::Flags &flags);
+                  const RecordGroup::Flags &flags,
+                  const Note &note = Note());
     explicit User(const QString &firstName,
                   const QString &lastName,
                   const QString &user,

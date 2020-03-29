@@ -73,7 +73,6 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
     };
     auto databaseWillReturn = [this](const QVariantList &products) {
         m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
         m_result.setOutcome(QVariantMap { { "products", products } });
     };
 
@@ -86,7 +85,7 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 0);
 
-    QCOMPARE(m_saleTransactionItemModel->transactionId(), -1);
+    QCOMPARE(m_saleTransactionItemModel->transactionId(), 0);
     QCOMPARE(m_saleTransactionItemModel->rowCount(), 0);
 
     databaseWillReturn(products);

@@ -12,7 +12,7 @@ ListView {
     property Component buttonRow: null
     property string filterText: ""
     property int filterColumn: -1
-    property int debtorId: -1
+    property int debtorId: 0
 
     property string preferredName: ""
     property string phoneNumber: ""

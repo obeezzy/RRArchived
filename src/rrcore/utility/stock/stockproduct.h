@@ -14,7 +14,7 @@
 
 namespace Utility {
 struct StockProduct {
-    int id {-1};
+    int id {0};
     StockProductCategory category;
     QString product;
     QString description;

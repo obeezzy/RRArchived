@@ -13,10 +13,12 @@ public:
 
     int transactionId() const;
     void setTransactionId(int transactionId);
+
+    bool isExistingTransaction() const;
 signals:
     void transactionIdChanged();
 private:
-    int m_transactionId;
+    int m_transactionId {0};
 };
 
 #endif // ABSTRACTTRANSACTIONITEMMODEL_H

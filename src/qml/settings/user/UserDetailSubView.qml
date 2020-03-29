@@ -8,7 +8,7 @@ RRUi.SubView {
     id: userDetailSubView
 
     readonly property bool isExistingUser: userId > 0
-    property int userId: -1
+    property int userId: 0
 
     property string imageUrl: ""
     property string firstName: ""

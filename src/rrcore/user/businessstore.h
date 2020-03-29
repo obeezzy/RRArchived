@@ -53,7 +53,7 @@ public:
         return debug;
     }
 private:
-    int m_id {-1};
+    int m_id {0};
     QString m_name;
     QString m_address;
     QString m_businessFamily;

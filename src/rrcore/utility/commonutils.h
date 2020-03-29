@@ -10,6 +10,7 @@
 #include "utility/common/sortcriteria.h"
 #include "utility/common/datetimespan.h"
 #include "utility/common/recordgroup.h"
+#include "utility/common/recordtimestamp.h"
 #include "utility/common/paymentmethod.h"
 #include "utility/common/money.h"
 

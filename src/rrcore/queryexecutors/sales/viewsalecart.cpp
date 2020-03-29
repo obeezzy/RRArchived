@@ -7,7 +7,7 @@
 
 using namespace SaleQuery;
 
-ViewSaleCart::ViewSaleCart(qint64 transactionId,
+ViewSaleCart::ViewSaleCart(int transactionId,
                            QObject *receiver) :
     SaleExecutor(COMMAND, {
                     { "sale_transaction_id", transactionId },

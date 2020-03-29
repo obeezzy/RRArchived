@@ -17,10 +17,9 @@ private:
     Q_GADGET
 public:
     enum class State { Clean, Dirty, Fresh, Trash }; Q_ENUM(State)
-    int id {-1};
-    int debtTransactionId {-1};
+    int id {0};
+    int debtTransactionId {0};
     DebtMonies monies;
-    Currency currency;
     QDateTime dueDateTime;
     RecordGroup::Flags flags;
     Note note;
@@ -49,7 +48,7 @@ public:
     {
         debug.nospace() << "DebtPayment("
                         << "id=" << debtPayment.id
-                        << ", totalAmount=" << debtPayment.monies.totalAmount
+                        << ", totalDebt=" << debtPayment.monies.totalDebt
                         << ", amountPaid=" << debtPayment.monies.amountPaid
                         << ", balance=" << debtPayment.monies.balance
                         << ", state=" << debtPayment.state

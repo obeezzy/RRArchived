@@ -9,7 +9,7 @@ import "../../rrui" as RRUi
 RRUi.SubView {
     id: userPrivilegeSubView
 
-    property int userId: -1
+    property int userId: 0
     readonly property alias listView: listView
 
     contentItem: FocusScope {

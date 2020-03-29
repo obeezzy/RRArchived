@@ -59,6 +59,7 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
         { "currency", Settings::instance().locale().currencySymbol(QLocale::CurrencyIsoCode) },
         { "created", currentDateTime },
         { "last_edited", currentDateTime },
+        { "user_id", 1 },
         { "user", QStringLiteral("user") }
     };
 
@@ -91,9 +92,9 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
     m_stockProductDetailRecord->componentComplete();
 
     // STEP: Ensure default values are set.
-    QCOMPARE(m_stockProductDetailRecord->productId(), -1);
+    QCOMPARE(m_stockProductDetailRecord->productId(), 0);
     QCOMPARE(productIdChangedSpy.count(), 0);
-    QCOMPARE(m_stockProductDetailRecord->categoryId(), -1);
+    QCOMPARE(m_stockProductDetailRecord->categoryId(), 0);
     QCOMPARE(productCategoryIdChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->category(), QString());
     QCOMPARE(productCategoryChangedSpy.count(), 0);
@@ -105,7 +106,7 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
     QCOMPARE(divisibleChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->quantity(), 0.0);
     QCOMPARE(quantityChangedSpy.count(), 0);
-    QCOMPARE(m_stockProductDetailRecord->unitId(), -1);
+    QCOMPARE(m_stockProductDetailRecord->unitId(), 0);
     QCOMPARE(unitIdChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->unit(), QString());
     QCOMPARE(unitChangedSpy.count(), 0);
@@ -120,7 +121,7 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
     QCOMPARE(createdChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->lastEdited(), QDateTime());
     QCOMPARE(lastEditedChangedSpy.count(), 0);
-    QCOMPARE(m_stockProductDetailRecord->userId(), -1);
+    QCOMPARE(m_stockProductDetailRecord->userId(), 0);
     QCOMPARE(userIdChangedSpy.count(), 0);
     QCOMPARE(m_stockProductDetailRecord->user(), QString());
     QCOMPARE(userChangedSpy.count(), 0);

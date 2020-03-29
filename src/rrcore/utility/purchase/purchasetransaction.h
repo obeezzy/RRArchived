@@ -10,7 +10,7 @@
 
 namespace Utility {
 struct PurchaseTransaction {
-    qint64 id {-1};
+    int id {0};
     Vendor vendor;
     PurchaseMonies monies;
     PurchaseCartProductList products;
@@ -24,7 +24,7 @@ struct PurchaseTransaction {
     int row {-1};
 
     explicit PurchaseTransaction() = default;
-    explicit PurchaseTransaction(qint64 id,
+    explicit PurchaseTransaction(int id,
                                  const Vendor &vendor,
                                  const PurchaseMonies &monies,
                                  const PurchaseCartProductList &products,
@@ -33,7 +33,7 @@ struct PurchaseTransaction {
                                  const QDateTime &dueDateTime = QDateTime(),
                                  const QString &action = QString(),
                                  const Note &note = Note());
-    explicit PurchaseTransaction(qint64 id,
+    explicit PurchaseTransaction(int id,
                                  const Vendor &vendor,
                                  const PurchaseMonies &monies,
                                  const PurchaseCartProductList &products,

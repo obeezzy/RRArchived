@@ -9,7 +9,7 @@ import "../singletons"
 RRUi.DataTableView {
     id: saleTransactionDetailTableView
 
-    property int transactionId: -1
+    property int transactionId: 0
 
     property alias busy: saleTransactionItemModel.busy
     property alias autoQuery: saleTransactionItemModel.autoQuery

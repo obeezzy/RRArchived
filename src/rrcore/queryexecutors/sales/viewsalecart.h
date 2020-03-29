@@ -9,7 +9,7 @@ class ViewSaleCart : public SaleExecutor
     Q_OBJECT
 public:
     static inline const QString COMMAND = QStringLiteral("view_sale_cart");
-    explicit ViewSaleCart(qint64 transactionId,
+    explicit ViewSaleCart(int transactionId,
                           QObject *receiver);
     QueryResult execute() override;
 };

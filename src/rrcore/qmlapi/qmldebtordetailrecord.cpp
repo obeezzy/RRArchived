@@ -121,29 +121,29 @@ void QMLDebtorDetailRecord::setImageUrl(const QUrl &imageUrl)
 
 QDateTime QMLDebtorDetailRecord::created() const
 {
-    return m_debtor.created;
+    return m_debtor.timestamp.created;
 }
 
 void QMLDebtorDetailRecord::setCreated(const QDateTime &created)
 {
-    if (m_debtor.created == created)
+    if (m_debtor.timestamp.created == created)
         return;
 
-    m_debtor.created = created;
+    m_debtor.timestamp.created = created;
     emit createdChanged();
 }
 
 QDateTime QMLDebtorDetailRecord::lastEdited() const
 {
-    return m_debtor.lastEdited;
+    return m_debtor.timestamp.lastEdited;
 }
 
 void QMLDebtorDetailRecord::setLastEdited(const QDateTime &lastEdited)
 {
-    if (m_debtor.lastEdited == lastEdited)
+    if (m_debtor.timestamp.lastEdited == lastEdited)
         return;
 
-    m_debtor.lastEdited = lastEdited;
+    m_debtor.timestamp.lastEdited = lastEdited;
     emit lastEditedChanged();
 }
 
@@ -194,14 +194,14 @@ void QMLDebtorDetailRecord::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == DebtorQuery::FetchDebtor::COMMAND) {
-            const Utility::Debtor debtor{ result.outcome().toMap().value("debtor").toMap() };
+            const Utility::Debtor debtor{ result.outcome().toMap() };
             setPreferredName(debtor.client.preferredName);
             setFirstName(debtor.client.firstName);
             setLastName(debtor.client.lastName);
             setImageUrl(debtor.client.imageUrl);
             setPhoneNumber(debtor.client.phoneNumber);
-            setCreated(debtor.created);
-            setLastEdited(debtor.lastEdited);
+            setCreated(debtor.timestamp.created);
+            setLastEdited(debtor.timestamp.lastEdited);
             setUserId(debtor.user.id);
             setUser(debtor.user.user);
 

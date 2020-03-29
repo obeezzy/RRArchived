@@ -1,9 +1,9 @@
 #ifndef DEBTTRANSACTION_H
 #define DEBTTRANSACTION_H
 
-#include "utility/commonutils.h"
-#include "singletons/settings.h"
 #include "debtpayment.h"
+#include "singletons/settings.h"
+#include "utility/commonutils.h"
 #include <initializer_list>
 #include <QString>
 #include <QDateTime>
@@ -17,23 +17,22 @@ private:
     Q_GADGET
 public:
     enum class State { Clean, Dirty, Fresh, Trash }; Q_ENUM(State)
-    int id {-1};
-    double totalDebt {0.0};
+    int id {0};
+    Money totalDebt;
     QDateTime dueDateTime;
     RelatedTransaction relatedTransaction;
     Note note;
     DebtPaymentList payments;
     DebtPaymentList archivedPayments;
-    QDateTime created;
-    QDateTime lastEdited;
+    RecordTimestamp timestamp;
     State state{ State::Clean };
 
     explicit DebtTransaction();
     explicit DebtTransaction(double totalDebt,
                              const QDateTime &dueDateTime,
-                             const Note &note);
+                             const Note &note = Note());
     explicit DebtTransaction(int id,
-                             double totalDebt,
+                             const Money &totalDebt,
                              const QDateTime &dueDateTime,
                              const RelatedTransaction &relatedTransaction,
                              const Note &note,

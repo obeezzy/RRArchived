@@ -42,7 +42,7 @@ signals:
     void fromChanged();
     void toChanged();
 private:
-    int m_transactionId {-1};
+    int m_transactionId {0};
     int m_keys {None};
     Utility::DateTimeSpan m_dateTimeSpan;
 

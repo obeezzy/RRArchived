@@ -18,7 +18,6 @@ public:
     };
 
     enum SuccessCode {
-        UnknownSuccess = -1,
         ViewCategoriesSuccess,
         RemoveCategorySuccess,
         UndoRemoveCategorySuccess,

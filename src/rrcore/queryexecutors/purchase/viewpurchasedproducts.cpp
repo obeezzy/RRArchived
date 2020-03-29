@@ -6,7 +6,7 @@
 
 using namespace PurchaseQuery;
 
-ViewPurchasedProducts::ViewPurchasedProducts(qint64 transactionId,
+ViewPurchasedProducts::ViewPurchasedProducts(int transactionId,
                                              QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "purchase_transaction_id", transactionId }

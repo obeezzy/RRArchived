@@ -39,13 +39,13 @@ QVariant QMLDebtorModel::data(const QModelIndex &index, int role) const
     case PreferredNameRole:
         return m_debtorList.at(index.row()).client.preferredName;
     case TotalDebtRole:
-        return m_debtorList.at(index.row()).totalDebt;
+        return m_debtorList.at(index.row()).totalDebt.toDouble();
     case NoteRole:
         return m_debtorList.at(index.row()).note.note;
     case CreatedRole:
-        return m_debtorList.at(index.row()).created;
+        return m_debtorList.at(index.row()).timestamp.created;
     case LastEditedRole:
-        return m_debtorList.at(index.row()).lastEdited;
+        return m_debtorList.at(index.row()).timestamp.lastEdited;
     case UserRole:
         return m_debtorList.at(index.row()).user.user;
     }
