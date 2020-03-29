@@ -43,11 +43,11 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
     case DueDateRole:
         return m_debtor.transactions.at(index.row()).dueDateTime;
     case CreatedRole:
-        return m_debtor.transactions.at(index.row()).created;
+        return m_debtor.transactions.at(index.row()).timestamp.created;
     case RefRole:
         return QVariant::fromValue(&m_debtor.transactions.at(index.row()));
     case TotalDebtRole:
-        return m_debtor.transactions.at(index.row()).totalDebt;
+        return m_debtor.transactions.at(index.row()).totalDebt.toDouble();
     case DirtyRole:
         return m_debtor.transactions.at(index.row()).state == Utility::DebtTransaction::State::Dirty;
     }

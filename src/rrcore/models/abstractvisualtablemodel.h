@@ -4,13 +4,13 @@
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
 #include "database/queryexecutor.h"
+#include "models/modelresult.h"
 #include "utility/common/filtercriteria.h"
 #include "utility/common/sortcriteria.h"
-#include "models/modelresult.h"
 #include <QAbstractTableModel>
+#include <QLoggingCategory>
 #include <QQmlParserStatus>
 #include <QVariant>
-#include <QLoggingCategory>
 
 class QueryRequest;
 class QueryResult;

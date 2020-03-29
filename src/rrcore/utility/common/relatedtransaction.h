@@ -5,7 +5,7 @@
 
 namespace Utility {
 struct RelatedTransaction {
-    int id {-1};
+    int id {0};
     QString tableName;
 
     explicit RelatedTransaction() = default;

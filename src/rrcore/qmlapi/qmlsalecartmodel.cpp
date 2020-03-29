@@ -95,15 +95,15 @@ QHash<int, QByteArray> QMLSaleCartModel::roleNames() const
 
 bool QMLSaleCartModel::isExistingTransaction() const
 {
-    return m_transaction.id > -1;
+    return m_transaction.id > 0;
 }
 
-qint64 QMLSaleCartModel::transactionId() const
+int QMLSaleCartModel::transactionId() const
 {
     return m_transaction.id;
 }
 
-void QMLSaleCartModel::setTransactionId(qint64 transactionId)
+void QMLSaleCartModel::setTransactionId(int transactionId)
 {
     if (m_transaction.id == transactionId)
         return;
@@ -258,7 +258,7 @@ void QMLSaleCartModel::submitTransaction(const QVariantMap &transactionInfo)
 
 void QMLSaleCartModel::suspendTransaction(const QVariantMap &params)
 {
-    if (m_transaction.id == -1)
+    if (m_transaction.id == 0)
         addTransaction({ { "suspended", true },
                          { "action", "suspend" },
                          { "note", params.value("note") }
@@ -279,7 +279,7 @@ void QMLSaleCartModel::clearPayments()
 void QMLSaleCartModel::clearAll()
 {
     beginResetModel();
-    setTransactionId(-1);
+    setTransactionId(0);
     setCustomerName(QString());
     setCustomerPhoneNumber(QString());
     m_transaction.products.clear();
@@ -362,32 +362,32 @@ void QMLSaleCartModel::processResult(const QueryResult result)
 
         if (result.request().command() == SaleQuery::AddSaleTransaction::COMMAND) {
             if (result.request().params().value("suspended").toBool()) {
-                setTransactionId(-1);
+                setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
-                setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+                setClientId(result.outcome().toMap().value("client_id").toInt());
                 emit success(ModelResult{ SuspendTransactionSuccess });
             } else {
-                setTransactionId(-1);
+                setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
-                setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+                setClientId(result.outcome().toMap().value("client_id").toInt());
                 emit success(ModelResult{ SubmitTransactionSuccess });
             }
         } else if (result.request().command() == SaleQuery::AddSaleTransaction::UNDO_COMMAND) {
-            setTransactionId(-1);
+            setTransactionId(0);
             setCustomerName(QString());
             setCustomerPhoneNumber(QString());
-            setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+            setClientId(result.outcome().toMap().value("client_id").toInt());
             emit success(ModelResult{ UndoSubmitTransactionSuccess });
         } else if (result.request().command() == SaleQuery::ViewSaleCart::COMMAND) {
-            setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+            setClientId(result.outcome().toMap().value("client_id").toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
             emit success(ModelResult{ RetrieveTransactionSuccess });
         } else if (result.request().command() == SaleQuery::UpdateSuspendedSaleTransaction::COMMAND) {
-            setTransactionId(-1);
-            setClientId(result.outcome().toMap().value("client_id", -1).toInt());
+            setTransactionId(0);
+            setClientId(result.outcome().toMap().value("client_id").toInt());
             setCustomerName(result.outcome().toMap().value("customer_name").toString());
             setCustomerPhoneNumber(result.outcome().toMap().value("customer_phone_number").toString());
             emit success(ModelResult{ SuspendTransactionSuccess });

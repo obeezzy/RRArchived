@@ -10,7 +10,7 @@ import "../singletons"
 RRUi.Dialog {
     id: saleTransactionDetailDialog
 
-    property int transactionId: -1
+    property int transactionId: 0
     property string customerName: ""
     property string customerPhoneNumber: ""
 

@@ -8,7 +8,7 @@
 
 namespace Utility {
 struct Client {
-    int id {-1};
+    int id {0};
     QString preferredName;
     QString phoneNumber;
     QString firstName;

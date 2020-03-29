@@ -1,17 +1,17 @@
 #ifndef SALETRANSACTION_H
 #define SALETRANSACTION_H
 
-#include "utility/common/note.h"
-#include "singletons/settings.h"
 #include "salecartproduct.h"
 #include "salepayment.h"
-#include <QString>
+#include "singletons/settings.h"
+#include "utility/common/note.h"
 #include <QDateTime>
+#include <QString>
 
 namespace Utility {
 struct SaleTransaction
 {
-    int id {-1};
+    int id {0};
     Customer customer;
     SaleMonies monies;
     SalePaymentList payments;
@@ -26,8 +26,8 @@ struct SaleTransaction
 
     explicit SaleTransaction() = default;
     explicit SaleTransaction(const QVariantMap &map);
-    explicit SaleTransaction(qint64 id);
-    explicit SaleTransaction(qint64 id,
+    explicit SaleTransaction(int id);
+    explicit SaleTransaction(int id,
                              const Customer &customer,
                              const SaleMonies &monies,
                              const RecordGroup::Flags &flags,
@@ -36,7 +36,7 @@ struct SaleTransaction
                              const Note &note,
                              const SalePaymentList &payments,
                              const SaleCartProductList &products);
-    explicit SaleTransaction(qint64 id,
+    explicit SaleTransaction(int id,
                              const Customer &customer,
                              const SaleMonies &monies,
                              const RecordGroup::Flags &flags,

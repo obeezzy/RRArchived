@@ -7,7 +7,7 @@
 
 using namespace PurchaseQuery;
 
-ViewPurchaseCart::ViewPurchaseCart(qint64 transactionId,
+ViewPurchaseCart::ViewPurchaseCart(int transactionId,
                                    QObject *receiver) :
     PurchaseExecutor(COMMAND, {
                         { "transaction_id", transactionId },

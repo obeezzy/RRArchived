@@ -4,7 +4,7 @@ import "../../rrui" as RRUi
 RRUi.SubView {
     id: debtTransactionSubView
 
-    property int debtorId: -1
+    property int debtorId: 0
     property alias listView: debtTransactionListView
 
     contentItem: FocusScope {

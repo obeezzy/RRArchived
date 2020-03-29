@@ -41,7 +41,7 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_categoryId {-1};
+    int m_categoryId {0};
     int m_productCount {0};
     Utility::FilterCriteria m_filterCriteria;
 

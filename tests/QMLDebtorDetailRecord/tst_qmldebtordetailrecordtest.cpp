@@ -40,26 +40,21 @@ void QMLDebtorDetailRecordTest::cleanup()
 void QMLDebtorDetailRecordTest::testFetchDebtor()
 {
     const QDateTime &currentDateTime(QDateTime::currentDateTime());
-    auto databaseWillReturnSingleDebtor = [this, currentDateTime]() {
+    const QVariantMap debtor {
+        { "debtor_id", 1 },
+        { "preferred_name", QStringLiteral("Preferred name") },
+        { "first_name", QStringLiteral("First name") },
+        { "last_name", QStringLiteral("Last name") },
+        { "phone_number", QStringLiteral("123456789") },
+        { "addresses", QStringList { QStringLiteral("Address1"), QStringLiteral("Address2") } },
+        { "emails", QStringList { QStringLiteral("Email1"), QStringLiteral("Email2") } },
+        { "created", currentDateTime },
+        { "last_edited", currentDateTime },
+        { "user_id", 1 },
+        { "user", QStringLiteral("user")}
+    };
+    auto databaseWillReturn = [this](const QVariantMap &debtor) {
         m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-        const QVariantMap debtor {
-            {
-                "debtor", QVariantMap {
-                    { "debtor_id", 1 },
-                    { "preferred_name", QStringLiteral("Preferred name") },
-                    { "first_name", QStringLiteral("First name") },
-                    { "last_name", QStringLiteral("Last name") },
-                    { "phone_number", QStringLiteral("123456789") },
-                    { "addresses", QStringList { QStringLiteral("Address1"), QStringLiteral("Address2") } },
-                    { "emails", QStringList { QStringLiteral("Email1"), QStringLiteral("Email2") } },
-                    { "created", currentDateTime },
-                    { "last_edited", currentDateTime },
-                    { "user_id", 1 },
-                    { "user", QStringLiteral("user")}
-                }
-            }
-        };
         m_result.setOutcome(debtor);
     };
     QSignalSpy debtorIdChangedSpy(m_debtorDetailRecord, &QMLDebtorDetailRecord::debtorIdChanged);
@@ -73,12 +68,10 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
     QSignalSpy lastEditedChangedSpy(m_debtorDetailRecord, &QMLDebtorDetailRecord::lastEditedChanged);
     QSignalSpy userIdChangedSpy(m_debtorDetailRecord, &QMLDebtorDetailRecord::userIdChanged);
     QSignalSpy userChangedSpy(m_debtorDetailRecord, &QMLDebtorDetailRecord::userChanged);
-    const auto addresses = QStringList { QStringLiteral("Address1"), QStringLiteral("Address2") };
-    const auto emails = QStringList { QStringLiteral("Email1"), QStringLiteral("Email2") };
 
     m_debtorDetailRecord->componentComplete();
 
-    QCOMPARE(m_debtorDetailRecord->debtorId(), -1);
+    QCOMPARE(m_debtorDetailRecord->debtorId(), 0);
     QCOMPARE(m_debtorDetailRecord->preferredName(), QString());
     QCOMPARE(m_debtorDetailRecord->firstName(), QString());
     QCOMPARE(m_debtorDetailRecord->lastName(), QString());
@@ -87,22 +80,22 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
     QCOMPARE(m_debtorDetailRecord->emailModel(), QStringList());
     QCOMPARE(m_debtorDetailRecord->created(), QDateTime());
     QCOMPARE(m_debtorDetailRecord->lastEdited(), QDateTime());
-    QCOMPARE(m_debtorDetailRecord->userId(), -1);
+    QCOMPARE(m_debtorDetailRecord->userId(), 0);
     QCOMPARE(m_debtorDetailRecord->user(), QString());
 
-    databaseWillReturnSingleDebtor();
+    databaseWillReturn(debtor);
 
-    m_debtorDetailRecord->setDebtorId(1);
+    m_debtorDetailRecord->setDebtorId(debtor["debtor_id"].toInt());
 
-    QCOMPARE(m_debtorDetailRecord->debtorId(), 1);
-    QCOMPARE(m_debtorDetailRecord->preferredName(), QStringLiteral("Preferred name"));
-    QCOMPARE(m_debtorDetailRecord->firstName(), QStringLiteral("First name"));
-    QCOMPARE(m_debtorDetailRecord->lastName(), QStringLiteral("Last name"));
-    QCOMPARE(m_debtorDetailRecord->phoneNumber(), QStringLiteral("123456789"));
+    QCOMPARE(m_debtorDetailRecord->debtorId(), debtor["debtor_id"].toInt());
+    QCOMPARE(m_debtorDetailRecord->preferredName(), debtor["preferred_name"].toString());
+    QCOMPARE(m_debtorDetailRecord->firstName(), debtor["first_name"].toString());
+    QCOMPARE(m_debtorDetailRecord->lastName(), debtor["last_name"].toString());
+    QCOMPARE(m_debtorDetailRecord->phoneNumber(), debtor["phone_number"].toString());
     QCOMPARE(m_debtorDetailRecord->created(), currentDateTime);
     QCOMPARE(m_debtorDetailRecord->lastEdited(), currentDateTime);
-    QCOMPARE(m_debtorDetailRecord->userId(), 1);
-    QCOMPARE(m_debtorDetailRecord->user(), QStringLiteral("user"));
+    QCOMPARE(m_debtorDetailRecord->userId(), debtor["user_id"].toInt());
+    QCOMPARE(m_debtorDetailRecord->user(), debtor["user"].toString());
 }
 
 QTEST_MAIN(QMLDebtorDetailRecordTest)

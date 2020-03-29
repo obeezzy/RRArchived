@@ -8,8 +8,7 @@ AbstractTransactionItemModel::AbstractTransactionItemModel(QObject *parent) :
 
 AbstractTransactionItemModel::AbstractTransactionItemModel(DatabaseThread &thread,
                                                            QObject *parent) :
-    AbstractVisualTableModel(thread, parent),
-    m_transactionId(-1)
+    AbstractVisualTableModel(thread, parent)
 {
     connect(this, &AbstractTransactionItemModel::transactionIdChanged,
             &AbstractTransactionItemModel::tryQuery);
@@ -27,4 +26,9 @@ void AbstractTransactionItemModel::setTransactionId(int transactionId)
 
     m_transactionId = transactionId;
     emit transactionIdChanged();
+}
+
+bool AbstractTransactionItemModel::isExistingTransaction() const
+{
+    return m_transactionId > 0;
 }

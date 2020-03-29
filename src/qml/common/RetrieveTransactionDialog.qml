@@ -7,7 +7,7 @@ import com.gecko.rr.models 1.0 as RRModels
 QQC2.Dialog {
     id: retrieveTransactionDialog
 
-    property int transactionId: -1
+    property int transactionId: 0
 
     x: (QQC2.ApplicationWindow.contentItem.width - width) / 2
     y: (QQC2.ApplicationWindow.contentItem.height - height) / 2

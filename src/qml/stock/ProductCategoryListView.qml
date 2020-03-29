@@ -31,7 +31,7 @@ ListView {
     QtObject {
         id: privateProperties
 
-        property int lastRemovedProductId: -1
+        property int lastRemovedProductId: 0
     }
 
     topMargin: 20
@@ -50,7 +50,7 @@ ListView {
                 productCategoryListView.success(RRModels.StockProductModel.RemoveProductSuccess);
                 break;
             case RRModels.StockProductCategoryModel.UnarchiveProductSuccess:
-                privateProperties.lastRemovedProductId = -1;
+                privateProperties.lastRemovedProductId = 0;
                 productCategoryListView.success(RRModels.StockProductModel.UndoRemoveProductSuccess);
                 break;
             }

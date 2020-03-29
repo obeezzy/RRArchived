@@ -5,7 +5,7 @@ using namespace Utility;
 SaleTransaction::SaleTransaction(const QVariantMap &map) :
     id(map.value("sale_transaction_id").toInt()),
     customer(Customer {
-             map.value("customer_id", -1).toInt(),
+             map.value("customer_id").toInt(),
              Client{ map.value("customer_name").toString() }
              }),
     monies(SaleMonies { QVariantMap {
@@ -20,26 +20,17 @@ SaleTransaction::SaleTransaction(const QVariantMap &map) :
           | (map.value("archived").toBool() ? RecordGroup::Archived : RecordGroup::None)),
     dueDateTime(map.value("due_date_time").toDateTime()),
     action(map.value("action").toString()),
-    note(Note {
-         map.value("note_id", -1).toInt(),
-         map.value("note").toString()
-         }),
-    timestamp(RecordTimestamp {
-              map.value("created").toDateTime(),
-              map.value("last_edited").toDateTime()
-              }),
-    user(User {
-         map.value("user_id", -1).toInt(),
-         map.value("user").toString()
-         }),
+    note(Note{ map }),
+    timestamp(RecordTimestamp{ map }),
+    user(User{ map }),
     row(map.value("row", -1).toInt())
 {}
 
-SaleTransaction::SaleTransaction(qint64 id) :
+SaleTransaction::SaleTransaction(int id) :
     id(id)
 {}
 
-SaleTransaction::SaleTransaction(qint64 id,
+SaleTransaction::SaleTransaction(int id,
                                  const Customer &customer,
                                  const SaleMonies &monies,
                                  const RecordGroup::Flags &flags,
@@ -59,7 +50,7 @@ SaleTransaction::SaleTransaction(qint64 id,
     note(note)
 {}
 
-SaleTransaction::SaleTransaction(qint64 id,
+SaleTransaction::SaleTransaction(int id,
                                  const Customer &customer,
                                  const SaleMonies &monies,
                                  const RecordGroup::Flags &flags,

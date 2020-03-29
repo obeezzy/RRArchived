@@ -12,7 +12,7 @@
 namespace Utility {
 struct PurchasedProduct
 {
-    int id {-1};
+    int id {0};
     PurchaseTransaction transaction;
     StockProductCategory category;
     StockProduct product;

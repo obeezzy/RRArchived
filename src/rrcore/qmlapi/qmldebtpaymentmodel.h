@@ -56,8 +56,8 @@ protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
 private:
-    int m_debtTransactionId {-1};
-    double m_totalAmountPaid {0.0};
+    int m_debtTransactionId {0};
+    Utility::Money m_totalAmountPaid;
     QVariant m_debtTransactionRef;
     Utility::DebtPaymentList m_payments;
 

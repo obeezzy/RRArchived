@@ -327,7 +327,7 @@ void QMLStockProductPusherTest::testPushUpdatedProduct()
     QSignalSpy successSpy(m_stockProductPusher, &QMLStockProductPusher::success);
 
     // STEP: Ensure product ID is not set.
-    QCOMPARE(m_stockProductPusher->productId(), -1);
+    QCOMPARE(m_stockProductPusher->productId(), 0);
 
     // STEP: Add a single product to the database.
     m_stockProductPusher->setCategory("Category");

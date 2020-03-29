@@ -8,7 +8,7 @@ import QtQuick.Controls.Material 2.3
 Item {
     id: productDetails
 
-    property int productId: -1
+    property int productId: 0
 
     readonly property bool dirty: privateProperties.dirty
     readonly property url imageUrl: privateProperties.imageUrl

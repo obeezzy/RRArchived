@@ -8,7 +8,7 @@ import "../singletons"
 RRUi.DataTableView {
     id: productTableView
 
-    property int categoryId: -1
+    property int categoryId: 0
     property int filterColumn: -1
     property string filterText: ""
     property int sortColumn: -1

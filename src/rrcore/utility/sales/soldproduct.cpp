@@ -3,7 +3,7 @@
 
 using namespace Utility;
 
-SoldProduct::SoldProduct(qint64 saleTransactionId) :
+SoldProduct::SoldProduct(int saleTransactionId) :
     transaction(saleTransactionId)
 {}
 
@@ -28,17 +28,17 @@ SoldProduct::SoldProduct(const QVariantMap &map) :
               map.value("last_edited").toDateTime()
               }),
     user(User {
-         map.value("user_id", -1).toInt(),
+         map.value("user_id").toInt(),
          map.value("user").toString()
          }),
     row(map.value("row", -1).toInt())
 {
     product.category = StockProductCategory {
-            map.value("product_category_id", -1).toInt(),
+            map.value("product_category_id").toInt(),
             map.value("product_category").toString()
     };
     product.unit = StockProductUnit {
-            map.value("product_unit_id", -1).toInt(),
+            map.value("product_unit_id").toInt(),
             map.value("product_unit").toString()
     };
 }

@@ -7,7 +7,7 @@
 namespace Utility {
 struct DebtMonies
 {
-    Money totalAmount;
+    Money totalDebt;
     Money amountPaid;
     Money balance;
 
@@ -19,8 +19,8 @@ struct DebtMonies
     friend QDebug operator<<(QDebug debug, const DebtMonies &monies)
     {
         debug.nospace() << "DebtMonies(";
-        if (!monies.totalAmount.isZero())
-            debug << ", totalAmount=" << monies.totalAmount;
+        if (!monies.totalDebt.isZero())
+            debug << ", totalDebt=" << monies.totalDebt;
         if (!monies.amountPaid.isZero())
             debug << ", amountPaid=" << monies.amountPaid;
         if (!monies.balance.isZero())

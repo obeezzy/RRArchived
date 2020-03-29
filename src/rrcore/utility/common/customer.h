@@ -5,7 +5,7 @@
 
 namespace Utility {
 struct Customer {
-    int id {-1};
+    int id {0};
     Client client;
 
     explicit Customer() = default;

@@ -10,8 +10,8 @@ import "../singletons"
 RRUi.Page {
     id: newProductPage
 
-    readonly property bool isExistingProduct: productId !== -1
-    property int productId: -1
+    readonly property bool isExistingProduct: productId > 0
+    property int productId: 0
 
     title: isExistingProduct ? qsTr("Edit product") : qsTr("New product")
     padding: 10

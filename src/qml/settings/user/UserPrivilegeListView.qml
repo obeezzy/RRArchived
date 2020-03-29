@@ -9,7 +9,7 @@ import "../../rrui" as RRUi
 ListView {
     id: userPrivilegeListView
 
-    property int userId: -1
+    property int userId: 0
     property url imageUrl: ""
     property string firstName: ""
     property string lastName: ""

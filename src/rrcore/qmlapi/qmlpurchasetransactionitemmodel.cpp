@@ -151,7 +151,7 @@ QVariant QMLPurchaseTransactionItemModel::headerData(int section, Qt::Orientatio
 
 void QMLPurchaseTransactionItemModel::tryQuery()
 {
-    if (transactionId() <= -1)
+    if (transactionId() <= 0)
         return;
 
     setBusy(true);

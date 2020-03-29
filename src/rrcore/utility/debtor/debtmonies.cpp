@@ -6,7 +6,7 @@ DebtMonies::DebtMonies()
 {}
 
 DebtMonies::DebtMonies(const QVariantMap &map) :
-    totalAmount(map.value("total_amount").toDouble()),
+    totalDebt(map.value("total_debt").toDouble()),
     amountPaid(map.value("amount_paid").toDouble()),
     balance(map.value("balance").toDouble())
 {}
@@ -14,7 +14,7 @@ DebtMonies::DebtMonies(const QVariantMap &map) :
 QVariantMap DebtMonies::toVariantMap() const
 {
     return {
-        { "total_amount", totalAmount.toDouble() },
+        { "total_debt", totalDebt.toDouble() },
         { "amount_paid", amountPaid.toDouble() },
         { "balance", amountPaid.toDouble() }
     };

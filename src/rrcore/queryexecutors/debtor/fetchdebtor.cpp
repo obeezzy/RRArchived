@@ -45,10 +45,9 @@ QueryResult FetchDebtor::execute()
             throw NoExistingRecordException(QStringLiteral("Debtor with ID %1 does not exist.")
                                             .arg(params.value("debtor_id").toInt()));
 
-        result.setOutcome(QVariantMap {
-                              { "debtor", recordToMap(records.first()) },
-                              { "record_count", 1 }
-                          });
+        QVariantMap debtor(recordToMap(records.first()));
+        debtor.insert("record_count", 1);
+        result.setOutcome(debtor);
         return result;
     } catch (const DatabaseException &) {
         throw;

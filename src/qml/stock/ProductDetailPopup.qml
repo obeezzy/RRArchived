@@ -9,7 +9,7 @@ import com.gecko.rr.models 1.0 as RRModels
 RRUi.Popup {
     id: productDetailPopup
 
-    property int productId: -1
+    property int productId: 0
     property bool editButtonVisible: true
     signal editRequested
 

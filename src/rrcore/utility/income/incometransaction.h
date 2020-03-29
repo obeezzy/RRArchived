@@ -11,7 +11,7 @@
 namespace Utility {
 struct IncomeTransaction
 {
-    int id {-1};
+    int id {0};
     Client client;
     QString purpose;
     Money amount;

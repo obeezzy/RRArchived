@@ -187,8 +187,8 @@ void QMLDebtTransactionModelTest::testAddDebt()
     // STEP: Ensure model is updated properly.
     QCOMPARE(rowsInsertedSpy.count(), 1);
     QCOMPARE(m_debtTransactionModel->rowCount(), 1);
-    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::TransactionIdRole).toInt(), -1);
-    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::RelatedTransactionIdRole).toInt(), -1);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::TransactionIdRole).toInt(), 0);
+    QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::RelatedTransactionIdRole).toInt(), 0);
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::RelatedTransactionRole).toString(), QString());
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::DueDateRole).toDateTime(), currentDateTime);
     QCOMPARE(m_debtTransactionModel->index(0).data(QMLDebtTransactionModel::NoteRole).toString(), QStringLiteral("Note"));
@@ -328,7 +328,7 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
     QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
 
     // STEP: Ensure debtor ID is not set.
-    QCOMPARE(m_debtTransactionModel->debtorId(), -1);
+    QCOMPARE(m_debtTransactionModel->debtorId(), 0);
 
     databaseWillReturnEmptyResult();
 
@@ -381,7 +381,7 @@ void QMLDebtTransactionModelTest::testSubmitDebt()
             }
         };
         m_result.setOutcome(QVariantMap {
-                                { "client_id", -1 },
+                                { "client_id", 0 },
                                 { "debtor_id", 1 },
                                 { "preferred_name", request.params().value("preferred_name") },
                                 { "primary_phone_number", request.params().value("primary_phone_number") },
@@ -440,7 +440,7 @@ void QMLDebtTransactionModelTest::testSubmitPayment()
             }
         };
         m_result.setOutcome(QVariantMap {
-                                { "client_id", -1 },
+                                { "client_id", 0 },
                                 { "debtor_id", 1 },
                                 { "preferred_name", request.params().value("preferred_name") },
                                 { "primary_phone_number", request.params().value("primary_phone_number") },

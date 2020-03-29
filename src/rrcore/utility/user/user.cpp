@@ -1,9 +1,25 @@
 #include "user.h"
+#include "utility/common/recordtimestamp.h"
 #include <QString>
 
 using namespace Utility;
 
-User::User(const QVariantMap &map)
+User::User(const QVariantMap &map) :
+    id(map.value("user_id").toInt()),
+    user(map.value("user").toString()),
+    password(map.value("password").toString()),
+    firstName(map.value("first_name").toString()),
+    lastName(map.value("last_name").toString()),
+    imageUrl(map.value("image_url").toUrl()),
+    phoneNumber(map.value("phone_number").toString()),
+    emailAddress(map.value("email_address").toString()),
+    preset(map.value("preset").toString()),
+    privileges(UserPrivilegeList{ map.value("user_privileges").toList() }),
+    flags((map.value("active").toBool() ? RecordGroup::Active : RecordGroup::None)
+          | (map.value("archived").toBool() ? RecordGroup::Archived : RecordGroup::None)),
+    note(Note{ map }),
+    timestamp(RecordTimestamp{ map }),
+    accessToken(map.value("access_token").toByteArray())
 {
     Q_UNUSED(map)
 }
@@ -27,8 +43,8 @@ User::User(int id,
            const QUrl &imageUrl,
            const QString &phoneNumber,
            const QString &emailAddress,
-           const Note &note,
-           const RecordGroup::Flags &flags) :
+           const RecordGroup::Flags &flags,
+           const Note &note) :
     id(id),
     user(user),
     firstName(firstName),
@@ -36,8 +52,8 @@ User::User(int id,
     imageUrl(imageUrl),
     phoneNumber(phoneNumber),
     emailAddress(emailAddress),
-    note(note),
-    flags(flags)
+    flags(flags),
+    note(note)
 {}
 
 User::User(const QString &firstName,
@@ -58,5 +74,20 @@ User::User(const QString &firstName,
 
 QVariantMap User::toVariantMap() const
 {
-    return {};
+    return {
+        { "user_id", id },
+        { "user", user },
+        { "password", password },
+        { "first_name", firstName },
+        { "last_name", lastName },
+        { "image_url", imageUrl },
+        { "phone_number", phoneNumber },
+        { "email_address", emailAddress },
+        { "preset", preset },
+        { "privileges", privileges.toVariantList() },
+        { "active", flags.testFlag(RecordGroup::Active) },
+        { "archived", flags.testFlag(RecordGroup::Archived) },
+        { "note_id", note.id },
+        { "note", note.note }
+    };
 }

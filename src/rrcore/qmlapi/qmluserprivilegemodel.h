@@ -93,7 +93,7 @@ private:
     QStringList m_titles;
     QStringList m_privilegeGroups;
     QList<UserPrivilegeModel *> m_privilegeModels;
-    int m_userId {-1};
+    int m_userId {0};
     QString m_firstName;
     QString m_lastName;
     QString m_userName;

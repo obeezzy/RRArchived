@@ -69,7 +69,7 @@ public slots:
     void refresh() override;
     void undoLastCommit() override;
 private:
-    int m_categoryId {-1};
+    int m_categoryId {0};
     Utility::StockProductList m_products;
 
     void removeProductFromModel(int row);

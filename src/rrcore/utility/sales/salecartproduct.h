@@ -12,7 +12,7 @@
 
 namespace Utility {
 struct SaleCartProduct {
-    int id {-1};
+    int id {0};
     QString product;
     StockProductCategory category;
     QString description;

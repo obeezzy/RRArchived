@@ -9,7 +9,7 @@ RRUi.Dialog {
     id: cartProductEditorDialog
 
     property int productIndex: -1
-    property int productId: -1
+    property int productId: 0
     property string product: ""
     property real quantity: 0
     readonly property real maximumQuantity: 10000000

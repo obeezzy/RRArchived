@@ -14,7 +14,7 @@ RRUi.Page {
     id: newDebtorPage
 
     property RRModels.DebtorModel model: null
-    property int debtorId: -1
+    property int debtorId: 0
     readonly property bool isExistingDebtor: debtorId > 0
 
     title: newDebtorPage.isExistingDebtor ? qsTr("Edit debtor") : qsTr("Add debtor")

@@ -3,7 +3,6 @@
 using namespace Utility;
 
 UserPrivilege::UserPrivilege(int userId) :
-    id(-1),
     userId(userId)
 {}
 

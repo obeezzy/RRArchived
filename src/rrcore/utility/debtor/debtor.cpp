@@ -4,32 +4,17 @@ using namespace Utility;
 
 Debtor::Debtor(const QVariantMap &map) :
     id(map.value("debtor_id").toInt()),
-    client(Client {
-           map.value("client_id", -1).toInt(),
-           map.value("preferred_name").toString(),
-           map.value("phone_number").toString(),
-           map.value("first_name").toString(),
-           map.value("last_name").toString(),
-           map.value("image_url").toUrl(),
-           map.value("email_address").toString()
-           }),
+    client(Client{ map }),
     totalDebt(map.value("total_debt").toDouble()),
-    note(Note {
-         map.value("note_id", -1).toInt(),
-         map.value("note").toString()
-         }),
-    created(map.value("created").toDateTime()),
-    lastEdited(map.value("last_edited").toDateTime()),
-    user(User {
-         map.value("user_id").toInt(),
-         map.value("user").toString()
-         }),
+    note(Note{ map }),
+    timestamp(RecordTimestamp{ map }),
+    user(User{ map }),
     row(map.value("row", -1).toInt())
-{ }
+{}
 
 Debtor::Debtor(int id) :
     id(id)
-{ }
+{}
 
 Debtor::Debtor(const Client &client,
                const DebtTransactionList &transactions,
@@ -37,7 +22,7 @@ Debtor::Debtor(const Client &client,
     client(client),
     transactions(transactions),
     note(note)
-{ }
+{}
 
 Debtor::Debtor(int id,
                const Client &client,
@@ -47,13 +32,7 @@ Debtor::Debtor(int id,
     client(client),
     transactions(transactions),
     note(note)
-{ }
-
-Debtor::Debtor(int id,
-               int row) :
-    id(id),
-    row(row)
-{ }
+{}
 
 QVariantMap Debtor::toVariantMap() const
 {
@@ -68,8 +47,8 @@ QVariantMap Debtor::toVariantMap() const
         { "email_address", client.emailAddress },
         { "note_id", note.id },
         { "note", note.note },
-        { "created", created },
-        { "last_edited", lastEdited },
+        { "created", timestamp.created },
+        { "last_edited", timestamp.lastEdited },
         { "user_id", user.id },
         { "user", user.user },
         { "row", row }

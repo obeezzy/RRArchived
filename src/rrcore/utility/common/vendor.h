@@ -5,7 +5,7 @@
 
 namespace Utility {
 struct Vendor {
-    int id {-1};
+    int id {0};
     Client client;
 
     explicit Vendor() = default;

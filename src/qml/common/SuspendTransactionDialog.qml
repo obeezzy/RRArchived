@@ -7,7 +7,7 @@ import "../rrui" as RRUi
 QQC2.Dialog {
     id: suspendTransactionDialog
 
-    property int transactionId: -1
+    property int transactionId: 0
     property string note: ""
 
     x: (QQC2.ApplicationWindow.contentItem.width - width) / 2

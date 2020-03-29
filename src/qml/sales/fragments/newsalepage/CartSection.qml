@@ -60,17 +60,17 @@ FocusScope {
                     break;
                 case RRModels.SaleCartModel.SuspendTransactionSuccess:
                     customerInfo.clearAll();
-                    cart.transactionId = -1;
+                    cart.transactionId = 0;
                     MainWindow.snackBar.show(qsTr("Transaction suspended."), qsTr("Undo"));
                     break;
                 case RRModels.SaleCartModel.SubmitTransactionSuccess:
                     customerInfo.clearAll();
-                    transactionId = -1;
+                    transactionId = 0;
                     MainWindow.snackBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
                     break;
                 case RRModels.SaleCartModel.UndoSubmitTransactionSuccess:
                     customerInfo.clearAll();
-                    transactionId = -1;
+                    transactionId = 0;
                     MainWindow.snackBar.show(qsTr("Transaction reverted."));
                 }
 

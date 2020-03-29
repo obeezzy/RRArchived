@@ -10,7 +10,7 @@ import "../../singletons"
 RRUi.Page {
     id: newUserPage
 
-    property int userId: -1
+    property int userId: 0
     property RRModels.UserModel model: null
     readonly property bool isExistingUser: userId > 0
 

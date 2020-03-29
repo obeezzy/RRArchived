@@ -12,7 +12,7 @@ import "../../common"
 RRUi.SubView {
     id: clientDetailSubView
 
-    property int debtorId: -1
+    property int debtorId: 0
     property url imageUrl: debtorDetailRecord.imageUrl
     property string preferredName: debtorDetailRecord.preferredName
     property string phoneNumber: debtorDetailRecord.phoneNumber
