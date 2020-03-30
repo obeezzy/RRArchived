@@ -33,6 +33,8 @@ jobs:
         export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
         $QTDIR/bin/qmake CONFIG+=release
         make -j`nproc`
+        ls
+        pwd
         export RRCORE=../../../src/rrcore
         export LD_LIBRARY_PATH=$QTDIR/lib
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RRCORE
