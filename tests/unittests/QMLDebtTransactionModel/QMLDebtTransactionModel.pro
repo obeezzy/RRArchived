@@ -21,7 +21,6 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
-SOURCES += \
-        tst_qmldebttransactionmodeltest.cpp
+SOURCES += tst_qmldebttransactionmodeltest.cpp
 
 include(../utils/utils.pri)
