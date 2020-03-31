@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    unit \
-    integration
+    unittests \
+    integrationtests

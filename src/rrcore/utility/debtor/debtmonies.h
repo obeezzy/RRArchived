@@ -7,11 +7,11 @@
 namespace Utility {
 struct DebtMonies
 {
-    Money totalDebt;
+    Money debt;
     Money amountPaid;
     Money balance;
 
-    explicit DebtMonies();
+    explicit DebtMonies() = default;
     explicit DebtMonies(const QVariantMap &map);
 
     QVariantMap toVariantMap() const;
@@ -19,8 +19,8 @@ struct DebtMonies
     friend QDebug operator<<(QDebug debug, const DebtMonies &monies)
     {
         debug.nospace() << "DebtMonies(";
-        if (!monies.totalDebt.isZero())
-            debug << ", totalDebt=" << monies.totalDebt;
+        if (!monies.debt.isZero())
+            debug << ", debt=" << monies.debt;
         if (!monies.amountPaid.isZero())
             debug << ", amountPaid=" << monies.amountPaid;
         if (!monies.balance.isZero())

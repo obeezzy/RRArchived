@@ -2,11 +2,8 @@
 
 using namespace Utility;
 
-DebtMonies::DebtMonies()
-{}
-
 DebtMonies::DebtMonies(const QVariantMap &map) :
-    totalDebt(map.value("total_debt").toDouble()),
+    debt(map.value("debt").toDouble()),
     amountPaid(map.value("amount_paid").toDouble()),
     balance(map.value("balance").toDouble())
 {}
@@ -14,8 +11,8 @@ DebtMonies::DebtMonies(const QVariantMap &map) :
 QVariantMap DebtMonies::toVariantMap() const
 {
     return {
-        { "total_debt", totalDebt.toDouble() },
+        { "debt", debt.toDouble() },
         { "amount_paid", amountPaid.toDouble() },
-        { "balance", amountPaid.toDouble() }
+        { "balance", balance.toDouble() }
     };
 }
