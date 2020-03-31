@@ -191,6 +191,9 @@ Utility::SortCriteria AbstractVisualTableModel::sortCriteria() const
 
 void AbstractVisualTableModel::validateResult(const QueryResult result)
 {
+    if (result.request().receiver() != this)
+        return;
+
     if (canProcessResult(result))
         processResult(result);
     else

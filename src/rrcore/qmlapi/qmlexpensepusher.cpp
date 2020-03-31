@@ -12,9 +12,7 @@ QMLExpensePusher::QMLExpensePusher(QObject *parent) :
 QMLExpensePusher::QMLExpensePusher(DatabaseThread &thread,
                                    QObject *parent) :
     AbstractPusher(thread, parent)
-{
-
-}
+{}
 
 QString QMLExpensePusher::clientName() const
 {
@@ -88,11 +86,14 @@ void QMLExpensePusher::push()
     emit execute(new ExpenseQuery::AddExpenseTransaction(m_transaction, this));
 }
 
+bool QMLExpensePusher::canProcessResult(const QueryResult &result)
+{
+    Q_UNUSED(result)
+    return true;
+}
+
 void QMLExpensePusher::processResult(const QueryResult result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

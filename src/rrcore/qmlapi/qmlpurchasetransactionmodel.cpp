@@ -155,9 +155,6 @@ bool QMLPurchaseTransactionModel::canProcessResult(const QueryResult &result) co
 
 void QMLPurchaseTransactionModel::processResult(const QueryResult &result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
     if (result.isSuccessful()) {
         if (result.request().command() == PurchaseQuery::ViewPurchaseTransactions::COMMAND) {

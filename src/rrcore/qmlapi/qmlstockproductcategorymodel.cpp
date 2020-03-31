@@ -201,9 +201,6 @@ bool QMLStockProductCategoryModel::canProcessResult(const QueryResult &result) c
 
 void QMLStockProductCategoryModel::processResult(const QueryResult &result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

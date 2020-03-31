@@ -9,5 +9,6 @@
 #include "sales/viewsaletransactions.h"
 #include "sales/removesaletransaction.h"
 #include "sales/viewsalereport.h"
+#include "sales/viewmostsoldproducts.h"
 
 #endif // SALEQUERY_H

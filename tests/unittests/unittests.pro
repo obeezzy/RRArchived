@@ -5,6 +5,7 @@ SUBDIRS += \
     QMLDoubleValidator \
     QMLExpenseTransactionModel \
     QMLIncomeTransactionModel \
+    QMLMostSoldProductModel \
     QMLStockProductModel \
     QMLStockProductPusher \
     QMLDebtorModel \

@@ -48,6 +48,7 @@ signals:
 public slots:
     void push() override;
 protected:
+    bool canProcessResult(const QueryResult &result) override;
     void processResult(const QueryResult result) override;
 private:
     Utility::IncomeTransaction m_transaction;

@@ -157,9 +157,6 @@ bool QMLSaleTransactionModel::canProcessResult(const QueryResult &result) const
 
 void QMLSaleTransactionModel::processResult(const QueryResult &result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
     if (result.isSuccessful()) {
         if (result.request().command() == SaleQuery::ViewSaleTransactions::COMMAND) {

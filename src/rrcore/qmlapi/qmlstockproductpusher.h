@@ -81,6 +81,7 @@ public:
     double retailPrice() const;
     void setRetailPrice(double);
 protected:
+    bool canProcessResult(const QueryResult &result) override;
     void processResult(const QueryResult result) override final;
 signals:
     void productIdChanged();

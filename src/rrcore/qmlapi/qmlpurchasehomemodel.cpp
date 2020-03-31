@@ -20,3 +20,14 @@ void QMLPurchaseHomeModel::tryQuery()
                                                          QDateTime::currentDateTime()
                                                      }, this));
 }
+
+bool QMLPurchaseHomeModel::canProcessResult(const QueryResult &result) const
+{
+    Q_UNUSED(result)
+    return true;
+}
+
+void QMLPurchaseHomeModel::processResult(const QueryResult &result)
+{
+    Q_UNUSED(result)
+}

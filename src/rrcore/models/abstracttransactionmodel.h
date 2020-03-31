@@ -22,7 +22,7 @@ public:
 
     explicit AbstractTransactionModel(QObject *parent = nullptr);
     explicit AbstractTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
-    virtual ~AbstractTransactionModel() override = default;
+    ~AbstractTransactionModel() override = default;
 
     int keys() const;
     void setKeys(int keys);

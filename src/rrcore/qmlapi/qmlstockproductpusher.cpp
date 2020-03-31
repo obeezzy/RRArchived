@@ -202,6 +202,12 @@ void QMLStockProductPusher::setRetailPrice(double retailPrice)
     emit retailPriceChanged();
 }
 
+bool QMLStockProductPusher::canProcessResult(const QueryResult &result)
+{
+    Q_UNUSED(result)
+    return true;
+}
+
 void QMLStockProductPusher::push()
 {
     setBusy(true);
@@ -216,9 +222,6 @@ void QMLStockProductPusher::push()
 
 void QMLStockProductPusher::processResult(const QueryResult result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

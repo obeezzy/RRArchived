@@ -187,9 +187,6 @@ void QMLDebtorDetailRecord::tryQuery()
 
 void QMLDebtorDetailRecord::processResult(const QueryResult result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

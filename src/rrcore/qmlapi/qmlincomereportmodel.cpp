@@ -96,9 +96,6 @@ bool QMLIncomeReportModel::canProcessResult(const QueryResult &result) const
 
 void QMLIncomeReportModel::processResult(const QueryResult &result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
     if (result.isSuccessful()) {
         if (result.request().command() == IncomeQuery::ViewIncomeReport::COMMAND) {

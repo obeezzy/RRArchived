@@ -236,9 +236,6 @@ bool QMLDebtPaymentModel::canProcessResult(const QueryResult &result) const
 
 void QMLDebtPaymentModel::processResult(const QueryResult &result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

@@ -116,9 +116,6 @@ bool QMLIncomeTransactionModel::canProcessResult(const QueryResult &result) cons
 
 void QMLIncomeTransactionModel::processResult(const QueryResult &result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
     beginResetModel();
     if (result.isSuccessful()) {
