@@ -36,7 +36,9 @@ PaymentMethod::PaymentMethod(const QString &stringValue)
         m_enumValue = PaymentMethod::Cash;
     } else {
         m_enumValue = PaymentMethod::Cash;
-        qCWarning(lcpaymentmethod) << "Invalid string value passed as PaymentMethod. Defaulting to PaymentMethod::Cash...";
+        qCWarning(lcpaymentmethod) << "Invalid string value passed as PaymentMethod:"
+                                   << stringValue
+                                   << ". Defaulting to PaymentMethod::Cash...";
     }
 }
 

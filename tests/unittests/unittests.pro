@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS += \
     QMLDebtPaymentModel \
     QMLDoubleValidator \
+    QMLExpenseTransactionModel \
     QMLStockProductModel \
     QMLStockProductPusher \
     QMLDebtorModel \

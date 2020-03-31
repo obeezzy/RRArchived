@@ -9,7 +9,7 @@ class QMLExpenseTransactionModel : public AbstractTransactionModel
     Q_OBJECT
 public:
     enum Roles {
-        TransactionIdRole = Qt::UserRole,
+        ExpenseTransactionIdRole = Qt::UserRole,
         ClientIdRole,
         ClientNameRole,
         AmountRole
@@ -28,7 +28,8 @@ public:
     }; Q_ENUM(Columns)
 
     explicit QMLExpenseTransactionModel(QObject *parent = nullptr);
-    explicit QMLExpenseTransactionModel(DatabaseThread &thread);
+    explicit QMLExpenseTransactionModel(DatabaseThread &thread,
+                                        QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

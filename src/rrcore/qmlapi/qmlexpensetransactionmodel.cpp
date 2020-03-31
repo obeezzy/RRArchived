@@ -1,17 +1,15 @@
 #include "qmlexpensetransactionmodel.h"
+#include "database/databasethread.h"
 #include "queryexecutors/expense.h"
 
 QMLExpenseTransactionModel::QMLExpenseTransactionModel(QObject *parent) :
-    AbstractTransactionModel (parent)
-{
+    QMLExpenseTransactionModel (DatabaseThread::instance(), parent)
+{}
 
-}
-
-QMLExpenseTransactionModel::QMLExpenseTransactionModel(DatabaseThread &thread) :
-    AbstractTransactionModel (thread)
-{
-
-}
+QMLExpenseTransactionModel::QMLExpenseTransactionModel(DatabaseThread &thread,
+                                                       QObject *parent) :
+    AbstractTransactionModel (thread, parent)
+{}
 
 int QMLExpenseTransactionModel::rowCount(const QModelIndex &parent) const
 {
@@ -35,8 +33,10 @@ QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) co
         return QVariant();
 
     switch (role) {
-    case TransactionIdRole:
+    case ExpenseTransactionIdRole:
         return m_transactions.at(index.row()).id;
+    case ClientIdRole:
+        return m_transactions.at(index.row()).client.id;
     case ClientNameRole:
         return m_transactions.at(index.row()).client.preferredName;
     case AmountRole:
@@ -49,7 +49,8 @@ QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) co
 QHash<int, QByteArray> QMLExpenseTransactionModel::roleNames() const
 {
     return {
-        { TransactionIdRole, "transaction_id" },
+        { ExpenseTransactionIdRole, "expense_transaction_id" },
+        { ClientIdRole, "client_id" },
         { ClientNameRole, "client_name" },
         { AmountRole, "amount" }
     };
@@ -60,7 +61,7 @@ QVariant QMLExpenseTransactionModel::headerData(int section, Qt::Orientation ori
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
             switch (section) {
-            case TransactionIdColumn:
+            case ExpenseTransactionIdRole:
                 return tr("Transaction ID");
             case ClientNameColumn:
                 return tr("Client name");
