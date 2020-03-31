@@ -84,24 +84,6 @@ void QMLMostSoldProductModelTest::testViewMostSoldProducts()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
 
-    enum Roles {
-        ProductCategoryIdRole = Qt::UserRole,
-        ProductCategoryRole,
-        ProductIdRole,
-        ProductRole,
-        TotalRevenueRole,
-        TotalQuantityRole,
-        UnitIdRole,
-        UnitRole
-    };
-
-    enum Columns {
-        ProductColumn,
-        TotalQuantityColumn,
-        TotalRevenueColumn,
-        ColumnCount
-    };
-
     QCOMPARE(products.count(), 3);
     // Rows with columns
     QCOMPARE(m_mostSoldProductModel->data(m_mostSoldProductModel->index(0, QMLMostSoldProductModel::ProductColumn),
