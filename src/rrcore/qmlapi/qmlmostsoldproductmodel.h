@@ -1,28 +1,36 @@
 #ifndef QMLMOSTSOLDPRODUCTMODEL_H
 #define QMLMOSTSOLDPRODUCTMODEL_H
 
-#include "models/abstractvisuallistmodel.h"
+#include "models/abstractkpimodel.h"
 #include <QVariantList>
 
 class DatabaseThread;
 
-class QMLMostSoldProductModel : public AbstractVisualListModel
+class QMLMostSoldProductModel : public AbstractKpiModel
 {
     Q_OBJECT
 public:
     enum Roles {
-        CategoryIdRole = Qt::UserRole,
-        CategoryRole,
+        ProductCategoryIdRole = Qt::UserRole,
+        ProductCategoryRole,
         ProductIdRole,
         ProductRole,
         TotalRevenueRole,
         TotalQuantityRole,
-        UnitIdRole,
-        UnitRole
+        ProductUnitIdRole,
+        ProductUnitRole
+    };
+
+    enum Columns {
+        ProductColumn,
+        TotalQuantityColumn,
+        TotalRevenueColumn,
+        ColumnCount
     };
 
     explicit QMLMostSoldProductModel(QObject *parent = nullptr);
-    explicit QMLMostSoldProductModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLMostSoldProductModel(DatabaseThread &thread,
+                                     QObject *parent = nullptr);
     ~QMLMostSoldProductModel() override = default;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
@@ -34,7 +42,7 @@ protected:
     bool canProcessResult(const QueryResult &result) const override;
     void processResult(const QueryResult &result) override final;
 private:
-    QVariantList m_records;
+    QVariantList m_products;
 };
 
 #endif // QMLMOSTSOLDPRODUCTMODEL_H

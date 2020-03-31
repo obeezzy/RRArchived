@@ -52,11 +52,10 @@ QVariant QMLTotalRevenueModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLTotalRevenueModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
-    roles.insert(CreatedRole, "created");
-    roles.insert(AmountPaidRole, "amount_paid");
-
-    return roles;
+    return {
+        { CreatedRole, "created" },
+        { AmountPaidRole, "amount_paid" }
+    };
 }
 
 void QMLTotalRevenueModel::tryQuery()

@@ -14,7 +14,9 @@ class QMLExpensePusher : public AbstractPusher
     Q_PROPERTY(PaymentMethod paymentMethod READ paymentMethod WRITE setPaymentMethod NOTIFY paymentMethodChanged)
 public:
     enum class PaymentMethod {
-        Cash, DebitCard, CreditCard
+        Cash,
+        DebitCard,
+        CreditCard
     }; Q_ENUM(PaymentMethod)
 
     enum SuccessCode {
@@ -48,6 +50,7 @@ signals:
     void amountChanged();
     void paymentMethodChanged();
 protected:
+    bool canProcessResult(const QueryResult &result) override;
     void processResult(const QueryResult result) override;
 private:
     Utility::ExpenseTransaction m_transaction;

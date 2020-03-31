@@ -255,9 +255,6 @@ bool QMLPurchaseCartModel::canProcessResult(const QueryResult &result) const
 
 void QMLPurchaseCartModel::processResult(const QueryResult &result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
 
     // Do not re-query if the transaction ID is changed in this method

@@ -11,6 +11,8 @@ public:
                                  QObject *parent = nullptr);
 protected:
     void tryQuery() override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override;
 };
 
 #endif // QMLEXPENSEHOMEMODEL_H

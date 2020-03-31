@@ -121,9 +121,6 @@ void QMLStockProductDetailRecord::tryQuery()
 
 void QMLStockProductDetailRecord::processResult(const QueryResult result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

@@ -232,9 +232,6 @@ void QMLUserProfile::processResult(const QueryResult &result)
 
 void QMLUserProfile::processServerResponse(const ServerResponse &response)
 {
-    if (this != response.request().receiver())
-        return;
-
     setBusy(false);
     if (response.isSuccessful()) {
         if (response.request().action() == QStringLiteral("link_account")) {

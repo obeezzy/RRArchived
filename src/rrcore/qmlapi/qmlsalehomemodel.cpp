@@ -60,9 +60,6 @@ bool QMLSaleHomeModel::canProcessResult(const QueryResult &result) const
 
 void QMLSaleHomeModel::processResult(const QueryResult &result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

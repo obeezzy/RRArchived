@@ -26,6 +26,7 @@ public:
     Q_INVOKABLE virtual void undoLastCommit();
 protected:
     void setBusy(bool);
+    virtual bool canProcessResult(const QueryResult &result) = 0;
     virtual void processResult(const QueryResult result) = 0;
     const QueryRequest &lastSuccessfulRequest() const;
 signals:
@@ -38,6 +39,7 @@ private:
     QueryRequest m_lastSuccessfulRequest;
 
     void saveRequest(const QueryResult &result);
+    void validateResult(const QueryResult result);
 };
 
 Q_DECLARE_LOGGING_CATEGORY(lcabstractpusher);

@@ -12,9 +12,7 @@ QMLUserDetailRecord::QMLUserDetailRecord(QObject *parent) :
 QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread &thread,
                                          QObject *parent) :
     AbstractDetailRecord (thread, parent)
-{
-
-}
+{}
 
 int QMLUserDetailRecord::userId() const
 {
@@ -122,9 +120,6 @@ void QMLUserDetailRecord::tryQuery()
 
 void QMLUserDetailRecord::processResult(const QueryResult result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
     if (result.isSuccessful()) {
         const Utility::User &user{ result.outcome().toMap() };

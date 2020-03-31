@@ -125,9 +125,6 @@ bool QMLUserModel::canProcessResult(const QueryResult &result) const
 
 void QMLUserModel::processResult(const QueryResult &result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
     if (result.isSuccessful()) {
         if (result.request().command() == UserQuery::ActivateUser::COMMAND) {

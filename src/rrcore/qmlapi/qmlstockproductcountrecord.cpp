@@ -87,9 +87,6 @@ void QMLStockProductCountRecord::tryQuery()
 
 void QMLStockProductCountRecord::processResult(const QueryResult result)
 {
-    if (result.request().receiver() != this)
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

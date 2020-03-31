@@ -83,11 +83,14 @@ void QMLIncomePusher::push()
     emit execute(new IncomeQuery::AddIncomeTransaction(m_transaction, this));
 }
 
+bool QMLIncomePusher::canProcessResult(const QueryResult &result)
+{
+    Q_UNUSED(result)
+    return true;
+}
+
 void QMLIncomePusher::processResult(const QueryResult result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
 
     if (result.isSuccessful()) {

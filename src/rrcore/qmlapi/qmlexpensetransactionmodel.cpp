@@ -114,9 +114,6 @@ bool QMLExpenseTransactionModel::canProcessResult(const QueryResult &result) con
 
 void QMLExpenseTransactionModel::processResult(const QueryResult &result)
 {
-    if (this != result.request().receiver())
-        return;
-
     setBusy(false);
     beginResetModel();
     if (result.isSuccessful()) {

@@ -46,6 +46,4 @@ bool QMLCreditorModel::canProcessResult(const QueryResult &result) const
 
 void QMLCreditorModel::processResult(const QueryResult &result)
 {
-    if (this != result.request().receiver())
-        return;
 }

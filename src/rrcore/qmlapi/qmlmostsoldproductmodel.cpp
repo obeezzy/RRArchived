@@ -1,5 +1,6 @@
 #include "qmlmostsoldproductmodel.h"
 #include "database/databasethread.h"
+#include "queryexecutors/sales/viewmostsoldproducts.h"
 #include <QDebug>
 
 QMLMostSoldProductModel::QMLMostSoldProductModel(QObject *parent) :
@@ -8,7 +9,7 @@ QMLMostSoldProductModel::QMLMostSoldProductModel(QObject *parent) :
 
 QMLMostSoldProductModel::QMLMostSoldProductModel(DatabaseThread &thread,
                                                  QObject *parent) :
-    AbstractVisualListModel(thread, parent)
+    AbstractKpiModel(thread, parent)
 {}
 
 int QMLMostSoldProductModel::rowCount(const QModelIndex &parent) const
@@ -16,7 +17,7 @@ int QMLMostSoldProductModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_records.count();
+    return m_products.count();
 }
 
 int QMLMostSoldProductModel::columnCount(const QModelIndex &parent) const
@@ -24,7 +25,7 @@ int QMLMostSoldProductModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return 2;
+    return ColumnCount;
 }
 
 QVariant QMLMostSoldProductModel::data(const QModelIndex &index, int role) const
@@ -35,27 +36,31 @@ QVariant QMLMostSoldProductModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
-        case 0:
-            return m_records.at(index.row()).toMap().value("product").toString();
-        case 1:
-            return m_records.at(index.row()).toMap().value("total_quantity").toDouble();
+        case ProductColumn:
+            return m_products.at(index.row()).toMap().value("product").toString();
+        case TotalQuantityColumn:
+            return m_products.at(index.row()).toMap().value("total_quantity").toDouble();
+        case TotalRevenueColumn:
+            return m_products.at(index.row()).toMap().value("total_revenue").toDouble();
+        default:
+            return QVariant();
         }
-    case CategoryIdRole:
-        return m_records.at(index.row()).toMap().value("category_id").toInt();
-    case CategoryRole:
-        return m_records.at(index.row()).toMap().value("category").toInt();
+    case ProductCategoryIdRole:
+        return m_products.at(index.row()).toMap().value("product_category_id").toInt();
+    case ProductCategoryRole:
+        return m_products.at(index.row()).toMap().value("product_category").toString();
     case ProductIdRole:
-        return m_records.at(index.row()).toMap().value("product_id").toInt();
+        return m_products.at(index.row()).toMap().value("product_id").toInt();
     case ProductRole:
-        return m_records.at(index.row()).toMap().value("product").toString();
+        return m_products.at(index.row()).toMap().value("product").toString();
     case TotalRevenueRole:
-        return m_records.at(index.row()).toMap().value("total_revenue").toDouble();
+        return m_products.at(index.row()).toMap().value("total_revenue").toDouble();
     case TotalQuantityRole:
-        return m_records.at(index.row()).toMap().value("total_quantity").toDouble();
-    case UnitIdRole:
-        return m_records.at(index.row()).toMap().value("unit_id").toInt();
-    case UnitRole:
-        return m_records.at(index.row()).toMap().value("unit").toString();
+        return m_products.at(index.row()).toMap().value("total_quantity").toDouble();
+    case ProductUnitIdRole:
+        return m_products.at(index.row()).toMap().value("product_unit_id").toInt();
+    case ProductUnitRole:
+        return m_products.at(index.row()).toMap().value("product_unit").toString();
     }
 
     return QVariant();
@@ -63,22 +68,24 @@ QVariant QMLMostSoldProductModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLMostSoldProductModel::roleNames() const
 {
-    QHash<int, QByteArray> roles(AbstractVisualListModel::roleNames());
-    roles.insert(CategoryIdRole, "category_id");
-    roles.insert(CategoryRole, "category");
-    roles.insert(ProductIdRole, "product_id");
-    roles.insert(ProductRole, "product");
-    roles.insert(TotalRevenueRole, "total_revenue");
-    roles.insert(TotalQuantityRole, "total_quantity");
-    roles.insert(UnitIdRole, "product_unit_id");
-    roles.insert(UnitRole, "unit");
-
-    return roles;
+    return {
+        { Qt::DisplayRole, "display" },
+        { ProductCategoryIdRole, "product_category_id" },
+        { ProductCategoryRole, "product_category" },
+        { ProductIdRole, "product_id" },
+        { ProductRole, "product" },
+        { TotalRevenueRole, "total_revenue" },
+        { TotalQuantityRole, "total_quantity" },
+        { ProductUnitIdRole, "product_unit_id" },
+        { ProductUnitRole, "product_unit" }
+    };
 }
 
 void QMLMostSoldProductModel::tryQuery()
 {
-
+    setBusy(true);
+    emit execute(new SaleQuery::ViewMostSoldProducts(dateTimeSpan(),
+                                                     this));
 }
 
 bool QMLMostSoldProductModel::canProcessResult(const QueryResult &result) const
@@ -89,5 +96,14 @@ bool QMLMostSoldProductModel::canProcessResult(const QueryResult &result) const
 
 void QMLMostSoldProductModel::processResult(const QueryResult &result)
 {
-    Q_UNUSED(result)
+    setBusy(false);
+
+    if (result.isSuccessful()) {
+        beginResetModel();
+        m_products = result.outcome().toMap().value("products").toList();
+        endResetModel();
+        emit success();
+    } else {
+        emit error();
+    }
 }

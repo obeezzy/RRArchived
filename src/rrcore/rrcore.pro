@@ -33,6 +33,7 @@ SOURCES += \
     database/exceptions/useraccountlockedexception.cpp \
     database/exceptions/userpreviouslyarchivedexception.cpp \
     database/queryexecutor.cpp \
+    models/abstractkpimodel.cpp \
     models/abstractreportmodel.cpp \
     qmlapi/qmlmostsoldproductmodel.cpp \
     qmlapi/qmlpurchasepaymentmodel.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
     queryexecutors/income/filterincomereport.cpp \
     queryexecutors/purchase/filterpurchasereport.cpp \
     queryexecutors/sales/filtersalereport.cpp \
+    queryexecutors/sales/viewmostsoldproducts.cpp \
     queryexecutors/sales/viewsoldproducts.cpp \
     queryexecutors/stock/filterstockreport.cpp \
     queryexecutors/transaction/transactionexecutor.cpp \
@@ -250,6 +252,7 @@ HEADERS += \
     database/exceptions/useraccountlockedexception.h \
     database/exceptions/userpreviouslyarchivedexception.h \
     database/queryexecutor.h \
+    models/abstractkpimodel.h \
     models/abstractreportmodel.h \
     qmlapi/qmlmostsoldproductmodel.h \
     qmlapi/qmlpurchasepaymentmodel.h \
@@ -261,6 +264,7 @@ HEADERS += \
     queryexecutors/income/filterincomereport.h \
     queryexecutors/purchase/filterpurchasereport.h \
     queryexecutors/sales/filtersalereport.h \
+    queryexecutors/sales/viewmostsoldproducts.h \
     queryexecutors/sales/viewsoldproducts.h \
     queryexecutors/stock/filterstockreport.h \
     queryexecutors/transaction/transactionexecutor.h \

@@ -56,3 +56,17 @@ void AbstractPusher::saveRequest(const QueryResult &result)
         qCDebug(abstractPusher) << "Request saved:" << result.request().command() << this;
     }
 }
+
+void AbstractPusher::validateResult(const QueryResult result)
+{
+    if (result.request().receiver() != this)
+        return;
+
+    if (canProcessResult(result))
+        processResult(result);
+    else
+        qFatal("Validation failed for %s.\nActual returned keys: %s.\nExpected returned keys: %s",
+               result.request().command().toStdString().c_str(),
+               result.outcome().toMap().keys().join(", ").toStdString().c_str(),
+               result.errorDetails().toStdString().c_str());
+}
