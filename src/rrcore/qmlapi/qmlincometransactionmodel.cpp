@@ -1,9 +1,10 @@
 #include "qmlincometransactionmodel.h"
+#include "database/databasethread.h"
 #include "queryexecutors/income.h"
 #include <QDateTime>
 
 QMLIncomeTransactionModel::QMLIncomeTransactionModel(QObject *parent) :
-    AbstractTransactionModel (parent)
+    QMLIncomeTransactionModel (DatabaseThread::instance(), parent)
 {}
 
 QMLIncomeTransactionModel::QMLIncomeTransactionModel(DatabaseThread &thread,
@@ -35,6 +36,8 @@ QVariant QMLIncomeTransactionModel::data(const QModelIndex &index, int role) con
     switch (role) {
     case TransactionIdRole:
         return m_transactions.at(index.row()).id;
+    case ClientIdRole:
+        return m_transactions.at(index.row()).client.id;
     case ClientNameRole:
         return m_transactions.at(index.row()).client.preferredName;
     case AmountRole:

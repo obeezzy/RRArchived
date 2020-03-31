@@ -21,6 +21,19 @@ struct ExpenseTransaction
     explicit ExpenseTransaction(const QVariantMap &map);
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const ExpenseTransaction &transaction)
+    {
+        debug.nospace() << "ExpenseTransaction("
+                        << "id=" << transaction.id
+                        << ", client=" << transaction.client
+                        << ", purpose=" << transaction.purpose
+                        << ", amount=" << transaction.amount
+                        << ", paymentMethod=" << transaction.paymentMethod
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class ExpenseTransactionList : public QList<ExpenseTransaction>

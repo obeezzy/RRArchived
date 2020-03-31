@@ -33,7 +33,7 @@ QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) co
         return QVariant();
 
     switch (role) {
-    case ExpenseTransactionIdRole:
+    case TransactionIdRole:
         return m_transactions.at(index.row()).id;
     case ClientIdRole:
         return m_transactions.at(index.row()).client.id;
@@ -49,7 +49,7 @@ QVariant QMLExpenseTransactionModel::data(const QModelIndex &index, int role) co
 QHash<int, QByteArray> QMLExpenseTransactionModel::roleNames() const
 {
     return {
-        { ExpenseTransactionIdRole, "expense_transaction_id" },
+        { TransactionIdRole, "transaction_id" },
         { ClientIdRole, "client_id" },
         { ClientNameRole, "client_name" },
         { AmountRole, "amount" }
@@ -61,7 +61,7 @@ QVariant QMLExpenseTransactionModel::headerData(int section, Qt::Orientation ori
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
             switch (section) {
-            case ExpenseTransactionIdRole:
+            case TransactionIdRole:
                 return tr("Transaction ID");
             case ClientNameColumn:
                 return tr("Client name");

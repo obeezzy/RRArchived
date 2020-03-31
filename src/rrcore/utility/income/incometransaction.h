@@ -1,10 +1,10 @@
 #ifndef INCOMETRANSACTION_H
 #define INCOMETRANSACTION_H
 
+#include "singletons/settings.h"
 #include "utility/common/client.h"
 #include "utility/common/money.h"
 #include "utility/common/paymentmethod.h"
-#include "singletons/settings.h"
 #include <QString>
 #include <QVariantList>
 
@@ -21,6 +21,19 @@ struct IncomeTransaction
     explicit IncomeTransaction(const QVariantMap &map);
 
     QVariantMap toVariantMap() const;
+
+    friend QDebug operator<<(QDebug debug, const IncomeTransaction &transaction)
+    {
+        debug.nospace() << "IncomeTransaction("
+                        << "id=" << transaction.id
+                        << ", client=" << transaction.client
+                        << ", purpose=" << transaction.purpose
+                        << ", amount=" << transaction.amount
+                        << ", paymentMethod=" << transaction.paymentMethod
+                        << ")";
+
+        return debug.nospace();
+    }
 };
 
 class IncomeTransactionList : public QList<IncomeTransaction>
