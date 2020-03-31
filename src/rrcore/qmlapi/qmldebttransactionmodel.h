@@ -4,7 +4,6 @@
 #include "models/abstractvisuallistmodel.h"
 #include "utility/debtor/debtor.h"
 
-class DebtPaymentModel;
 class QUrl;
 
 class QMLDebtTransactionModel : public AbstractVisualListModel

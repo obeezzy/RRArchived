@@ -42,7 +42,7 @@ QVariantMap DebtPayment::toVariantMap() const {
     return {
         { "debt_transaction_id", debtTransactionId },
         { "debt_payment_id", id },
-        { "total_debt", monies.totalDebt.toDouble() },
+        { "debt", monies.debt.toDouble() },
         { "amount_paid", monies.amountPaid.toDouble() },
         { "balance", monies.balance.toDouble() },
         { "currency", monies.amountPaid.currency().isoCode() },

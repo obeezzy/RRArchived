@@ -48,7 +48,7 @@ public:
     {
         debug.nospace() << "DebtPayment("
                         << "id=" << debtPayment.id
-                        << ", totalDebt=" << debtPayment.monies.totalDebt
+                        << ", debt=" << debtPayment.monies.debt
                         << ", amountPaid=" << debtPayment.monies.amountPaid
                         << ", balance=" << debtPayment.monies.balance
                         << ", state=" << debtPayment.state

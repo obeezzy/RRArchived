@@ -226,7 +226,7 @@ void QMLDebtTransactionModel::addDebt(double totalDebt,
         return;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_debtor.transactions.append(Utility::DebtTransaction{
+    m_debtor.transactions.append(Utility::DebtTransaction {
                                          totalDebt,
                                          dueDateTime,
                                          Utility::Note{ note }

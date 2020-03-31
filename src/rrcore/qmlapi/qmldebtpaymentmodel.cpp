@@ -31,20 +31,22 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     switch (role) {
-    case AmountOwedRole: {
-        auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
-        return debtTransaction->totalDebt.toDouble();
-    }
+    case DebtRole:
+        return m_payments.at(index.row()).monies.debt.toDouble();
     case AmountPaidRole:
         return m_payments.at(index.row()).monies.amountPaid.toDouble();
     case BalanceRole:
         return m_payments.at(index.row()).monies.balance.toDouble();
     case MaxPayableAmount: {
+        if (!m_debtTransactionRef.canConvert<Utility::DebtTransaction *>()) {
+            qCWarning(lcqmldebtpaymentmodel) << "Invalid debt transaction. Can't display max payable amount.";
+            return QVariant();
+        }
         auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
         return qMax(Utility::Money(0.0), debtTransaction->totalDebt - m_totalAmountPaid).toDouble();
     }
     case CurrencyRole:
-        return m_payments.at(index.row()).monies.totalDebt.currency().isoCode();
+        return m_payments.at(index.row()).monies.debt.currency().isoCode();
     case DueDateRole:
         return m_payments.at(index.row()).dueDateTime;
     case NoteRole:
@@ -56,7 +58,8 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
     case ArchivedRole:
         return m_payments.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
     case CreatedRole:
-        return m_payments.at(index.row()).timestamp.created;
+        return m_payments.at(index.row()).timestamp.created.isNull() ? QDateTime::currentDateTime()
+                                                                     : m_payments.at(index.row()).timestamp.created;
     case LastEditedRole:
         return m_payments.at(index.row()).timestamp.lastEdited;
     }
@@ -67,7 +70,7 @@ QVariant QMLDebtPaymentModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> QMLDebtPaymentModel::roleNames() const
 {
     return {
-        { AmountOwedRole, "amount_owed" },
+        { DebtRole, "debt" },
         { AmountPaidRole, "amount_paid" },
         { BalanceRole, "balance" },
         { MaxPayableAmount, "max_payable_amount" },
@@ -91,17 +94,21 @@ bool QMLDebtPaymentModel::setData(const QModelIndex &index, const QVariant &valu
 
     switch (role) {
     case AmountPaidRole:
+        if (!value.canConvert<double>())
+            qCWarning(lcqmldebtpaymentmodel) << "Invalid 'amount_paid' value.";
         if (payment.state != Utility::DebtPayment::State::Clean) {
             payment.monies.amountPaid = Utility::Money{ value.toDouble() };
             updateRef(payment);
             emit dataChanged(index, index);
-            calculateTotals();
+            calculateTotalAmountPaid();
         } else {
             qCWarning(lcqmldebtpaymentmodel) << "Can't update amount paid: row must be dirty or fresh.";
             return false;
         }
         break;
     case DueDateRole:
+        if (!value.canConvert<QDateTime>())
+            qCWarning(lcqmldebtpaymentmodel) << "Invalid 'due_date' value.";
         payment.dueDateTime = value.toDateTime();
         updateRef(payment);
         emit dataChanged(index, index);
@@ -162,29 +169,42 @@ void QMLDebtPaymentModel::addPayment(double amount,
     if (amount <= 0.0)
         return;
 
+    if (!m_debtTransactionRef.canConvert<Utility::DebtTransaction *>()) {
+        qCWarning(lcqmldebtpaymentmodel) << "Invalid debt transaction. Can't add payment.";
+        return;
+    }
     auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
+
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!m_payments.isEmpty()) {
-        m_payments.append(Utility::DebtPayment{Utility::DebtMonies {
-                                                   QVariantMap {
-                                                       { "total_debt", m_payments.last().monies.balance.toDouble() },
-                                                       { "amount", amount }
-                                                   }
+        const double balance = (m_payments.last().monies.balance - Utility::Money(amount)).toDouble();
+        m_payments.append(Utility::DebtPayment{ Utility::DebtMonies {
+                                                    QVariantMap {
+                                                        { "debt", m_payments.last().monies.balance.toDouble() },
+                                                        { "amount_paid", amount },
+                                                        { "balance", balance }
+                                                    }
                                                },
                                                debtTransaction->dueDateTime,
                                                Utility::Note{ note }});
     } else {
-        m_payments.append(Utility::DebtPayment{Utility::DebtMonies {
-                                                   QVariantMap {
-                                                       { "total_debt", debtTransaction->totalDebt.toDouble() },
-                                                       { "amount", amount }
-                                                   }
+        const double balance = (debtTransaction->totalDebt - Utility::Money(amount)).toDouble();
+        m_payments.append(Utility::DebtPayment{ Utility::DebtMonies {
+                                                    QVariantMap {
+                                                        { "debt", debtTransaction->totalDebt.toDouble() },
+                                                        { "amount_paid", amount },
+                                                        { "balance", balance }
+                                                    }
                                                },
                                                debtTransaction->dueDateTime,
                                                Utility::Note{ note }});
     }
+    m_payments.last().timestamp = Utility::RecordTimestamp {
+            QDateTime::currentDateTime(),
+            QDateTime::currentDateTime()
+    };
     updateRef(m_payments.last());
-    calculateTotals();
+    calculateTotalAmountPaid();
     endInsertRows();
 }
 
@@ -197,7 +217,7 @@ void QMLDebtPaymentModel::removePayment(int row)
     auto payment = m_payments.takeAt(row);
     payment.state = Utility::DebtPayment::State::Trash;
     updateRef(payment);
-    calculateTotals();
+    calculateTotalAmountPaid();
     endRemoveRows();
 }
 
@@ -224,7 +244,7 @@ void QMLDebtPaymentModel::processResult(const QueryResult &result)
     if (result.isSuccessful()) {
         beginResetModel();
         m_payments = Utility::DebtPaymentList{ result.outcome().toMap().value("payments").toList() };
-        calculateTotals();
+        calculateTotalAmountPaid();
         endResetModel();
 
         emit success();
@@ -233,7 +253,7 @@ void QMLDebtPaymentModel::processResult(const QueryResult &result)
     }
 }
 
-void QMLDebtPaymentModel::calculateTotals()
+void QMLDebtPaymentModel::calculateTotalAmountPaid()
 {
     Utility::Money totalAmountPaid;
     for (const auto &payment : m_payments)
@@ -244,6 +264,11 @@ void QMLDebtPaymentModel::calculateTotals()
 
 void QMLDebtPaymentModel::updateRef(Utility::DebtPayment payment)
 {
+    if (!m_debtTransactionRef.canConvert<Utility::DebtTransaction *>()) {
+        qCWarning(lcqmldebtpaymentmodel) << "Invalid debt transaction. Can't update ref.";
+        return;
+    }
+
     auto debtTransaction = m_debtTransactionRef.value<Utility::DebtTransaction *>();
     payment.debtTransactionId = debtTransaction->id;
 

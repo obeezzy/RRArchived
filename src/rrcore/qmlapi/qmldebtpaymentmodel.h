@@ -14,7 +14,7 @@ class QMLDebtPaymentModel : public AbstractVisualListModel
     Q_PROPERTY(double totalAmountPaid READ totalAmountPaid NOTIFY totalAmountPaidChanged)
 public:
     enum Role {
-        AmountOwedRole = Qt::UserRole,
+        DebtRole = Qt::UserRole,
         AmountPaidRole,
         BalanceRole,
         MaxPayableAmount,
@@ -62,7 +62,7 @@ private:
     QVariant m_debtTransactionRef;
     Utility::DebtPaymentList m_payments;
 
-    void calculateTotals();
+    void calculateTotalAmountPaid();
     void updateRef(Utility::DebtPayment payment);
 };
 
