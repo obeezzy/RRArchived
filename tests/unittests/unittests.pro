@@ -4,6 +4,7 @@ SUBDIRS += \
     QMLDebtPaymentModel \
     QMLDoubleValidator \
     QMLExpenseTransactionModel \
+    QMLIncomeTransactionModel \
     QMLStockProductModel \
     QMLStockProductPusher \
     QMLDebtorModel \

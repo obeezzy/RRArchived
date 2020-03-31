@@ -70,7 +70,7 @@ void QMLExpenseTransactionModelTest::testViewExpenseTransactions()
 
     QCOMPARE(m_expenseTransactionModel->rowCount(), 2);
     QCOMPARE(m_expenseTransactionModel->data(m_expenseTransactionModel->index(0, QMLExpenseTransactionModel::TransactionIdColumn),
-                                             QMLExpenseTransactionModel::ExpenseTransactionIdRole).toInt(),
+                                             QMLExpenseTransactionModel::TransactionIdRole).toInt(),
              transactions[0].toMap()["expense_transaction_id"].toInt());
     QCOMPARE(m_expenseTransactionModel->data(m_expenseTransactionModel->index(0, QMLExpenseTransactionModel::ClientNameColumn),
                                              QMLExpenseTransactionModel::ClientIdRole).toInt(),

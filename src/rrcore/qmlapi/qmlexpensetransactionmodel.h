@@ -9,7 +9,7 @@ class QMLExpenseTransactionModel : public AbstractTransactionModel
     Q_OBJECT
 public:
     enum Roles {
-        ExpenseTransactionIdRole = Qt::UserRole,
+        TransactionIdRole = Qt::UserRole,
         ClientIdRole,
         ClientNameRole,
         AmountRole
