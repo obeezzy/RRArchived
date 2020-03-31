@@ -72,7 +72,7 @@ void QMLIncomeTransactionModelTest::testViewIncomeTransactions()
     QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, QMLIncomeTransactionModel::TransactionIdColumn),
                                              QMLIncomeTransactionModel::TransactionIdRole).toInt(),
              transactions[0].toMap()["income_transaction_id"].toInt());
-    QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, QMLIncomeTransactionModel::ClientNameColumn),
+    QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, 0),
                                              QMLIncomeTransactionModel::ClientIdRole).toInt(),
              transactions[0].toMap()["client_id"].toInt());
     QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, QMLIncomeTransactionModel::ClientNameColumn),
