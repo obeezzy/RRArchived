@@ -1,44 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlstockreportmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLStockReportModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLStockReportModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLStockReportModel *m_stockReportModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLStockReportModelTest::QMLStockReportModelTest() :
-    m_thread(&m_result)
-{
-    m_stockReportModel = new QMLStockReportModel(m_thread, this);
-}
 
 void QMLStockReportModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_stockReportModel = new QMLStockReportModel(*m_thread, this);
 }
 
 void QMLStockReportModelTest::cleanup()
 {
-
+    m_stockReportModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLStockReportModelTest::test_case1()
+void QMLStockReportModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_stockReportModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLStockReportModelTest)

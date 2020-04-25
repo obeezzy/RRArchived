@@ -1,44 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlpurchasetransactionmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLPurchaseTransactionModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLPurchaseTransactionModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLPurchaseTransactionModel *m_purchaseTransactionModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLPurchaseTransactionModelTest::QMLPurchaseTransactionModelTest() :
-    m_thread(&m_result)
-{
-    m_purchaseTransactionModel = new QMLPurchaseTransactionModel(m_thread, this);
-}
 
 void QMLPurchaseTransactionModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_purchaseTransactionModel = new QMLPurchaseTransactionModel(*m_thread, this);
 }
 
 void QMLPurchaseTransactionModelTest::cleanup()
 {
-
+    m_purchaseTransactionModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLPurchaseTransactionModelTest::test_case1()
+void QMLPurchaseTransactionModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_purchaseTransactionModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLPurchaseTransactionModelTest)

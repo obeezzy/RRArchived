@@ -6,8 +6,6 @@
 class QMLIncomeTransactionModelTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLIncomeTransactionModelTest() = default;
 private slots:
     void init();
     void cleanup();
@@ -17,12 +15,11 @@ private slots:
 private:
     QMLIncomeTransactionModel *m_incomeTransactionModel;
     MockDatabaseThread *m_thread;
-    QueryResult m_result;
 };
 
 void QMLIncomeTransactionModelTest::init()
 {
-    m_thread = new MockDatabaseThread(&m_result, this);
+    m_thread = new MockDatabaseThread(this);
     m_incomeTransactionModel = new QMLIncomeTransactionModel(*m_thread, this);
 }
 
@@ -52,8 +49,8 @@ void QMLIncomeTransactionModelTest::testViewIncomeTransactions()
     };
 
     auto databaseWillReturn = [this](const QVariantList &transactions) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap { { "transactions", transactions } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "transactions", transactions } });
     };
     QSignalSpy successSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::success);
     QSignalSpy errorSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::error);
@@ -86,7 +83,7 @@ void QMLIncomeTransactionModelTest::testViewIncomeTransactions()
 void QMLIncomeTransactionModelTest::testError()
 {
     auto databaseWillReturnError = [this]() {
-        m_result.setSuccessful(false);
+        m_thread->result().setSuccessful(false);
     };
     QSignalSpy successSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::success);
     QSignalSpy errorSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::error);

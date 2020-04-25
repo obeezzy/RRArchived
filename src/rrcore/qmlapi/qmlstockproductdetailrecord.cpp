@@ -124,7 +124,7 @@ void QMLStockProductDetailRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        const Utility::StockProduct &product{ result.outcome().toMap().value("product").toMap() };
+        const auto product = Utility::StockProduct{ result.outcome().toMap().value("product").toMap() };
         setCategoryId(product.category.id);
         setCategory(product.category.category);
         setProduct(product.product);

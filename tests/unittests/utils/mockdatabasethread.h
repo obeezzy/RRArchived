@@ -10,12 +10,12 @@ class MockDatabaseThread : public DatabaseThread
 {
     Q_OBJECT
 public:
-    explicit MockDatabaseThread(QueryResult *result,
-                                QObject *parent = nullptr);
-    ~MockDatabaseThread() override;
-private:
-    QueryResult *m_result;
+    explicit MockDatabaseThread(QObject *parent = nullptr);
+    ~MockDatabaseThread() override = default;
 
+    QueryResult &result();
+private:
+    QueryResult m_result;
     void emitResult(QueryExecutor *queryExecutor);
 };
 

@@ -1,44 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlexpensehomemodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLExpenseHomeModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLExpenseHomeModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLExpenseHomeModel *m_expenseHomeModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLExpenseHomeModelTest::QMLExpenseHomeModelTest() :
-    m_thread(&m_result)
-{
-    m_expenseHomeModel = new QMLExpenseHomeModel(m_thread, this);
-}
 
 void QMLExpenseHomeModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_expenseHomeModel = new QMLExpenseHomeModel(*m_thread, this);
 }
 
 void QMLExpenseHomeModelTest::cleanup()
 {
-
+    m_expenseHomeModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLExpenseHomeModelTest::test_case1()
+void QMLExpenseHomeModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_expenseHomeModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLExpenseHomeModelTest)

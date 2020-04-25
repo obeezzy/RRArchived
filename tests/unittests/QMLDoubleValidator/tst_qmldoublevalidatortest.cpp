@@ -5,8 +5,6 @@
 class QMLDoubleValidatorTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLDoubleValidatorTest() = default;
 private slots:
     void init();
     void cleanup();

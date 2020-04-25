@@ -29,6 +29,7 @@ QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
     UserProfile::instance().setDatabaseReady(true);
     UserProfile::instance().setServerTunnelingEnabled(false);
     connect(this, &QMLUserProfile::execute, &thread, &DatabaseThread::execute);
+    connect(this, &QMLUserProfile::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
 
     connect(this, &QMLUserProfile::executeRequest,
@@ -200,11 +201,11 @@ void QMLUserProfile::processResult(const QueryResult &result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == UserQuery::SignInUser::COMMAND) {
-            const Utility::User &user{ result.outcome().toMap() };
+            const auto user = Utility::User{ result.outcome().toMap() };
             UserProfile::instance().setUser(user);
             emit success(ModelResult{ SignInSuccess });
         } else if (result.request().command() == UserQuery::SignUpUser::COMMAND) {
-            const Utility::User &user{ result.outcome().toMap() };
+            const auto user = Utility::User{ result.outcome().toMap() };
             UserProfile::instance().setUser(user);
             emit success(ModelResult{ SignUpSuccess });
         } else if (result.request().command() == UserQuery::SignOutUser::COMMAND) {

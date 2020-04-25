@@ -7,37 +7,36 @@
 class QMLDebtorModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLDebtorModelTest();
-
 private Q_SLOTS:
     void init();
     void cleanup();
 
+    void testModel();
     void testViewDebtors();
     void testRemoveDebtor();
     void testUndoRemoveDebtor();
 private:
     QMLDebtorModel *m_debtorModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLDebtorModelTest::QMLDebtorModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLDebtorModelTest::init()
 {
-    m_debtorModel = new QMLDebtorModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_debtorModel = new QMLDebtorModel(*m_thread, this);
 }
 
 void QMLDebtorModelTest::cleanup()
 {
     m_debtorModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLDebtorModelTest::testModel()
+{
+    QAbstractItemModelTester(m_debtorModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLDebtorModelTest::testViewDebtors()
@@ -54,8 +53,8 @@ void QMLDebtorModelTest::testViewDebtors()
     };
 
     auto databaseWillReturn = [this](const QVariantList &debtors) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap { { "debtors", debtors } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "debtors", debtors } });
     };
 
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
@@ -84,8 +83,8 @@ void QMLDebtorModelTest::testViewDebtors()
 void QMLDebtorModelTest::testRemoveDebtor()
 {
     auto databaseWillReturnSingleDebtor = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
 
         QVariantList debtors {
             QVariantMap {
@@ -98,21 +97,21 @@ void QMLDebtorModelTest::testRemoveDebtor()
             }
         };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "debtors", debtors },
                                 { "record_count", debtors.count() }
                             });
     };
     auto databaseWillReturnRemovedDebtor = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap {
                                 { "debtor_id", 1 },
                                 { "row", 0 }
                             });
     };
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
     };
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
     QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
@@ -172,16 +171,16 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     };
 
     auto databaseWillReturnDebtors = [this](const QVariantList &debtors) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap{ { "debtors", debtors } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap{ { "debtors", debtors } });
     };
     auto databaseWillReturnRemovedDebtor = [this](const QVariantMap &debtor) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(debtor);
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(debtor);
     };
     auto databaseWillReturnReaddedDebtor = [this](const QVariantMap &debtor) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(debtor);
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(debtor);
     };
 
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);

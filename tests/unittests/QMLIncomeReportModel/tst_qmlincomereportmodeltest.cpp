@@ -1,44 +1,38 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlincomereportmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLIncomeReportModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLIncomeReportModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLIncomeReportModel *m_incomeReportModel;
-    MockDatabaseThread m_thread;
+    MockDatabaseThread *m_thread;
     QueryResult m_result;
 };
 
-QMLIncomeReportModelTest::QMLIncomeReportModelTest() :
-    m_thread(&m_result)
-{
-    m_incomeReportModel = new QMLIncomeReportModel(m_thread, this);
-}
-
 void QMLIncomeReportModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_incomeReportModel = new QMLIncomeReportModel(*m_thread, this);
 }
 
 void QMLIncomeReportModelTest::cleanup()
 {
-
+    m_incomeReportModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLIncomeReportModelTest::test_case1()
+void QMLIncomeReportModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_incomeReportModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLIncomeReportModelTest)

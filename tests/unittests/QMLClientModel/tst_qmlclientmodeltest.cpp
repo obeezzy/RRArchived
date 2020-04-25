@@ -1,59 +1,58 @@
-﻿#include <QString>
+﻿#include "qmlapi/qmlclientmodel.h"
+#include "mockdatabasethread.h"
+#include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-
-#include "qmlapi/qmlclientmodel.h"
-#include "mockdatabasethread.h"
 
 class QMLClientModelTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLClientModelTest();
 private slots:
     void init();
     void cleanup();
 
+    void testModel();
     void testViewClients();
     void testFilterByPreferredName();
     void testFilterByPhoneNumber();
 private:
     QMLClientModel *m_clientModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLClientModelTest::QMLClientModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLClientModelTest::init()
 {
-    m_clientModel = new QMLClientModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_clientModel = new QMLClientModel(*m_thread, this);
 }
 
 void QMLClientModelTest::cleanup()
 {
+    m_clientModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLClientModelTest::testModel()
+{
+    QAbstractItemModelTester(m_clientModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLClientModelTest::testViewClients()
 {
     auto databaseWillReturnEmptySet = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturnSingleClient = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
         QVariantList clients;
         clients.append(QVariantMap {
                            { "client_id", 1 },
                            { "preferred_name", "Preferred" },
                            { "phone_number", "123456789" }
                        });
-        m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
+        m_thread->result().setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
 
     QSignalSpy successSpy(m_clientModel, &QMLClientModel::success);
@@ -92,23 +91,20 @@ void QMLClientModelTest::testViewClients()
 void QMLClientModelTest::testFilterByPreferredName()
 {
     auto databaseWillReturnEmptySet = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturnSingleClient = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
         QVariantList clients;
         clients.append(QVariantMap {
                            { "client_id", 2 },
                            { "preferred_name", "Preferred again" },
                            { "phone_number", "987654321" }
                        });
-        m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
+        m_thread->result().setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
-    auto databaseWillReturnTwoClient = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+    auto databaseWillReturnTwoClients = [this]() {
+        m_thread->result().setSuccessful(true);
         QVariantList clients;
         clients.append(QVariantMap {
                            { "client_id", 1 },
@@ -121,7 +117,7 @@ void QMLClientModelTest::testFilterByPreferredName()
                            { "preferred_name", "Preferred again" },
                            { "phone_number", "987654321" }
                        });
-        m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
+        m_thread->result().setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
 
     QSignalSpy successSpy(m_clientModel, &QMLClientModel::success);
@@ -136,7 +132,7 @@ void QMLClientModelTest::testFilterByPreferredName()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_clientModel->rowCount(), 0);
 
-    databaseWillReturnTwoClient();
+    databaseWillReturnTwoClients();
 
     m_clientModel->setFilterText(QStringLiteral("P"));
     QCOMPARE(successSpy.count(), 1);
@@ -160,23 +156,20 @@ void QMLClientModelTest::testFilterByPreferredName()
 void QMLClientModelTest::testFilterByPhoneNumber()
 {
     auto databaseWillReturnEmptySet = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturnSingleClient = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
         QVariantList clients;
         clients.append(QVariantMap {
                            { "client_id", 2 },
                            { "preferred_name", "Preferred again" },
                            { "phone_number", "987654321" }
                        });
-        m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
+        m_thread->result().setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
     auto databaseWillReturnTwoClients = [this]() {
-        m_result.setOutcome(QVariant());
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
         QVariantList clients;
         clients.append(QVariantMap {
                            { "client_id", 1 },
@@ -189,7 +182,7 @@ void QMLClientModelTest::testFilterByPhoneNumber()
                            { "preferred_name", "Preferred again" },
                            { "phone_number", "987654321" }
                        });
-        m_result.setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
+        m_thread->result().setOutcome(QVariantMap { { "clients", clients }, { "record_count", clients.count() } });
     };
 
     QSignalSpy successSpy(m_clientModel, &QMLClientModel::success);

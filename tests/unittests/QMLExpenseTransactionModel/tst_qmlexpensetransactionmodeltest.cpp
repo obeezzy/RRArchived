@@ -6,8 +6,6 @@
 class QMLExpenseTransactionModelTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLExpenseTransactionModelTest() = default;
 private slots:
     void init();
     void cleanup();
@@ -17,12 +15,11 @@ private slots:
 private:
     QMLExpenseTransactionModel *m_expenseTransactionModel;
     MockDatabaseThread *m_thread;
-    QueryResult m_result;
 };
 
 void QMLExpenseTransactionModelTest::init()
 {
-    m_thread = new MockDatabaseThread(&m_result, this);
+    m_thread = new MockDatabaseThread(this);
     m_expenseTransactionModel = new QMLExpenseTransactionModel(*m_thread, this);
 }
 
@@ -52,8 +49,8 @@ void QMLExpenseTransactionModelTest::testViewExpenseTransactions()
     };
 
     auto databaseWillReturn = [this](const QVariantList &transactions) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap { { "transactions", transactions } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "transactions", transactions } });
     };
     QSignalSpy successSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::success);
     QSignalSpy errorSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::error);
@@ -86,7 +83,7 @@ void QMLExpenseTransactionModelTest::testViewExpenseTransactions()
 void QMLExpenseTransactionModelTest::testError()
 {
     auto databaseWillReturnError = [this]() {
-        m_result.setSuccessful(false);
+        m_thread->result().setSuccessful(false);
     };
     QSignalSpy successSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::success);
     QSignalSpy errorSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::error);

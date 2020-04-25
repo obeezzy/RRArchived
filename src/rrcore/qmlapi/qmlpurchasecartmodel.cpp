@@ -220,7 +220,7 @@ void QMLPurchaseCartModel::addTransaction(const QVariantMap &transaction)
 
 void QMLPurchaseCartModel::updateSuspendedTransaction(const QVariantMap &transactionAddOns)
 {
-    const QString &note = transactionAddOns.value("note").toString();
+    const auto &note = transactionAddOns.value("note").toString();
     m_transaction.flags.setFlag(Utility::RecordGroup::Suspended);
     m_transaction.note = Utility::Note{ note };
 
@@ -269,14 +269,14 @@ void QMLPurchaseCartModel::processResult(const QueryResult &result)
 
         if (result.request().command() == PurchaseQuery::AddPurchaseTransaction::COMMAND) {
             if (result.request().params().value("suspended").toBool()) {
-                const Utility::Vendor &vendor{ result.outcome().toMap() };
+                const auto vendor = Utility::Vendor{ result.outcome().toMap() };
                 setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
                 setVendorId(vendor.id);
                 emit success(ModelResult{ SuspendTransactionSuccess });
             } else {
-                const Utility::Vendor &vendor{ result.outcome().toMap() };
+                const auto vendor = Utility::Vendor{ result.outcome().toMap() };
                 setTransactionId(0);
                 setCustomerName(QString());
                 setCustomerPhoneNumber(QString());
@@ -284,13 +284,13 @@ void QMLPurchaseCartModel::processResult(const QueryResult &result)
                 emit success(ModelResult{ SubmitTransactionSuccess });
             }
         } else if (result.request().command() == PurchaseQuery::ViewPurchaseCart::COMMAND) {
-            const Utility::Vendor &vendor{ result.outcome().toMap() };
+            const auto vendor = Utility::Vendor{ result.outcome().toMap() };
             setVendorId(vendor.client.id);
             setCustomerName(vendor.client.preferredName);
             setCustomerPhoneNumber(vendor.client.phoneNumber);
             emit success(ModelResult{ RetrieveTransactionSuccess });
         } else if (result.request().command() == PurchaseQuery::UpdateSuspendedPurchaseTransaction::COMMAND) {
-            const Utility::Vendor &vendor{ result.outcome().toMap() };
+            const auto vendor = Utility::Vendor{ result.outcome().toMap() };
             setTransactionId(0);
             setVendorId(vendor.id);
             setCustomerName(vendor.client.preferredName);
@@ -322,7 +322,7 @@ void QMLPurchaseCartModel::processResult(const QueryResult &result)
 
 void QMLPurchaseCartModel::addProduct(const QVariantMap &product)
 {
-    const int productId = product.value("product_id").toInt();
+    const auto productId = product.value("product_id").toInt();
     const auto &availableQuantity = Utility::StockProductQuantity{ qMin(1.0,
                                                                         product.value("available_quantity").toDouble())};
 
@@ -331,14 +331,14 @@ void QMLPurchaseCartModel::addProduct(const QVariantMap &product)
 
     if (!m_transaction.products.contains(Utility::PurchaseCartProduct{ productId })) {
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
-        const Utility::PurchaseCartProduct &newProduct{ product };
+        const auto newProduct = Utility::PurchaseCartProduct{ product };
         m_transaction.products.append(newProduct);
         endInsertRows();
     } else {
-        const int row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
-        Utility::PurchaseCartProduct &existingProduct{ m_transaction.products[row] };
-        const Utility::StockProductQuantity &oldQuantity = existingProduct.quantity;
-        const Utility::StockProductQuantity &newQuantity = oldQuantity + Utility::StockProductQuantity(1);
+        const auto row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
+        auto &existingProduct =  m_transaction.products[row];
+        const auto &oldQuantity = existingProduct.quantity;
+        const auto &newQuantity = oldQuantity + Utility::StockProductQuantity(1);
 
         existingProduct.quantity = qMin(newQuantity, availableQuantity);
         existingProduct.monies.cost = Utility::Money{ existingProduct.quantity.toDouble() * existingProduct.monies.unitPrice.toDouble() };
@@ -355,15 +355,15 @@ void QMLPurchaseCartModel::updateProduct(int productId,
     if (productId <= 0 || product.isEmpty())
         return;
 
-    const int row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
+    const auto row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
     const auto &newProduct = Utility::PurchaseCartProduct{ product };
-    Utility::PurchaseCartProduct &existingProduct{ m_transaction.products[row] };
-    const Utility::StockProductQuantity &oldQuantity = existingProduct.quantity;
-    const Utility::StockProductQuantity &newQuantity = newProduct.quantity;
-    const Utility::Money &oldUnitPrice = existingProduct.monies.unitPrice;
-    const Utility::Money &oldCost = existingProduct.monies.cost;
-    const Utility::Money &newUnitPrice = newProduct.monies.unitPrice;
-    const Utility::Money &newCost = newProduct.monies.cost;
+    auto &existingProduct = m_transaction.products[row];
+    const auto &oldQuantity = existingProduct.quantity;
+    const auto &newQuantity = newProduct.quantity;
+    const auto &oldUnitPrice = existingProduct.monies.unitPrice;
+    const auto &oldCost = existingProduct.monies.cost;
+    const auto &newUnitPrice = newProduct.monies.unitPrice;
+    const auto &newCost = newProduct.monies.cost;
 
     if (oldQuantity != newQuantity || oldUnitPrice != newUnitPrice || oldCost != newCost) {
         if (product.contains("quantity"))
@@ -384,10 +384,10 @@ void QMLPurchaseCartModel::setProductQuantity(int productId,
     if (productId <= 0 || quantity <= 0.0)
         return;
 
-    const int row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
-    Utility::PurchaseCartProduct &existingProduct{ m_transaction.products[row] };
-    const Utility::StockProductQuantity &oldQuantity = existingProduct.quantity;
-    const Utility::Money &unitPrice = existingProduct.monies.unitPrice;
+    const auto row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
+    auto &existingProduct =  m_transaction.products[row];
+    const auto &oldQuantity = existingProduct.quantity;
+    const auto &unitPrice = existingProduct.monies.unitPrice;
 
     if (oldQuantity != Utility::StockProductQuantity(quantity)) {
         existingProduct.quantity = Utility::StockProductQuantity(quantity);
@@ -400,7 +400,7 @@ void QMLPurchaseCartModel::setProductQuantity(int productId,
 
 void QMLPurchaseCartModel::removeProduct(int productId)
 {
-    const int row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
+    const auto row = m_transaction.products.indexOf(Utility::PurchaseCartProduct{ productId });
     beginRemoveRows(QModelIndex(), row, row);
     m_transaction.products.removeAt(row);
     endRemoveRows();

@@ -1,44 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlexpensereportmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLExpenseReportModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLExpenseReportModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLExpenseReportModel *m_expenseReportModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLExpenseReportModelTest::QMLExpenseReportModelTest() :
-    m_thread(&m_result)
-{
-    m_expenseReportModel = new QMLExpenseReportModel(m_thread, this);
-}
 
 void QMLExpenseReportModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_expenseReportModel = new QMLExpenseReportModel(*m_thread, this);
 }
 
 void QMLExpenseReportModelTest::cleanup()
 {
-
+    m_expenseReportModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLExpenseReportModelTest::test_case1()
+void QMLExpenseReportModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_expenseReportModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLExpenseReportModelTest)

@@ -135,7 +135,7 @@ void QMLUserModel::processResult(const QueryResult &result)
                 m_users = Utility::UserList{ result.outcome().toMap().value("users").toList() };
                 emit success(ModelResult{ ViewUsersSuccess });
             } else if (result.request().command() == UserQuery::RemoveUser::COMMAND) {
-                const Utility::User &user{ result.outcome().toMap() };
+                const auto user = Utility::User{ result.outcome().toMap() };
                 removeUserFromModel(user);
                 emit success(ModelResult{ RemoveUserSuccess });
             } else if (result.request().command() == UserQuery::RemoveUser::UNDO_COMMAND) {

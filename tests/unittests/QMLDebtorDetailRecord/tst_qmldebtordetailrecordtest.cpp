@@ -7,34 +7,25 @@
 class QMLDebtorDetailRecordTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLDebtorDetailRecordTest();
-
 private slots:
     void init();
     void cleanup();
     void testFetchDebtor();
-
 private:
     QMLDebtorDetailRecord *m_debtorDetailRecord;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLDebtorDetailRecordTest::QMLDebtorDetailRecordTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLDebtorDetailRecordTest::init()
 {
-    m_debtorDetailRecord = new QMLDebtorDetailRecord(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_debtorDetailRecord = new QMLDebtorDetailRecord(*m_thread, this);
 }
 
 void QMLDebtorDetailRecordTest::cleanup()
 {
+    m_debtorDetailRecord->deleteLater();
+    m_thread->deleteLater();
 }
 
 void QMLDebtorDetailRecordTest::testFetchDebtor()
@@ -54,8 +45,8 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
         { "user", QStringLiteral("user")}
     };
     auto databaseWillReturn = [this](const QVariantMap &debtor) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(debtor);
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(debtor);
     };
     QSignalSpy debtorIdChangedSpy(m_debtorDetailRecord, &QMLDebtorDetailRecord::debtorIdChanged);
     QSignalSpy preferredNameChangedSpy(m_debtorDetailRecord, &QMLDebtorDetailRecord::preferredNameChanged);

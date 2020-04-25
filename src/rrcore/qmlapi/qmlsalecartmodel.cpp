@@ -394,7 +394,7 @@ void QMLSaleCartModel::updateProduct(int productId, const QVariantMap &product)
     if (productId <= 0 || product.isEmpty())
         return;
 
-    const Utility::SaleCartProduct &updatedProduct{ product };
+    const auto updatedProduct = Utility::SaleCartProduct{ product };
     const int row = m_transaction.products.indexOf(updatedProduct);
     Utility::SaleCartProduct &existingProduct{ m_transaction.products[row] };
     const Utility::StockProductQuantity &oldQuantity = existingProduct.quantity;

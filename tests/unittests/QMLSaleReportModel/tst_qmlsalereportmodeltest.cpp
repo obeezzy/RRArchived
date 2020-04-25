@@ -1,44 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlsalereportmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLSaleReportModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLSaleReportModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLSaleReportModel *m_saleReportModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLSaleReportModelTest::QMLSaleReportModelTest() :
-    m_thread(&m_result)
-{
-    m_saleReportModel = new QMLSaleReportModel(m_thread, this);
-}
 
 void QMLSaleReportModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_saleReportModel = new QMLSaleReportModel(*m_thread, this);
 }
 
 void QMLSaleReportModelTest::cleanup()
 {
-
+    m_saleReportModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLSaleReportModelTest::test_case1()
+void QMLSaleReportModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_saleReportModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLSaleReportModelTest)

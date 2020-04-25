@@ -7,38 +7,32 @@
 class QMLPurchaseReportModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLPurchaseReportModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLPurchaseReportModel *m_purchaseReportModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLPurchaseReportModelTest::QMLPurchaseReportModelTest() :
-    m_thread(&m_result)
-{
-    m_purchaseReportModel = new QMLPurchaseReportModel(m_thread, this);
-}
 
 void QMLPurchaseReportModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_purchaseReportModel = new QMLPurchaseReportModel(*m_thread, this);
 }
 
 void QMLPurchaseReportModelTest::cleanup()
 {
-
+    m_purchaseReportModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLPurchaseReportModelTest::test_case1()
+void QMLPurchaseReportModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_purchaseReportModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLPurchaseReportModelTest)

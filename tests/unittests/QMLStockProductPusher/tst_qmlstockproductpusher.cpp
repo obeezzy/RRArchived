@@ -1,19 +1,14 @@
+#include "qmlapi/qmlstockproductpusher.h"
+#include "database/databaseexception.h"
+#include "mockdatabasethread.h"
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "qmlapi/qmlstockproductpusher.h"
-#include "database/databaseexception.h"
-#include "mockdatabasethread.h"
-
 class QMLStockProductPusherTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLStockProductPusherTest();
-
-private Q_SLOTS:
+private slots:
     void init();
     void cleanup();
 
@@ -39,23 +34,19 @@ private Q_SLOTS:
     // void testPushDifferentCategoryProducts();
 private:
     QMLStockProductPusher *m_stockProductPusher;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLStockProductPusherTest::QMLStockProductPusherTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLStockProductPusherTest::init()
 {
-    m_stockProductPusher = new QMLStockProductPusher(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_stockProductPusher = new QMLStockProductPusher(*m_thread, this);
 }
 
 void QMLStockProductPusherTest::cleanup()
 {
+    m_stockProductPusher->deleteLater();
+    m_thread->deleteLater();
 }
 
 void QMLStockProductPusherTest::testSetCategory()
@@ -253,8 +244,7 @@ void QMLStockProductPusherTest::testSetImageSource()
 void QMLStockProductPusherTest::testPushNewProduct()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy busyChangedSpy(m_stockProductPusher, &QMLStockProductPusher::busyChanged);
     QSignalSpy successSpy(m_stockProductPusher, &QMLStockProductPusher::success);
@@ -283,13 +273,11 @@ void QMLStockProductPusherTest::testPushNewProduct()
 void QMLStockProductPusherTest::testPushSameProduct()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturnDuplicateEntryError = [this]() {
-        m_result.setSuccessful(false);
-        m_result.setOutcome(QVariant());
-        m_result.setErrorCode(static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException));
+        m_thread->result().setSuccessful(false);
+        m_thread->result().setErrorCode(static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException));
     };
     QSignalSpy busyChangedSpy(m_stockProductPusher, &QMLStockProductPusher::busyChanged);
     QSignalSpy errorSpy(m_stockProductPusher, &QMLStockProductPusher::error);
@@ -319,8 +307,7 @@ void QMLStockProductPusherTest::testPushSameProduct()
 void QMLStockProductPusherTest::testPushUpdatedProduct()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy busyChangedSpy(m_stockProductPusher, &QMLStockProductPusher::busyChanged);
     QSignalSpy errorSpy(m_stockProductPusher, &QMLStockProductPusher::error);

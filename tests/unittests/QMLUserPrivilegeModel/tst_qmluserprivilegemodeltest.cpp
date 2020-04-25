@@ -1,43 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmluserprivilegemodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLUserPrivilegeModelTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLUserPrivilegeModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLUserPrivilegeModel *m_userPrivilegeModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLUserPrivilegeModelTest::QMLUserPrivilegeModelTest() :
-    m_thread(&m_result)
-{
-    m_userPrivilegeModel = new QMLUserPrivilegeModel(m_thread, this);
-}
 
 void QMLUserPrivilegeModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_userPrivilegeModel = new QMLUserPrivilegeModel(*m_thread, this);
 }
 
 void QMLUserPrivilegeModelTest::cleanup()
 {
-
+    m_userPrivilegeModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLUserPrivilegeModelTest::test_case1()
+void QMLUserPrivilegeModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_userPrivilegeModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLUserPrivilegeModelTest)

@@ -1,48 +1,40 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlsaletransactionitemmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLSaleTransactionItemModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLSaleTransactionItemModelTest();
-    ~QMLSaleTransactionItemModelTest();
-
 private slots:
     void init();
     void cleanup();
 
+    void testModel();
     void testSetTransactionId();
-
 private:
     QMLSaleTransactionItemModel *m_saleTransactionItemModel;
-    MockDatabaseThread m_thread;
+    MockDatabaseThread *m_thread;
     QueryResult m_result;
 };
 
-QMLSaleTransactionItemModelTest::QMLSaleTransactionItemModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
-
-QMLSaleTransactionItemModelTest::~QMLSaleTransactionItemModelTest()
-{
-
-}
-
 void QMLSaleTransactionItemModelTest::init()
 {
-    m_saleTransactionItemModel = new QMLSaleTransactionItemModel(m_thread);
+    m_thread = new MockDatabaseThread(this);
+    m_saleTransactionItemModel = new QMLSaleTransactionItemModel(*m_thread, this);
 }
 
 void QMLSaleTransactionItemModelTest::cleanup()
 {
     m_saleTransactionItemModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLSaleTransactionItemModelTest::testModel()
+{
+    QAbstractItemModelTester(m_saleTransactionItemModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLSaleTransactionItemModelTest::testSetTransactionId()
