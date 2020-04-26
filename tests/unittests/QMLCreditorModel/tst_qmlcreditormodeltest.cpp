@@ -1,43 +1,38 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlcreditormodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLCreditorModelTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLCreditorModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+
+    void testModel();
 private:
     QMLCreditorModel *m_creditorModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLCreditorModelTest::QMLCreditorModelTest() :
-    m_thread(&m_result)
-{
-    m_creditorModel = new QMLCreditorModel(m_thread, this);
-}
 
 void QMLCreditorModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_creditorModel = new QMLCreditorModel(*m_thread, this);
 }
 
 void QMLCreditorModelTest::cleanup()
 {
-
+    m_creditorModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLCreditorModelTest::test_case1()
+void QMLCreditorModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_creditorModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLCreditorModelTest)

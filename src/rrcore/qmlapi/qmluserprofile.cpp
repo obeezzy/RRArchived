@@ -200,11 +200,11 @@ void QMLUserProfile::processResult(const QueryResult &result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == UserQuery::SignInUser::COMMAND) {
-            const Utility::User &user{ result.outcome().toMap() };
+            const auto user = Utility::User{ result.outcome().toMap() };
             UserProfile::instance().setUser(user);
             emit success(ModelResult{ SignInSuccess });
         } else if (result.request().command() == UserQuery::SignUpUser::COMMAND) {
-            const Utility::User &user{ result.outcome().toMap() };
+            const auto user = Utility::User{ result.outcome().toMap() };
             UserProfile::instance().setUser(user);
             emit success(ModelResult{ SignUpSuccess });
         } else if (result.request().command() == UserQuery::SignOutUser::COMMAND) {

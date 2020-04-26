@@ -9,8 +9,6 @@
 class QMLDebtPaymentModelTest : public QObject
 {
     Q_OBJECT
-public:
-    QMLDebtPaymentModelTest() = default;
 private slots:
     void init();
     void cleanup();
@@ -31,12 +29,11 @@ private slots:
 private:
     QMLDebtPaymentModel *m_debtPaymentModel;
     MockDatabaseThread *m_thread;
-    QueryResult m_result;
 };
 
 void QMLDebtPaymentModelTest::init()
 {
-    m_thread = new MockDatabaseThread(&m_result, this);
+    m_thread = new MockDatabaseThread(this);
     m_debtPaymentModel = new QMLDebtPaymentModel(*m_thread, this);
 }
 
@@ -258,11 +255,11 @@ void QMLDebtPaymentModelTest::testUpdateAmountPaidFieldOnlyIfDirty()
         { "last_edited", QDateTime::currentDateTime() }
     };
     auto databaseWillReturn = [this](const QVariantList &payments) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap { { "payments", payments } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "payments", payments } });
     };
 
-    databaseWillReturn(QVariantList{ { payment } });
+    databaseWillReturn({ payment });
 
     m_debtPaymentModel->componentComplete();
     QCOMPARE(m_debtPaymentModel->rowCount(), 1);
@@ -340,7 +337,7 @@ void QMLDebtPaymentModelTest::testError()
             QDateTime::currentDateTime().addDays(2)
     };
     auto databaseWillReturnError = [this]() {
-        m_result.setSuccessful(false);
+        m_thread->result().setSuccessful(false);
     };
     QSignalSpy busyChangedSpy(m_debtPaymentModel, &QMLDebtPaymentModel::busyChanged);
     QSignalSpy errorSpy(m_debtPaymentModel, &QMLDebtPaymentModel::error);

@@ -1,40 +1,39 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlsaletransactionmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLSaleTransactionModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLSaleTransactionModelTest();
-
 private slots:
     void init();
     void cleanup();
-    void testViewSaleTransactions();
 
+    void testModel();
+    void testViewSaleTransactions();
 private:
     QMLSaleTransactionModel *m_saleTransactionModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLSaleTransactionModelTest::QMLSaleTransactionModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLSaleTransactionModelTest::init()
 {
-    m_saleTransactionModel = new QMLSaleTransactionModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_saleTransactionModel = new QMLSaleTransactionModel(*m_thread, this);
 }
 
 void QMLSaleTransactionModelTest::cleanup()
 {
+    m_saleTransactionModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLSaleTransactionModelTest::testModel()
+{
+    QAbstractItemModelTester(m_saleTransactionModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLSaleTransactionModelTest::testViewSaleTransactions()
@@ -59,9 +58,8 @@ void QMLSaleTransactionModelTest::testViewSaleTransactions()
         }
     };
     auto databaseWillReturn = [this](const QVariantList &transactions) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-        m_result.setOutcome(QVariantMap { { "transactions", transactions } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "transactions", transactions } });
     };
     QSignalSpy successSpy(m_saleTransactionModel, &QMLSaleTransactionModel::success);
     QSignalSpy errorSpy(m_saleTransactionModel, &QMLSaleTransactionModel::error);

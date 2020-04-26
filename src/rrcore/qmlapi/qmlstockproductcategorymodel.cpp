@@ -165,7 +165,7 @@ void QMLStockProductCategoryModel::undoRemoveCategoryFromModel(int row,
     if (row < 0 || row > rowCount())
         return;
 
-    const Utility::StockProductCategory &categoryToReinsert{ category };
+    const auto categoryToReinsert = Utility::StockProductCategory{ category };
     beginInsertRows(QModelIndex(), row, row);
     m_categories.insert(row, categoryToReinsert);
     endInsertRows();
@@ -213,7 +213,7 @@ void QMLStockProductCategoryModel::processResult(const QueryResult &result)
 
             emit success(ModelResult{ ViewCategoriesSuccess });
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
-            const Utility::StockProductCategory &category{ result.outcome().toMap() };
+            const auto category = Utility::StockProductCategory{ result.outcome().toMap() };
             updateCategory(category);
             emit success(ModelResult{ UnarchiveProductSuccess });
         } else {

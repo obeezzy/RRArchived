@@ -1,45 +1,38 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmldashboardhomemodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLDashboardHomeModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLDashboardHomeModelTest();
-
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 
 private:
     QMLDashboardHomeModel *m_dashboardHomeModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLDashboardHomeModelTest::QMLDashboardHomeModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLDashboardHomeModelTest::init()
 {
-    m_dashboardHomeModel = new QMLDashboardHomeModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_dashboardHomeModel = new QMLDashboardHomeModel(*m_thread, this);
 }
 
 void QMLDashboardHomeModelTest::cleanup()
 {
+    m_dashboardHomeModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLDashboardHomeModelTest::test_case1()
+void QMLDashboardHomeModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_dashboardHomeModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLDashboardHomeModelTest)

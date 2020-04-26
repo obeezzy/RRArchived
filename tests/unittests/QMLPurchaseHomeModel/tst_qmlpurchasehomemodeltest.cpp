@@ -1,44 +1,38 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlpurchasehomemodel.h"
 #include "database/databasethread.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLPurchaseHomeModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLPurchaseHomeModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLPurchaseHomeModel *m_purchaseHomeModel;
-    QueryResult m_result;
-    MockDatabaseThread m_thread;
+    MockDatabaseThread *m_thread;
 };
-
-QMLPurchaseHomeModelTest::QMLPurchaseHomeModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLPurchaseHomeModelTest::init()
 {
-    m_purchaseHomeModel = new QMLPurchaseHomeModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_purchaseHomeModel = new QMLPurchaseHomeModel(*m_thread, this);
 }
 
 void QMLPurchaseHomeModelTest::cleanup()
 {
+    m_purchaseHomeModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLPurchaseHomeModelTest::test_case1()
+void QMLPurchaseHomeModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_purchaseHomeModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLPurchaseHomeModelTest)

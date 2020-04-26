@@ -122,7 +122,7 @@ void QMLUserDetailRecord::processResult(const QueryResult result)
 {
     setBusy(false);
     if (result.isSuccessful()) {
-        const Utility::User &user{ result.outcome().toMap() };
+        const auto user = Utility::User{ result.outcome().toMap() };
         setFirstName(user.firstName);
         setLastName(user.lastName);
         setUserName(user.user);

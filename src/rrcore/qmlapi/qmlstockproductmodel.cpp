@@ -216,7 +216,7 @@ void QMLStockProductModel::processResult(const QueryResult &result)
             removeProductFromModel(row);
             emit success(ModelResult{ RemoveProductSuccess });
         } else if (result.request().command() == StockQuery::RemoveStockProduct::UNDO_COMMAND) {
-            const Utility::StockProduct &product{ result.request().params().value("product").toMap() };
+            const auto product = Utility::StockProduct{ result.request().params().value("product").toMap() };
             undoRemoveProductFromModel(product);
             emit success(ModelResult{ UndoRemoveProductSuccess });
         }

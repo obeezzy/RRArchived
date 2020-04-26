@@ -1,42 +1,32 @@
+#include "qmlapi/qmlstockproductdetailrecord.h"
+#include "mockdatabasethread.h"
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "qmlapi/qmlstockproductdetailrecord.h"
-#include "mockdatabasethread.h"
-
 class QMLStockProductDetailRecordTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLStockProductDetailRecordTest();
-
-private Q_SLOTS:
+private slots:
     void init();
     void cleanup();
 
     void testViewStockProductDetails();
-
 private:
     QMLStockProductDetailRecord *m_stockProductDetailRecord;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLStockProductDetailRecordTest::QMLStockProductDetailRecordTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLStockProductDetailRecordTest::init()
 {
-    m_stockProductDetailRecord = new QMLStockProductDetailRecord(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_stockProductDetailRecord = new QMLStockProductDetailRecord(*m_thread, this);
 }
 
 void QMLStockProductDetailRecordTest::cleanup()
 {
+    m_stockProductDetailRecord->deleteLater();
+    m_thread->deleteLater();
 }
 
 void QMLStockProductDetailRecordTest::testViewStockProductDetails()
@@ -64,9 +54,9 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
     };
 
     auto databaseWillReturn = [this](const QVariantMap &product) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-        m_result.setOutcome(QVariantMap { { "product", product } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
+        m_thread->result().setOutcome(QVariantMap { { "product", product } });
     };
     QSignalSpy successSpy(m_stockProductDetailRecord, &QMLStockProductDetailRecord::success);
     QSignalSpy errorSpy(m_stockProductDetailRecord, &QMLStockProductDetailRecord::error);

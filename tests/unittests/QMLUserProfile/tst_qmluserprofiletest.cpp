@@ -1,18 +1,13 @@
+#include "qmlapi/qmluserprofile.h"
+#include "database/databaseerror.h"
+#include "mockdatabasethread.h"
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "qmlapi/qmluserprofile.h"
-#include "database/databaseerror.h"
-#include "mockdatabasethread.h"
-
 class QMLUserProfileTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLUserProfileTest();
-
 private Q_SLOTS:
     void init();
     void cleanup();
@@ -22,33 +17,27 @@ private Q_SLOTS:
     void testIncorrectCredentialsError();
     void testNoUserNameProvidedError();
     void testNoPasswordProvidedError();
-
 private:
     QMLUserProfile *m_userProfile;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLUserProfileTest::QMLUserProfileTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLUserProfileTest::init()
 {
-    m_userProfile = new QMLUserProfile(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_userProfile = new QMLUserProfile(*m_thread, this);
 }
 
 void QMLUserProfileTest::cleanup()
 {
+    m_userProfile->deleteLater();
+    m_thread->deleteLater();
 }
 
 void QMLUserProfileTest::testSignUp()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
@@ -58,14 +47,14 @@ void QMLUserProfileTest::testSignUp()
     m_userProfile->signUp(QStringLiteral("marines"), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::SignUpSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::SignUpSuccess);
 }
 
 void QMLUserProfileTest::testSignIn()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
@@ -76,15 +65,15 @@ void QMLUserProfileTest::testSignIn()
 
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
-    QCOMPARE(successSpy.takeFirst().at(0).toInt(), static_cast<int>(QMLUserProfile::SignInSuccess));
+    QCOMPARE(successSpy.takeFirst().at(0).toInt(),
+             static_cast<int>(QMLUserProfile::SignInSuccess));
 }
 
 void QMLUserProfileTest::testIncorrectCredentialsError()
 {
     auto databaseWillReturnSignInFailure = [this]() {
-        m_result.setSuccessful(false);
-        m_result.setOutcome(QVariant());
-        m_result.setErrorCode(static_cast<int>(DatabaseError::QueryErrorCode::InvalidCredentialsError));
+        m_thread->result().setSuccessful(false);
+        m_thread->result().setErrorCode(static_cast<int>(DatabaseError::QueryErrorCode::InvalidCredentialsError));
     };
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);
@@ -94,7 +83,8 @@ void QMLUserProfileTest::testIncorrectCredentialsError()
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::IncorrectCredentials);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::IncorrectCredentials);
 }
 
 void QMLUserProfileTest::testNoUserNameProvidedError()
@@ -105,7 +95,8 @@ void QMLUserProfileTest::testNoUserNameProvidedError()
     m_userProfile->signIn(QStringLiteral(""), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::NoUserNameProvided);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::NoUserNameProvided);
 }
 
 void QMLUserProfileTest::testNoPasswordProvidedError()
@@ -116,7 +107,8 @@ void QMLUserProfileTest::testNoPasswordProvidedError()
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral(""));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::NoPasswordProvided);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::NoPasswordProvided);
 }
 
 QTEST_MAIN(QMLUserProfileTest)

@@ -8,14 +8,11 @@
 class QMLSaleCartModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLSaleCartModelTest();
-
 private Q_SLOTS:
     void init();
     void cleanup();
 
+    void testModel();
     void testSetCustomerName();
     void testSetCustomerPhoneNumber();
     void testSetNote();
@@ -42,23 +39,26 @@ private Q_SLOTS:
     void testSetProductQuantity();
 private:
     QMLSaleCartModel *m_saleCartModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLSaleCartModelTest::QMLSaleCartModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLSaleCartModelTest::init()
 {
-    m_saleCartModel = new QMLSaleCartModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_saleCartModel = new QMLSaleCartModel(*m_thread, this);
 }
 
 void QMLSaleCartModelTest::cleanup()
 {
+    m_saleCartModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLSaleCartModelTest::testModel()
+{
+    QAbstractItemModelTester(m_saleCartModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLSaleCartModelTest::testSetCustomerName()
@@ -351,7 +351,7 @@ void QMLSaleCartModelTest::testGetTotalCost()
 void QMLSaleCartModelTest::testGetAmountPaid()
 {
     QSignalSpy amountPaidChangedSpy(m_saleCartModel, &QMLSaleCartModel::amountPaidChanged);
-    const auto amountPaid {12.35};
+    const auto amountPaid = 12.35;
 
     QCOMPARE(m_saleCartModel->amountPaid(), 0.0);
     m_saleCartModel->setAmountPaid(0.0);
@@ -389,12 +389,11 @@ void QMLSaleCartModelTest::testGetCustomerId()
     };
 
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturn = [this](const QVariantMap &customer, const QVariantList &products) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap {
                                 { "client_id", customer["client_id"] },
                                 { "customer_name", customer["customer_name"] },
                                 { "customer_phone_number", customer["customer_phone_number"] },
@@ -492,12 +491,11 @@ void QMLSaleCartModelTest::testRetrieveSuspendedTransaction()
         { "available_quantity", 10.34 }
     };
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturn = [this](const QVariantMap &customer, const QVariantList &products) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap {
                                 { "client_id", customer["client_id"] },
                                 { "customer_name", customer["customer_name"] },
                                 { "customer_phone_number", customer["customer_phone_number"] },
@@ -651,8 +649,7 @@ void QMLSaleCartModelTest::testNoDueDateSet()
         { "cost", 11.0 }
     };
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
@@ -674,8 +671,7 @@ void QMLSaleCartModelTest::testNoDueDateSet()
 void QMLSaleCartModelTest::testSubmitTransaction()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
 
     QSignalSpy rowsInsertedSpy(m_saleCartModel, &QMLSaleCartModel::rowsInserted);
@@ -715,8 +711,7 @@ void QMLSaleCartModelTest::testSubmitTransaction()
 void QMLSaleCartModelTest::testSuspendTransaction()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
@@ -766,14 +761,12 @@ void QMLSaleCartModelTest::testSetTransactionId()
         { "available_quantity", 10.0 }
     };
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     auto databaseWillReturnSubmittedTransaction = [this, &product]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "client_id", 1 },
                                 { "customer_name", QStringLiteral("Customer") },
                                 { "customer_phone_number", QStringLiteral("123456789") },
@@ -831,8 +824,7 @@ void QMLSaleCartModelTest::testSetTransactionId()
 void QMLSaleCartModelTest::testSubmitEmptyTransaction()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);
@@ -853,8 +845,7 @@ void QMLSaleCartModelTest::testSubmitEmptyTransaction()
 void QMLSaleCartModelTest::testSuspendEmptyTransaction()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
     };
     QSignalSpy successSpy(m_saleCartModel, &QMLSaleCartModel::success);
     QSignalSpy errorSpy(m_saleCartModel, &QMLSaleCartModel::error);

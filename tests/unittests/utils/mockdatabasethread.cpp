@@ -2,21 +2,19 @@
 #include "database/queryresult.h"
 #include "database/queryexecutor.h"
 
-MockDatabaseThread::MockDatabaseThread(QueryResult *result,
-                                       QObject *parent) :
-    DatabaseThread(result, parent),
-    m_result(result)
+MockDatabaseThread::MockDatabaseThread(QObject *parent) :
+    DatabaseThread(&m_result, parent)
 {
     connect(this, &MockDatabaseThread::execute, this, &MockDatabaseThread::emitResult);
 }
 
-MockDatabaseThread::~MockDatabaseThread()
+QueryResult &MockDatabaseThread::result()
 {
-    *m_result = QueryResult();
+    return m_result;
 }
 
 void MockDatabaseThread::emitResult(QueryExecutor *queryExecutor)
 {
-    m_result->setRequest(queryExecutor->request());
-    emit resultReady(*m_result);
+    m_result.setRequest(queryExecutor->request());
+    emit resultReady(m_result);
 }

@@ -7,37 +7,37 @@
 class QMLStockProductCategoryModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLStockProductCategoryModelTest();
-
 private slots:
     void init();
     void cleanup();
+
+    void testModel();
     void testViewStockCategories();
     void testFilterCategory();
     void testFilterProduct();
 
 private:
     QMLStockProductCategoryModel *m_stockProductCategoryModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLStockProductCategoryModelTest::QMLStockProductCategoryModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLStockProductCategoryModelTest::init()
 {
-    m_stockProductCategoryModel = new QMLStockProductCategoryModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_stockProductCategoryModel = new QMLStockProductCategoryModel(*m_thread, this);
 }
 
 void QMLStockProductCategoryModelTest::cleanup()
 {
     m_stockProductCategoryModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLStockProductCategoryModelTest::testModel()
+{
+    QAbstractItemModelTester(m_stockProductCategoryModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLStockProductCategoryModelTest::testViewStockCategories()
@@ -50,9 +50,9 @@ void QMLStockProductCategoryModelTest::testViewStockCategories()
     };
 
     auto databaseWillReturn = [this](const QVariantList &categories) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-        m_result.setOutcome(QVariantMap { { "categories", categories } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
+        m_thread->result().setOutcome(QVariantMap { { "categories", categories } });
     };
     QSignalSpy successSpy(m_stockProductCategoryModel, &QMLStockProductCategoryModel::success);
     QSignalSpy errorSpy(m_stockProductCategoryModel, &QMLStockProductCategoryModel::error);
@@ -78,11 +78,11 @@ void QMLStockProductCategoryModelTest::testViewStockCategories()
 void QMLStockProductCategoryModelTest::testFilterCategory()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
     };
     auto databaseWillReturnSingleCategory = [this]() {
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
         const QVariantMap categoryInfo {
             { "category_id", 1 },
             { "category", QStringLiteral("Category1") }
@@ -90,7 +90,7 @@ void QMLStockProductCategoryModelTest::testFilterCategory()
 
         const QVariantList categories { categoryInfo };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "categories", categories },
                                 { "record_count", 1 }
                             });
@@ -128,11 +128,11 @@ void QMLStockProductCategoryModelTest::testFilterCategory()
 void QMLStockProductCategoryModelTest::testFilterProduct()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
     };
     auto databaseWillReturnSingleProduct = [this]() {
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
         const QVariantMap categoryInfo {
             { "category_id", 1 },
             { "category", QStringLiteral("Category") }
@@ -142,7 +142,7 @@ void QMLStockProductCategoryModelTest::testFilterProduct()
             categoryInfo
         };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "categories", categories },
                                 { "record_count", 1 }
                             });

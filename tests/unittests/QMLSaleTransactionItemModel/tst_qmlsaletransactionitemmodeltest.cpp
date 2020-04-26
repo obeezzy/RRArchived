@@ -1,53 +1,44 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlsaletransactionitemmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLSaleTransactionItemModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLSaleTransactionItemModelTest();
-    ~QMLSaleTransactionItemModelTest();
-
 private slots:
     void init();
     void cleanup();
 
+    void testModel();
     void testSetTransactionId();
-
 private:
     QMLSaleTransactionItemModel *m_saleTransactionItemModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLSaleTransactionItemModelTest::QMLSaleTransactionItemModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
-
-QMLSaleTransactionItemModelTest::~QMLSaleTransactionItemModelTest()
-{
-
-}
 
 void QMLSaleTransactionItemModelTest::init()
 {
-    m_saleTransactionItemModel = new QMLSaleTransactionItemModel(m_thread);
+    m_thread = new MockDatabaseThread(this);
+    m_saleTransactionItemModel = new QMLSaleTransactionItemModel(*m_thread, this);
 }
 
 void QMLSaleTransactionItemModelTest::cleanup()
 {
     m_saleTransactionItemModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLSaleTransactionItemModelTest::testModel()
+{
+    QAbstractItemModelTester(m_saleTransactionItemModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLSaleTransactionItemModelTest::testSetTransactionId()
 {
-    const QDateTime &currentDateTime(QDateTime::currentDateTime());
+    const auto &currentDateTime = QDateTime::currentDateTime();
     const QVariantList products {
         QVariantMap {
             { "id", 1 },
@@ -72,8 +63,8 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
         }
     };
     auto databaseWillReturn = [this](const QVariantList &products) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap { { "products", products } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "products", products } });
     };
 
     QSignalSpy transactionIdChangedSpy(m_saleTransactionItemModel, &QMLSaleTransactionItemModel::transactionIdChanged);

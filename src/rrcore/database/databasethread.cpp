@@ -30,8 +30,8 @@ DatabaseWorker::~DatabaseWorker()
 void DatabaseWorker::execute(QueryExecutor *queryExecutor)
 {
     qCInfo(lcdatabasethread) << queryExecutor->request();
-    const QueryRequest &request(queryExecutor->request());
-    QueryResult result{ request };
+    const auto request = QueryRequest{ queryExecutor->request() };
+    auto result = QueryResult{ request };
 
     QElapsedTimer timer;
     timer.start();

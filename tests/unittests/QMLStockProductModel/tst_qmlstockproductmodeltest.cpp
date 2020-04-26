@@ -1,20 +1,16 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlstockproductmodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLStockProductModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLStockProductModelTest();
-
 private slots:
     void init();
     void cleanup();
 
+    void testModel();
     void testViewStockProducts();
     void testRefresh();
     void testRemoveProduct();
@@ -22,24 +18,26 @@ private slots:
     void testFilterProduct();
 private:
     QMLStockProductModel *m_stockProductModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLStockProductModelTest::QMLStockProductModelTest() :
-    m_thread(&m_result)
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false"));
-}
 
 void QMLStockProductModelTest::init()
 {
-    m_stockProductModel = new QMLStockProductModel(m_thread, this);
+    m_thread = new MockDatabaseThread(this);
+    m_stockProductModel = new QMLStockProductModel(*m_thread, this);
 }
 
 void QMLStockProductModelTest::cleanup()
 {
     m_stockProductModel->deleteLater();
+    m_thread->deleteLater();
+}
+
+void QMLStockProductModelTest::testModel()
+{
+    QAbstractItemModelTester(m_stockProductModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLStockProductModelTest::testViewStockProducts()
@@ -80,9 +78,9 @@ void QMLStockProductModelTest::testViewStockProducts()
     };
 
     auto databaseWillReturn = [this](const QVariantList &products) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
+        m_thread->result().setOutcome(QVariantMap {
                                 { "products", products },
                                 { "record_count", products.count() }
                             });
@@ -136,12 +134,12 @@ void QMLStockProductModelTest::testViewStockProducts()
 void QMLStockProductModelTest::testRefresh()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
     };
     auto databaseWillReturnSingleProduct = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
 
         const QVariantMap product {
             { "category_id", 1 },
@@ -160,7 +158,7 @@ void QMLStockProductModelTest::testRefresh()
 
         const QVariantList products { product };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "products", products },
                                 { "record_count", products.count() }
                             });
@@ -180,21 +178,21 @@ void QMLStockProductModelTest::testRefresh()
 void QMLStockProductModelTest::testRemoveProduct()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
     };
     auto databaseWillReturnRemovedProduct = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "category_id", 1 },
                                 { "product_id", 1 }
                             });
     };
     auto databaseWillReturnSingleProduct = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
 
         const QVariantMap product {
             { "category_id", 1 },
@@ -213,7 +211,7 @@ void QMLStockProductModelTest::testRemoveProduct()
 
         const QVariantList products { product };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "products", products },
                                 { "record_count", products.count() }
                             });
@@ -250,15 +248,15 @@ void QMLStockProductModelTest::testRemoveProduct()
 void QMLStockProductModelTest::testUndoRemoveProduct()
 {
     auto databaseWillReturnRemovedProduct = [this]() {
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "category_id", 1 },
                                 { "product_id", 1 }
                             });
     };
     auto databaseWillReturnSingleProduct = [this]() {
-        m_result.setSuccessful(true);
+        m_thread->result().setSuccessful(true);
 
         const QVariantMap product {
             { "category_id", 1 },
@@ -277,7 +275,7 @@ void QMLStockProductModelTest::testUndoRemoveProduct()
 
         const QVariantList products { product };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "products", products },
                                 { "record_count", products.count() }
                             });
@@ -316,12 +314,12 @@ void QMLStockProductModelTest::testUndoRemoveProduct()
 void QMLStockProductModelTest::testFilterProduct()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
     };
     auto databaseWillReturnSingleProduct = [this]() {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariant());
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariant());
 
         const QVariantMap product {
             { "category_id", 1 },
@@ -340,7 +338,7 @@ void QMLStockProductModelTest::testFilterProduct()
 
         const QVariantList products { product };
 
-        m_result.setOutcome(QVariantMap {
+        m_thread->result().setOutcome(QVariantMap {
                                 { "products", products },
                                 { "record_count", products.count() }
                             });

@@ -1,43 +1,29 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmluserdetailrecord.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLUserDetailRecordTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLUserDetailRecordTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
 private:
     QMLUserDetailRecord *m_userDetailRecord;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLUserDetailRecordTest::QMLUserDetailRecordTest() :
-    m_thread(&m_result)
-{
-    m_userDetailRecord = new QMLUserDetailRecord(m_thread, this);
-}
 
 void QMLUserDetailRecordTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_userDetailRecord = new QMLUserDetailRecord(*m_thread, this);
 }
 
 void QMLUserDetailRecordTest::cleanup()
 {
-}
-
-void QMLUserDetailRecordTest::test_case1()
-{
-
+    m_userDetailRecord->deleteLater();
+    m_thread->deleteLater();
 }
 
 QTEST_MAIN(QMLUserDetailRecordTest)

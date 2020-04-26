@@ -1,44 +1,29 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlexpensepusher.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLExpensePusherTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLExpensePusherTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
 private:
     QMLExpensePusher *m_expensePusher;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLExpensePusherTest::QMLExpensePusherTest() :
-    m_thread(&m_result)
-{
-    m_expensePusher = new QMLExpensePusher(m_thread, this);
-}
 
 void QMLExpensePusherTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_expensePusher = new QMLExpensePusher(*m_thread, this);
 }
 
 void QMLExpensePusherTest::cleanup()
 {
-
-}
-
-void QMLExpensePusherTest::test_case1()
-{
-
+    m_expensePusher->deleteLater();
+    m_thread->deleteLater();
 }
 
 QTEST_MAIN(QMLExpensePusherTest)

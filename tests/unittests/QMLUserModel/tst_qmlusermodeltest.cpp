@@ -1,44 +1,37 @@
-#include <QtTest>
-#include <QCoreApplication>
-
 #include "qmlapi/qmlusermodel.h"
 #include "mockdatabasethread.h"
+#include <QtTest>
+#include <QCoreApplication>
 
 class QMLUserModelTest : public QObject
 {
     Q_OBJECT
-
-public:
-    QMLUserModelTest();
 private slots:
     void init();
     void cleanup();
-    void test_case1();
+    void testModel();
 private:
     QMLUserModel *m_userModel;
-    MockDatabaseThread m_thread;
-    QueryResult m_result;
+    MockDatabaseThread *m_thread;
 };
-
-QMLUserModelTest::QMLUserModelTest() :
-    m_thread(&m_result)
-{
-    m_userModel = new QMLUserModel(m_thread, this);
-}
 
 void QMLUserModelTest::init()
 {
-
+    m_thread = new MockDatabaseThread(this);
+    m_userModel = new QMLUserModel(*m_thread, this);
 }
 
 void QMLUserModelTest::cleanup()
 {
-
+    m_userModel->deleteLater();
+    m_thread->deleteLater();
 }
 
-void QMLUserModelTest::test_case1()
+void QMLUserModelTest::testModel()
 {
-
+    QAbstractItemModelTester(m_userModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 QTEST_MAIN(QMLUserModelTest)
