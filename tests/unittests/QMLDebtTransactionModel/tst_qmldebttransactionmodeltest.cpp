@@ -1,9 +1,8 @@
+#include "qmlapi/qmldebttransactionmodel.h"
+#include "mockdatabasethread.h"
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-
-#include "qmlapi/qmldebttransactionmodel.h"
-#include "mockdatabasethread.h"
 
 class QMLDebtTransactionModelTest : public QObject
 {
@@ -312,7 +311,6 @@ void QMLDebtTransactionModelTest::testRemovePayment()
 void QMLDebtTransactionModelTest::testSetDebtorId()
 {
     auto databaseWillReturnEmptyResult = [this]() {
-        m_thread->result().setOutcome(QVariant());
         m_thread->result().setSuccessful(true);
     };
 
@@ -342,14 +340,14 @@ void QMLDebtTransactionModelTest::testSetDebtorId()
 
     // STEP: Ensure the transaction succeeded.
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtTransactionModel::ViewDebtorTransactionsSuccess);
     QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 
 void QMLDebtTransactionModelTest::testSubmitDebt()
 {
     auto databaseWillReturnSingleDebt = [this]() {
-        m_thread->result().setOutcome(QVariant());
         m_thread->result().setSuccessful(true);
         const QueryRequest &request = m_thread->result().request();
         const QVariantList paymentGroups {
@@ -384,8 +382,8 @@ void QMLDebtTransactionModelTest::testSubmitDebt()
                             });
     };
 
-    const QDateTime &dueDate = QDateTime::currentDateTime().addDays(2);
     QSignalSpy successSpy(m_debtTransactionModel, &QMLDebtTransactionModel::success);
+    const QDateTime &dueDate = QDateTime::currentDateTime().addDays(2);
 
     // STEP: Provide mandatory fields.
     m_debtTransactionModel->setPreferredName(QStringLiteral("Mr. Okoro"));

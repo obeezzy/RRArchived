@@ -40,7 +40,7 @@ void QMLExpenseTransactionModelTest::testViewExpenseTransactions()
             { "payment_method", "cash" }
         },
         QVariantMap {
-            { "client_id", 2 },
+            { "clhttps://jimmyc.wistia.com/medias/3nguha2yf1ient_id", 2 },
             { "preferred_name", QStringLiteral("Bob Martin") },
             { "purpose", QStringLiteral("Clean code and TDD!") },
             { "amount", 420.00 },

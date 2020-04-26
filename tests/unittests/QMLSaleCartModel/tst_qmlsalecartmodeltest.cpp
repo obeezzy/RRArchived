@@ -12,6 +12,7 @@ private Q_SLOTS:
     void init();
     void cleanup();
 
+    void testModel();
     void testSetCustomerName();
     void testSetCustomerPhoneNumber();
     void testSetNote();
@@ -51,6 +52,13 @@ void QMLSaleCartModelTest::cleanup()
 {
     m_saleCartModel->deleteLater();
     m_thread->deleteLater();
+}
+
+void QMLSaleCartModelTest::testModel()
+{
+    QAbstractItemModelTester(m_saleCartModel,
+                             QAbstractItemModelTester::FailureReportingMode::Fatal,
+                             this);
 }
 
 void QMLSaleCartModelTest::testSetCustomerName()

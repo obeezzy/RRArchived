@@ -259,7 +259,7 @@ void QMLDebtPaymentModelTest::testUpdateAmountPaidFieldOnlyIfDirty()
         m_thread->result().setOutcome(QVariantMap { { "payments", payments } });
     };
 
-    databaseWillReturn(QVariantList{ { payment } });
+    databaseWillReturn({ payment });
 
     m_debtPaymentModel->componentComplete();
     QCOMPARE(m_debtPaymentModel->rowCount(), 1);

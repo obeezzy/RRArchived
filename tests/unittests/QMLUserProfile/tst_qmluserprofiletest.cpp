@@ -47,7 +47,8 @@ void QMLUserProfileTest::testSignUp()
     m_userProfile->signUp(QStringLiteral("marines"), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::SignUpSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::SignUpSuccess);
 }
 
 void QMLUserProfileTest::testSignIn()
@@ -64,7 +65,8 @@ void QMLUserProfileTest::testSignIn()
 
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 0);
-    QCOMPARE(successSpy.takeFirst().at(0).toInt(), static_cast<int>(QMLUserProfile::SignInSuccess));
+    QCOMPARE(successSpy.takeFirst().at(0).toInt(),
+             static_cast<int>(QMLUserProfile::SignInSuccess));
 }
 
 void QMLUserProfileTest::testIncorrectCredentialsError()
@@ -81,7 +83,8 @@ void QMLUserProfileTest::testIncorrectCredentialsError()
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::IncorrectCredentials);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::IncorrectCredentials);
 }
 
 void QMLUserProfileTest::testNoUserNameProvidedError()
@@ -92,7 +95,8 @@ void QMLUserProfileTest::testNoUserNameProvidedError()
     m_userProfile->signIn(QStringLiteral(""), QStringLiteral("marines"));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::NoUserNameProvided);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::NoUserNameProvided);
 }
 
 void QMLUserProfileTest::testNoPasswordProvidedError()
@@ -103,7 +107,8 @@ void QMLUserProfileTest::testNoPasswordProvidedError()
     m_userProfile->signIn(QStringLiteral("marines"), QStringLiteral(""));
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLUserProfile::NoPasswordProvided);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLUserProfile::NoPasswordProvided);
 }
 
 QTEST_MAIN(QMLUserProfileTest)

@@ -29,7 +29,6 @@ QMLUserProfile::QMLUserProfile(DatabaseThread &thread, QObject *parent) :
     UserProfile::instance().setDatabaseReady(true);
     UserProfile::instance().setServerTunnelingEnabled(false);
     connect(this, &QMLUserProfile::execute, &thread, &DatabaseThread::execute);
-    connect(this, &QMLUserProfile::execute, &thread, &DatabaseThread::execute);
     connect(&thread, &DatabaseThread::resultReady, this, &QMLUserProfile::processResult);
 
     connect(this, &QMLUserProfile::executeRequest,

@@ -15,7 +15,6 @@ private slots:
 private:
     QMLSaleTransactionItemModel *m_saleTransactionItemModel;
     MockDatabaseThread *m_thread;
-    QueryResult m_result;
 };
 
 void QMLSaleTransactionItemModelTest::init()
@@ -39,7 +38,7 @@ void QMLSaleTransactionItemModelTest::testModel()
 
 void QMLSaleTransactionItemModelTest::testSetTransactionId()
 {
-    const QDateTime &currentDateTime(QDateTime::currentDateTime());
+    const auto &currentDateTime = QDateTime::currentDateTime();
     const QVariantList products {
         QVariantMap {
             { "id", 1 },
@@ -64,8 +63,8 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
         }
     };
     auto databaseWillReturn = [this](const QVariantList &products) {
-        m_result.setSuccessful(true);
-        m_result.setOutcome(QVariantMap { { "products", products } });
+        m_thread->result().setSuccessful(true);
+        m_thread->result().setOutcome(QVariantMap { { "products", products } });
     };
 
     QSignalSpy transactionIdChangedSpy(m_saleTransactionItemModel, &QMLSaleTransactionItemModel::transactionIdChanged);

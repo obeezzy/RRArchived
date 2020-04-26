@@ -68,35 +68,40 @@ void QMLDebtorModelTest::testViewDebtors()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::ViewDebtorsSuccess);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_debtorModel->rowCount(), 1);
     QCOMPARE(debtors.count(), 1);
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(), debtors.first().toMap()["debtor_id"].toInt());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ClientIdRole).toInt(), debtors.first().toMap()["client_id"].toInt());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ImageUrlRole).toUrl(), debtors.first().toMap()["image_url"].toUrl());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(), debtors.first().toMap()["preferred_name"].toString());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(), debtors.first().toMap()["total_debt"].toDouble());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(), debtors.first().toMap()["note"].toString());
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(),
+             debtors.first().toMap()["debtor_id"].toInt());
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ClientIdRole).toInt(),
+             debtors.first().toMap()["client_id"].toInt());
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ImageUrlRole).toUrl(),
+             debtors.first().toMap()["image_url"].toUrl());
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(),
+             debtors.first().toMap()["preferred_name"].toString());
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(),
+             debtors.first().toMap()["total_debt"].toDouble());
+    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(),
+             debtors.first().toMap()["note"].toString());
 }
 
 void QMLDebtorModelTest::testRemoveDebtor()
 {
-    auto databaseWillReturnSingleDebtor = [this]() {
+    QVariantList debtors {
+        QVariantMap {
+            { "client_id", 1 },
+            { "debtor_id", 1 },
+            { "image_url", QStringLiteral("image/source") },
+            { "preferred_name", QStringLiteral("Preferred name") },
+            { "total_debt", 1234.56 },
+            { "note", QStringLiteral("Note") }
+        }
+    };
+
+    auto databaseWillReturn = [this](const QVariantList &debtors) {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariant());
-
-        QVariantList debtors {
-            QVariantMap {
-                { "client_id", 1 },
-                { "debtor_id", 1 },
-                { "image_url", QStringLiteral("image/source") },
-                { "preferred_name", QStringLiteral("Preferred name") },
-                { "total_debt", 1234.56 },
-                { "note", QStringLiteral("Note") }
-            }
-        };
-
         m_thread->result().setOutcome(QVariantMap {
                                 { "debtors", debtors },
                                 { "record_count", debtors.count() }
@@ -109,16 +114,12 @@ void QMLDebtorModelTest::testRemoveDebtor()
                                 { "row", 0 }
                             });
     };
-    auto databaseWillReturnEmptyResult = [this]() {
-        m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariant());
-    };
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
     QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
     QSignalSpy busyChangedSpy(m_debtorModel, &QMLDebtorModel::busyChanged);
 
     // STEP: Add a debtor to the database.
-    databaseWillReturnSingleDebtor();
+    databaseWillReturn(debtors);
 
     // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
     m_debtorModel->componentComplete();
@@ -126,7 +127,8 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::ViewDebtorsSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_debtorModel->rowCount(), 1);
@@ -140,11 +142,12 @@ void QMLDebtorModelTest::testRemoveDebtor()
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::RemoveDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::RemoveDebtorSuccess);
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
-    databaseWillReturnEmptyResult();
+    databaseWillReturn({ });
 
     // STEP: Ensure debtor is removed even after model is re-populated.
     m_debtorModel->refresh();
@@ -152,7 +155,8 @@ void QMLDebtorModelTest::testRemoveDebtor()
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::ViewDebtorsSuccess);
     QCOMPARE(m_debtorModel->rowCount(), 0);
 }
 
@@ -170,7 +174,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
         }
     };
 
-    auto databaseWillReturnDebtors = [this](const QVariantList &debtors) {
+    auto databaseWillReturn = [this](const QVariantList &debtors) {
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariantMap{ { "debtors", debtors } });
     };
@@ -187,7 +191,7 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
     QSignalSpy busyChangedSpy(m_debtorModel, &QMLDebtorModel::busyChanged);
 
-    databaseWillReturnDebtors(debtors);
+    databaseWillReturn(debtors);
 
     // STEP: Instantiate model in QML and check if debtors are fetched.
     m_debtorModel->componentComplete();
@@ -197,7 +201,8 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::ViewDebtorsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::ViewDebtorsSuccess);
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 1);
 
@@ -210,7 +215,8 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     busyChangedSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::RemoveDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::RemoveDebtorSuccess);
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
@@ -222,7 +228,8 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLDebtorModel::UndoRemoveDebtorSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLDebtorModel::UndoRemoveDebtorSuccess);
     QCOMPARE(m_debtorModel->rowCount(), 1);
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ClientIdRole).toInt(),
              debtors.first().toMap()["client_id"].toInt());
