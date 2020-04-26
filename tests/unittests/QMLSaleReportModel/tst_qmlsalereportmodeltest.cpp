@@ -34,6 +34,6 @@ void QMLSaleReportModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLSaleReportModelTest)
+QTEST_GUILESS_MAIN(QMLSaleReportModelTest)
 
 #include "tst_qmlsalereportmodeltest.moc"

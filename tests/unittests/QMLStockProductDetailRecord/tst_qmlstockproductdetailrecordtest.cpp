@@ -180,6 +180,6 @@ void QMLStockProductDetailRecordTest::testViewStockProductDetails()
     QCOMPARE(busyChangedSpy.count(), 0);
 }
 
-QTEST_MAIN(QMLStockProductDetailRecordTest)
+QTEST_GUILESS_MAIN(QMLStockProductDetailRecordTest)
 
 #include "tst_qmlstockproductdetailrecordtest.moc"

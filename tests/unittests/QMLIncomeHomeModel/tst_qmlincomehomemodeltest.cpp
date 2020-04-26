@@ -34,6 +34,6 @@ void QMLIncomeHomeModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLIncomeHomeModelTest)
+QTEST_GUILESS_MAIN(QMLIncomeHomeModelTest)
 
 #include "tst_qmlincomehomemodeltest.moc"

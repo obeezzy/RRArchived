@@ -26,6 +26,6 @@ void QMLUserDetailRecordTest::cleanup()
     m_thread->deleteLater();
 }
 
-QTEST_MAIN(QMLUserDetailRecordTest)
+QTEST_GUILESS_MAIN(QMLUserDetailRecordTest)
 
 #include "tst_qmluserdetailrecordtest.moc"

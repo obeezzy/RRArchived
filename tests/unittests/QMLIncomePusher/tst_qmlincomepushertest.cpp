@@ -26,6 +26,6 @@ void QMLIncomePusherTest::cleanup()
     m_thread->deleteLater();
 }
 
-QTEST_MAIN(QMLIncomePusherTest)
+QTEST_GUILESS_MAIN(QMLIncomePusherTest)
 
 #include "tst_qmlincomepushertest.moc"

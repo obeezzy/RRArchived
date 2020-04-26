@@ -35,6 +35,6 @@ void QMLCreditorModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLCreditorModelTest)
+QTEST_GUILESS_MAIN(QMLCreditorModelTest)
 
 #include "tst_qmlcreditormodeltest.moc"

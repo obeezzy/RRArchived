@@ -473,6 +473,6 @@ void QMLDebtTransactionModelTest::testSubmitPayment()
 //    QCOMPARE(m_debtTransactionModel->rowCount(), 0);
 }
 
-QTEST_MAIN(QMLDebtTransactionModelTest)
+QTEST_GUILESS_MAIN(QMLDebtTransactionModelTest)
 
 #include "tst_qmldebttransactionmodeltest.moc"

@@ -34,6 +34,6 @@ void QMLUserPrivilegeModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLUserPrivilegeModelTest)
+QTEST_GUILESS_MAIN(QMLUserPrivilegeModelTest)
 
 #include "tst_qmluserprivilegemodeltest.moc"

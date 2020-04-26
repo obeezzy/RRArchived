@@ -106,6 +106,6 @@ void QMLSaleTransactionModelTest::testViewSaleTransactions()
              transactions.first().toMap()["user_id"].toInt());
 }
 
-QTEST_MAIN(QMLSaleTransactionModelTest)
+QTEST_GUILESS_MAIN(QMLSaleTransactionModelTest)
 
 #include "tst_qmlsaletransactionmodeltest.moc"

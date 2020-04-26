@@ -34,6 +34,6 @@ void QMLPurchaseCartModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLPurchaseCartModelTest)
+QTEST_GUILESS_MAIN(QMLPurchaseCartModelTest)
 
 #include "tst_qmlpurchasecartmodeltest.moc"

@@ -111,6 +111,6 @@ void QMLUserProfileTest::testNoPasswordProvidedError()
              QMLUserProfile::NoPasswordProvided);
 }
 
-QTEST_MAIN(QMLUserProfileTest)
+QTEST_GUILESS_MAIN(QMLUserProfileTest)
 
 #include "tst_qmluserprofiletest.moc"

@@ -100,6 +100,6 @@ void QMLIncomeTransactionModelTest::testError()
     QCOMPARE(busyChangedSpy.count(), 2);
 }
 
-QTEST_MAIN(QMLIncomeTransactionModelTest)
+QTEST_GUILESS_MAIN(QMLIncomeTransactionModelTest)
 
 #include "tst_qmlincometransactionmodeltest.moc"
