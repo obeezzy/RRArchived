@@ -202,6 +202,6 @@ void QMLClientModelTest::testFilterByPhoneNumber()
              client2["phone_number"].toString());
 }
 
-QTEST_MAIN(QMLClientModelTest)
+QTEST_GUILESS_MAIN(QMLClientModelTest)
 
 #include "tst_qmlclientmodeltest.moc"

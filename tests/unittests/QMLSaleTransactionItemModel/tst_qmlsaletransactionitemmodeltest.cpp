@@ -125,6 +125,6 @@ void QMLSaleTransactionItemModelTest::testSetTransactionId()
              products.first().toMap()["user"].toString());
 }
 
-QTEST_MAIN(QMLSaleTransactionItemModelTest)
+QTEST_GUILESS_MAIN(QMLSaleTransactionItemModelTest)
 
 #include "tst_qmlsaletransactionitemmodeltest.moc"

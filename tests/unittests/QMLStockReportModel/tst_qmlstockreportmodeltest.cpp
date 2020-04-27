@@ -34,6 +34,6 @@ void QMLStockReportModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLStockReportModelTest)
+QTEST_GUILESS_MAIN(QMLStockReportModelTest)
 
 #include "tst_qmlstockreportmodeltest.moc"

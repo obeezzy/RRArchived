@@ -89,6 +89,6 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
     QCOMPARE(m_debtorDetailRecord->user(), debtor["user"].toString());
 }
 
-QTEST_MAIN(QMLDebtorDetailRecordTest)
+QTEST_GUILESS_MAIN(QMLDebtorDetailRecordTest)
 
 #include "tst_qmldebtordetailrecordtest.moc"

@@ -66,6 +66,6 @@ void QMLDoubleValidatorTest::testDisallowNegativeInput()
     QCOMPARE(validator.bottom(), 0.0);
 }
 
-QTEST_MAIN(QMLDoubleValidatorTest)
+QTEST_GUILESS_MAIN(QMLDoubleValidatorTest)
 
 #include "tst_qmldoublevalidatortest.moc"

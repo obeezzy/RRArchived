@@ -368,6 +368,6 @@ void QMLStockProductPusherTest::testPushUpdatedProduct()
     errorSpy.clear();
 }
 
-QTEST_MAIN(QMLStockProductPusherTest)
+QTEST_GUILESS_MAIN(QMLStockProductPusherTest)
 
 #include "tst_qmlstockproductpusher.moc"

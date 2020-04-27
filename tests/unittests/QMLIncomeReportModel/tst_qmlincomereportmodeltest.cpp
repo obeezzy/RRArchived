@@ -35,6 +35,6 @@ void QMLIncomeReportModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLIncomeReportModelTest)
+QTEST_GUILESS_MAIN(QMLIncomeReportModelTest)
 
 #include "tst_qmlincomereportmodeltest.moc"

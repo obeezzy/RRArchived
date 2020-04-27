@@ -377,6 +377,6 @@ void QMLStockProductModelTest::testFilterProduct()
     QCOMPARE(m_stockProductModel->rowCount(), 0);
 }
 
-QTEST_MAIN(QMLStockProductModelTest)
+QTEST_GUILESS_MAIN(QMLStockProductModelTest)
 
 #include "tst_qmlstockproductmodeltest.moc"

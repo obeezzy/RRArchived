@@ -35,6 +35,6 @@ void QMLPurchaseHomeModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLPurchaseHomeModelTest)
+QTEST_GUILESS_MAIN(QMLPurchaseHomeModelTest)
 
 #include "tst_qmlpurchasehomemodeltest.moc"

@@ -34,6 +34,6 @@ void QMLUserModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLUserModelTest)
+QTEST_GUILESS_MAIN(QMLUserModelTest)
 
 #include "tst_qmlusermodeltest.moc"

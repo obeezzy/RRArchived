@@ -34,6 +34,6 @@ void QMLExpenseHomeModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLExpenseHomeModelTest)
+QTEST_GUILESS_MAIN(QMLExpenseHomeModelTest)
 
 #include "tst_qmlexpensehomemodeltest.moc"

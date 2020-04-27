@@ -26,6 +26,6 @@ void QMLExpensePusherTest::cleanup()
     m_thread->deleteLater();
 }
 
-QTEST_MAIN(QMLExpensePusherTest)
+QTEST_GUILESS_MAIN(QMLExpensePusherTest)
 
 #include "tst_qmlexpensepushertest.moc"

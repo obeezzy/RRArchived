@@ -218,6 +218,6 @@ void QMLMostSoldProductModelTest::testError()
     QCOMPARE(successSpy.count(), 0);
 }
 
-QTEST_MAIN(QMLMostSoldProductModelTest)
+QTEST_GUILESS_MAIN(QMLMostSoldProductModelTest)
 
 #include "tst_qmlmostsoldproductmodeltest.moc"

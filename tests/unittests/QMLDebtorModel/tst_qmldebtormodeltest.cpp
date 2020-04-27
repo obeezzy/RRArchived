@@ -243,6 +243,6 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
              debtors.first().toMap()["total_debt"].toDouble());
 }
 
-QTEST_MAIN(QMLDebtorModelTest)
+QTEST_GUILESS_MAIN(QMLDebtorModelTest)
 
 #include "tst_qmldebtormodeltest.moc"

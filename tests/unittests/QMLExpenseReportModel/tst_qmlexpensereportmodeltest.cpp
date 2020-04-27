@@ -34,6 +34,6 @@ void QMLExpenseReportModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLExpenseReportModelTest)
+QTEST_GUILESS_MAIN(QMLExpenseReportModelTest)
 
 #include "tst_qmlexpensereportmodeltest.moc"

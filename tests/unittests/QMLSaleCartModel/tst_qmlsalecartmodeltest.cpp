@@ -864,6 +864,6 @@ void QMLSaleCartModelTest::testSuspendEmptyTransaction()
     QCOMPARE(successSpy.count(), 0);
 }
 
-QTEST_MAIN(QMLSaleCartModelTest)
+QTEST_GUILESS_MAIN(QMLSaleCartModelTest)
 
 #include "tst_qmlsalecartmodeltest.moc"

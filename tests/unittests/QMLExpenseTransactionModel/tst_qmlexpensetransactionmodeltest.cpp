@@ -100,6 +100,6 @@ void QMLExpenseTransactionModelTest::testError()
     QCOMPARE(busyChangedSpy.count(), 2);
 }
 
-QTEST_MAIN(QMLExpenseTransactionModelTest)
+QTEST_GUILESS_MAIN(QMLExpenseTransactionModelTest)
 
 #include "tst_qmlexpensetransactionmodeltest.moc"

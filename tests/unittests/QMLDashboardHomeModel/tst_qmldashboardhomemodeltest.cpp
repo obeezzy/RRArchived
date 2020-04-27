@@ -35,6 +35,6 @@ void QMLDashboardHomeModelTest::testModel()
                              this);
 }
 
-QTEST_MAIN(QMLDashboardHomeModelTest)
+QTEST_GUILESS_MAIN(QMLDashboardHomeModelTest)
 
 #include "tst_qmldashboardhomemodeltest.moc"

@@ -351,6 +351,6 @@ void QMLDebtPaymentModelTest::testError()
     QCOMPARE(successSpy.count(), 0);
 }
 
-QTEST_MAIN(QMLDebtPaymentModelTest)
+QTEST_GUILESS_MAIN(QMLDebtPaymentModelTest)
 
 #include "tst_qmldebtpaymentmodeltest.moc"
