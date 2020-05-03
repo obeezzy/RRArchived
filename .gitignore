@@ -32,8 +32,16 @@ Makefile*
 *.autosave
 
 # QtCtreator Qml
+
 *.qmlproject.user
 *.qmlproject.user.*
 
 # QtCtreator CMake
+
 CMakeLists.txt.user*
+
+# Language server protocol
+
+.ccls-cache
+.clangd
+compile_commands.json
