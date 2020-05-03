@@ -50,5 +50,3 @@ unix: CONFIG(release, debug|release) {
     #INSTALLS += documentation
     INSTALLS += target
 }
-
-message("COMMANDS" $$target.commands)
