@@ -15,11 +15,10 @@ public:
                              QObject *receiver);
     QueryResult execute() override;
 private:
-    int addStockProductCategory();
-    int addStockProduct(int productCategoryId);
-    int addStockProductUnit(int productId);
-    void addInitialProductQuantity(int productId);
-    void addCurrentProductQuantity(int productId);
+    int addProductCategory();
+    int addProduct(int productCategoryId);
+    int addProductUnit(int productId);
+    void addProductQuantity(int productId);
 };
 }
 

@@ -27,27 +27,29 @@ const QString CONNECTION_NAME("databasecreator");
 
 const QString PROCEDURE_SEPARATOR("---");
 const QString SPACES_AND_TABS_PATTERN("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)"); // Replace comments and tabs and new lines with space
-const QString DATABASE_NAME_PATTERN("###DATABASENAME###");
-const QString REMOVE_BEGIN_COMMIT_PATTERN("(\\bbegin.transaction.*;|\\bcommit.*;|\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)");
 
 DatabaseCreator::DatabaseCreator(QSqlDatabase connection) :
     m_connection(connection)
 {
+}
+
+void DatabaseCreator::openConnection(const QString &databaseName)
+{
     if (!m_connection.isValid()) {
         if (!QSqlDatabase::contains(CONNECTION_NAME))
-            m_connection = QSqlDatabase::addDatabase("QMYSQL", CONNECTION_NAME);
+            m_connection = QSqlDatabase::addDatabase("QPSQL", CONNECTION_NAME);
         else
             m_connection = QSqlDatabase::database(CONNECTION_NAME);
 
         if (m_connection.isOpen())
             m_connection.close();
 
-        m_connection.setDatabaseName(QStringLiteral("mysql"));
+        m_connection.setDatabaseName(databaseName);
         m_connection.setHostName(Config::instance().hostName());
         m_connection.setPort(Config::instance().port());
         m_connection.setUserName(Config::instance().userName());
         m_connection.setPassword(Config::instance().password());
-        m_connection.setConnectOptions(QStringLiteral("MYSQL_OPT_RECONNECT = 1"));
+        m_connection.setConnectOptions();
 
         m_connection.open();
     }
@@ -69,11 +71,8 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
     QSqlQuery q(m_connection);
     QString sqlData = file.readAll();
 
-    if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
-        throw DatabaseInitializationFailedException(QStringLiteral("Database name cannot be mysql."));
-
-    // Inject database name
-    sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
+    if (Config::instance().databaseName().toLower() == QStringLiteral("postgres"))
+        throw DatabaseInitializationFailedException(QStringLiteral("Database name cannot be postgres."));
 
     if (m_connection.driver()->hasFeature(QSqlDriver::Transactions)) {
         // Replace comments and tabs and new lines with space
@@ -115,12 +114,7 @@ void DatabaseCreator::executeSqlFile(const QString &fileName)
 
         //Sql Driver doesn't supports transaction
     } else {
-        //...so we need to remove special queries (`begin transaction` and `commit`)
-        sqlData = sqlData.replace(QRegularExpression("(\\bbegin.transaction.*;|\\bcommit.*;|\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)",
-                                                     QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption),
-                                  QStringLiteral(" "));
         sqlData = sqlData.trimmed();
-
         //Execute each individual queries
         QStringList extractedQueries = sqlData.split(';', QString::SkipEmptyParts);
         for (const QString &s : extractedQueries) {
@@ -136,9 +130,11 @@ bool DatabaseCreator::start()
     try {
         QSettings settings;
 
-        // NOTE: Only drop if database was not ready
+        openConnection("postgres");
         if (!UserProfile::instance().isDatabaseReady())
             dropDatabase();
+        createDatabase();
+        openConnection(Config::instance().databaseName());
         initDatabase();
         createProcedures();
         updateBusinessDetails();
@@ -148,6 +144,17 @@ bool DatabaseCreator::start()
     }
 
     return true;
+}
+
+void DatabaseCreator::createDatabase()
+{
+    QSqlQuery q(m_connection);
+    q.prepare(QStringLiteral("CREATE DATABASE %1")
+              .arg(Config::instance().databaseName()));
+
+    if (!q.exec())
+        throw DatabaseInitializationFailedException(QStringLiteral("Failed to create database!"),
+                                                    q.lastError());
 }
 
 void DatabaseCreator::dropDatabase()
@@ -183,7 +190,7 @@ void DatabaseCreator::createProcedures()
 void DatabaseCreator::updateBusinessDetails()
 {
     QSqlQuery q(m_connection);
-    q.prepare(QStringLiteral("CALL UpdateBusinessDetails('%1', '%2', '%3', %4, '%5', '%6', NULL)")
+    q.prepare(QStringLiteral("SELECT UpdateBusinessDetails('%1', '%2', '%3', %4, '%5', '%6', NULL)")
               .arg(UserProfile::instance().businessDetails()->name())
               .arg(UserProfile::instance().businessDetails()->address())
               .arg(UserProfile::instance().businessDetails()->businessFamily())
@@ -216,11 +223,8 @@ void DatabaseCreator::executeStoredProcedures(const QString &fileName)
     file.seek(0);
     QString sqlData = file.readAll();
 
-    if (Config::instance().databaseName().toLower() == QStringLiteral("mysql"))
-        throw DatabaseInitializationFailedException(QStringLiteral("Database name cannot be mysql."));
-
-    // Inject database name
-    sqlData = sqlData.replace(QRegularExpression(DATABASE_NAME_PATTERN), Config::instance().databaseName());
+    if (Config::instance().databaseName().toLower() == QStringLiteral("postgres"))
+        throw DatabaseInitializationFailedException(QStringLiteral("Database name cannot be postgres."));
 
     QStringList statements = sqlData.split(PROCEDURE_SEPARATOR);
     for (auto &statement : statements) {

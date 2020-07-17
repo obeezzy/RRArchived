@@ -16,6 +16,8 @@ public:
 private:
     QSqlDatabase m_connection;
 
+    void openConnection(const QString &databaseName);
+    void createDatabase();
     void dropDatabase();
     void initDatabase();
     void createProcedures();
