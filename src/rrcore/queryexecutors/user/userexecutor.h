@@ -19,7 +19,6 @@ protected:
     void grantPrivilege(const QString &privilege,
                         const QString &userName,
                         QSqlQuery &q);
-    QString resolvedUserName(const QString &userName) const;
 };
 
 #endif // USEREXECUTOR_H

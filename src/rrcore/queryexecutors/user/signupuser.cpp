@@ -57,7 +57,7 @@ void SignUpUser::connectToDatabase(QSqlDatabase &connection)
         connection.close();
 
     if (!QSqlDatabase::contains())
-        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
+        connection = QSqlDatabase::addDatabase("QPSQL", connectionName());
     else
         connection = QSqlDatabase::database(connectionName());
 
@@ -66,7 +66,7 @@ void SignUpUser::connectToDatabase(QSqlDatabase &connection)
     connection.setPort(Config::instance().port());
     connection.setUserName(userName);
     connection.setPassword(password);
-    connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+    connection.setConnectOptions();
 
     if (!connection.open())
         throw ConnectionFailedException(QStringLiteral("Failed to open connection."),

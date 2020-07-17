@@ -180,7 +180,7 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure,
             if (argument.value.isNull())
                 sqlArguments.append(QStringLiteral("NULL"));
             else if (argument.value.type() == QVariant::Bool)
-                sqlArguments.append(argument.value.toBool() ? "1" : "0");
+                sqlArguments.append(argument.value.toBool() ? "TRUE" : "FALSE");
             else if (argument.value.type() == QVariant::String)
                 sqlArguments.append(QStringLiteral("'%1'").arg(argument.value.toString().replace("'", "\\'")));
             else if (argument.value.type() == QVariant::ByteArray)
@@ -223,7 +223,7 @@ QList<QSqlRecord> QueryExecutor::callProcedure(const QString &procedure,
         }
     }
 
-    const QString &storedProcedure = QStringLiteral("CALL %1(%2)").arg(procedure,
+    const auto &storedProcedure = QStringLiteral("SELECT * FROM %1(%2)").arg(procedure,
                                                                        sqlArguments.join(", "));
     qCInfo(lcqueryexecutor) << "Procedure syntax:" << storedProcedure;
     if (!q.exec(storedProcedure)) {
@@ -357,7 +357,7 @@ int QueryExecutor::addOrUpdateNote(int noteId,
 
 void QueryExecutor::beginTransaction(QSqlQuery &q)
 {
-    if (!q.exec("SET AUTOCOMMIT = 0") || !q.exec("START TRANSACTION"))
+    if (!q.exec("START TRANSACTION"))
         throw BeginTransactionFailedException(q.lastError());
 }
 

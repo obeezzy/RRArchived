@@ -45,11 +45,3 @@ void UserExecutor::grantPrivilege(const QString &privilege, const QString &userN
                                           .arg(privilege, userName),
                                           q.lastError());
 }
-
-QString UserExecutor::resolvedUserName(const QString &userName) const
-{
-    if (userName.trimmed().toLower() == QStringLiteral("admin"))
-        return QStringLiteral("root");
-
-    return userName;
-}

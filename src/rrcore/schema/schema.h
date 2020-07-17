@@ -5,8 +5,8 @@
 
 namespace Schema {
     namespace Common {
-        static inline const QString INIT_SQL_FILE(":/schema/rr-schema/sql/mysql/common/init.sql");
-        static inline const QString PROCEDURE_DIR(":/schema/rr-schema/sql/mysql/common/procedures");
+        static inline const QString INIT_SQL_FILE(":/schema/rr-schema/sql/common/init.sql");
+        static inline const QString PROCEDURE_DIR(":/schema/rr-schema/sql/common/procedures");
     }
 
     namespace Client {

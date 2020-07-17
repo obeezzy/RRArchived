@@ -85,16 +85,16 @@ void SignInUser::attemptSignIn(QueryResult &result)
     const QString &password{ request().params().value("password").toString() };
 
     if (!QSqlDatabase::contains(connectionName()))
-        connection = QSqlDatabase::addDatabase("QMYSQL", connectionName());
+       connection = QSqlDatabase::addDatabase("QPSQL", connectionName());
     else
         connection = QSqlDatabase::database(connectionName());
 
     connection.setDatabaseName(Config::instance().databaseName());
     connection.setHostName(Config::instance().hostName());
     connection.setPort(Config::instance().port());
-    connection.setUserName(UserExecutor::resolvedUserName(userName));
+    connection.setUserName(userName);
     connection.setPassword(password);
-    connection.setConnectOptions("MYSQL_OPT_RECONNECT = 1");
+    connection.setConnectOptions();
 
     if (!connection.open() || !storeProfile(result, userName, password)) {
         if (connection.lastError().nativeErrorCode().toInt()
