@@ -11,7 +11,7 @@ private slots:
     void cleanup();
 
     void testModel();
-    void testViewStockProducts();
+    void testViewProducts();
     void testRefresh();
     void testRemoveProduct();
     void testUndoRemoveProduct();
@@ -40,7 +40,7 @@ void QMLStockProductModelTest::testModel()
                              this);
 }
 
-void QMLStockProductModelTest::testViewStockProducts()
+void QMLStockProductModelTest::testViewProducts()
 {
     const QVariantMap product1 {
         { "category_id", 1 },

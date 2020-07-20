@@ -1,4 +1,4 @@
-#include "addstockproduct.h"
+#include "addproduct.h"
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
 #include "utility/stockutils.h"
@@ -9,7 +9,7 @@
 
 using namespace StockQuery;
 
-AddStockProduct::AddStockProduct(const Utility::StockProduct &product,
+AddProduct::AddProduct(const Utility::StockProduct &product,
                                  QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "product", product.product },
@@ -33,7 +33,7 @@ AddStockProduct::AddStockProduct(const Utility::StockProduct &product,
 
 }
 
-QueryResult AddStockProduct::execute()
+QueryResult AddProduct::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
@@ -60,7 +60,7 @@ QueryResult AddStockProduct::execute()
     return result;
 }
 
-int AddStockProduct::addProductCategory()
+int AddProduct::addProductCategory()
 {
     const QVariantMap &params{ request().params() };
     const QString &note = params.value("category_note").toString();
@@ -76,6 +76,11 @@ int AddStockProduct::addProductCategory()
                                           },
                                           ProcedureArgument {
                                               ProcedureArgument::Type::In,
+                                              "user_id",
+                                              UserProfile::instance().userId()
+                                          },
+                                          ProcedureArgument {
+                                              ProcedureArgument::Type::In,
                                               "short_form",
                                               params.value("short_form")
                                           },
@@ -83,11 +88,6 @@ int AddStockProduct::addProductCategory()
                                               ProcedureArgument::Type::In,
                                               "note_id",
                                               noteId
-                                          },
-                                          ProcedureArgument {
-                                              ProcedureArgument::Type::In,
-                                              "user_id",
-                                              UserProfile::instance().userId()
                                           }
                                       }));
 
@@ -97,7 +97,7 @@ int AddStockProduct::addProductCategory()
     return records.first().value("product_category_id").toInt();
 }
 
-int AddStockProduct::addProduct(int productCategoryId)
+int AddProduct::addProduct(int productCategoryId)
 {
     const QVariantMap &params{ request().params() };
     const QByteArray &imageBlob = QueryExecutor::imageUrlToByteArray(params.value("image_url").toUrl());
@@ -160,7 +160,7 @@ int AddStockProduct::addProduct(int productCategoryId)
     return records.first().value("product_id").toInt();
 }
 
-int AddStockProduct::addProductUnit(int productId)
+int AddProduct::addProductUnit(int productId)
 {
     const QVariantMap &params{ request().params() };
     const QString &note{ params.value("product_unit_note").toString() };
@@ -227,7 +227,7 @@ int AddStockProduct::addProductUnit(int productId)
     return records.first().value("product_unit_id").toInt();
 }
 
-void AddStockProduct::addProductQuantity(int productId)
+void AddProduct::addProductQuantity(int productId)
 {
     const QVariantMap &params{ request().params() };
     const QString &reason{ request().command() };

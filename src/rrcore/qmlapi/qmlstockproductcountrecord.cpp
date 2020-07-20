@@ -81,7 +81,7 @@ void QMLStockProductCountRecord::tryQuery()
                          m_categoryId,
                          this));
     else
-        emit execute(new StockQuery::FetchStockProductCount(m_categoryId,
+        emit execute(new StockQuery::FetchProductCount(m_categoryId,
                                                             this));
 }
 

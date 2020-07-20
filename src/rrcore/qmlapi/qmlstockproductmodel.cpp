@@ -187,7 +187,7 @@ void QMLStockProductModel::tryQuery()
                                                          this));
 
     } else {
-        emit execute(new StockQuery::ViewStockProducts(m_categoryId,
+        emit execute(new StockQuery::ViewProducts(m_categoryId,
                                                        sortCriteria(),
                                                        this));
     }
@@ -204,7 +204,7 @@ void QMLStockProductModel::processResult(const QueryResult &result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == StockQuery::ViewStockProducts::COMMAND
+        if (result.request().command() == StockQuery::ViewProducts::COMMAND
                 || result.request().command() == StockQuery::FilterStockProducts::COMMAND) {
             beginResetModel();
             m_products = Utility::StockProductList{ result.outcome().toMap().value("products").toList() };

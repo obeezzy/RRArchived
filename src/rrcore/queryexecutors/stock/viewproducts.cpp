@@ -1,11 +1,11 @@
-#include "viewstockproducts.h"
+#include "viewproducts.h"
 #include "database/databaseexception.h"
 #include "utility/commonutils.h"
 #include <QUrl>
 
 using namespace StockQuery;
 
-ViewStockProducts::ViewStockProducts(int productCategoryId,
+ViewProducts::ViewProducts(int productCategoryId,
                                      const Utility::SortCriteria &sortCriteria,
                                      QObject *receiver) :
     StockExecutor(COMMAND, {
@@ -16,7 +16,7 @@ ViewStockProducts::ViewStockProducts(int productCategoryId,
 
 }
 
-QueryResult ViewStockProducts::execute()
+QueryResult ViewProducts::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
@@ -24,7 +24,7 @@ QueryResult ViewStockProducts::execute()
     const QVariantMap &params{ request().params() };
 
     try {
-        const auto &records(callProcedure("ViewStockProducts", {
+        const auto &records(callProcedure("ViewProducts", {
                                               ProcedureArgument {
                                                   ProcedureArgument::Type::In,
                                                   "product_category_id",
