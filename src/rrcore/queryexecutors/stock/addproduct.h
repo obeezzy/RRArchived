@@ -5,13 +5,13 @@
 #include "utility/stock/stockproduct.h"
 
 namespace StockQuery {
-class AddStockProduct : public StockExecutor
+class AddProduct : public StockExecutor
 {
     Q_OBJECT
 public:
-    static inline const QString COMMAND = QStringLiteral("add_stock_product");
+    static inline const QString COMMAND = QStringLiteral("add_product");
 
-    explicit AddStockProduct(const Utility::StockProduct &product,
+    explicit AddProduct(const Utility::StockProduct &product,
                              QObject *receiver);
     QueryResult execute() override;
 private:

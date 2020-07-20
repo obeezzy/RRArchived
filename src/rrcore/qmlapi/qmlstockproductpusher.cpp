@@ -216,8 +216,8 @@ void QMLStockProductPusher::push()
         emit execute(new StockQuery::UpdateStockProduct(m_product,
                                                         this));
     else
-        emit execute(new StockQuery::AddStockProduct(m_product,
-                                                     this));
+        emit execute(new StockQuery::AddProduct(m_product,
+                                                 this));
 }
 
 void QMLStockProductPusher::processResult(const QueryResult result)
@@ -225,7 +225,7 @@ void QMLStockProductPusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == StockQuery::AddStockProduct::COMMAND)
+        if (result.request().command() == StockQuery::AddProduct::COMMAND)
             emit success(ModelResult{ AddProductSuccess });
         else if (result.request().command() == StockQuery::UpdateStockProduct::COMMAND)
             emit success(ModelResult{ UpdateProductSuccess });

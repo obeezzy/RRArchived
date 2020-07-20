@@ -187,9 +187,9 @@ void QMLStockProductCategoryModel::tryQuery()
                                                            Utility::RecordGroup::None,
                                                            this));
     } else {
-        emit execute(new StockQuery::ViewStockProductCategories(sortCriteria(),
-                                                                Utility::RecordGroup::None,
-                                                                this));
+        emit execute(new StockQuery::ViewProductCategories(sortCriteria(),
+                                                            Utility::RecordGroup::None,
+                                                            this));
     }
 }
 
@@ -204,7 +204,7 @@ void QMLStockProductCategoryModel::processResult(const QueryResult &result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == StockQuery::ViewStockProductCategories::COMMAND
+        if (result.request().command() == StockQuery::ViewProductCategories::COMMAND
                 || result.request().command() == StockQuery::FilterStockProductCategoriesByProduct::COMMAND
                 || result.request().command() == StockQuery::FilterStockCategories::COMMAND) {
             beginResetModel();

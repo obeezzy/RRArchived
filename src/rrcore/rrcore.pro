@@ -101,9 +101,9 @@ SOURCES += \
     queryexecutors/sales/viewsalehome.cpp \
     queryexecutors/sales/viewsalereport.cpp \
     queryexecutors/sales/viewsaletransactions.cpp \
-    queryexecutors/stock/addstockproduct.cpp \
+    queryexecutors/stock/addproduct.cpp \
     queryexecutors/stock/fetchstockproduct.cpp \
-    queryexecutors/stock/fetchstockproductcount.cpp \
+    queryexecutors/stock/fetchproductcount.cpp \
     queryexecutors/stock/filterstockcategories.cpp \
     queryexecutors/stock/filterstockcategoriesbyproduct.cpp \
     queryexecutors/stock/filterstockproductcount.cpp \
@@ -111,8 +111,8 @@ SOURCES += \
     queryexecutors/stock/removestockproduct.cpp \
     queryexecutors/stock/stockexecutor.cpp \
     queryexecutors/stock/updatestockproduct.cpp \
-    queryexecutors/stock/viewstockproductcategories.cpp \
-    queryexecutors/stock/viewstockproducts.cpp \
+    queryexecutors/stock/viewproductcategories.cpp \
+    queryexecutors/stock/viewproducts.cpp \
     queryexecutors/stock/viewstockreport.cpp \
     queryexecutors/user/activateuser.cpp \
     queryexecutors/user/adduser.cpp \
@@ -331,9 +331,9 @@ HEADERS += \
     queryexecutors/sales/viewsalereport.h \
     queryexecutors/sales/viewsaletransactions.h \
     queryexecutors/stock.h \
-    queryexecutors/stock/addstockproduct.h \
+    queryexecutors/stock/addproduct.h \
     queryexecutors/stock/fetchstockproduct.h \
-    queryexecutors/stock/fetchstockproductcount.h \
+    queryexecutors/stock/fetchproductcount.h \
     queryexecutors/stock/filterstockcategories.h \
     queryexecutors/stock/filterstockcategoriesbyproduct.h \
     queryexecutors/stock/filterstockproductcount.h \
@@ -341,8 +341,8 @@ HEADERS += \
     queryexecutors/stock/removestockproduct.h \
     queryexecutors/stock/stockexecutor.h \
     queryexecutors/stock/updatestockproduct.h \
-    queryexecutors/stock/viewstockproductcategories.h \
-    queryexecutors/stock/viewstockproducts.h \
+    queryexecutors/stock/viewproductcategories.h \
+    queryexecutors/stock/viewproducts.h \
     queryexecutors/stock/viewstockreport.h \
     queryexecutors/user.h \
     queryexecutors/user/activateuser.h \

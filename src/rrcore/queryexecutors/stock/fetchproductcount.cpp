@@ -1,10 +1,10 @@
-#include "fetchstockproductcount.h"
+#include "fetchproductcount.h"
 #include "database/databaseexception.h"
 
 using namespace StockQuery;
 
-FetchStockProductCount::FetchStockProductCount(int categoryId,
-                                               QObject *receiver) :
+FetchProductCount::FetchProductCount(int categoryId,
+                                       QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "category_id", categoryId },
                     { "archived", false }
@@ -13,7 +13,7 @@ FetchStockProductCount::FetchStockProductCount(int categoryId,
 
 }
 
-QueryResult FetchStockProductCount::execute()
+QueryResult FetchProductCount::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
@@ -21,7 +21,7 @@ QueryResult FetchStockProductCount::execute()
     const QVariantMap &params = request().params();
 
     try {
-        const QList<QSqlRecord> records(callProcedure("FetchStockProductCount", {
+        const QList<QSqlRecord> records(callProcedure("FetchProductCount", {
                                                           ProcedureArgument {
                                                               ProcedureArgument::Type::In,
                                                               "category_id",
