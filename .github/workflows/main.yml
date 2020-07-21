@@ -25,20 +25,18 @@ jobs:
         python-version: 3.7
 
     - name: Install Qt
-      env:
-        QT_INSTALL_DIR: $HOME/Qt
       run: |
         sudo apt-get update
         sudo apt-get install unzip wget build-essential mesa-common-dev libglu1-mesa-dev -y
         python -m pip install --upgrade pip
         sudo pip3 install aqtinstall
+        export QT_INSTALL_DIR=$HOME/Qt
         mkdir $QT_INSTALL_DIR
         sudo aqt install --outputdir $QT_INSTALL_DIR $QT_VERSION linux desktop
 
     - name: Build app and run tests
-      env:
-        QTDIR: QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
       run: |
+        export $QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
         $QTDIR/bin/qmake CONFIG+=release
         make -j`nproc`
         export RRCORE=$PWD/src/rrcore
