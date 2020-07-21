@@ -36,7 +36,7 @@ jobs:
 
     - name: Build app and run tests
       run: |
-        export $QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
+        export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
         $QTDIR/bin/qmake CONFIG+=release
         make -j`nproc`
         export RRCORE=$PWD/src/rrcore
