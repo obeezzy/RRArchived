@@ -31,7 +31,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install unzip wget build-essential mesa-common-dev libglu1-mesa-dev -y
         python -m pip install --upgrade pip
-        sudo pip install aqtinstall
+        sudo pip3 install aqtinstall
         mkdir $QTDIR
         sudo aqt install --outputdir $QT_INSTALL_DIR $QT_VERSION linux desktop
 
