@@ -11,7 +11,7 @@ SUBDIRS += \
     QMLDebtorModel \
     QMLSaleCartModel \
     QMLUserProfile \
-    QMLStockProductDetailRecord \
+    stock/QMLProductDetailModel \
     QMLDebtTransactionModel \
     QMLClientModel \
     QMLDashboardHomeModel \

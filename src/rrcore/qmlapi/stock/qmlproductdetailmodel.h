@@ -1,13 +1,11 @@
-#ifndef QMLSTOCKPRODUCTDETAILRECORD_H
-#define QMLSTOCKPRODUCTDETAILRECORD_H
+#ifndef QMLPRODUCTDETAILRECORD_H
+#define QMLPRODUCTDETAILRECORD_H
 
-#include "detailrecord/abstractdetailrecord.h"
+#include "models/abstractvisuallistmodel.h"
 #include "utility/stock/stockproduct.h"
+#include <QVariantList>
 
-class QDateTime;
-class QUrl;
-
-class QMLStockProductDetailRecord : public AbstractDetailRecord
+class QMLProductDetailModel : public AbstractVisualListModel
 {
     Q_OBJECT
     Q_PROPERTY(int productId READ productId WRITE setProductId NOTIFY productIdChanged)
@@ -28,11 +26,20 @@ class QMLStockProductDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(int userId READ userId NOTIFY userIdChanged)
     Q_PROPERTY(QString user READ user NOTIFY userChanged)
 public:
-    explicit QMLStockProductDetailRecord(QObject *parent = nullptr);
-    explicit QMLStockProductDetailRecord(DatabaseThread &thread, QObject *parent = nullptr);
+    enum Role {
+        TitleRole = Qt::UserRole,
+        DetailRole,
+        DatatypeRole
+    };
+    explicit QMLProductDetailModel(QObject *parent = nullptr);
+    explicit QMLProductDetailModel(DatabaseThread &thread, QObject *parent = nullptr);
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     int productId() const;
-    void setProductId(int productI);
+    void setProductId(int productId);
 
     int categoryId() const;
     QString category() const;
@@ -52,7 +59,7 @@ public:
     QDateTime lastEdited() const;
 
     int userId() const;
-    QString user() const;
+    QString user() const;   
 signals:
     void productIdChanged();
     void categoryIdChanged();
@@ -73,9 +80,11 @@ signals:
     void userChanged();
 protected:
     void tryQuery() override;
-    void processResult(const QueryResult result) override;
+    bool canProcessResult(const QueryResult &result) const override;
+    void processResult(const QueryResult &result) override; 
 private:
     Utility::StockProduct m_product;
+    QVariantList m_productDetails;
 
     void setCategoryId(int categoryId);
     void setCategory(const QString &category);
@@ -94,4 +103,4 @@ private:
     void setUser(const QString & user);
 };
 
-#endif // QMLSTOCKPRODUCTDETAILRECORD_H
+#endif // QMLPRODUCTDETAILRECORD_H

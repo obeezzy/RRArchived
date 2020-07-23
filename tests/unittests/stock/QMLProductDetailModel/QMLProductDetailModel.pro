@@ -8,12 +8,12 @@ QT       += core qml quick quickcontrols2 widgets sql testlib
 
 QT       -= gui
 
-TARGET = tst_qmlstockproductdetailrecordtest
+TARGET = tst_qmlproductdetailmodeltest
 CONFIG   += console testcase
 CONFIG   -= app_bundle
 
 INCLUDEPATH += $$top_srcdir/src/rrcore \
-    ../utils
+                $$top_srcdir/tests/unittests/utils
 
 LIBS += -L$$top_builddir/src/rrcore -lrrcore
 
@@ -23,6 +23,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 SOURCES += \
-        tst_qmlstockproductdetailrecordtest.cpp
+        tst_qmlproductdetailmodeltest.cpp
 
-include(../utils/utils.pri)
+include($$top_srcdir/tests/unittests/utils/utils.pri)

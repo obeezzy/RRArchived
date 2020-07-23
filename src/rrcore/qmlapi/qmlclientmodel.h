@@ -37,7 +37,6 @@ protected:
     QString columnName(int column) const override;
 private:
     Utility::ClientList m_clientList;
-
 };
 
 #endif // QMLCLIENTMODEL_H

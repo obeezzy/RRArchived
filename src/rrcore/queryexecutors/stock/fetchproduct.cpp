@@ -1,11 +1,11 @@
-#include "fetchstockproduct.h"
+#include "fetchproduct.h"
 #include "database/databaseexception.h"
 #include "database/exceptions/exceptions.h"
 #include <QUrl>
 
 using namespace StockQuery;
 
-FetchStockProduct::FetchStockProduct(int productId,
+FetchProduct::FetchProduct(int productId,
                                      QObject *receiver) :
     StockExecutor(COMMAND, {
                     { "product_id", productId }
@@ -14,7 +14,7 @@ FetchStockProduct::FetchStockProduct(int productId,
 
 }
 
-QueryResult FetchStockProduct::execute()
+QueryResult FetchProduct::execute()
 {
     QueryResult result{ request() };
     result.setSuccessful(true);
@@ -24,7 +24,7 @@ QueryResult FetchStockProduct::execute()
     try {
         enforceArguments({ "product_id" }, params);
 
-        const auto &records(callProcedure("FetchStockProduct", {
+        const auto &records(callProcedure("FetchProduct", {
                                               ProcedureArgument {
                                                   ProcedureArgument::Type::In,
                                                   "product_id",

@@ -42,8 +42,6 @@
         <file>rrui/ToolButton.qml</file>
         <file>rrui/FloatingActionButton.qml</file>
         <file>rrui/Popup.qml</file>
-        <file>stock/ProductDetailPopup.qml</file>
-        <file>stock/ProductDetailModel.qml</file>
         <file>sales/CartProductEditorDialog.qml</file>
         <file>rrui/Dialog.qml</file>
         <file>sales/SaleTransactionPage.qml</file>
@@ -170,5 +168,6 @@
         <file>wizard/newdebttransactionwizard/DueDatePage.qml</file>
         <file>wizard/NewDebtTransactionWizard.qml</file>
         <file>people/debtor/DebtPaymentListView.qml</file>
+        <file>stock/ProductDetailPopup.qml</file>
     </qresource>
 </RCC>

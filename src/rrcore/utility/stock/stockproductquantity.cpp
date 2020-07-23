@@ -320,7 +320,11 @@ float StockProductQuantity::toFloat(const StockProductUnit &unit) const
 
 QString StockProductQuantity::toString() const
 {
-    return QString::fromStdString(toStdString()).remove(QRegularExpression("^(\\d+\\.\\d*?[1-9])0+$"));
+    QString result = QString::fromStdString(toStdString()).remove(QRegularExpression("^(\\d+\\.\\d*?[1-9])0+$"));
+    if (result.endsWith(".0000"))
+        result.remove(".0000");
+
+    return result;
 }
 
 std::string StockProductQuantity::toStdString() const

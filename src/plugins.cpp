@@ -15,7 +15,7 @@
 #include "rrcore/qmlapi/qmlstockproductcategorymodel.h"
 #include "rrcore/qmlapi/qmldebtormodel.h"
 #include "rrcore/qmlapi/qmlsalehomemodel.h"
-#include "rrcore/qmlapi/qmlstockproductdetailrecord.h"
+#include "rrcore/qmlapi/stock/qmlproductdetailmodel.h"
 #include "rrcore/qmlapi/qmlclientmodel.h"
 #include "rrcore/qmlapi/qmldebttransactionmodel.h"
 #include "rrcore/qmlapi/qmldebtordetailrecord.h"
@@ -79,7 +79,7 @@ void Plugins::registerTypes()
     qmlRegisterType<QMLStockProductCategoryModel>("com.gecko.rr.models", 1, 0, "StockProductCategoryModel");
     qmlRegisterType<QMLDebtorModel>("com.gecko.rr.models", 1, 0, "DebtorModel");
     qmlRegisterType<QMLSaleHomeModel>("com.gecko.rr.models", 1, 0, "SaleHomeModel");
-    qmlRegisterType<QMLStockProductDetailRecord>("com.gecko.rr.models", 1, 0, "StockProductDetailRecord");
+    qmlRegisterType<QMLProductDetailModel>("com.gecko.rr.models.stock", 1, 0, "ProductDetailModel");
     qmlRegisterType<QMLClientModel>("com.gecko.rr.models", 1, 0, "ClientModel");
     qmlRegisterType<QMLDebtTransactionModel>("com.gecko.rr.models", 1, 0, "DebtTransactionModel");
     qmlRegisterType<QMLDebtorDetailRecord>("com.gecko.rr.models", 1, 0, "DebtorDetailRecord");

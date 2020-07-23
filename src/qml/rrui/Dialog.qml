@@ -1,5 +1,5 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12 as QQC2
+import QtQuick 2.13
+import QtQuick.Controls 2.13 as QQC2
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 
@@ -8,9 +8,8 @@ QQC2.Dialog {
 
     implicitWidth: 300
     implicitHeight: 400
-    x: (QQC2.ApplicationWindow.contentItem.width - width) / 2
-    y: (QQC2.ApplicationWindow.contentItem.height - height) / 2
-    parent: QQC2.ApplicationWindow.contentItem
+    anchors.centerIn: QQC2.Overlay.overlay
+    parent: QQC2.Overlay.overlay
     focus: visible
     modal: true
     title: qsTr("Title")
