@@ -42,7 +42,7 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
         { "created", currentDateTime },
         { "last_edited", currentDateTime },
         { "user_id", 1 },
-        { "user", QStringLiteral("user")}
+        { "username", QStringLiteral("username")}
     };
     auto databaseWillReturn = [this](const QVariantMap &debtor) {
         m_thread->result().setSuccessful(true);
@@ -86,7 +86,7 @@ void QMLDebtorDetailRecordTest::testFetchDebtor()
     QCOMPARE(m_debtorDetailRecord->created(), currentDateTime);
     QCOMPARE(m_debtorDetailRecord->lastEdited(), currentDateTime);
     QCOMPARE(m_debtorDetailRecord->userId(), debtor["user_id"].toInt());
-    QCOMPARE(m_debtorDetailRecord->user(), debtor["user"].toString());
+    QCOMPARE(m_debtorDetailRecord->user(), debtor["username"].toString());
 }
 
 QTEST_GUILESS_MAIN(QMLDebtorDetailRecordTest)

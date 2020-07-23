@@ -50,7 +50,7 @@ void QMLProductDetailModelTest::testViewProductDetails()
         { "created", currentDateTime },
         { "last_edited", currentDateTime },
         { "user_id", 1 },
-        { "user", QStringLiteral("user") }
+        { "username", QStringLiteral("user") }
     };
 
     auto databaseWillReturn = [this](const QVariantMap &product) {
