@@ -59,7 +59,7 @@ SOURCES += \
     qmlapi/qmlexpensetransactionmodel.cpp \
     qmlapi/qmlstockproductcategorymodel.cpp \
     qmlapi/qmlstockproductcountrecord.cpp \
-    qmlapi/qmlstockproductdetailrecord.cpp \
+    qmlapi/stock/qmlproductdetailmodel.cpp \
     qmlapi/qmlstockproductmodel.cpp \
     qmlapi/qmlstockproductpusher.cpp \
     qmlapi/qmluserprofile.cpp \
@@ -102,7 +102,7 @@ SOURCES += \
     queryexecutors/sales/viewsalereport.cpp \
     queryexecutors/sales/viewsaletransactions.cpp \
     queryexecutors/stock/addproduct.cpp \
-    queryexecutors/stock/fetchstockproduct.cpp \
+    queryexecutors/stock/fetchproduct.cpp \
     queryexecutors/stock/fetchproductcount.cpp \
     queryexecutors/stock/filterstockcategories.cpp \
     queryexecutors/stock/filterstockcategoriesbyproduct.cpp \
@@ -281,7 +281,7 @@ HEADERS += \
     qmlapi/qmlexpensetransactionmodel.h \
     qmlapi/qmlstockproductcategorymodel.h \
     qmlapi/qmlstockproductcountrecord.h \
-    qmlapi/qmlstockproductdetailrecord.h \
+    qmlapi/stock/qmlproductdetailmodel.h \
     qmlapi/qmlstockproductmodel.h \
     qmlapi/qmlstockproductpusher.h \
     qmlapi/qmluserprofile.h \
@@ -332,7 +332,7 @@ HEADERS += \
     queryexecutors/sales/viewsaletransactions.h \
     queryexecutors/stock.h \
     queryexecutors/stock/addproduct.h \
-    queryexecutors/stock/fetchstockproduct.h \
+    queryexecutors/stock/fetchproduct.h \
     queryexecutors/stock/fetchproductcount.h \
     queryexecutors/stock/filterstockcategories.h \
     queryexecutors/stock/filterstockcategoriesbyproduct.h \

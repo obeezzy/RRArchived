@@ -50,7 +50,7 @@ QVariantMap Debtor::toVariantMap() const
         { "created", timestamp.created },
         { "last_edited", timestamp.lastEdited },
         { "user_id", user.id },
-        { "user", user.user },
+        { "username", user.user },
         { "row", row }
     };
 }

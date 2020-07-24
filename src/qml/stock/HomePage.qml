@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import Fluid.Core 1.0 as FluidCore
 import com.gecko.rr.models 1.0 as RRModels
+import com.gecko.rr.models.stock 1.0 as StockModels
 import "../rrui" as RRUi
 import "../common"
 import "../singletons"

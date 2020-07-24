@@ -5,6 +5,8 @@ import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
+import com.gecko.rr.models.stock 1.0 as StockModels
+import "../singletons"
 
 RRUi.Popup {
     id: productDetailPopup
@@ -16,11 +18,10 @@ RRUi.Popup {
     implicitWidth: 640
     implicitHeight: productDetailPopup.QQC2.ApplicationWindow.window.contentItem.height - 160
     padding: 0
-    rightPadding: -1
 
     function show(productId) {
         if (productId === undefined)
-            productId = -1;
+            productId = 0;
 
         productDetailPopup.productId = productId;
         open();
@@ -31,7 +32,10 @@ RRUi.Popup {
             anchors.fill: parent
             clip: true
             header: headerComponent
-            model: ProductDetailModel { id: productDetailModel; productId: productDetailPopup.productId }
+            model: StockModels.ProductDetailModel {
+                id: productDetailModel
+                productId: productDetailPopup.productId
+            }
             headerPositioning: ListView.PullBackHeader
             delegate: FluidControls.ListItem {
                 QQLayouts.RowLayout {
@@ -54,7 +58,18 @@ RRUi.Popup {
                     FluidControls.SubheadingLabel {
                         QQLayouts.Layout.preferredWidth: parent.width / 2
                         QQLayouts.Layout.fillHeight: true
-                        text: value
+                        text: {
+                            switch (datatype) {
+                            case "money":
+                                text: Number(detail).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
+                                break;
+                            case "datetime":
+                                Qt.formatDateTime(detail, "MMM d yyyy, h:mm AP")
+                                break;
+                            default:
+                                detail
+                            }
+                        }
                         horizontalAlignment: Qt.AlignHCenter
                         verticalAlignment: Qt.AlignVCenter
                     }
@@ -104,8 +119,8 @@ RRUi.Popup {
                 height: width
                 backgroundColor: Qt.lighter("lightgray")
                 foregroundColor: "darkgray"
-                name: productDetailModel.record.product
-                source: productDetailModel.record.imageUrl
+                name: productDetailModel.product
+                source: productDetailModel.imageUrl
                 sourceSize: Qt.size(width, height)
                 font.pixelSize: 24
             }
@@ -118,12 +133,12 @@ RRUi.Popup {
                 }
 
                 FluidControls.SubheadingLabel {
-                    text: productDetailModel.record.category
+                    text: productDetailModel.category
                     color: "white"
                 }
 
                 FluidControls.HeadlineLabel {
-                    text: productDetailModel.record.product
+                    text: productDetailModel.product
                     color: "white"
                 }
             }

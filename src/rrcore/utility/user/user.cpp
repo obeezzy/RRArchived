@@ -6,7 +6,7 @@ using namespace Utility;
 
 User::User(const QVariantMap &map) :
     id(map.value("user_id").toInt()),
-    user(map.value("user").toString()),
+    user(map.value("username").toString()),
     password(map.value("password").toString()),
     firstName(map.value("first_name").toString()),
     lastName(map.value("last_name").toString()),
@@ -76,7 +76,7 @@ QVariantMap User::toVariantMap() const
 {
     return {
         { "user_id", id },
-        { "user", user },
+        { "username", user },
         { "password", password },
         { "first_name", firstName },
         { "last_name", lastName },

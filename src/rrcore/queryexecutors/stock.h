@@ -9,7 +9,7 @@
 #include "stock/viewproductcategories.h"
 #include "stock/fetchproductcount.h"
 #include "stock/filterstockproductcount.h"
-#include "stock/fetchstockproduct.h"
+#include "stock/fetchproduct.h"
 #include "stock/viewproducts.h"
 #include "stock/filterstockproducts.h"
 #include "stock/viewstockreport.h"

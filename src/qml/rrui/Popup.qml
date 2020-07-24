@@ -5,7 +5,7 @@ import QtQuick.Controls.Material 2.3
 QQC2.Popup {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
-    parent: MainWindow.contentItem
+    parent: QQC2.Overlay.overlay
     dim: true
     modal: true
     implicitWidth: 640
