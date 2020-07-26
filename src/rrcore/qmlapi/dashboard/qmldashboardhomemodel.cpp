@@ -1,14 +1,15 @@
 #include "qmldashboardhomemodel.h"
+#include <QDebug>
+#include <QTimer>
 #include "database/databasethread.h"
 #include "query/dashboard/viewdashboard.h"
-#include <QTimer>
-#include <QDebug>
 
-QMLDashboardHomeModel::QMLDashboardHomeModel(QObject *parent)
+QMLDashboardHomeModel::QMLDashboardHomeModel(QObject* parent)
     : QMLDashboardHomeModel(DatabaseThread::instance(), parent)
 {}
 
-QMLDashboardHomeModel::QMLDashboardHomeModel(DatabaseThread &thread, QObject *parent)
+QMLDashboardHomeModel::QMLDashboardHomeModel(DatabaseThread& thread,
+                                             QObject* parent)
     : AbstractHomeModel(thread, parent)
 {}
 
@@ -18,13 +19,13 @@ void QMLDashboardHomeModel::tryQuery()
     emit execute(new Query::Dashboard::ViewDashboard(this));
 }
 
-bool QMLDashboardHomeModel::canProcessResult(const QueryResult &result) const
+bool QMLDashboardHomeModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLDashboardHomeModel::processResult(const QueryResult &result)
+void QMLDashboardHomeModel::processResult(const QueryResult& result)
 {
     Q_UNUSED(result)
 }

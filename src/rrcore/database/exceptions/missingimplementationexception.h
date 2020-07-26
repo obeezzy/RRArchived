@@ -10,4 +10,4 @@ public:
     QString toString() const override;
 };
 
-#endif // MISSINGIMPLEMENTATIONEXCEPTION_H
+#endif  // MISSINGIMPLEMENTATIONEXCEPTION_H

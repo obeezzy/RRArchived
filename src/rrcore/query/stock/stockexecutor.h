@@ -7,10 +7,9 @@ class StockExecutor : public QueryExecutor
 {
     Q_OBJECT
 public:
-    explicit StockExecutor(const QString &command,
-                           const QVariantMap &params,
-                           QObject *receiver);
+    explicit StockExecutor(const QString& command, const QVariantMap& params,
+                           QObject* receiver);
     virtual ~StockExecutor() = default;
 };
 
-#endif // STOCKEXECUTOR_H
+#endif  // STOCKEXECUTOR_H

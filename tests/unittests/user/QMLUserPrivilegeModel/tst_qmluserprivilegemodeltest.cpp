@@ -1,7 +1,7 @@
-#include "qmlapi/user/qmluserprivilegemodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/user/qmluserprivilegemodel.h"
 
 class QMLUserPrivilegeModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLUserPrivilegeModel *m_userPrivilegeModel;
-    MockDatabaseThread *m_thread;
+    QMLUserPrivilegeModel* m_userPrivilegeModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLUserPrivilegeModelTest::init()
@@ -29,9 +30,9 @@ void QMLUserPrivilegeModelTest::cleanup()
 
 void QMLUserPrivilegeModelTest::testModel()
 {
-    QAbstractItemModelTester(m_userPrivilegeModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_userPrivilegeModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLUserPrivilegeModelTest)

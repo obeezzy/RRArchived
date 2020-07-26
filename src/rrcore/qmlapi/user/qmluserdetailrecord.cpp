@@ -2,13 +2,13 @@
 #include "database/databasethread.h"
 #include "query/user/fetchuser.h"
 
-QMLUserDetailRecord::QMLUserDetailRecord(QObject *parent) :
-    QMLUserDetailRecord(DatabaseThread::instance(), parent)
+QMLUserDetailRecord::QMLUserDetailRecord(QObject* parent)
+    : QMLUserDetailRecord(DatabaseThread::instance(), parent)
 {}
 
-QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread &thread,
-                                         QObject *parent) :
-    AbstractDetailRecord (thread, parent)
+QMLUserDetailRecord::QMLUserDetailRecord(DatabaseThread& thread,
+                                         QObject* parent)
+    : AbstractDetailRecord(thread, parent)
 {}
 
 int QMLUserDetailRecord::userId() const
@@ -30,7 +30,7 @@ QString QMLUserDetailRecord::firstName() const
     return m_user.firstName;
 }
 
-void QMLUserDetailRecord::setFirstName(const QString &firstName)
+void QMLUserDetailRecord::setFirstName(const QString& firstName)
 {
     if (m_user.firstName == firstName)
         return;
@@ -44,7 +44,7 @@ QString QMLUserDetailRecord::lastName() const
     return m_user.lastName;
 }
 
-void QMLUserDetailRecord::setLastName(const QString &lastName)
+void QMLUserDetailRecord::setLastName(const QString& lastName)
 {
     if (m_user.lastName == lastName)
         return;
@@ -58,7 +58,7 @@ QString QMLUserDetailRecord::userName() const
     return m_user.user;
 }
 
-void QMLUserDetailRecord::setUserName(const QString &userName)
+void QMLUserDetailRecord::setUserName(const QString& userName)
 {
     if (m_user.user == userName)
         return;
@@ -72,7 +72,7 @@ QString QMLUserDetailRecord::phoneNumber() const
     return m_user.phoneNumber;
 }
 
-void QMLUserDetailRecord::setPhoneNumber(const QString &phoneNumber)
+void QMLUserDetailRecord::setPhoneNumber(const QString& phoneNumber)
 {
     if (m_user.phoneNumber == phoneNumber)
         return;
@@ -91,7 +91,7 @@ QUrl QMLUserDetailRecord::imageUrl() const
     return m_user.imageUrl;
 }
 
-void QMLUserDetailRecord::setImageUrl(const QUrl &imageUrl)
+void QMLUserDetailRecord::setImageUrl(const QUrl& imageUrl)
 {
     if (m_user.imageUrl == imageUrl)
         return;
@@ -100,7 +100,7 @@ void QMLUserDetailRecord::setImageUrl(const QUrl &imageUrl)
     emit imageUrlChanged();
 }
 
-void QMLUserDetailRecord::setEmailAddress(const QString &emailAddress)
+void QMLUserDetailRecord::setEmailAddress(const QString& emailAddress)
 {
     if (m_user.emailAddress == emailAddress)
         return;
@@ -119,7 +119,7 @@ void QMLUserDetailRecord::processResult(const QueryResult result)
 {
     setBusy(false);
     if (result.isSuccessful()) {
-        const auto user = Utility::User::User{ result.outcome().toMap() };
+        const auto user = Utility::User::User{result.outcome().toMap()};
         setFirstName(user.firstName);
         setLastName(user.lastName);
         setUserName(user.user);

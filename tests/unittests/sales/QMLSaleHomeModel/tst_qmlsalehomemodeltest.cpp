@@ -1,8 +1,8 @@
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
 
-#include "qmlapi/sales/qmlsalehomemodel.h"
 #include "mockdatabasethread.h"
+#include "qmlapi/sales/qmlsalehomemodel.h"
 
 class QMLSaleHomeModelTest : public QObject
 {
@@ -13,8 +13,8 @@ private slots:
     void testModel();
 
 private:
-    QMLSaleHomeModel *m_saleHomeModel;
-    MockDatabaseThread *m_thread;
+    QMLSaleHomeModel* m_saleHomeModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLSaleHomeModelTest::init()
@@ -29,10 +29,7 @@ void QMLSaleHomeModelTest::cleanup()
     m_thread->deleteLater();
 }
 
-void QMLSaleHomeModelTest::testModel()
-{
-
-}
+void QMLSaleHomeModelTest::testModel() {}
 
 QTEST_GUILESS_MAIN(QMLSaleHomeModelTest)
 

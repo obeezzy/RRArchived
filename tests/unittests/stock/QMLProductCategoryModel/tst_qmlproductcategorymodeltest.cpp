@@ -1,8 +1,8 @@
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
 
-#include "qmlapi/stock/qmlproductcategorymodel.h"
 #include "mockdatabasethread.h"
+#include "qmlapi/stock/qmlproductcategorymodel.h"
 
 class QMLProductCategoryModelTest : public QObject
 {
@@ -17,8 +17,8 @@ private slots:
     void testFilterProduct();
 
 private:
-    QMLProductCategoryModel *m_stockProductCategoryModel;
-    MockDatabaseThread *m_thread;
+    QMLProductCategoryModel* m_stockProductCategoryModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLProductCategoryModelTest::init()
@@ -35,27 +35,25 @@ void QMLProductCategoryModelTest::cleanup()
 
 void QMLProductCategoryModelTest::testModel()
 {
-    QAbstractItemModelTester(m_stockProductCategoryModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_stockProductCategoryModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 void QMLProductCategoryModelTest::testViewStockCategories()
 {
-    const QVariantList categories {
-        QVariantMap {
-            { "category_id", 1 },
-            { "category", QStringLiteral("Category") }
-        }
-    };
+    const QVariantList categories{QVariantMap{
+        {"category_id", 1}, {"category", QStringLiteral("Category")}}};
 
-    auto databaseWillReturn = [this](const QVariantList &categories) {
+    auto databaseWillReturn = [this](const QVariantList& categories) {
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariant());
-        m_thread->result().setOutcome(QVariantMap { { "categories", categories } });
+        m_thread->result().setOutcome(QVariantMap{{"categories", categories}});
     };
-    QSignalSpy successSpy(m_stockProductCategoryModel, &QMLProductCategoryModel::success);
-    QSignalSpy errorSpy(m_stockProductCategoryModel, &QMLProductCategoryModel::error);
+    QSignalSpy successSpy(m_stockProductCategoryModel,
+                          &QMLProductCategoryModel::success);
+    QSignalSpy errorSpy(m_stockProductCategoryModel,
+                        &QMLProductCategoryModel::error);
 
     QCOMPARE(successSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 0);
@@ -69,9 +67,13 @@ void QMLProductCategoryModelTest::testViewStockCategories()
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(m_stockProductCategoryModel->rowCount(), 1);
     QCOMPARE(categories.isEmpty(), false);
-    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLProductCategoryModel::ProductCategoryIdRole).toInt(),
+    QCOMPARE(m_stockProductCategoryModel->index(0)
+                 .data(QMLProductCategoryModel::ProductCategoryIdRole)
+                 .toInt(),
              categories.first().toMap()["product_category_id"].toInt());
-    QCOMPARE(m_stockProductCategoryModel->index(0).data(QMLProductCategoryModel::CategoryRole).toString(),
+    QCOMPARE(m_stockProductCategoryModel->index(0)
+                 .data(QMLProductCategoryModel::CategoryRole)
+                 .toString(),
              categories.first().toMap()["product_category"].toString());
 }
 
@@ -83,19 +85,16 @@ void QMLProductCategoryModelTest::testFilterCategory()
     };
     auto databaseWillReturnSingleCategory = [this]() {
         m_thread->result().setSuccessful(true);
-        const QVariantMap categoryInfo {
-            { "category_id", 1 },
-            { "category", QStringLiteral("Category1") }
-        };
+        const QVariantMap categoryInfo{
+            {"category_id", 1}, {"category", QStringLiteral("Category1")}};
 
-        const QVariantList categories { categoryInfo };
+        const QVariantList categories{categoryInfo};
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "categories", categories },
-                                { "record_count", 1 }
-                            });
+        m_thread->result().setOutcome(
+            QVariantMap{{"categories", categories}, {"record_count", 1}});
     };
-    QSignalSpy successSpy(m_stockProductCategoryModel, &QMLProductCategoryModel::success);
+    QSignalSpy successSpy(m_stockProductCategoryModel,
+                          &QMLProductCategoryModel::success);
 
     databaseWillReturnSingleCategory();
 
@@ -122,7 +121,6 @@ void QMLProductCategoryModelTest::testFilterCategory()
     QCOMPARE(successSpy.count(), 1);
     successSpy.clear();
     QCOMPARE(m_stockProductCategoryModel->rowCount(), 0);
-
 }
 
 void QMLProductCategoryModelTest::testFilterProduct()
@@ -133,21 +131,16 @@ void QMLProductCategoryModelTest::testFilterProduct()
     };
     auto databaseWillReturnSingleProduct = [this]() {
         m_thread->result().setSuccessful(true);
-        const QVariantMap categoryInfo {
-            { "category_id", 1 },
-            { "category", QStringLiteral("Category") }
-        };
+        const QVariantMap categoryInfo{
+            {"category_id", 1}, {"category", QStringLiteral("Category")}};
 
-        const QVariantList categories {
-            categoryInfo
-        };
+        const QVariantList categories{categoryInfo};
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "categories", categories },
-                                { "record_count", 1 }
-                            });
+        m_thread->result().setOutcome(
+            QVariantMap{{"categories", categories}, {"record_count", 1}});
     };
-    QSignalSpy successSpy(m_stockProductCategoryModel, &QMLProductCategoryModel::success);
+    QSignalSpy successSpy(m_stockProductCategoryModel,
+                          &QMLProductCategoryModel::success);
 
     databaseWillReturnSingleProduct();
 

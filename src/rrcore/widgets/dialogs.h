@@ -10,18 +10,18 @@ class Dialogs : public QObject
 {
     Q_OBJECT
 public:
-    explicit Dialogs(QObject *parent = nullptr);
+    explicit Dialogs(QObject* parent = nullptr);
 
 public slots:
     void showPrintDialog();
 };
 
-static QObject *dialogs_provider(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+static QObject* dialogs_provider(QQmlEngine* qmlEngine, QJSEngine* jsEngine)
 {
     Q_UNUSED(qmlEngine)
     Q_UNUSED(jsEngine)
-    Dialogs *dialogs = new Dialogs();
+    Dialogs* dialogs = new Dialogs();
     return dialogs;
 }
 
-#endif // DIALOGS_H
+#endif  // DIALOGS_H

@@ -1,9 +1,9 @@
-#include "qmlapi/user/qmluserprofile.h"
-#include "database/databaseerror.h"
-#include "mockdatabasethread.h"
+#include <QCoreApplication>
 #include <QString>
 #include <QtTest>
-#include <QCoreApplication>
+#include "database/databaseerror.h"
+#include "mockdatabasethread.h"
+#include "qmlapi/user/qmluserprofile.h"
 
 class QMLUserProfileTest : public QObject
 {
@@ -17,9 +17,10 @@ private Q_SLOTS:
     void testIncorrectCredentialsError();
     void testNoUserNameProvidedError();
     void testNoPasswordProvidedError();
+
 private:
-    QMLUserProfile *m_userProfile;
-    MockDatabaseThread *m_thread;
+    QMLUserProfile* m_userProfile;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLUserProfileTest::init()
@@ -73,7 +74,8 @@ void QMLUserProfileTest::testIncorrectCredentialsError()
 {
     auto databaseWillReturnSignInFailure = [this]() {
         m_thread->result().setSuccessful(false);
-        m_thread->result().setErrorCode(static_cast<int>(DatabaseError::QueryErrorCode::InvalidCredentialsError));
+        m_thread->result().setErrorCode(static_cast<int>(
+            DatabaseError::QueryErrorCode::InvalidCredentialsError));
     };
     QSignalSpy successSpy(m_userProfile, &QMLUserProfile::success);
     QSignalSpy errorSpy(m_userProfile, &QMLUserProfile::error);

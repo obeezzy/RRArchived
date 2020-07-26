@@ -1,24 +1,20 @@
 #include "serverrequest.h"
 #include "user/userprofile.h"
 
-#include <QJsonObject>
-#include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
-ServerRequest::ServerRequest(QObject *receiver) :
-    m_receiver(receiver)
+ServerRequest::ServerRequest(QObject* receiver) : m_receiver(receiver)
 {
     qRegisterMetaType<ServerRequest>("ServerRequest");
 }
 
-ServerRequest::ServerRequest(const QueryRequest &queryRequest) :
-    m_queryRequest(queryRequest)
-{
+ServerRequest::ServerRequest(const QueryRequest& queryRequest)
+    : m_queryRequest(queryRequest)
+{}
 
-}
-
-ServerRequest::ServerRequest(const ServerRequest &other) :
-    QObject (nullptr)
+ServerRequest::ServerRequest(const ServerRequest& other) : QObject(nullptr)
 {
     setAction(other.action());
     setData(other.data());
@@ -26,7 +22,7 @@ ServerRequest::ServerRequest(const ServerRequest &other) :
     m_queryRequest = other.queryRequest();
 }
 
-ServerRequest &ServerRequest::operator=(const ServerRequest &other)
+ServerRequest& ServerRequest::operator=(const ServerRequest& other)
 {
     setAction(other.action());
     setData(other.data());
@@ -36,12 +32,12 @@ ServerRequest &ServerRequest::operator=(const ServerRequest &other)
     return *this;
 }
 
-QObject *ServerRequest::receiver() const
+QObject* ServerRequest::receiver() const
 {
     return m_receiver;
 }
 
-void ServerRequest::setReceiver(QObject *receiver)
+void ServerRequest::setReceiver(QObject* receiver)
 {
     m_receiver = receiver;
 }
@@ -51,7 +47,7 @@ QString ServerRequest::action() const
     return m_action;
 }
 
-void ServerRequest::setAction(const QString &action, const QVariantMap &data)
+void ServerRequest::setAction(const QString& action, const QVariantMap& data)
 {
     m_action = action;
     if (m_data.isEmpty())
@@ -63,12 +59,12 @@ QVariantMap ServerRequest::data() const
     return m_data;
 }
 
-void ServerRequest::setData(const QVariantMap &data)
+void ServerRequest::setData(const QVariantMap& data)
 {
     m_data = data;
 }
 
-void ServerRequest::setQueryRequest(const QueryRequest &queryRequest)
+void ServerRequest::setQueryRequest(const QueryRequest& queryRequest)
 {
     m_queryRequest = queryRequest;
 }
@@ -78,15 +74,18 @@ QueryRequest ServerRequest::queryRequest() const
     return m_queryRequest;
 }
 
-ServerRequest ServerRequest::fromJson(const QByteArray &json)
+ServerRequest ServerRequest::fromJson(const QByteArray& json)
 {
     ServerRequest request;
-    const QJsonObject serverRequestObject{ QJsonDocument::fromJson(json).object() };
+    const QJsonObject serverRequestObject{
+        QJsonDocument::fromJson(json).object()};
     if (serverRequestObject.contains("action")) {
         request.setAction(serverRequestObject.value("action").toString());
-        request.setData(serverRequestObject.value("data").toObject().toVariantMap());
+        request.setData(
+            serverRequestObject.value("data").toObject().toVariantMap());
     } else if (serverRequestObject.contains("command")) {
-        request.setQueryRequest(QueryRequest::fromJson(QJsonDocument(serverRequestObject).toJson()));
+        request.setQueryRequest(QueryRequest::fromJson(
+            QJsonDocument(serverRequestObject).toJson()));
     }
 
     return request;
@@ -98,7 +97,8 @@ QByteArray ServerRequest::toJson() const
     QJsonObject queryRequestObject;
 
     if (!m_queryRequest.command().isEmpty()) {
-        queryRequestObject = QJsonDocument::fromJson(m_queryRequest.toJson()).object();
+        queryRequestObject =
+            QJsonDocument::fromJson(m_queryRequest.toJson()).object();
         serverRequestObject = queryRequestObject;
     }
 

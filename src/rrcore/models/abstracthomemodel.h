@@ -10,7 +10,8 @@ class AbstractHomeModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
-    enum Role {
+    enum Role
+    {
         TitleRole = Qt::UserRole,
         ImageUrlRole,
         IconUrlRole,
@@ -20,20 +21,25 @@ public:
         ChartTypeRole,
         ChartModelRole
     };
-    explicit AbstractHomeModel(QObject *parent = nullptr);
-    explicit AbstractHomeModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit AbstractHomeModel(QObject* parent = nullptr);
+    explicit AbstractHomeModel(DatabaseThread& thread,
+                               QObject* parent = nullptr);
     virtual ~AbstractHomeModel() override;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
+    int rowCount(
+        const QModelIndex& parent = QModelIndex()) const override final;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override;
+
 protected:
     QVariantList records() const;
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override;
-    void processResult(const QueryResult &result) override;
+    bool canProcessResult(const QueryResult& result) const override;
+    void processResult(const QueryResult& result) override;
+
 private:
     QVariantList m_records;
 };
 
-#endif // ABSTRACTHOMEMODEL_H
+#endif  // ABSTRACTHOMEMODEL_H

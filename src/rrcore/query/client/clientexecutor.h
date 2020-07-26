@@ -7,10 +7,9 @@ class ClientExecutor : public QueryExecutor
 {
     Q_OBJECT
 public:
-    explicit ClientExecutor(const QString &command,
-                            const QVariantMap &params,
-                            QObject *receiver);
+    explicit ClientExecutor(const QString& command, const QVariantMap& params,
+                            QObject* receiver);
     virtual ~ClientExecutor() = default;
 };
 
-#endif // CLIENTEXECUTOR_H
+#endif  // CLIENTEXECUTOR_H

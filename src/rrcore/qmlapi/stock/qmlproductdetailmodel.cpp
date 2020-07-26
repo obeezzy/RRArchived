@@ -1,20 +1,21 @@
 #include "qmlproductdetailmodel.h"
+#include <QDateTime>
 #include "database/databasethread.h"
 #include "query/stock/fetchproduct.h"
-#include <QDateTime>
 
-QMLProductDetailModel::QMLProductDetailModel(QObject *parent) :
-    QMLProductDetailModel(DatabaseThread::instance(), parent)
+QMLProductDetailModel::QMLProductDetailModel(QObject* parent)
+    : QMLProductDetailModel(DatabaseThread::instance(), parent)
 {}
 
-QMLProductDetailModel::QMLProductDetailModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent)
+QMLProductDetailModel::QMLProductDetailModel(DatabaseThread& thread,
+                                             QObject* parent)
+    : AbstractVisualListModel(thread, parent)
 {
-    connect(this, &QMLProductDetailModel::productIdChanged,
-            this, &QMLProductDetailModel::tryQuery);
+    connect(this, &QMLProductDetailModel::productIdChanged, this,
+            &QMLProductDetailModel::tryQuery);
 }
 
-int QMLProductDetailModel::rowCount(const QModelIndex &parent) const
+int QMLProductDetailModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -22,18 +23,18 @@ int QMLProductDetailModel::rowCount(const QModelIndex &parent) const
     return m_productDetails.count();
 }
 
-QVariant QMLProductDetailModel::data(const QModelIndex &index, int role) const
+QVariant QMLProductDetailModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case TitleRole:
-        return m_productDetails.at(index.row()).toMap().value("title");
-    case DetailRole:
-        return m_productDetails.at(index.row()).toMap().value("detail");
-    case DatatypeRole:
-        return m_productDetails.at(index.row()).toMap().value("datatype");
+        case TitleRole:
+            return m_productDetails.at(index.row()).toMap().value("title");
+        case DetailRole:
+            return m_productDetails.at(index.row()).toMap().value("detail");
+        case DatatypeRole:
+            return m_productDetails.at(index.row()).toMap().value("datatype");
     }
 
     return QVariant();
@@ -41,11 +42,9 @@ QVariant QMLProductDetailModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLProductDetailModel::roleNames() const
 {
-    return {
-        { TitleRole, "title" },
-        { DetailRole, "detail" },
-        { DatatypeRole, "datatype" }
-    };
+    return {{TitleRole, "title"},
+            {DetailRole, "detail"},
+            {DatatypeRole, "datatype"}};
 }
 
 int QMLProductDetailModel::productId() const
@@ -148,69 +147,58 @@ void QMLProductDetailModel::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new Query::Stock::FetchProduct(m_product.id,
-                                                   this));
+    emit execute(new Query::Stock::FetchProduct(m_product.id, this));
 }
 
-bool QMLProductDetailModel::canProcessResult(const QueryResult &result) const
+bool QMLProductDetailModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLProductDetailModel::processResult(const QueryResult &result)
+void QMLProductDetailModel::processResult(const QueryResult& result)
 {
     setBusy(false);
 
     if (result.isSuccessful()) {
         beginResetModel();
-        const auto product = Utility::Stock::Product{ result.outcome().toMap().value("product").toMap() };
+        const auto product = Utility::Stock::Product{
+            result.outcome().toMap().value("product").toMap()};
         m_productDetails.clear();
+        m_productDetails.append(
+            QVariantMap{{"title", tr("Category")},
+                        {"detail", product.category.category},
+                        {"datatype", "string"}});
+        m_productDetails.append(QVariantMap{{"title", tr("Product")},
+                                            {"detail", product.product},
+                                            {"datatype", "string"}});
+        m_productDetails.append(QVariantMap{{"title", tr("Description")},
+                                            {"detail", product.description},
+                                            {"datatype", "string"}});
         m_productDetails.append(QVariantMap{
-                { "title", tr("Category") },
-                { "detail", product.category.category },
-                { "datatype", "string" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Product") },
-                { "detail", product.product },
-                { "datatype", "string" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Description") },
-                { "detail", product.description },
-                { "datatype", "string" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Quantity") },
-                { "detail", product.quantity.toString().append(" ").append(product.unit.unit) },
-                { "datatype", "string" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Cost price") },
-                { "detail", product.monies.costPrice.toDouble() },
-                { "datatype", "money" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Retail price") },
-                { "detail", product.monies.retailPrice.toDouble() },
-                { "datatype", "money" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Created") },
-                { "detail", product.timestamp.created },
-                { "datatype", "datetime" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("Last edited") },
-                { "detail", product.timestamp.lastEdited },
-                { "datatype", "datetime" }
-        });
-        m_productDetails.append(QVariantMap{
-                { "title", tr("User") },
-                { "detail", product.user.user },
-                { "datatype", "string" }
-        });
+            {"title", tr("Quantity")},
+            {"detail",
+             product.quantity.toString().append(" ").append(product.unit.unit)},
+            {"datatype", "string"}});
+        m_productDetails.append(
+            QVariantMap{{"title", tr("Cost price")},
+                        {"detail", product.monies.costPrice.toDouble()},
+                        {"datatype", "money"}});
+        m_productDetails.append(
+            QVariantMap{{"title", tr("Retail price")},
+                        {"detail", product.monies.retailPrice.toDouble()},
+                        {"datatype", "money"}});
+        m_productDetails.append(
+            QVariantMap{{"title", tr("Created")},
+                        {"detail", product.timestamp.created},
+                        {"datatype", "datetime"}});
+        m_productDetails.append(
+            QVariantMap{{"title", tr("Last edited")},
+                        {"detail", product.timestamp.lastEdited},
+                        {"datatype", "datetime"}});
+        m_productDetails.append(QVariantMap{{"title", tr("User")},
+                                            {"detail", product.user.user},
+                                            {"datatype", "string"}});
 
         setCategoryId(product.category.id);
         setCategory(product.category.category);
@@ -232,7 +220,7 @@ void QMLProductDetailModel::processResult(const QueryResult &result)
     } else {
         emit error();
     }
-} 
+}
 
 void QMLProductDetailModel::setCategoryId(int categoryId)
 {
@@ -243,7 +231,7 @@ void QMLProductDetailModel::setCategoryId(int categoryId)
     emit categoryIdChanged();
 }
 
-void QMLProductDetailModel::setCategory(const QString &category)
+void QMLProductDetailModel::setCategory(const QString& category)
 {
     if (m_product.category.category == category)
         return;
@@ -252,7 +240,7 @@ void QMLProductDetailModel::setCategory(const QString &category)
     emit categoryChanged();
 }
 
-void QMLProductDetailModel::setProduct(const QString &product)
+void QMLProductDetailModel::setProduct(const QString& product)
 {
     if (m_product.product == product)
         return;
@@ -261,7 +249,7 @@ void QMLProductDetailModel::setProduct(const QString &product)
     emit productChanged();
 }
 
-void QMLProductDetailModel::setDescription(const QString &description)
+void QMLProductDetailModel::setDescription(const QString& description)
 {
     if (m_product.description == description)
         return;
@@ -279,7 +267,7 @@ void QMLProductDetailModel::setDivisible(bool divisible)
     emit divisibleChanged();
 }
 
-void QMLProductDetailModel::setImageUrl(const QUrl &imageUrl)
+void QMLProductDetailModel::setImageUrl(const QUrl& imageUrl)
 {
     if (m_product.imageUrl == imageUrl)
         return;
@@ -306,7 +294,7 @@ void QMLProductDetailModel::setUnitId(int unitId)
     emit unitIdChanged();
 }
 
-void QMLProductDetailModel::setUnit(const QString &unit)
+void QMLProductDetailModel::setUnit(const QString& unit)
 {
     if (m_product.unit.unit == unit)
         return;
@@ -333,7 +321,7 @@ void QMLProductDetailModel::setRetailPrice(double retailPrice)
     emit retailPriceChanged();
 }
 
-void QMLProductDetailModel::setCreated(const QDateTime &created)
+void QMLProductDetailModel::setCreated(const QDateTime& created)
 {
     if (m_product.timestamp.created == created)
         return;
@@ -342,7 +330,7 @@ void QMLProductDetailModel::setCreated(const QDateTime &created)
     emit createdChanged();
 }
 
-void QMLProductDetailModel::setLastEdited(const QDateTime &lastEdited)
+void QMLProductDetailModel::setLastEdited(const QDateTime& lastEdited)
 {
     if (m_product.timestamp.lastEdited == lastEdited)
         return;
@@ -360,7 +348,7 @@ void QMLProductDetailModel::setUserId(int userId)
     emit userIdChanged();
 }
 
-void QMLProductDetailModel::setUser(const QString &user)
+void QMLProductDetailModel::setUser(const QString& user)
 {
     if (m_product.user.user == user)
         return;

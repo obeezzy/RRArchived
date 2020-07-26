@@ -1,67 +1,55 @@
 #include "viewexpensetransactions.h"
-#include "database/databaseexception.h"
-#include "utility/common/datetimespan.h"
-#include "utility/common/recordgroup.h"
+#include <QDateTime>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QDateTime>
+#include "database/databaseexception.h"
+#include "utility/common/datetimespan.h"
+#include "utility/common/recordgroup.h"
 
 using namespace Query::Expense;
 
-ViewExpenseTransactions::ViewExpenseTransactions(const Utility::DateTimeSpan &dateTimeSpan,
-                                                 const Utility::RecordGroup::Flags &flags,
-                                                 QObject *receiver) :
-    ExpenseExecutor(COMMAND, {
-                    { "from", dateTimeSpan.from },
-                    { "to", dateTimeSpan.to },
-                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
-                    }, receiver)
+ViewExpenseTransactions::ViewExpenseTransactions(
+    const Utility::DateTimeSpan& dateTimeSpan,
+    const Utility::RecordGroup::Flags& flags, QObject* receiver)
+    : ExpenseExecutor(
+          COMMAND,
+          {{"from", dateTimeSpan.from},
+           {"to", dateTimeSpan.to},
+           {"archived", flags.testFlag(Utility::RecordGroup::Archived)}},
+          receiver)
 {}
 
 QueryResult ViewExpenseTransactions::execute()
 {
-    QueryResult result{ request() };
+    QueryResult result{request()};
     result.setSuccessful(true);
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());
-    const QVariantMap &params = request().params();
+    const QVariantMap& params = request().params();
 
     QSqlQuery q(connection);
 
     try {
-        QueryExecutor::enforceArguments({ "from",
-                                          "to"
-                                        }, params);
+        QueryExecutor::enforceArguments({"from", "to"}, params);
 
-        const auto &records(callProcedure("ViewExpenseTransactions", {
-                                               ProcedureArgument {
-                                                   ProcedureArgument::Type::In,
-                                                   "from",
-                                                   params.value("from")
-                                               },
-                                               ProcedureArgument {
-                                                   ProcedureArgument::Type::In,
-                                                   "to",
-                                                   params.value("to")
-                                               },
-                                               ProcedureArgument {
-                                                   ProcedureArgument::Type::In,
-                                                   "archived",
-                                                   params.value("archived")
-                                               }
-                                           }));
+        const auto& records(callProcedure(
+            "ViewExpenseTransactions",
+            {ProcedureArgument{ProcedureArgument::Type::In, "from",
+                               params.value("from")},
+             ProcedureArgument{ProcedureArgument::Type::In, "to",
+                               params.value("to")},
+             ProcedureArgument{ProcedureArgument::Type::In, "archived",
+                               params.value("archived")}}));
 
         QVariantList transactions;
-        for (const auto &record : records)
+        for (const auto& record : records)
             transactions.append(recordToMap(record));
 
-        result.setOutcome(QVariantMap {
-                              { "transactions", transactions },
-                              { "record_count", transactions.count() }
-                          });
+        result.setOutcome(QVariantMap{{"transactions", transactions},
+                                      {"record_count", transactions.count()}});
         return result;
-    } catch (const DatabaseException &) {
+    } catch (const DatabaseException&) {
         throw;
     }
 }

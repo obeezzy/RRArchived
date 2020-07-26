@@ -1,59 +1,63 @@
 #include "qmlpurchasetransactionmodel.h"
+#include <QDateTime>
+#include "database/databasethread.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
-#include "database/databasethread.h"
-#include "query/purchase/viewpurchasetransactions.h"
 #include "query/purchase/removepurchasetransaction.h"
-#include <QDateTime>
+#include "query/purchase/viewpurchasetransactions.h"
 
-QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(QObject *parent) :
-    QMLPurchaseTransactionModel(DatabaseThread::instance(), parent)
+QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(QObject* parent)
+    : QMLPurchaseTransactionModel(DatabaseThread::instance(), parent)
 {}
 
-QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(DatabaseThread &thread, QObject *parent) :
-    AbstractTransactionModel(thread, parent)
+QMLPurchaseTransactionModel::QMLPurchaseTransactionModel(DatabaseThread& thread,
+                                                         QObject* parent)
+    : AbstractTransactionModel(thread, parent)
 {}
 
-QVariant QMLPurchaseTransactionModel::data(const QModelIndex &index, int role) const
+QVariant QMLPurchaseTransactionModel::data(const QModelIndex& index,
+                                           int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case TransactionIdRole:
-        return m_transactions.at(index.row()).id;
-    case ClientIdRole:
-        return m_transactions.at(index.row()).vendor.client.id;
-    case CustomerNameRole:
-        return m_transactions.at(index.row()).vendor.client.preferredName;
-    case TotalCostRole:
-        return m_transactions.at(index.row()).monies.totalCost.toDouble();
-    case AmountPaidRole:
-        return m_transactions.at(index.row()).monies.amountPaid.toDouble();
-    case BalanceRole:
-        return m_transactions.at(index.row()).monies.balance.toDouble();
-    case DiscountRole:
-        return m_transactions.at(index.row()).monies.discount.toDouble();
-    case NoteIdRole:
-        return m_transactions.at(index.row()).note.id;
-    case NoteRole:
-        return m_transactions.at(index.row()).note.note;
-    case SuspendedRole:
-        return m_transactions.at(index.row()).flags.testFlag(Utility::RecordGroup::Suspended);
-    case ArchivedRole:
-        return m_transactions.at(index.row()).flags.testFlag(Utility::RecordGroup::Archived);
-    case CreatedRole:
-        return m_transactions.at(index.row()).timestamp.created;
-    case LastEditedRole:
-        return m_transactions.at(index.row()).timestamp.lastEdited;
-    case UserIdRole:
-        return m_transactions.at(index.row()).user.id;
+        case TransactionIdRole:
+            return m_transactions.at(index.row()).id;
+        case ClientIdRole:
+            return m_transactions.at(index.row()).vendor.client.id;
+        case CustomerNameRole:
+            return m_transactions.at(index.row()).vendor.client.preferredName;
+        case TotalCostRole:
+            return m_transactions.at(index.row()).monies.totalCost.toDouble();
+        case AmountPaidRole:
+            return m_transactions.at(index.row()).monies.amountPaid.toDouble();
+        case BalanceRole:
+            return m_transactions.at(index.row()).monies.balance.toDouble();
+        case DiscountRole:
+            return m_transactions.at(index.row()).monies.discount.toDouble();
+        case NoteIdRole:
+            return m_transactions.at(index.row()).note.id;
+        case NoteRole:
+            return m_transactions.at(index.row()).note.note;
+        case SuspendedRole:
+            return m_transactions.at(index.row())
+                .flags.testFlag(Utility::RecordGroup::Suspended);
+        case ArchivedRole:
+            return m_transactions.at(index.row())
+                .flags.testFlag(Utility::RecordGroup::Archived);
+        case CreatedRole:
+            return m_transactions.at(index.row()).timestamp.created;
+        case LastEditedRole:
+            return m_transactions.at(index.row()).timestamp.lastEdited;
+        case UserIdRole:
+            return m_transactions.at(index.row()).user.id;
     }
 
     return QVariant();
 }
 
-int QMLPurchaseTransactionModel::rowCount(const QModelIndex &parent) const
+int QMLPurchaseTransactionModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -61,7 +65,7 @@ int QMLPurchaseTransactionModel::rowCount(const QModelIndex &parent) const
     return m_transactions.count();
 }
 
-int QMLPurchaseTransactionModel::columnCount(const QModelIndex &parent) const
+int QMLPurchaseTransactionModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -71,58 +75,58 @@ int QMLPurchaseTransactionModel::columnCount(const QModelIndex &parent) const
 
 QHash<int, QByteArray> QMLPurchaseTransactionModel::roleNames() const
 {
-    return {
-        { TransactionIdRole, "transaction_id" },
-        { ClientIdRole, "client_id" },
-        { CustomerNameRole, "customer_name" },
-        { TotalCostRole, "total_cost" },
-        { AmountPaidRole, "amount_paid" },
-        { BalanceRole, "balance" },
-        { DiscountRole, "discount" },
-        { NoteIdRole, "note_id" },
-        { NoteRole, "note" },
-        { SuspendedRole, "suspended" },
-        { ArchivedRole, "archived" },
-        { CreatedRole, "created" },
-        { LastEditedRole, "last_edited" },
-        { UserIdRole, "user_id" }
-    };
+    return {{TransactionIdRole, "transaction_id"},
+            {ClientIdRole, "client_id"},
+            {CustomerNameRole, "customer_name"},
+            {TotalCostRole, "total_cost"},
+            {AmountPaidRole, "amount_paid"},
+            {BalanceRole, "balance"},
+            {DiscountRole, "discount"},
+            {NoteIdRole, "note_id"},
+            {NoteRole, "note"},
+            {SuspendedRole, "suspended"},
+            {ArchivedRole, "archived"},
+            {CreatedRole, "created"},
+            {LastEditedRole, "last_edited"},
+            {UserIdRole, "user_id"}};
 }
 
-QVariant QMLPurchaseTransactionModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QMLPurchaseTransactionModel::headerData(int section,
+                                                 Qt::Orientation orientation,
+                                                 int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
             switch (section) {
-            case TransactionIdColumn:
-                return tr("ID");
-            case CustomerNameColumn:
-                return tr("Customer name");
-            case TotalCostColumn:
-                return tr("Total cost");
-            case ActionColumn:
-                return tr("Action");
+                case TransactionIdColumn:
+                    return tr("ID");
+                case CustomerNameColumn:
+                    return tr("Customer name");
+                case TotalCostColumn:
+                    return tr("Total cost");
+                case ActionColumn:
+                    return tr("Action");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
-            case CustomerNameColumn:
-                return Qt::AlignLeft;
-            case TransactionIdColumn:
-            case TotalCostColumn:
-                return Qt::AlignRight;
-            case ActionColumn:
-                return Qt::AlignHCenter;
+                case CustomerNameColumn:
+                    return Qt::AlignLeft;
+                case TransactionIdColumn:
+                case TotalCostColumn:
+                    return Qt::AlignRight;
+                case ActionColumn:
+                    return Qt::AlignHCenter;
             }
         } else if (role == Qt::SizeHintRole) {
             switch (section) {
-            case TransactionIdColumn:
-                return 120;
-            case CustomerNameColumn:
-                return tableViewWidth() - 120 - 120 - 130;
-            case TotalCostColumn:
-                return 120;
-            case ActionColumn:
-                return 130;
+                case TransactionIdColumn:
+                    return 120;
+                case CustomerNameColumn:
+                    return tableViewWidth() - 120 - 120 - 130;
+                case TotalCostColumn:
+                    return 120;
+                case ActionColumn:
+                    return 130;
             }
         }
     }
@@ -143,42 +147,50 @@ void QMLPurchaseTransactionModel::tryQuery()
         flags.setFlag(Utility::RecordGroup::None);
 
     emit execute(new Query::Purchase::ViewPurchaseTransactions(dateTimeSpan(),
-                                                                 flags,
-                                                                 this));
+                                                               flags, this));
 }
 
-bool QMLPurchaseTransactionModel::canProcessResult(const QueryResult &result) const
+bool QMLPurchaseTransactionModel::canProcessResult(
+    const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLPurchaseTransactionModel::processResult(const QueryResult &result)
+void QMLPurchaseTransactionModel::processResult(const QueryResult& result)
 {
     setBusy(false);
     if (result.isSuccessful()) {
-        if (result.request().command() == Query::Purchase::ViewPurchaseTransactions::COMMAND) {
+        if (result.request().command() ==
+            Query::Purchase::ViewPurchaseTransactions::COMMAND) {
             beginResetModel();
-            m_transactions = Utility::Purchase::PurchaseTransactionList{ result.outcome().toMap().value("transactions").toList() };
+            m_transactions = Utility::Purchase::PurchaseTransactionList{
+                result.outcome().toMap().value("transactions").toList()};
             endResetModel();
 
-            emit success(ModelResult{ ViewTransactionSuccess });
-        } else if (result.request().command() == Query::Purchase::RemovePurchaseTransaction::COMMAND) {
-            Utility::Purchase::PurchaseTransaction transaction{ result.request().params() };
+            emit success(ModelResult{ViewTransactionSuccess});
+        } else if (result.request().command() ==
+                   Query::Purchase::RemovePurchaseTransaction::COMMAND) {
+            Utility::Purchase::PurchaseTransaction transaction{
+                result.request().params()};
             removeTransactionFromModel(transaction);
-            emit success(ModelResult{ RemoveTransactionSuccess });
-        } else if (result.request().command() == Query::Purchase::RemovePurchaseTransaction::UNDO_COMMAND) {
-            Utility::Purchase::PurchaseTransaction transaction{ result.request().params() };
+            emit success(ModelResult{RemoveTransactionSuccess});
+        } else if (result.request().command() ==
+                   Query::Purchase::RemovePurchaseTransaction::UNDO_COMMAND) {
+            Utility::Purchase::PurchaseTransaction transaction{
+                result.request().params()};
             undoRemoveTransactionFromModel(transaction);
-            emit success(ModelResult{ UndoRemoveTransactionSuccess });
+            emit success(ModelResult{UndoRemoveTransactionSuccess});
         } else {
             emit success();
         }
     } else {
-        if (result.request().command() == Query::Purchase::RemovePurchaseTransaction::COMMAND) {
-            emit error(ModelResult{ RemoveTransactionError });
-        } else if (result.request().command() == Query::Purchase::RemovePurchaseTransaction::UNDO_COMMAND) {
-            emit error(ModelResult{ UndoRemoveTransactionError });
+        if (result.request().command() ==
+            Query::Purchase::RemovePurchaseTransaction::COMMAND) {
+            emit error(ModelResult{RemoveTransactionError});
+        } else if (result.request().command() ==
+                   Query::Purchase::RemovePurchaseTransaction::UNDO_COMMAND) {
+            emit error(ModelResult{UndoRemoveTransactionError});
         } else {
             emit error();
         }
@@ -188,13 +200,14 @@ void QMLPurchaseTransactionModel::processResult(const QueryResult &result)
 void QMLPurchaseTransactionModel::removeTransaction(int row)
 {
     setBusy(true);
-    Utility::Purchase::PurchaseTransaction &transaction{ m_transactions[row] };
+    Utility::Purchase::PurchaseTransaction& transaction{m_transactions[row]};
     transaction.row = row;
-    emit execute(new Query::Purchase::RemovePurchaseTransaction(transaction,
-                                                              this));
+    emit execute(
+        new Query::Purchase::RemovePurchaseTransaction(transaction, this));
 }
 
-void QMLPurchaseTransactionModel::removeTransactionFromModel(const Utility::Purchase::PurchaseTransaction &transaction)
+void QMLPurchaseTransactionModel::removeTransactionFromModel(
+    const Utility::Purchase::PurchaseTransaction& transaction)
 {
     if (transaction.row < 0 && transaction.row >= rowCount())
         return;
@@ -204,7 +217,8 @@ void QMLPurchaseTransactionModel::removeTransactionFromModel(const Utility::Purc
     endRemoveRows();
 }
 
-void QMLPurchaseTransactionModel::undoRemoveTransactionFromModel(const Utility::Purchase::PurchaseTransaction &transaction)
+void QMLPurchaseTransactionModel::undoRemoveTransactionFromModel(
+    const Utility::Purchase::PurchaseTransaction& transaction)
 {
     if (transaction.row < 0 && transaction.row >= rowCount())
         return;

@@ -8,40 +8,49 @@ class QMLIncomeTransactionModel : public AbstractTransactionModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         TransactionIdRole = Qt::UserRole,
         ClientIdRole,
         ClientNameRole,
         AmountRole
     };
 
-    enum SuccessCode {
+    enum SuccessCode
+    {
         ViewIncomeTransactionsSuccess
-    }; Q_ENUM(SuccessCode)
+    };
+    Q_ENUM(SuccessCode)
 
-    enum Columns {
+    enum Columns
+    {
         TransactionIdColumn,
         ClientNameColumn,
         AmountColumn,
         ActionColumn,
         ColumnCount
-    }; Q_ENUM(Columns)
+    };
+    Q_ENUM(Columns)
 
-    explicit QMLIncomeTransactionModel(QObject *parent = nullptr);
-    explicit QMLIncomeTransactionModel(DatabaseThread &thread,
-                                       QObject *parent = nullptr);
+    explicit QMLIncomeTransactionModel(QObject* parent = nullptr);
+    explicit QMLIncomeTransactionModel(DatabaseThread& thread,
+                                       QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override final;
-    void processResult(const QueryResult &result) override final;
+    bool canProcessResult(const QueryResult& result) const override final;
+    void processResult(const QueryResult& result) override final;
+
 private:
     Utility::Income::IncomeTransactionList m_transactions;
 };
 
-#endif // QMLINCOMETRANSACTIONMODEL_H
+#endif  // QMLINCOMETRANSACTIONMODEL_H

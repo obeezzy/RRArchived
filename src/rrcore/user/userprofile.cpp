@@ -1,22 +1,22 @@
 #include "userprofile.h"
-#include "businessdetails.h"
-#include "businessadmin.h"
-#include "utility/user/user.h"
 #include <QCoreApplication>
-#include <QUrl>
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QSettings>
+#include <QUrl>
+#include "businessadmin.h"
+#include "businessdetails.h"
+#include "utility/user/user.h"
 
-UserProfile::UserProfile(QObject *parent) :
-    QObject(parent),
-    m_businessDetails(new BusinessDetails(this)),
-    m_businessAdmin(new BusinessAdmin(this))
+UserProfile::UserProfile(QObject* parent)
+    : QObject(parent),
+      m_businessDetails(new BusinessDetails(this)),
+      m_businessAdmin(new BusinessAdmin(this))
 {
     setAccessToken(QByteArray());
 }
 
-void UserProfile::setUser(const Utility::User::User &user)
+void UserProfile::setUser(const Utility::User::User& user)
 {
     m_user = user;
 }
@@ -26,7 +26,7 @@ void UserProfile::setDatabaseReady(bool databaseReady)
     QSettings().setValue("database_ready", databaseReady);
 }
 
-void UserProfile::setRackId(const QString &rackId)
+void UserProfile::setRackId(const QString& rackId)
 {
     QSettings().setValue("rack_id", rackId);
 }
@@ -36,7 +36,7 @@ void UserProfile::setUserId(int userId)
     m_user.id = userId;
 }
 
-void UserProfile::setAccessToken(const QByteArray &accessToken)
+void UserProfile::setAccessToken(const QByteArray& accessToken)
 {
     QSettings().setValue("access_token", accessToken);
     m_user.accessToken = accessToken;
@@ -52,7 +52,7 @@ void UserProfile::clearUser()
     UserProfile::instance().setUser(Utility::User::User());
 }
 
-UserProfile &UserProfile::instance()
+UserProfile& UserProfile::instance()
 {
     static UserProfile userProfile;
     return userProfile;
@@ -83,7 +83,7 @@ bool UserProfile::isAdmin() const
     return false;
 }
 
-bool UserProfile::hasPrivilege(const QString &privilege) const
+bool UserProfile::hasPrivilege(const QString& privilege) const
 {
     if (isAdmin())
         return true;
@@ -98,12 +98,12 @@ bool UserProfile::isServerTunnelingEnabled() const
     return QSettings().value("server_tunneling_enabled", false).toBool();
 }
 
-BusinessDetails *UserProfile::businessDetails() const
+BusinessDetails* UserProfile::businessDetails() const
 {
     return m_businessDetails;
 }
 
-BusinessAdmin *UserProfile::businessAdmin() const
+BusinessAdmin* UserProfile::businessAdmin() const
 {
     return m_businessAdmin;
 }
@@ -120,12 +120,10 @@ QByteArray UserProfile::accessToken() const
 
 QByteArray UserProfile::toJson() const
 {
-    QJsonObject jsonObject {
-        { "user_name", m_user.user },
-        { "user_id", m_user.id },
-        { "password", m_user.password },
-        { "rack_id", rackId() }
-    };
+    QJsonObject jsonObject{{"user_name", m_user.user},
+                           {"user_id", m_user.id},
+                           {"password", m_user.password},
+                           {"rack_id", rackId()}};
 
     return QJsonDocument(jsonObject).toJson();
 }

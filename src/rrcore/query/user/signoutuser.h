@@ -4,17 +4,17 @@
 #include "userexecutor.h"
 
 namespace Query {
-    namespace User {
-    class SignOutUser : public UserExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("sign_out_user");
+namespace User {
+class SignOutUser : public UserExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("sign_out_user");
 
-        explicit SignOutUser(QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit SignOutUser(QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace User
+}  // namespace Query
 
-#endif // SIGNOUTUSER_H
+#endif  // SIGNOUTUSER_H

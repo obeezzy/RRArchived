@@ -1,7 +1,7 @@
+#include <QCoreApplication>
+#include <QtTest>
 #include "mockdatabasethread.h"
 #include "qmlapi/expense/qmlexpensetransactionmodel.h"
-#include <QtTest>
-#include <QCoreApplication>
 
 class QMLExpenseTransactionModelTest : public QObject
 {
@@ -12,9 +12,10 @@ private slots:
 
     void testViewExpenseTransactions();
     void testError();
+
 private:
-    QMLExpenseTransactionModel *m_expenseTransactionModel;
-    MockDatabaseThread *m_thread;
+    QMLExpenseTransactionModel* m_expenseTransactionModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLExpenseTransactionModelTest::init()
@@ -31,30 +32,29 @@ void QMLExpenseTransactionModelTest::cleanup()
 
 void QMLExpenseTransactionModelTest::testViewExpenseTransactions()
 {
-    const QVariantList transactions {
-        QVariantMap {
-            { "client_id", 1 },
-            { "preferred_name", QStringLiteral("Ama Mosieri") },
-            { "purpose", QStringLiteral("Dodger tickets") },
-            { "amount", 420.0 },
-            { "payment_method", "cash" }
-        },
-        QVariantMap {
-            { "clhttps://jimmyc.wistia.com/medias/3nguha2yf1ient_id", 2 },
-            { "preferred_name", QStringLiteral("Bob Martin") },
-            { "purpose", QStringLiteral("Clean code and TDD!") },
-            { "amount", 420.0 },
-            { "payment_method", "cash" }
-        }
-    };
+    const QVariantList transactions{
+        QVariantMap{{"client_id", 1},
+                    {"preferred_name", QStringLiteral("Ama Mosieri")},
+                    {"purpose", QStringLiteral("Dodger tickets")},
+                    {"amount", 420.0},
+                    {"payment_method", "cash"}},
+        QVariantMap{{"clhttps://jimmyc.wistia.com/medias/3nguha2yf1ient_id", 2},
+                    {"preferred_name", QStringLiteral("Bob Martin")},
+                    {"purpose", QStringLiteral("Clean code and TDD!")},
+                    {"amount", 420.0},
+                    {"payment_method", "cash"}}};
 
-    auto databaseWillReturn = [this](const QVariantList &transactions) {
+    auto databaseWillReturn = [this](const QVariantList& transactions) {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariantMap { { "transactions", transactions } });
+        m_thread->result().setOutcome(
+            QVariantMap{{"transactions", transactions}});
     };
-    QSignalSpy successSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::success);
-    QSignalSpy errorSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::error);
-    QSignalSpy busyChangedSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::busyChanged);
+    QSignalSpy successSpy(m_expenseTransactionModel,
+                          &QMLExpenseTransactionModel::success);
+    QSignalSpy errorSpy(m_expenseTransactionModel,
+                        &QMLExpenseTransactionModel::error);
+    QSignalSpy busyChangedSpy(m_expenseTransactionModel,
+                              &QMLExpenseTransactionModel::busyChanged);
 
     QCOMPARE(m_expenseTransactionModel->rowCount(), 0);
 
@@ -66,17 +66,28 @@ void QMLExpenseTransactionModelTest::testViewExpenseTransactions()
     QCOMPARE(busyChangedSpy.count(), 2);
 
     QCOMPARE(m_expenseTransactionModel->rowCount(), 2);
-    QCOMPARE(m_expenseTransactionModel->data(m_expenseTransactionModel->index(0, QMLExpenseTransactionModel::TransactionIdColumn),
-                                             QMLExpenseTransactionModel::TransactionIdRole).toInt(),
+    QCOMPARE(m_expenseTransactionModel
+                 ->data(m_expenseTransactionModel->index(
+                            0, QMLExpenseTransactionModel::TransactionIdColumn),
+                        QMLExpenseTransactionModel::TransactionIdRole)
+                 .toInt(),
              transactions[0].toMap()["expense_transaction_id"].toInt());
-    QCOMPARE(m_expenseTransactionModel->data(m_expenseTransactionModel->index(0, 0),
-                                             QMLExpenseTransactionModel::ClientIdRole).toInt(),
+    QCOMPARE(m_expenseTransactionModel
+                 ->data(m_expenseTransactionModel->index(0, 0),
+                        QMLExpenseTransactionModel::ClientIdRole)
+                 .toInt(),
              transactions[0].toMap()["client_id"].toInt());
-    QCOMPARE(m_expenseTransactionModel->data(m_expenseTransactionModel->index(0, QMLExpenseTransactionModel::ClientNameColumn),
-                                             QMLExpenseTransactionModel::ClientNameRole).toInt(),
+    QCOMPARE(m_expenseTransactionModel
+                 ->data(m_expenseTransactionModel->index(
+                            0, QMLExpenseTransactionModel::ClientNameColumn),
+                        QMLExpenseTransactionModel::ClientNameRole)
+                 .toInt(),
              transactions[0].toMap()["preferred_name"].toInt());
-    QCOMPARE(m_expenseTransactionModel->data(m_expenseTransactionModel->index(0, QMLExpenseTransactionModel::AmountColumn),
-                                             QMLExpenseTransactionModel::AmountRole).toInt(),
+    QCOMPARE(m_expenseTransactionModel
+                 ->data(m_expenseTransactionModel->index(
+                            0, QMLExpenseTransactionModel::AmountColumn),
+                        QMLExpenseTransactionModel::AmountRole)
+                 .toInt(),
              transactions[0].toMap()["amount"].toInt());
 }
 
@@ -85,9 +96,12 @@ void QMLExpenseTransactionModelTest::testError()
     auto databaseWillReturnError = [this]() {
         m_thread->result().setSuccessful(false);
     };
-    QSignalSpy successSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::success);
-    QSignalSpy errorSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::error);
-    QSignalSpy busyChangedSpy(m_expenseTransactionModel, &QMLExpenseTransactionModel::busyChanged);
+    QSignalSpy successSpy(m_expenseTransactionModel,
+                          &QMLExpenseTransactionModel::success);
+    QSignalSpy errorSpy(m_expenseTransactionModel,
+                        &QMLExpenseTransactionModel::error);
+    QSignalSpy busyChangedSpy(m_expenseTransactionModel,
+                              &QMLExpenseTransactionModel::busyChanged);
 
     QCOMPARE(m_expenseTransactionModel->rowCount(), 0);
 

@@ -1,13 +1,8 @@
 #include "businessstore.h"
 
-BusinessStore::BusinessStore(QObject *parent) :
-    QObject(parent)
-{
+BusinessStore::BusinessStore(QObject* parent) : QObject(parent) {}
 
-}
-
-BusinessStore::BusinessStore(const BusinessStore &other) :
-    QObject(nullptr)
+BusinessStore::BusinessStore(const BusinessStore& other) : QObject(nullptr)
 {
     setId(other.id());
     setName(other.name());
@@ -19,7 +14,7 @@ BusinessStore::BusinessStore(const BusinessStore &other) :
     setRackId(other.rackId());
 }
 
-BusinessStore &BusinessStore::operator=(const BusinessStore &other)
+BusinessStore& BusinessStore::operator=(const BusinessStore& other)
 {
     m_id = other.id();
     m_name = other.name();
@@ -33,16 +28,14 @@ BusinessStore &BusinessStore::operator=(const BusinessStore &other)
     return *this;
 }
 
-bool BusinessStore::operator==(const BusinessStore &other)
+bool BusinessStore::operator==(const BusinessStore& other)
 {
-    return m_id == other.id()
-            && m_name == other.name()
-            && m_address == other.address()
-            && m_businessFamily == other.businessFamily()
-            && m_establishmentYear == other.establishmentYear()
-            && m_phoneNumber == other.phoneNumber()
-            && m_logoUrl == other.logoUrl()
-            && m_rackId == other.rackId();
+    return m_id == other.id() && m_name == other.name() &&
+           m_address == other.address() &&
+           m_businessFamily == other.businessFamily() &&
+           m_establishmentYear == other.establishmentYear() &&
+           m_phoneNumber == other.phoneNumber() &&
+           m_logoUrl == other.logoUrl() && m_rackId == other.rackId();
 }
 
 int BusinessStore::id() const
@@ -85,7 +78,7 @@ QString BusinessStore::rackId() const
     return m_rackId;
 }
 
-BusinessStore BusinessStore::fromVariantMap(const QVariantMap &map)
+BusinessStore BusinessStore::fromVariantMap(const QVariantMap& map)
 {
     BusinessStore businessStore;
     businessStore.setName(map.value("name").toString());
@@ -101,15 +94,13 @@ BusinessStore BusinessStore::fromVariantMap(const QVariantMap &map)
 
 QVariantMap BusinessStore::toVariantMap() const
 {
-    return {
-        { "name", m_name },
-        { "address", m_address },
-        { "business_family", m_businessFamily },
-        { "establishment_year", m_establishmentYear },
-        { "phone_number", m_phoneNumber },
-        { "logo", m_logoUrl },
-        { "rack_id", m_rackId }
-    };
+    return {{"name", m_name},
+            {"address", m_address},
+            {"business_family", m_businessFamily},
+            {"establishment_year", m_establishmentYear},
+            {"phone_number", m_phoneNumber},
+            {"logo", m_logoUrl},
+            {"rack_id", m_rackId}};
 }
 
 void BusinessStore::setId(int id)
@@ -117,17 +108,17 @@ void BusinessStore::setId(int id)
     m_id = id;
 }
 
-void BusinessStore::setName(const QString &name)
+void BusinessStore::setName(const QString& name)
 {
     m_name = name;
 }
 
-void BusinessStore::setAddress(const QString &address)
+void BusinessStore::setAddress(const QString& address)
 {
     m_address = address;
 }
 
-void BusinessStore::setBusinessFamily(const QString &businessFamily)
+void BusinessStore::setBusinessFamily(const QString& businessFamily)
 {
     m_businessFamily = businessFamily;
 }
@@ -137,17 +128,17 @@ void BusinessStore::setEstablishmentYear(int establishmentYear)
     m_establishmentYear = establishmentYear;
 }
 
-void BusinessStore::setPhoneNumber(const QString &phoneNumber)
+void BusinessStore::setPhoneNumber(const QString& phoneNumber)
 {
     m_phoneNumber = phoneNumber;
 }
 
-void BusinessStore::setLogoUrl(const QUrl &logoUrl)
+void BusinessStore::setLogoUrl(const QUrl& logoUrl)
 {
     m_logoUrl = logoUrl;
 }
 
-void BusinessStore::setRackId(const QString &rackId)
+void BusinessStore::setRackId(const QString& rackId)
 {
     m_rackId = rackId;
 }

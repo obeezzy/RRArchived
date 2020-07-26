@@ -1,27 +1,24 @@
 #ifndef NETWORKEXCEPTION_H
 #define NETWORKEXCEPTION_H
 
-#include <exception>
-#include <QString>
 #include <QDebug>
+#include <QString>
+#include <exception>
 
 namespace NetworkError {
-    enum class ServerErrorCode;
+enum class ServerErrorCode;
 }
 
 class NetworkException : public std::exception
 {
 public:
-    NetworkException(int errorCode,
-                     const QString &message,
-                     int statusCode = 400,
-                     QString statusMessage = QString(),
-                     const QString &userMessage = QString());
+    NetworkException(int errorCode, const QString& message,
+                     int statusCode = 400, QString statusMessage = QString(),
+                     const QString& userMessage = QString());
     NetworkException(NetworkError::ServerErrorCode errorCode,
-                     const QString &message,
-                     int statusCode = 400,
+                     const QString& message, int statusCode = 400,
                      QString statusMessage = QString(),
-                     const QString &userMessage = QString());
+                     const QString& userMessage = QString());
     ~NetworkException() override;
 
     int code() const;
@@ -29,19 +26,21 @@ public:
     int statusCode() const;
     QString statusMessage() const;
     QString userMessage() const;
-    const char * what() const noexcept override final;
+    const char* what() const noexcept override final;
 
-    friend QDebug operator<<(QDebug debug, const NetworkException &networkException)
+    friend QDebug operator<<(QDebug debug,
+                             const NetworkException& networkException)
     {
         debug.nospace() << "NetworkException("
                         << "code=" << networkException.code()
                         << ", message=" << networkException.message()
                         << ", statusCode=" << networkException.statusCode()
-                        << ", statusMessage=" << networkException.statusMessage()
-                        << ")";
+                        << ", statusMessage="
+                        << networkException.statusMessage() << ")";
 
         return debug;
     }
+
 private:
     int m_code;
     QString m_message;
@@ -50,4 +49,4 @@ private:
     QString m_userMessage;
 };
 
-#endif // NETWORKEXCEPTION_H
+#endif  // NETWORKEXCEPTION_H

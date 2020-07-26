@@ -1,7 +1,7 @@
-#include "qmlapi/purchase/qmlpurchasetransactionmodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/purchase/qmlpurchasetransactionmodel.h"
 
 class QMLPurchaseTransactionModelTest : public QObject
 {
@@ -10,15 +10,17 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLPurchaseTransactionModel *m_purchaseTransactionModel;
-    MockDatabaseThread *m_thread;
+    QMLPurchaseTransactionModel* m_purchaseTransactionModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLPurchaseTransactionModelTest::init()
 {
     m_thread = new MockDatabaseThread(this);
-    m_purchaseTransactionModel = new QMLPurchaseTransactionModel(*m_thread, this);
+    m_purchaseTransactionModel =
+        new QMLPurchaseTransactionModel(*m_thread, this);
 }
 
 void QMLPurchaseTransactionModelTest::cleanup()
@@ -29,9 +31,9 @@ void QMLPurchaseTransactionModelTest::cleanup()
 
 void QMLPurchaseTransactionModelTest::testModel()
 {
-    QAbstractItemModelTester(m_purchaseTransactionModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_purchaseTransactionModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLPurchaseTransactionModelTest)

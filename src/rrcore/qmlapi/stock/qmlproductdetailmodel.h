@@ -1,14 +1,15 @@
 #ifndef QMLPRODUCTDETAILRECORD_H
 #define QMLPRODUCTDETAILRECORD_H
 
+#include <QVariantList>
 #include "models/abstractvisuallistmodel.h"
 #include "utility/stock/product.h"
-#include <QVariantList>
 
 class QMLProductDetailModel : public AbstractVisualListModel
 {
     Q_OBJECT
-    Q_PROPERTY(int productId READ productId WRITE setProductId NOTIFY productIdChanged)
+    Q_PROPERTY(
+        int productId READ productId WRITE setProductId NOTIFY productIdChanged)
     Q_PROPERTY(int categoryId READ categoryId NOTIFY categoryIdChanged)
     Q_PROPERTY(QString category READ category NOTIFY categoryChanged)
     Q_PROPERTY(QString product READ product NOTIFY productChanged)
@@ -26,16 +27,19 @@ class QMLProductDetailModel : public AbstractVisualListModel
     Q_PROPERTY(int userId READ userId NOTIFY userIdChanged)
     Q_PROPERTY(QString user READ user NOTIFY userChanged)
 public:
-    enum Role {
+    enum Role
+    {
         TitleRole = Qt::UserRole,
         DetailRole,
         DatatypeRole
     };
-    explicit QMLProductDetailModel(QObject *parent = nullptr);
-    explicit QMLProductDetailModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLProductDetailModel(QObject* parent = nullptr);
+    explicit QMLProductDetailModel(DatabaseThread& thread,
+                                   QObject* parent = nullptr);
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
 
     int productId() const;
@@ -59,7 +63,7 @@ public:
     QDateTime lastEdited() const;
 
     int userId() const;
-    QString user() const;   
+    QString user() const;
 signals:
     void productIdChanged();
     void categoryIdChanged();
@@ -78,29 +82,31 @@ signals:
     void lastEditedChanged();
     void userIdChanged();
     void userChanged();
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override;
-    void processResult(const QueryResult &result) override; 
+    bool canProcessResult(const QueryResult& result) const override;
+    void processResult(const QueryResult& result) override;
+
 private:
     Utility::Stock::Product m_product;
     QVariantList m_productDetails;
 
     void setCategoryId(int categoryId);
-    void setCategory(const QString &category);
-    void setProduct(const QString &product);
-    void setDescription(const QString &description);
+    void setCategory(const QString& category);
+    void setProduct(const QString& product);
+    void setDescription(const QString& description);
     void setDivisible(bool divisible);
-    void setImageUrl(const QUrl &imageUrl);
+    void setImageUrl(const QUrl& imageUrl);
     void setQuantity(double quantity);
     void setUnitId(int unitId);
-    void setUnit(const QString &unit);
+    void setUnit(const QString& unit);
     void setCostPrice(double costPrice);
     void setRetailPrice(double retailPrice);
-    void setCreated(const QDateTime &created);
-    void setLastEdited(const QDateTime &lastEdited);
+    void setCreated(const QDateTime& created);
+    void setLastEdited(const QDateTime& lastEdited);
     void setUserId(int userId);
-    void setUser(const QString & user);
+    void setUser(const QString& user);
 };
 
-#endif // QMLPRODUCTDETAILRECORD_H
+#endif  // QMLPRODUCTDETAILRECORD_H

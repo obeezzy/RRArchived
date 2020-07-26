@@ -9,11 +9,15 @@ class DatabaseThread;
 class QMLDebtPaymentModel : public AbstractVisualListModel
 {
     Q_OBJECT
-    Q_PROPERTY(int debtTransactionId READ debtTransactionId WRITE setDebtTransactionId NOTIFY debtTransactionIdChanged)
-    Q_PROPERTY(QVariant debtTransactionRef READ debtTransactionRef WRITE setDebtTransactionRef NOTIFY debtTransactionRefChanged)
-    Q_PROPERTY(double totalAmountPaid READ totalAmountPaid NOTIFY totalAmountPaidChanged)
+    Q_PROPERTY(int debtTransactionId READ debtTransactionId WRITE
+                   setDebtTransactionId NOTIFY debtTransactionIdChanged)
+    Q_PROPERTY(QVariant debtTransactionRef READ debtTransactionRef WRITE
+                   setDebtTransactionRef NOTIFY debtTransactionRefChanged)
+    Q_PROPERTY(double totalAmountPaid READ totalAmountPaid NOTIFY
+                   totalAmountPaidChanged)
 public:
-    enum Role {
+    enum Role
+    {
         DebtRole = Qt::UserRole,
         AmountPaidRole,
         BalanceRole,
@@ -28,36 +32,40 @@ public:
         LastEditedRole
     };
 
-    explicit QMLDebtPaymentModel(QObject *parent = nullptr);
-    explicit QMLDebtPaymentModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLDebtPaymentModel(QObject* parent = nullptr);
+    explicit QMLDebtPaymentModel(DatabaseThread& thread,
+                                 QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    bool setData(const QModelIndex& index, const QVariant& value,
+                 int role = Qt::EditRole) override;
 
     int debtTransactionId() const;
     void setDebtTransactionId(int debtTransactionId);
 
     QVariant debtTransactionRef() const;
-    void setDebtTransactionRef(const QVariant &debtTransactionRef);
+    void setDebtTransactionRef(const QVariant& debtTransactionRef);
 
     double totalAmountPaid() const;
     void setTotalAmountPaid(double totalAmountPaid);
 
-    Q_INVOKABLE void addPayment(double amount,
-                                const QString &note = QString());
+    Q_INVOKABLE void addPayment(double amount, const QString& note = QString());
     Q_INVOKABLE void removePayment(int row);
 signals:
     void debtTransactionIdChanged();
     void debtTransactionRefChanged();
     void totalAmountPaidChanged();
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override;
-    void processResult(const QueryResult &result) override;
+    bool canProcessResult(const QueryResult& result) const override;
+    void processResult(const QueryResult& result) override;
+
 private:
-    int m_debtTransactionId {0};
+    int m_debtTransactionId{0};
     Utility::Money m_totalAmountPaid;
     QVariant m_debtTransactionRef;
     Utility::Debtor::DebtPaymentList m_payments;
@@ -68,4 +76,4 @@ private:
 
 Q_DECLARE_LOGGING_CATEGORY(lcqmldebtpaymentmodel);
 
-#endif // QMLDEBTPAYMENTMODEL_H
+#endif  // QMLDEBTPAYMENTMODEL_H

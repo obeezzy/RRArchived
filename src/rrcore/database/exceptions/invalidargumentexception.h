@@ -6,8 +6,8 @@
 class InvalidArgumentException : public DatabaseException
 {
 public:
-    explicit InvalidArgumentException(const QString &message = QString());
+    explicit InvalidArgumentException(const QString& message = QString());
     QString toString() const override;
 };
 
-#endif // INVALIDARGUMENTEXCEPTION_H
+#endif  // INVALIDARGUMENTEXCEPTION_H

@@ -1,7 +1,7 @@
-#include "qmlapi/user/qmluserdetailrecord.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/user/qmluserdetailrecord.h"
 
 class QMLUserDetailRecordTest : public QObject
 {
@@ -9,9 +9,10 @@ class QMLUserDetailRecordTest : public QObject
 private slots:
     void init();
     void cleanup();
+
 private:
-    QMLUserDetailRecord *m_userDetailRecord;
-    MockDatabaseThread *m_thread;
+    QMLUserDetailRecord* m_userDetailRecord;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLUserDetailRecordTest::init()

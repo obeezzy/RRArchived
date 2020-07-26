@@ -1,12 +1,11 @@
 #include "qmldatabasecreator.h"
-#include "database/databasecreator.h"
-#include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <QtConcurrent/QtConcurrent>
+#include "database/databasecreator.h"
 
 Q_LOGGING_CATEGORY(lcqmldatabasecreator, "rrcore.qmlapi.qmldatabasecreator");
 
-QMLDatabaseCreator::QMLDatabaseCreator(QObject *parent) :
-    QObject(parent)
+QMLDatabaseCreator::QMLDatabaseCreator(QObject* parent) : QObject(parent)
 {
     m_databaseCreator = new DatabaseCreator();
 }
@@ -20,9 +19,12 @@ void QMLDatabaseCreator::start()
 {
     if (!m_futureWatcher.isRunning()) {
         qCInfo(lcqmldatabasecreator) << "Building database...";
-        disconnect(&m_futureWatcher, &QFutureWatcher<bool>::finished, this, &QMLDatabaseCreator::onFinished);
-        connect(&m_futureWatcher, &QFutureWatcher<bool>::finished, this, &QMLDatabaseCreator::onFinished);
-        m_futureWatcher.setFuture(QtConcurrent::run(m_databaseCreator, &DatabaseCreator::start));
+        disconnect(&m_futureWatcher, &QFutureWatcher<bool>::finished, this,
+                   &QMLDatabaseCreator::onFinished);
+        connect(&m_futureWatcher, &QFutureWatcher<bool>::finished, this,
+                &QMLDatabaseCreator::onFinished);
+        m_futureWatcher.setFuture(
+            QtConcurrent::run(m_databaseCreator, &DatabaseCreator::start));
         setBusy(true);
     } else {
         qCWarning(lcdatabasecreator) << "Start called while process running. ";

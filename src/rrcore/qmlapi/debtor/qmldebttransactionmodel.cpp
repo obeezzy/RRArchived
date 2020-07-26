@@ -1,26 +1,28 @@
 ﻿#include "qmldebttransactionmodel.h"
+#include <QDateTime>
 #include "database/databaseerror.h"
 #include "database/databasethread.h"
 #include "query/debtor/adddebtor.h"
 #include "query/debtor/updatedebtor.h"
 #include "query/debtor/viewdebtors.h"
 #include "query/debtor/viewdebttransactions.h"
-#include <QDateTime>
 
-Q_LOGGING_CATEGORY(lcqmldebttransactionmodel, "rrcore.models.qmldebttransactionmodel");
+Q_LOGGING_CATEGORY(lcqmldebttransactionmodel,
+                   "rrcore.models.qmldebttransactionmodel");
 
-QMLDebtTransactionModel::QMLDebtTransactionModel(QObject *parent) :
-    QMLDebtTransactionModel(DatabaseThread::instance(), parent)
+QMLDebtTransactionModel::QMLDebtTransactionModel(QObject* parent)
+    : QMLDebtTransactionModel(DatabaseThread::instance(), parent)
 {}
 
-QMLDebtTransactionModel::QMLDebtTransactionModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent)
+QMLDebtTransactionModel::QMLDebtTransactionModel(DatabaseThread& thread,
+                                                 QObject* parent)
+    : AbstractVisualListModel(thread, parent)
 {
-    connect(this, &QMLDebtTransactionModel::debtorIdChanged,
-            this, &QMLDebtTransactionModel::tryQuery);
+    connect(this, &QMLDebtTransactionModel::debtorIdChanged, this,
+            &QMLDebtTransactionModel::tryQuery);
 }
 
-int QMLDebtTransactionModel::rowCount(const QModelIndex &parent) const
+int QMLDebtTransactionModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -28,30 +30,32 @@ int QMLDebtTransactionModel::rowCount(const QModelIndex &parent) const
     return m_debtor.transactions.count();
 }
 
-QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
+QVariant QMLDebtTransactionModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case TransactionIdRole:
-        return m_debtor.transactions.at(index.row()).id;
-    case RelatedTransactionRole:
-        return m_debtor.transactions.at(index.row()).relatedTransaction.toString();
-    case RelatedTransactionIdRole:
-        return m_debtor.transactions.at(index.row()).relatedTransaction.id;
-    case NoteRole:
-        return m_debtor.transactions.at(index.row()).note.note;
-    case DueDateRole:
-        return m_debtor.transactions.at(index.row()).dueDateTime;
-    case CreatedRole:
-        return m_debtor.transactions.at(index.row()).timestamp.created;
-    case RefRole:
-        return QVariant::fromValue(&m_debtor.transactions.at(index.row()));
-    case TotalDebtRole:
-        return m_debtor.transactions.at(index.row()).totalDebt.toDouble();
-    case DirtyRole:
-        return m_debtor.transactions.at(index.row()).state == Utility::Debtor::DebtTransaction::State::Dirty;
+        case TransactionIdRole:
+            return m_debtor.transactions.at(index.row()).id;
+        case RelatedTransactionRole:
+            return m_debtor.transactions.at(index.row())
+                .relatedTransaction.toString();
+        case RelatedTransactionIdRole:
+            return m_debtor.transactions.at(index.row()).relatedTransaction.id;
+        case NoteRole:
+            return m_debtor.transactions.at(index.row()).note.note;
+        case DueDateRole:
+            return m_debtor.transactions.at(index.row()).dueDateTime;
+        case CreatedRole:
+            return m_debtor.transactions.at(index.row()).timestamp.created;
+        case RefRole:
+            return QVariant::fromValue(&m_debtor.transactions.at(index.row()));
+        case TotalDebtRole:
+            return m_debtor.transactions.at(index.row()).totalDebt.toDouble();
+        case DirtyRole:
+            return m_debtor.transactions.at(index.row()).state ==
+                   Utility::Debtor::DebtTransaction::State::Dirty;
     }
 
     return QVariant();
@@ -59,50 +63,51 @@ QVariant QMLDebtTransactionModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLDebtTransactionModel::roleNames() const
 {
-    return {
-        { TransactionIdRole, "transaction_id" },
-        { RelatedTransactionRole, "related_transaction" },
-        { RelatedTransactionIdRole, "related_transaction_id" },
-        { DueDateRole, "due_date" },
-        { DirtyRole, "dirty" },
-        { NoteRole, "note" },
-        { CreatedRole, "created" },
-        { RefRole, "ref" },
-        { TotalDebtRole, "total_debt" }
-    };
+    return {{TransactionIdRole, "transaction_id"},
+            {RelatedTransactionRole, "related_transaction"},
+            {RelatedTransactionIdRole, "related_transaction_id"},
+            {DueDateRole, "due_date"},
+            {DirtyRole, "dirty"},
+            {NoteRole, "note"},
+            {CreatedRole, "created"},
+            {RefRole, "ref"},
+            {TotalDebtRole, "total_debt"}};
 }
 
-bool QMLDebtTransactionModel::setData(const QModelIndex &index,
-                                      const QVariant &value,
-                                      int role)
+bool QMLDebtTransactionModel::setData(const QModelIndex& index,
+                                      const QVariant& value, int role)
 {
     if (!index.isValid())
         return false;
 
-    Utility::Debtor::DebtTransaction &debtTransaction = m_debtor.transactions[index.row()];
+    Utility::Debtor::DebtTransaction& debtTransaction =
+        m_debtor.transactions[index.row()];
     switch (role) {
-    case DueDateRole:
-        if (value.toDateTime().isValid() && (debtTransaction.dueDateTime != value.toDateTime())) {
-            debtTransaction.dueDateTime = value.toDateTime();
-            m_dirty = true;
-            emit dataChanged(index, index);
-        } else if (debtTransaction.dueDateTime == value.toDateTime()) {
+        case DueDateRole:
+            if (value.toDateTime().isValid() &&
+                (debtTransaction.dueDateTime != value.toDateTime())) {
+                debtTransaction.dueDateTime = value.toDateTime();
+                m_dirty = true;
+                emit dataChanged(index, index);
+            } else if (debtTransaction.dueDateTime == value.toDateTime()) {
+                return false;
+            } else {
+                qCWarning(lcqmldebttransactionmodel)
+                    << "Can't update due date/time: date/time invalid.";
+                return false;
+            }
+            break;
+        case NoteRole:
+            if (debtTransaction.note.note != value.toString()) {
+                debtTransaction.note.note = value.toString();
+                m_dirty = true;
+                emit dataChanged(index, index);
+            }
+            break;
+        default:
+            qCWarning(lcqmldebttransactionmodel)
+                << "Role not mutable:" << roleNames().value(role);
             return false;
-        } else {
-            qCWarning(lcqmldebttransactionmodel) << "Can't update due date/time: date/time invalid.";
-            return false;
-        }
-        break;
-    case NoteRole:
-        if (debtTransaction.note.note != value.toString()) {
-            debtTransaction.note.note = value.toString();
-            m_dirty = true;
-            emit dataChanged(index, index);
-        }
-        break;
-    default:
-        qCWarning(lcqmldebttransactionmodel) << "Role not mutable:" << roleNames().value(role);
-        return false;
     }
 
     return true;
@@ -141,7 +146,7 @@ QUrl QMLDebtTransactionModel::imageUrl() const
     return m_debtor.client.imageUrl;
 }
 
-void QMLDebtTransactionModel::setImageUrl(const QUrl &imageUrl)
+void QMLDebtTransactionModel::setImageUrl(const QUrl& imageUrl)
 {
     if (m_debtor.client.imageUrl == imageUrl)
         return;
@@ -155,7 +160,7 @@ QString QMLDebtTransactionModel::firstName() const
     return m_debtor.client.firstName;
 }
 
-void QMLDebtTransactionModel::setFirstName(const QString &firstName)
+void QMLDebtTransactionModel::setFirstName(const QString& firstName)
 {
     if (m_debtor.client.firstName == firstName)
         return;
@@ -169,7 +174,7 @@ QString QMLDebtTransactionModel::lastName() const
     return m_debtor.client.lastName;
 }
 
-void QMLDebtTransactionModel::setLastName(const QString &lastName)
+void QMLDebtTransactionModel::setLastName(const QString& lastName)
 {
     if (m_debtor.client.lastName == lastName)
         return;
@@ -183,7 +188,7 @@ QString QMLDebtTransactionModel::preferredName() const
     return m_debtor.client.preferredName;
 }
 
-void QMLDebtTransactionModel::setPreferredName(const QString &preferredName)
+void QMLDebtTransactionModel::setPreferredName(const QString& preferredName)
 {
     if (m_debtor.client.preferredName == preferredName)
         return;
@@ -197,7 +202,7 @@ QString QMLDebtTransactionModel::phoneNumber() const
     return m_debtor.client.phoneNumber;
 }
 
-void QMLDebtTransactionModel::setPhoneNumber(const QString &phoneNumber)
+void QMLDebtTransactionModel::setPhoneNumber(const QString& phoneNumber)
 {
     if (m_debtor.client.phoneNumber == phoneNumber)
         return;
@@ -211,7 +216,7 @@ QString QMLDebtTransactionModel::note() const
     return m_debtor.note.note;
 }
 
-void QMLDebtTransactionModel::setNote(const QString &note)
+void QMLDebtTransactionModel::setNote(const QString& note)
 {
     if (m_debtor.note.note == note)
         return;
@@ -221,18 +226,15 @@ void QMLDebtTransactionModel::setNote(const QString &note)
 }
 
 void QMLDebtTransactionModel::addDebt(double totalDebt,
-                                      const QDateTime &dueDateTime,
-                                      const QString &note)
+                                      const QDateTime& dueDateTime,
+                                      const QString& note)
 {
     if (totalDebt <= 0.0 || !dueDateTime.isValid())
         return;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_debtor.transactions.append(Utility::Debtor::DebtTransaction {
-                                         totalDebt,
-                                         dueDateTime,
-                                         Utility::Note{ note }
-                                     });
+    m_debtor.transactions.append(Utility::Debtor::DebtTransaction{
+        totalDebt, dueDateTime, Utility::Note{note}});
     m_dirty = true;
     endInsertRows();
 }
@@ -240,7 +242,8 @@ void QMLDebtTransactionModel::addDebt(double totalDebt,
 void QMLDebtTransactionModel::removeDebt(int row)
 {
     if (!index(row).isValid()) {
-        qCWarning(lcqmldebttransactionmodel) << "Row out of range value in:" << Q_FUNC_INFO;
+        qCWarning(lcqmldebttransactionmodel)
+            << "Row out of range value in:" << Q_FUNC_INFO;
         return;
     }
 
@@ -259,23 +262,26 @@ void QMLDebtTransactionModel::tryQuery()
     emit execute(new Query::Debtor::ViewDebtTransactions(m_debtor, this));
 }
 
-bool QMLDebtTransactionModel::canProcessResult(const QueryResult &result) const
+bool QMLDebtTransactionModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLDebtTransactionModel::processResult(const QueryResult &result)
+void QMLDebtTransactionModel::processResult(const QueryResult& result)
 {
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == Query::Debtor::ViewDebtTransactions::COMMAND) {
+        if (result.request().command() ==
+            Query::Debtor::ViewDebtTransactions::COMMAND) {
             beginResetModel();
 
             clearAll();
-            m_debtor.transactions = Utility::Debtor::DebtTransactionList{ result.outcome().toMap().value("transactions").toList() };
-            const auto &debtor = Utility::Debtor::Debtor{ result.outcome().toMap() };
+            m_debtor.transactions = Utility::Debtor::DebtTransactionList{
+                result.outcome().toMap().value("transactions").toList()};
+            const auto& debtor =
+                Utility::Debtor::Debtor{result.outcome().toMap()};
             setClientId(debtor.client.id);
             setPreferredName(debtor.client.preferredName);
             setPhoneNumber(debtor.client.phoneNumber);
@@ -283,34 +289,37 @@ void QMLDebtTransactionModel::processResult(const QueryResult &result)
 
             endResetModel();
 
-            emit success(ModelResult{ ViewDebtorTransactionsSuccess });
-        } else if (result.request().command() == Query::Debtor::AddDebtor::COMMAND) {
+            emit success(ModelResult{ViewDebtorTransactionsSuccess});
+        } else if (result.request().command() ==
+                   Query::Debtor::AddDebtor::COMMAND) {
             clearAll();
-            emit success(ModelResult{ AddDebtorSuccess });
-        } else if (result.request().command() == Query::Debtor::AddDebtor::UNDO_COMMAND) {
+            emit success(ModelResult{AddDebtorSuccess});
+        } else if (result.request().command() ==
+                   Query::Debtor::AddDebtor::UNDO_COMMAND) {
             clearAll();
-            emit success(ModelResult{ UndoAddDebtorSuccess });
-        } else if (result.request().command() == Query::Debtor::UpdateDebtor::COMMAND) {
+            emit success(ModelResult{UndoAddDebtorSuccess});
+        } else if (result.request().command() ==
+                   Query::Debtor::UpdateDebtor::COMMAND) {
             clearAll();
-            emit success(ModelResult{ UpdateDebtorSuccess });
+            emit success(ModelResult{UpdateDebtorSuccess});
         } else {
             clearAll();
             emit success();
         }
     } else {
         switch (result.errorCode()) {
-        case int(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
-            emit error(ModelResult{ DuplicateEntryError });
-            break;
-        case int(DatabaseError::QueryErrorCode::AmountOverpaid):
-            emit error(ModelResult{ AmountOverpaidError });
-            break;
-        case int(DatabaseError::QueryErrorCode::InvalidDueDate):
-            emit error(ModelResult{ InvalidDueDateError });
-            break;
-        default:
-            emit error();
-            break;
+            case int(DatabaseError::QueryErrorCode::DuplicateEntryFailure):
+                emit error(ModelResult{DuplicateEntryError});
+                break;
+            case int(DatabaseError::QueryErrorCode::AmountOverpaid):
+                emit error(ModelResult{AmountOverpaidError});
+                break;
+            case int(DatabaseError::QueryErrorCode::InvalidDueDate):
+                emit error(ModelResult{InvalidDueDateError});
+                break;
+            default:
+                emit error();
+                break;
         }
     }
 }
@@ -332,8 +341,8 @@ bool QMLDebtTransactionModel::isExistingDebtor() const
 
 bool QMLDebtTransactionModel::paymentsDirty() const
 {
-    for (const auto &transaction : m_debtor.transactions) {
-        for (const auto &payment : transaction.payments) {
+    for (const auto& transaction : m_debtor.transactions) {
+        for (const auto& payment : transaction.payments) {
             Q_UNUSED(payment)
             return true;
         }
@@ -344,8 +353,8 @@ bool QMLDebtTransactionModel::paymentsDirty() const
 
 bool QMLDebtTransactionModel::paymentsDueDateValid() const
 {
-    for (const auto &transaction : m_debtor.transactions) {
-        for (const auto &payment : transaction.payments) {
+    for (const auto& transaction : m_debtor.transactions) {
+        for (const auto& payment : transaction.payments) {
             if (payment.dueDateTime <= QDateTime::currentDateTime())
                 return false;
         }
@@ -357,16 +366,16 @@ bool QMLDebtTransactionModel::paymentsDueDateValid() const
 bool QMLDebtTransactionModel::submit()
 {
     if (m_debtor.client.phoneNumber.trimmed().isEmpty()) {
-        emit error(ModelResult{ NoPhoneNumberError });
+        emit error(ModelResult{NoPhoneNumberError});
         return false;
     } else if (m_debtor.client.preferredName.trimmed().isEmpty()) {
-        emit error(ModelResult{ NoPreferredNameError });
+        emit error(ModelResult{NoPreferredNameError});
         return false;
     } else if (!m_dirty && !paymentsDirty()) {
-        emit error(ModelResult{ DataUnchangedError });
+        emit error(ModelResult{DataUnchangedError});
         return false;
     } else if (!paymentsDueDateValid()) {
-        emit error(ModelResult{ InvalidDueDateError });
+        emit error(ModelResult{InvalidDueDateError});
         return false;
     } else {
         setBusy(true);

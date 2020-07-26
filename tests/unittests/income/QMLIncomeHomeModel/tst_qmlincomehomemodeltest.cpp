@@ -1,7 +1,7 @@
-#include "qmlapi/income/qmlincomehomemodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/income/qmlincomehomemodel.h"
 
 class QMLIncomeHomeModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLIncomeHomeModel *m_incomeHomeModel;
-    MockDatabaseThread *m_thread;
+    QMLIncomeHomeModel* m_incomeHomeModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLIncomeHomeModelTest::init()
@@ -29,9 +30,9 @@ void QMLIncomeHomeModelTest::cleanup()
 
 void QMLIncomeHomeModelTest::testModel()
 {
-    QAbstractItemModelTester(m_incomeHomeModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_incomeHomeModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLIncomeHomeModelTest)

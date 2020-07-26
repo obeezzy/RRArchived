@@ -4,19 +4,18 @@
 #include "userexecutor.h"
 
 namespace Query {
-    namespace User {
-    class ChangePassword : public UserExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("change_password");
+namespace User {
+class ChangePassword : public UserExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("change_password");
 
-        explicit ChangePassword(const QString &oldPassword,
-                                const QString &newPassword,
-                                QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit ChangePassword(const QString& oldPassword,
+                            const QString& newPassword, QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace User
+}  // namespace Query
 
-#endif // CHANGEPASSWORD_H
+#endif  // CHANGEPASSWORD_H

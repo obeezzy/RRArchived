@@ -4,20 +4,20 @@
 #include "debtorexecutor.h"
 
 namespace Query {
-    namespace Debtor {
-    class ViewDebtPayments : public DebtorExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_debt_payments");
+namespace Debtor {
+class ViewDebtPayments : public DebtorExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("view_debt_payments");
 
-        explicit ViewDebtPayments(int debtTransactionId,
-                                  QObject *receiver);
-        QueryResult execute() override;
-    private:
-        void fetchDebtPayments(QVariantList &debtPayments);
-    };
-}
-}
+    explicit ViewDebtPayments(int debtTransactionId, QObject* receiver);
+    QueryResult execute() override;
 
-#endif // VIEWDEBTPAYMENTS_H
+private:
+    void fetchDebtPayments(QVariantList& debtPayments);
+};
+}  // namespace Debtor
+}  // namespace Query
+
+#endif  // VIEWDEBTPAYMENTS_H

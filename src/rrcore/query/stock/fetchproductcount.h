@@ -4,17 +4,16 @@
 #include "stockexecutor.h"
 
 namespace Query {
-    namespace Stock {
-    class FetchProductCount : public StockExecutor
-    {
-    public:
-        static inline const QString COMMAND = QStringLiteral("fetch_product_count");
+namespace Stock {
+class FetchProductCount : public StockExecutor
+{
+public:
+    static inline const QString COMMAND = QStringLiteral("fetch_product_count");
 
-        explicit FetchProductCount(int categoryId,
-                                        QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit FetchProductCount(int categoryId, QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Stock
+}  // namespace Query
 
-#endif // FETCHPRODUCTCOUNT_H
+#endif  // FETCHPRODUCTCOUNT_H

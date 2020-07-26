@@ -7,10 +7,9 @@ class DashboardExecutor : public QueryExecutor
 {
     Q_OBJECT
 public:
-    explicit DashboardExecutor(const QString &command,
-                               const QVariantMap &params,
-                               QObject *receiver);
+    explicit DashboardExecutor(const QString& command,
+                               const QVariantMap& params, QObject* receiver);
     virtual ~DashboardExecutor() = default;
 };
 
-#endif // DASHBOARDEXECUTOR_H
+#endif  // DASHBOARDEXECUTOR_H

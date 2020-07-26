@@ -1,27 +1,24 @@
 #include "abstractreportmodel.h"
 #include "database/databasethread.h"
 
-AbstractReportModel::AbstractReportModel(QObject *parent) :
-    AbstractReportModel(DatabaseThread::instance(), parent)
-{
+AbstractReportModel::AbstractReportModel(QObject* parent)
+    : AbstractReportModel(DatabaseThread::instance(), parent)
+{}
 
-}
-
-AbstractReportModel::AbstractReportModel(DatabaseThread &thread,
-                                         QObject *parent) :
-    AbstractVisualTableModel(thread, parent),
-    m_dateTimeSpan(QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
-                   QDateTime::currentDateTime())
-{
-
-}
+AbstractReportModel::AbstractReportModel(DatabaseThread& thread,
+                                         QObject* parent)
+    : AbstractVisualTableModel(thread, parent),
+      m_dateTimeSpan(
+          QDateTime(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0)),
+          QDateTime::currentDateTime())
+{}
 
 QDateTime AbstractReportModel::from() const
 {
     return m_dateTimeSpan.from;
 }
 
-void AbstractReportModel::setFrom(const QDateTime &from)
+void AbstractReportModel::setFrom(const QDateTime& from)
 {
     if (m_dateTimeSpan.from == from)
         return;
@@ -35,7 +32,7 @@ QDateTime AbstractReportModel::to() const
     return m_dateTimeSpan.to;
 }
 
-void AbstractReportModel::setTo(const QDateTime &to)
+void AbstractReportModel::setTo(const QDateTime& to)
 {
     if (m_dateTimeSpan.to == to)
         return;

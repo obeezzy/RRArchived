@@ -1,7 +1,7 @@
-#include "qmlapi/user/qmlusermodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/user/qmlusermodel.h"
 
 class QMLUserModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLUserModel *m_userModel;
-    MockDatabaseThread *m_thread;
+    QMLUserModel* m_userModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLUserModelTest::init()
@@ -29,9 +30,9 @@ void QMLUserModelTest::cleanup()
 
 void QMLUserModelTest::testModel()
 {
-    QAbstractItemModelTester(m_userModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_userModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+        this);
 }
 
 QTEST_GUILESS_MAIN(QMLUserModelTest)

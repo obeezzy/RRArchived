@@ -8,9 +8,9 @@ class UserPrivilegeCenter : public QObject
 {
     Q_OBJECT
 public:
-    explicit UserPrivilegeCenter(QObject *parent = nullptr);
+    explicit UserPrivilegeCenter(QObject* parent = nullptr);
 
-    QVariant getPrivileges(const QString &group = QString()) const;
+    QVariant getPrivileges(const QString& group = QString()) const;
 };
 
-#endif // USERPRIVILEGECENTER_H
+#endif  // USERPRIVILEGECENTER_H

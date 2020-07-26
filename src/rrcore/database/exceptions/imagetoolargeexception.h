@@ -6,9 +6,8 @@
 class ImageTooLargeException : public DatabaseException
 {
 public:
-    explicit ImageTooLargeException(int size,
-                                    int maxSize);
+    explicit ImageTooLargeException(int size, int maxSize);
     QString toString() const override;
 };
 
-#endif // IMAGETOOLARGEEXCEPTION_H
+#endif  // IMAGETOOLARGEEXCEPTION_H

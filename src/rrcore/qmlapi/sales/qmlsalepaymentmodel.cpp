@@ -2,16 +2,16 @@
 #include "database/databasethread.h"
 #include "utility/sales/salepayment.h"
 
-QMLSalePaymentModel::QMLSalePaymentModel(QObject *parent) :
-    QMLSalePaymentModel(DatabaseThread::instance(), parent)
+QMLSalePaymentModel::QMLSalePaymentModel(QObject* parent)
+    : QMLSalePaymentModel(DatabaseThread::instance(), parent)
 {}
 
-QMLSalePaymentModel::QMLSalePaymentModel(DatabaseThread &thread,
-                                         QObject *parent) :
-    AbstractVisualListModel(thread, parent)
+QMLSalePaymentModel::QMLSalePaymentModel(DatabaseThread& thread,
+                                         QObject* parent)
+    : AbstractVisualListModel(thread, parent)
 {}
 
-int QMLSalePaymentModel::rowCount(const QModelIndex &parent) const
+int QMLSalePaymentModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -19,18 +19,18 @@ int QMLSalePaymentModel::rowCount(const QModelIndex &parent) const
     return m_payments.count();
 }
 
-QVariant QMLSalePaymentModel::data(const QModelIndex &index, int role) const
+QVariant QMLSalePaymentModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case AmountRole:
-        return m_payments.at(index.row()).amount.toDouble();
-    case MethodRole:
-        return m_payments.at(index.row()).method.toString();
-    case NoteRole:
-        return m_payments.at(index.row()).note.note;
+        case AmountRole:
+            return m_payments.at(index.row()).amount.toDouble();
+        case MethodRole:
+            return m_payments.at(index.row()).method.toString();
+        case NoteRole:
+            return m_payments.at(index.row()).note.note;
     }
 
     return QVariant();
@@ -38,11 +38,7 @@ QVariant QMLSalePaymentModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLSalePaymentModel::roleNames() const
 {
-    return {
-        { AmountRole, "amount" },
-        { MethodRole, "method" },
-        { NoteRole, "note" }
-    };
+    return {{AmountRole, "amount"}, {MethodRole, "method"}, {NoteRole, "note"}};
 }
 
 void QMLSalePaymentModel::addPayment(Utility::Sales::SalePayment payment)
@@ -76,8 +72,8 @@ int QMLSalePaymentModel::cashPaymentCount() const
 
 int QMLSalePaymentModel::cardPaymentCount() const
 {
-    return m_payments.count(Utility::PaymentMethod::DebitCard)
-            + m_payments.count(Utility::PaymentMethod::CreditCard);
+    return m_payments.count(Utility::PaymentMethod::DebitCard) +
+           m_payments.count(Utility::PaymentMethod::CreditCard);
 }
 
 void QMLSalePaymentModel::calculateTotalAmount()
@@ -85,18 +81,15 @@ void QMLSalePaymentModel::calculateTotalAmount()
     setTotalAmount(m_payments.total().toDouble());
 }
 
-void QMLSalePaymentModel::tryQuery()
-{
+void QMLSalePaymentModel::tryQuery() {}
 
-}
-
-bool QMLSalePaymentModel::canProcessResult(const QueryResult &result) const
+bool QMLSalePaymentModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLSalePaymentModel::processResult(const QueryResult &result)
+void QMLSalePaymentModel::processResult(const QueryResult& result)
 {
     Q_UNUSED(result)
 }

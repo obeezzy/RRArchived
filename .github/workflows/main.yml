@@ -24,6 +24,14 @@ jobs:
       with:
         python-version: 3.7
 
+    - name: Invalidate code formatting
+      uses: DoozyX/clang-format-lint-action@v0.8
+      with:
+        source: 'src tests'
+        exclude: './thirdparty'
+        extensions: 'h,cpp'
+        clangFormatVersion: 10
+
     - name: Install Qt
       run: |
         sudo apt-get update

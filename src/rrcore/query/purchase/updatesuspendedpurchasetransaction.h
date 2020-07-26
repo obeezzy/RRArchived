@@ -7,24 +7,27 @@ namespace Utility {
 namespace Purchase {
 class PurchaseTransaction;
 }
-}
+}  // namespace Utility
 
 namespace Query {
-    namespace Purchase {
-    class UpdateSuspendedPurchaseTransaction : public PurchaseExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("update_suspended_purchase_transaction");
+namespace Purchase {
+class UpdateSuspendedPurchaseTransaction : public PurchaseExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("update_suspended_purchase_transaction");
 
-        explicit UpdateSuspendedPurchaseTransaction(const Utility::Purchase::PurchaseTransaction &transaction,
-                                                    QObject *receiver);
-        QueryResult execute() override;
-    private:
-        void affirmTransactionHasBeenSuspended();
-        void archivePurchaseTransaction();
-    };
-}
-}
+    explicit UpdateSuspendedPurchaseTransaction(
+        const Utility::Purchase::PurchaseTransaction& transaction,
+        QObject* receiver);
+    QueryResult execute() override;
 
-#endif // UPDATESUSPENDEDPURCHASETRANSACTION_H
+private:
+    void affirmTransactionHasBeenSuspended();
+    void archivePurchaseTransaction();
+};
+}  // namespace Purchase
+}  // namespace Query
+
+#endif  // UPDATESUSPENDEDPURCHASETRANSACTION_H

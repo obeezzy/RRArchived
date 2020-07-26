@@ -6,13 +6,14 @@
 class QMLExpenseHomeModel : public AbstractHomeModel
 {
 public:
-    explicit QMLExpenseHomeModel(QObject *parent = nullptr);
-    explicit QMLExpenseHomeModel(DatabaseThread &thread,
-                                 QObject *parent = nullptr);
+    explicit QMLExpenseHomeModel(QObject* parent = nullptr);
+    explicit QMLExpenseHomeModel(DatabaseThread& thread,
+                                 QObject* parent = nullptr);
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override;
-    void processResult(const QueryResult &result) override;
+    bool canProcessResult(const QueryResult& result) const override;
+    void processResult(const QueryResult& result) override;
 };
 
-#endif // QMLEXPENSEHOMEMODEL_H
+#endif  // QMLEXPENSEHOMEMODEL_H

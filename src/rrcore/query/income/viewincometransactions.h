@@ -9,19 +9,20 @@ class DateTimeSpan;
 }
 
 namespace Query {
-    namespace Income {
-    class ViewIncomeTransactions : public IncomeExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_income_transactions");
+namespace Income {
+class ViewIncomeTransactions : public IncomeExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("view_income_transactions");
 
-        explicit ViewIncomeTransactions(const Utility::DateTimeSpan &dateTimeSpan,
-                                        const Utility::RecordGroup::Flags &flags,
-                                        QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit ViewIncomeTransactions(const Utility::DateTimeSpan& dateTimeSpan,
+                                    const Utility::RecordGroup::Flags& flags,
+                                    QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Income
+}  // namespace Query
 
-#endif // VIEWINCOMETRANSACTIONS_H
+#endif  // VIEWINCOMETRANSACTIONS_H

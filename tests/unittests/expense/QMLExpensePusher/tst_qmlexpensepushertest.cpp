@@ -1,7 +1,7 @@
-#include "qmlapi/expense/qmlexpensepusher.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/expense/qmlexpensepusher.h"
 
 class QMLExpensePusherTest : public QObject
 {
@@ -9,9 +9,10 @@ class QMLExpensePusherTest : public QObject
 private slots:
     void init();
     void cleanup();
+
 private:
-    QMLExpensePusher *m_expensePusher;
-    MockDatabaseThread *m_thread;
+    QMLExpensePusher* m_expensePusher;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLExpensePusherTest::init()

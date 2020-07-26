@@ -1,19 +1,17 @@
 #include "qmlproductpusher.h"
-#include "database/databasethread.h"
+#include <QUrl>
 #include "database/databaseerror.h"
+#include "database/databasethread.h"
 #include "query/stock/addproduct.h"
 #include "query/stock/updateproduct.h"
-#include <QUrl>
 
-QMLProductPusher::QMLProductPusher(QObject *parent) :
-    QMLProductPusher(DatabaseThread::instance(), parent)
+QMLProductPusher::QMLProductPusher(QObject* parent)
+    : QMLProductPusher(DatabaseThread::instance(), parent)
 {}
 
-QMLProductPusher::QMLProductPusher(DatabaseThread &thread, QObject *parent) :
-    AbstractPusher(thread, parent)
-{
-
-}
+QMLProductPusher::QMLProductPusher(DatabaseThread& thread, QObject* parent)
+    : AbstractPusher(thread, parent)
+{}
 
 bool QMLProductPusher::isExistingProduct() const
 {
@@ -39,7 +37,7 @@ QUrl QMLProductPusher::imageUrl() const
     return m_product.imageUrl;
 }
 
-void QMLProductPusher::setImageUrl(const QUrl &imageUrl)
+void QMLProductPusher::setImageUrl(const QUrl& imageUrl)
 {
     if (m_product.imageUrl == imageUrl)
         return;
@@ -53,7 +51,7 @@ QString QMLProductPusher::category() const
     return m_product.category.category;
 }
 
-void QMLProductPusher::setCategory(const QString &category)
+void QMLProductPusher::setCategory(const QString& category)
 {
     if (m_product.category.category == category)
         return;
@@ -67,7 +65,7 @@ QString QMLProductPusher::product() const
     return m_product.product;
 }
 
-void QMLProductPusher::setProduct(const QString &product)
+void QMLProductPusher::setProduct(const QString& product)
 {
     if (m_product.product == product)
         return;
@@ -81,7 +79,7 @@ QString QMLProductPusher::description() const
     return m_product.description;
 }
 
-void QMLProductPusher::setDescription(const QString &description)
+void QMLProductPusher::setDescription(const QString& description)
 {
     if (m_product.description == description)
         return;
@@ -109,7 +107,7 @@ QString QMLProductPusher::unit() const
     return m_product.unit.unit;
 }
 
-void QMLProductPusher::setUnit(const QString &unit)
+void QMLProductPusher::setUnit(const QString& unit)
 {
     if (m_product.unit.unit == unit)
         return;
@@ -123,7 +121,7 @@ QString QMLProductPusher::categoryNote() const
     return m_product.category.note.note;
 }
 
-void QMLProductPusher::setCategoryNote(const QString &note)
+void QMLProductPusher::setCategoryNote(const QString& note)
 {
     if (m_product.category.note.note == note)
         return;
@@ -137,7 +135,7 @@ QString QMLProductPusher::productNote() const
     return m_product.note.note;
 }
 
-void QMLProductPusher::setProductNote(const QString &note)
+void QMLProductPusher::setProductNote(const QString& note)
 {
     if (m_product.note.note == note)
         return;
@@ -202,7 +200,7 @@ void QMLProductPusher::setRetailPrice(double retailPrice)
     emit retailPriceChanged();
 }
 
-bool QMLProductPusher::canProcessResult(const QueryResult &result)
+bool QMLProductPusher::canProcessResult(const QueryResult& result)
 {
     Q_UNUSED(result)
     return true;
@@ -213,11 +211,9 @@ void QMLProductPusher::push()
     setBusy(true);
 
     if (isExistingProduct())
-        emit execute(new Query::Stock::UpdateProduct(m_product,
-                                                        this));
+        emit execute(new Query::Stock::UpdateProduct(m_product, this));
     else
-        emit execute(new Query::Stock::AddProduct(m_product,
-                                                 this));
+        emit execute(new Query::Stock::AddProduct(m_product, this));
 }
 
 void QMLProductPusher::processResult(const QueryResult result)
@@ -226,22 +222,22 @@ void QMLProductPusher::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == Query::Stock::AddProduct::COMMAND)
-            emit success(ModelResult{ AddProductSuccess });
-        else if (result.request().command() == Query::Stock::UpdateProduct::COMMAND)
-            emit success(ModelResult{ UpdateProductSuccess });
+            emit success(ModelResult{AddProductSuccess});
+        else if (result.request().command() ==
+                 Query::Stock::UpdateProduct::COMMAND)
+            emit success(ModelResult{UpdateProductSuccess});
     } else {
         switch (result.errorCode()) {
-        case static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException):
-            emit error(ModelResult{ DuplicateEntryError });
-            break;
-        case static_cast<int>(DatabaseError::QueryErrorCode::ImageTooLarge):
-            emit error(ModelResult{ ImageTooLargeError });
-            break;
-        default:
-            emit error();
-            break;
+            case static_cast<int>(
+                DatabaseError::MySqlErrorCode::UserDefinedException):
+                emit error(ModelResult{DuplicateEntryError});
+                break;
+            case static_cast<int>(DatabaseError::QueryErrorCode::ImageTooLarge):
+                emit error(ModelResult{ImageTooLargeError});
+                break;
+            default:
+                emit error();
+                break;
         }
     }
 }
-
-

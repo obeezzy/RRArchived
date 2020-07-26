@@ -8,33 +8,39 @@ class QMLExpenseReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         PurposeRole = Qt::UserRole,
         AmountRole
     };
 
-    enum Columns {
+    enum Columns
+    {
         PurposeColumn,
         AmountColumn,
         ColumnCount
-    }; Q_ENUM(Columns)
+    };
+    Q_ENUM(Columns)
 
-    explicit QMLExpenseReportModel(QObject *parent = nullptr);
-    explicit QMLExpenseReportModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLExpenseReportModel(QObject* parent = nullptr);
+    explicit QMLExpenseReportModel(DatabaseThread& thread,
+                                   QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &index = QModelIndex()) const override;
-    int columnCount(const QModelIndex &index = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& index = QModelIndex()) const override;
+    int columnCount(const QModelIndex& index = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section,
-                        Qt::Orientation orientation,
+    QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override final;
-    void processResult(const QueryResult &result) override final;
+    bool canProcessResult(const QueryResult& result) const override final;
+    void processResult(const QueryResult& result) override final;
+
 private:
     Utility::Expense::ExpenseReportTransactionList m_transactions;
 };
 
-#endif // EXPENSEREPORTMODEL_H
+#endif  // EXPENSEREPORTMODEL_H

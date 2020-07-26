@@ -1,9 +1,9 @@
-#include "qmlapi/stock/qmlproductpusher.h"
-#include "database/databaseexception.h"
-#include "mockdatabasethread.h"
+#include <QCoreApplication>
 #include <QString>
 #include <QtTest>
-#include <QCoreApplication>
+#include "database/databaseexception.h"
+#include "mockdatabasethread.h"
+#include "qmlapi/stock/qmlproductpusher.h"
 
 class QMLProductPusherTest : public QObject
 {
@@ -33,8 +33,8 @@ private slots:
     // void testPushSameCategoryProducts();
     // void testPushDifferentCategoryProducts();
 private:
-    QMLProductPusher *m_stockProductPusher;
-    MockDatabaseThread *m_thread;
+    QMLProductPusher* m_stockProductPusher;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLProductPusherTest::init()
@@ -51,7 +51,8 @@ void QMLProductPusherTest::cleanup()
 
 void QMLProductPusherTest::testSetCategory()
 {
-    QSignalSpy categoryChangedSpy(m_stockProductPusher, &QMLProductPusher::categoryChanged);
+    QSignalSpy categoryChangedSpy(m_stockProductPusher,
+                                  &QMLProductPusher::categoryChanged);
 
     QCOMPARE(m_stockProductPusher->category(), QString());
 
@@ -67,7 +68,8 @@ void QMLProductPusherTest::testSetCategory()
 
 void QMLProductPusherTest::testSetProduct()
 {
-    QSignalSpy productChangedSpy(m_stockProductPusher, &QMLProductPusher::productChanged);
+    QSignalSpy productChangedSpy(m_stockProductPusher,
+                                 &QMLProductPusher::productChanged);
 
     QCOMPARE(m_stockProductPusher->product(), QString());
 
@@ -83,7 +85,8 @@ void QMLProductPusherTest::testSetProduct()
 
 void QMLProductPusherTest::testSetDescription()
 {
-    QSignalSpy descriptionChangedSpy(m_stockProductPusher, &QMLProductPusher::descriptionChanged);
+    QSignalSpy descriptionChangedSpy(m_stockProductPusher,
+                                     &QMLProductPusher::descriptionChanged);
 
     QCOMPARE(m_stockProductPusher->description(), QString());
 
@@ -99,7 +102,8 @@ void QMLProductPusherTest::testSetDescription()
 
 void QMLProductPusherTest::testSetQuantity()
 {
-    QSignalSpy quantityChangedSpy(m_stockProductPusher, &QMLProductPusher::quantityChanged);
+    QSignalSpy quantityChangedSpy(m_stockProductPusher,
+                                  &QMLProductPusher::quantityChanged);
 
     QCOMPARE(m_stockProductPusher->quantity(), 0.0);
 
@@ -115,7 +119,8 @@ void QMLProductPusherTest::testSetQuantity()
 
 void QMLProductPusherTest::testSetUnit()
 {
-    QSignalSpy unitChangedSpy(m_stockProductPusher, &QMLProductPusher::unitChanged);
+    QSignalSpy unitChangedSpy(m_stockProductPusher,
+                              &QMLProductPusher::unitChanged);
 
     QCOMPARE(m_stockProductPusher->unit(), QString());
 
@@ -131,7 +136,8 @@ void QMLProductPusherTest::testSetUnit()
 
 void QMLProductPusherTest::testSetCategoryNote()
 {
-    QSignalSpy categoryNoteChangedSpy(m_stockProductPusher, &QMLProductPusher::categoryNoteChanged);
+    QSignalSpy categoryNoteChangedSpy(m_stockProductPusher,
+                                      &QMLProductPusher::categoryNoteChanged);
 
     QCOMPARE(m_stockProductPusher->categoryNote(), QString());
 
@@ -147,7 +153,8 @@ void QMLProductPusherTest::testSetCategoryNote()
 
 void QMLProductPusherTest::testSetProductNote()
 {
-    QSignalSpy productNoteChangedSpy(m_stockProductPusher, &QMLProductPusher::productNoteChanged);
+    QSignalSpy productNoteChangedSpy(m_stockProductPusher,
+                                     &QMLProductPusher::productNoteChanged);
 
     QCOMPARE(m_stockProductPusher->productNote(), QString());
 
@@ -163,7 +170,8 @@ void QMLProductPusherTest::testSetProductNote()
 
 void QMLProductPusherTest::testSetDivisible()
 {
-    QSignalSpy divisibleChangedSpy(m_stockProductPusher, &QMLProductPusher::divisibleChanged);
+    QSignalSpy divisibleChangedSpy(m_stockProductPusher,
+                                   &QMLProductPusher::divisibleChanged);
 
     QCOMPARE(m_stockProductPusher->isDivisible(), true);
 
@@ -179,7 +187,8 @@ void QMLProductPusherTest::testSetDivisible()
 
 void QMLProductPusherTest::testSetCostPrice()
 {
-    QSignalSpy costPriceChangedSpy(m_stockProductPusher, &QMLProductPusher::costPriceChanged);
+    QSignalSpy costPriceChangedSpy(m_stockProductPusher,
+                                   &QMLProductPusher::costPriceChanged);
 
     QCOMPARE(m_stockProductPusher->costPrice(), 0.0);
 
@@ -195,7 +204,8 @@ void QMLProductPusherTest::testSetCostPrice()
 
 void QMLProductPusherTest::testSetRetailPrice()
 {
-    QSignalSpy retailPriceChangedSpy(m_stockProductPusher, &QMLProductPusher::retailPriceChanged);
+    QSignalSpy retailPriceChangedSpy(m_stockProductPusher,
+                                     &QMLProductPusher::retailPriceChanged);
 
     QCOMPARE(m_stockProductPusher->retailPrice(), 0.0);
 
@@ -211,7 +221,8 @@ void QMLProductPusherTest::testSetRetailPrice()
 
 void QMLProductPusherTest::testSetTracked()
 {
-    QSignalSpy trackedChangedSpy(m_stockProductPusher, &QMLProductPusher::trackedChanged);
+    QSignalSpy trackedChangedSpy(m_stockProductPusher,
+                                 &QMLProductPusher::trackedChanged);
 
     QCOMPARE(m_stockProductPusher->isTracked(), true);
 
@@ -227,7 +238,8 @@ void QMLProductPusherTest::testSetTracked()
 
 void QMLProductPusherTest::testSetImageSource()
 {
-    QSignalSpy imageUrlChangedSpy(m_stockProductPusher, &QMLProductPusher::imageUrlChanged);
+    QSignalSpy imageUrlChangedSpy(m_stockProductPusher,
+                                  &QMLProductPusher::imageUrlChanged);
 
     QCOMPARE(m_stockProductPusher->imageUrl(), QUrl());
 
@@ -246,7 +258,8 @@ void QMLProductPusherTest::testPushNewProduct()
     auto databaseWillReturnEmptyResult = [this]() {
         m_thread->result().setSuccessful(true);
     };
-    QSignalSpy busyChangedSpy(m_stockProductPusher, &QMLProductPusher::busyChanged);
+    QSignalSpy busyChangedSpy(m_stockProductPusher,
+                              &QMLProductPusher::busyChanged);
     QSignalSpy successSpy(m_stockProductPusher, &QMLProductPusher::success);
 
     m_stockProductPusher->setCategory(QStringLiteral("Category"));
@@ -266,7 +279,7 @@ void QMLProductPusherTest::testPushNewProduct()
 
     m_stockProductPusher->push();
 
-    QCOMPARE(busyChangedSpy.count(), 2); // busy must be true, then false
+    QCOMPARE(busyChangedSpy.count(), 2);  // busy must be true, then false
     QCOMPARE(successSpy.count(), 1);
 }
 
@@ -277,9 +290,11 @@ void QMLProductPusherTest::testPushSameProduct()
     };
     auto databaseWillReturnDuplicateEntryError = [this]() {
         m_thread->result().setSuccessful(false);
-        m_thread->result().setErrorCode(static_cast<int>(DatabaseError::MySqlErrorCode::UserDefinedException));
+        m_thread->result().setErrorCode(static_cast<int>(
+            DatabaseError::MySqlErrorCode::UserDefinedException));
     };
-    QSignalSpy busyChangedSpy(m_stockProductPusher, &QMLProductPusher::busyChanged);
+    QSignalSpy busyChangedSpy(m_stockProductPusher,
+                              &QMLProductPusher::busyChanged);
     QSignalSpy errorSpy(m_stockProductPusher, &QMLProductPusher::error);
     QSignalSpy successSpy(m_stockProductPusher, &QMLProductPusher::success);
 
@@ -300,7 +315,8 @@ void QMLProductPusherTest::testPushSameProduct()
     QCOMPARE(successSpy.count(), 0);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(), QMLProductPusher::DuplicateEntryError);
+    QCOMPARE(errorSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLProductPusher::DuplicateEntryError);
     errorSpy.clear();
 }
 
@@ -309,7 +325,8 @@ void QMLProductPusherTest::testPushUpdatedProduct()
     auto databaseWillReturnEmptyResult = [this]() {
         m_thread->result().setSuccessful(true);
     };
-    QSignalSpy busyChangedSpy(m_stockProductPusher, &QMLProductPusher::busyChanged);
+    QSignalSpy busyChangedSpy(m_stockProductPusher,
+                              &QMLProductPusher::busyChanged);
     QSignalSpy errorSpy(m_stockProductPusher, &QMLProductPusher::error);
     QSignalSpy successSpy(m_stockProductPusher, &QMLProductPusher::success);
 
@@ -337,7 +354,8 @@ void QMLProductPusherTest::testPushUpdatedProduct()
     QCOMPARE(busyChangedSpy.count(), 2);
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLProductPusher::AddProductSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLProductPusher::AddProductSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     errorSpy.clear();
@@ -359,10 +377,11 @@ void QMLProductPusherTest::testPushUpdatedProduct()
     m_stockProductPusher->setImageUrl(QUrl("Image source2"));
     m_stockProductPusher->push();
     QCOMPARE(errorSpy.count(), 0);
-    QCOMPARE(busyChangedSpy.count(), 2); // "busy" must be true, then false
+    QCOMPARE(busyChangedSpy.count(), 2);  // "busy" must be true, then false
     busyChangedSpy.clear();
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLProductPusher::UpdateProductSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLProductPusher::UpdateProductSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
     errorSpy.clear();

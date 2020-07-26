@@ -1,11 +1,7 @@
 #include "dialogs.h"
 #include <QPrintDialog>
 
-Dialogs::Dialogs(QObject *parent) :
-    QObject(parent)
-{
-
-}
+Dialogs::Dialogs(QObject* parent) : QObject(parent) {}
 
 void Dialogs::showPrintDialog()
 {

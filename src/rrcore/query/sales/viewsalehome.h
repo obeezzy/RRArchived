@@ -11,13 +11,14 @@ class ViewSaleHome : public SaleExecutor
 public:
     static inline const QString COMMAND = QStringLiteral("view_sale_home");
 
-    explicit ViewSaleHome(QObject *receiver);
+    explicit ViewSaleHome(QObject* receiver);
     QueryResult execute() override;
-private:
-    void fetchTotalRevenue(QVariantList &homeRecords);
-    void fetchMostSoldProducts(QVariantList &homeRecords);
-};
-}
-}
 
-#endif // VIEWSALEHOME_H
+private:
+    void fetchTotalRevenue(QVariantList& homeRecords);
+    void fetchMostSoldProducts(QVariantList& homeRecords);
+};
+}  // namespace Sales
+}  // namespace Query
+
+#endif  // VIEWSALEHOME_H

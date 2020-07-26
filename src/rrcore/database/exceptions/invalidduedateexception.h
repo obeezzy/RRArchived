@@ -10,4 +10,4 @@ public:
     QString toString() const override;
 };
 
-#endif // INVALIDDUEDATEEXCEPTION_H
+#endif  // INVALIDDUEDATEEXCEPTION_H

@@ -2,13 +2,9 @@
 
 const QString CONFIG_FILE(":/config/config.ini");
 
-Config::Config() :
-    m_settings(CONFIG_FILE, QSettings::IniFormat)
-{
+Config::Config() : m_settings(CONFIG_FILE, QSettings::IniFormat) {}
 
-}
-
-Config &Config::instance()
+Config& Config::instance()
 {
     static Config instance;
     return instance;
@@ -17,7 +13,7 @@ Config &Config::instance()
 QString Config::hostName()
 {
     m_settings.beginGroup("Database");
-    const QString &hostName = m_settings.value("host").toString();
+    const QString& hostName = m_settings.value("host").toString();
     m_settings.endGroup();
 
     return hostName;
@@ -35,7 +31,7 @@ int Config::port()
 QString Config::userName()
 {
     m_settings.beginGroup("Database");
-    const QString &userName = m_settings.value("user").toString();
+    const QString& userName = m_settings.value("user").toString();
     m_settings.endGroup();
 
     return userName;
@@ -44,7 +40,7 @@ QString Config::userName()
 QString Config::password()
 {
     m_settings.beginGroup("Database");
-    const QString &password = m_settings.value("password").toString();
+    const QString& password = m_settings.value("password").toString();
     m_settings.endGroup();
 
     return password;
@@ -53,7 +49,7 @@ QString Config::password()
 QString Config::databaseName()
 {
     m_settings.beginGroup("Database");
-    const QString &databaseName = m_settings.value("database").toString();
+    const QString& databaseName = m_settings.value("database").toString();
     m_settings.endGroup();
 
     return databaseName;

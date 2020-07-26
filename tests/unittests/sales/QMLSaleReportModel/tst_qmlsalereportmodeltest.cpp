@@ -1,7 +1,7 @@
-#include "qmlapi/sales/qmlsalereportmodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/sales/qmlsalereportmodel.h"
 
 class QMLSaleReportModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLSaleReportModel *m_saleReportModel;
-    MockDatabaseThread *m_thread;
+    QMLSaleReportModel* m_saleReportModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLSaleReportModelTest::init()
@@ -29,9 +30,9 @@ void QMLSaleReportModelTest::cleanup()
 
 void QMLSaleReportModelTest::testModel()
 {
-    QAbstractItemModelTester(m_saleReportModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_saleReportModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLSaleReportModelTest)

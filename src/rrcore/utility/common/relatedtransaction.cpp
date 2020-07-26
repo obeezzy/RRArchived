@@ -3,13 +3,10 @@
 
 using namespace Utility;
 
-RelatedTransaction::RelatedTransaction(int id,
-                                       const QString &tableName) :
-        id(id),
-        tableName(tableName)
-{
-
-}
+RelatedTransaction::RelatedTransaction(int id, const QString& tableName)
+    : id(id),
+      tableName(tableName)
+{}
 
 QString RelatedTransaction::toString() const
 {

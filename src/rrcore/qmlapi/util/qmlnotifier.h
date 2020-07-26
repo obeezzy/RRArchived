@@ -1,9 +1,9 @@
 #ifndef QMLNOTIFIER_H
 #define QMLNOTIFIER_H
 
+#include <QLoggingCategory>
 #include <QObject>
 #include <QUrl>
-#include <QLoggingCategory>
 #include "network/serverresponse.h"
 
 class QQmlEngine;
@@ -19,42 +19,59 @@ class QMLNotifier : public QObject
 {
     Q_OBJECT
 public:
-    enum class Urgency {
+    enum class Urgency
+    {
         LowPriority,
         NormalPriority,
         HighPriority
-    }; Q_ENUM(Urgency)
+    };
+    Q_ENUM(Urgency)
 
-    enum class Category {
+    enum class Category
+    {
         Stock,
         Sales
-    }; Q_ENUM(Category)
+    };
+    Q_ENUM(Category)
 
-    enum class Duration {
+    enum class Duration
+    {
         Short,
         Long
-    }; Q_ENUM(Duration)
+    };
+    Q_ENUM(Duration)
 
-    explicit QMLNotifier(QObject *parent = nullptr);
+    explicit QMLNotifier(QObject* parent = nullptr);
 
-    Q_INVOKABLE void show(Category category, const QString &title, const QString &message,
-                          Urgency urgency = Urgency::NormalPriority, Duration duration = Duration::Short);
+    Q_INVOKABLE void show(Category category, const QString& title,
+                          const QString& message,
+                          Urgency urgency = Urgency::NormalPriority,
+                          Duration duration = Duration::Short);
+
 private:
-    void displayNotificationOnWindows(QMLNotifier::Category category, const QString &title,
-                                      const QString &message, QMLNotifier::Urgency urgency,
-                                      QMLNotifier::Duration duration, const QUrl &iconUrl, const QString &appName);
-    void displayNotificationOnLinux(Category category, const QString &title, const QString &message,
-                                    Urgency urgency = Urgency::NormalPriority, Duration duration = Duration::Short,
-                                    const QUrl &iconUrl = QUrl(), const QString &appName = QString());
+    void displayNotificationOnWindows(QMLNotifier::Category category,
+                                      const QString& title,
+                                      const QString& message,
+                                      QMLNotifier::Urgency urgency,
+                                      QMLNotifier::Duration duration,
+                                      const QUrl& iconUrl,
+                                      const QString& appName);
+    void displayNotificationOnLinux(Category category, const QString& title,
+                                    const QString& message,
+                                    Urgency urgency = Urgency::NormalPriority,
+                                    Duration duration = Duration::Short,
+                                    const QUrl& iconUrl = QUrl(),
+                                    const QString& appName = QString());
 
     void displayServerStatus(const ServerResponse response);
 };
 
-static QObject *notifier_provider (QQmlEngine *, QJSEngine *) {
-    QMLNotifier *notifier = new QMLNotifier();
+static QObject* notifier_provider(QQmlEngine*, QJSEngine*)
+{
+    QMLNotifier* notifier = new QMLNotifier();
     return notifier;
 }
 
 Q_DECLARE_LOGGING_CATEGORY(qmlNotifier);
 
-#endif // QMLNOTIFIER_H
+#endif  // QMLNOTIFIER_H

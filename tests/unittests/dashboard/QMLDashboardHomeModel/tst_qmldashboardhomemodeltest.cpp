@@ -1,7 +1,7 @@
-#include "qmlapi/dashboard/qmldashboardhomemodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/dashboard/qmldashboardhomemodel.h"
 
 class QMLDashboardHomeModelTest : public QObject
 {
@@ -12,8 +12,8 @@ private slots:
     void testModel();
 
 private:
-    QMLDashboardHomeModel *m_dashboardHomeModel;
-    MockDatabaseThread *m_thread;
+    QMLDashboardHomeModel* m_dashboardHomeModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLDashboardHomeModelTest::init()
@@ -30,9 +30,9 @@ void QMLDashboardHomeModelTest::cleanup()
 
 void QMLDashboardHomeModelTest::testModel()
 {
-    QAbstractItemModelTester(m_dashboardHomeModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_dashboardHomeModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLDashboardHomeModelTest)

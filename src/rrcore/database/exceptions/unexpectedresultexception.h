@@ -6,8 +6,8 @@
 class UnexpectedResultException : public DatabaseException
 {
 public:
-    explicit UnexpectedResultException(const QString &message);
+    explicit UnexpectedResultException(const QString& message);
     QString toString() const override;
 };
 
-#endif // UNEXPECTEDRESULTEXCEPTION_H
+#endif  // UNEXPECTEDRESULTEXCEPTION_H

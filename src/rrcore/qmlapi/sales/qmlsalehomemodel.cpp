@@ -1,18 +1,18 @@
 #include "qmlsalehomemodel.h"
+#include "database/databasethread.h"
 #include "database/queryrequest.h"
 #include "database/queryresult.h"
-#include "database/databasethread.h"
 #include "query/sales/viewsalehome.h"
 
-QMLSaleHomeModel::QMLSaleHomeModel(QObject *parent) :
-    QMLSaleHomeModel(DatabaseThread::instance(), parent)
+QMLSaleHomeModel::QMLSaleHomeModel(QObject* parent)
+    : QMLSaleHomeModel(DatabaseThread::instance(), parent)
 {}
 
-QMLSaleHomeModel::QMLSaleHomeModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent)
+QMLSaleHomeModel::QMLSaleHomeModel(DatabaseThread& thread, QObject* parent)
+    : AbstractVisualListModel(thread, parent)
 {}
 
-int QMLSaleHomeModel::rowCount(const QModelIndex &parent) const
+int QMLSaleHomeModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -20,16 +20,19 @@ int QMLSaleHomeModel::rowCount(const QModelIndex &parent) const
     return m_records.count();
 }
 
-QVariant QMLSaleHomeModel::data(const QModelIndex &index, int role) const
+QVariant QMLSaleHomeModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case DataTypeRole:
-        return m_records.at(index.row()).toMap().value("data_type").toString();
-    case DataModelRole:
-        return QVariant::fromValue<QObject *>(m_dataModels.at(index.row()));
+        case DataTypeRole:
+            return m_records.at(index.row())
+                .toMap()
+                .value("data_type")
+                .toString();
+        case DataModelRole:
+            return QVariant::fromValue<QObject*>(m_dataModels.at(index.row()));
     }
 
     return QVariant();
@@ -44,20 +47,19 @@ QHash<int, QByteArray> QMLSaleHomeModel::roleNames() const
     return roles;
 }
 
-
 void QMLSaleHomeModel::tryQuery()
 {
     setBusy(true);
     emit execute(new Query::Sales::ViewSaleHome(this));
 }
 
-bool QMLSaleHomeModel::canProcessResult(const QueryResult &result) const
+bool QMLSaleHomeModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLSaleHomeModel::processResult(const QueryResult &result)
+void QMLSaleHomeModel::processResult(const QueryResult& result)
 {
     setBusy(false);
 
@@ -68,12 +70,13 @@ void QMLSaleHomeModel::processResult(const QueryResult &result)
 
         m_records = result.outcome().toMap().value("records").toList();
 
-        for (const QVariant &r : m_records) {
+        for (const QVariant& r : m_records) {
             const QVariantMap record = r.toMap();
 
             if (record.value("data_type").toString() == "total_revenue") {
                 // Missing implementation
-            } else if (record.value("data_type").toString() == "most_sold_products") {
+            } else if (record.value("data_type").toString() ==
+                       "most_sold_products") {
                 // Missing implementation
             }
         }

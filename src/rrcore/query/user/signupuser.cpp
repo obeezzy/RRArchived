@@ -1,33 +1,28 @@
 #include "signupuser.h"
-#include "database/exceptions/exceptions.h"
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 #include "config/config.h"
 #include "database/databaseerror.h"
-#include "database/queryrequest.h"
 #include "database/databaseexception.h"
+#include "database/exceptions/exceptions.h"
+#include "database/queryrequest.h"
 #include "utility/user/user.h"
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
 
 using namespace Query::User;
 
-SignUpUser::SignUpUser(const Utility::User::User &user,
-                       QObject *receiver) :
-    UserExecutor(COMMAND, {
-                    { "user", user.user },
-                    { "password", user.password }
-                }, receiver)
-{
-
-}
+SignUpUser::SignUpUser(const Utility::User::User& user, QObject* receiver)
+    : UserExecutor(COMMAND, {{"user", user.user}, {"password", user.password}},
+                   receiver)
+{}
 
 QueryResult SignUpUser::execute()
 {
-    QueryResult result{ request() };
+    QueryResult result{request()};
     result.setSuccessful(true);
 
-    const QVariantMap &params{ request().params() };
-    const QString &userName = params.value("user").toString();
+    const QVariantMap& params{request().params()};
+    const QString& userName = params.value("user").toString();
 
     QSqlDatabase connection;
     connectToDatabase(connection);
@@ -42,16 +37,16 @@ QueryResult SignUpUser::execute()
 
         QueryExecutor::commitTransaction(q);
         return result;
-    } catch (const DatabaseException &) {
+    } catch (const DatabaseException&) {
         QueryExecutor::rollbackTransaction(q);
         throw;
     }
 }
 
-void SignUpUser::connectToDatabase(QSqlDatabase &connection)
+void SignUpUser::connectToDatabase(QSqlDatabase& connection)
 {
-    const QString &userName = request().params().value("user_name").toString();
-    const QString &password = request().params().value("password").toString();
+    const QString& userName = request().params().value("user_name").toString();
+    const QString& password = request().params().value("password").toString();
 
     if (connection.isOpen())
         connection.close();
@@ -69,29 +64,30 @@ void SignUpUser::connectToDatabase(QSqlDatabase &connection)
     connection.setConnectOptions();
 
     if (!connection.open())
-        throw ConnectionFailedException(QStringLiteral("Failed to open connection."),
-                                        connection.lastError());
+        throw ConnectionFailedException(
+            QStringLiteral("Failed to open connection."),
+            connection.lastError());
 }
 
-void SignUpUser::addSqlUser(QSqlQuery &q)
+void SignUpUser::addSqlUser(QSqlQuery& q)
 {
-    const QString &userName = request().params().value("user_name").toString();
-    const QString &password = request().params().value("password").toString();
+    const QString& userName = request().params().value("user_name").toString();
+    const QString& password = request().params().value("password").toString();
 
     q.prepare("FLUSH PRIVILEGES");
     if (!q.exec())
-        throw SqlStatementFailedException(QStringLiteral("Failed to flush privileges for '%1'.")
-                                          .arg(userName),
-                                          q.lastError().text());
+        throw SqlStatementFailedException(
+            QStringLiteral("Failed to flush privileges for '%1'.")
+                .arg(userName),
+            q.lastError().text());
 
     q.prepare("CREATE USER :username @'localhost' IDENTIFIED BY :password");
     q.bindValue(":username", userName);
     q.bindValue(":password", password);
     if (!q.exec())
-        throw SqlStatementFailedException(QStringLiteral("Failed to create user '%1'.")
-                                          .arg(userName),
-                                          q.lastError().text());
-
+        throw SqlStatementFailedException(
+            QStringLiteral("Failed to create user '%1'.").arg(userName),
+            q.lastError().text());
 
     UserExecutor::grantPrivilege("SELECT", userName, q);
     UserExecutor::grantPrivilege("INSERT", userName, q);
@@ -100,7 +96,8 @@ void SignUpUser::addSqlUser(QSqlQuery &q)
 
     q.prepare("FLUSH PRIVILEGES");
     if (!q.exec())
-        throw SqlStatementFailedException(QStringLiteral("Failed to flush privileges for '%1'.")
-                                          .arg(userName),
-                                          q.lastError().text());
+        throw SqlStatementFailedException(
+            QStringLiteral("Failed to flush privileges for '%1'.")
+                .arg(userName),
+            q.lastError().text());
 }

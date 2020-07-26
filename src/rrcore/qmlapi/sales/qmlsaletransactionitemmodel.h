@@ -8,7 +8,8 @@ class QMLSaleTransactionItemModel : public AbstractTransactionItemModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         CategoryIdRole = Qt::UserRole,
         CategoryRole,
         ProductIdRole,
@@ -30,32 +31,39 @@ public:
         UserRole
     };
 
-    enum Columns {
+    enum Columns
+    {
         CategoryColumn,
         ProductColumn,
         QuantityColumn,
         UnitPriceColumn,
         CostColumn,
         ColumnCount
-    }; Q_ENUM(Columns)
+    };
+    Q_ENUM(Columns)
 
-    explicit QMLSaleTransactionItemModel(QObject *parent = nullptr);
-    explicit QMLSaleTransactionItemModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLSaleTransactionItemModel(QObject* parent = nullptr);
+    explicit QMLSaleTransactionItemModel(DatabaseThread& thread,
+                                         QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override final;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
+    int rowCount(
+        const QModelIndex& parent = QModelIndex()) const override final;
+    int columnCount(
+        const QModelIndex& parent = QModelIndex()) const override final;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
-    QVariant headerData(int section,
-                        Qt::Orientation orientation,
+    QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
 protected:
     void tryQuery() override final;
-    bool canProcessResult(const QueryResult &result) const override final;
-    void processResult(const QueryResult &result) override final;
+    bool canProcessResult(const QueryResult& result) const override final;
+    void processResult(const QueryResult& result) override final;
     QString columnName(int column) const override;
+
 private:
     Utility::Sales::SoldProductList m_products;
 };
 
-#endif // QMLSALETRANSACTIONITEMMODEL_H
+#endif  // QMLSALETRANSACTIONITEMMODEL_H

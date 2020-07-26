@@ -3,15 +3,13 @@
 
 using namespace Query::User;
 
-SignOutUser::SignOutUser(QObject *receiver) :
-    UserExecutor(COMMAND, { }, receiver)
-{
-
-}
+SignOutUser::SignOutUser(QObject* receiver)
+    : UserExecutor(COMMAND, {}, receiver)
+{}
 
 QueryResult SignOutUser::execute()
 {
-    QueryResult result{ request() };
+    QueryResult result{request()};
     result.setSuccessful(true);
 
     QSqlDatabase connection = QSqlDatabase::database(connectionName());

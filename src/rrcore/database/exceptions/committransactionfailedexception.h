@@ -6,8 +6,8 @@
 class CommitTransactionFailedException : public DatabaseException
 {
 public:
-    explicit CommitTransactionFailedException(const QSqlError &error);
+    explicit CommitTransactionFailedException(const QSqlError& error);
     QString toString() const override;
 };
 
-#endif // COMMITTRANSACTIONFAILEDEXCEPTION_H
+#endif  // COMMITTRANSACTIONFAILEDEXCEPTION_H

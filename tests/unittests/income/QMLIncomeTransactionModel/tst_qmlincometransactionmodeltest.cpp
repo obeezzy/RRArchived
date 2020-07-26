@@ -1,7 +1,7 @@
+#include <QCoreApplication>
+#include <QtTest>
 #include "mockdatabasethread.h"
 #include "qmlapi/income/qmlincometransactionmodel.h"
-#include <QtTest>
-#include <QCoreApplication>
 
 class QMLIncomeTransactionModelTest : public QObject
 {
@@ -12,9 +12,10 @@ private slots:
 
     void testViewIncomeTransactions();
     void testError();
+
 private:
-    QMLIncomeTransactionModel *m_incomeTransactionModel;
-    MockDatabaseThread *m_thread;
+    QMLIncomeTransactionModel* m_incomeTransactionModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLIncomeTransactionModelTest::init()
@@ -31,30 +32,29 @@ void QMLIncomeTransactionModelTest::cleanup()
 
 void QMLIncomeTransactionModelTest::testViewIncomeTransactions()
 {
-    const QVariantList transactions {
-        QVariantMap {
-            { "client_id", 1 },
-            { "preferred_name", QStringLiteral("Ama Mosieri") },
-            { "purpose", QStringLiteral("Dodger tickets") },
-            { "amount", 420.00 },
-            { "payment_method", "cash" }
-        },
-        QVariantMap {
-            { "client_id", 2 },
-            { "preferred_name", QStringLiteral("Bob Martin") },
-            { "purpose", QStringLiteral("Clean code and TDD!") },
-            { "amount", 420.00 },
-            { "payment_method", "cash" }
-        }
-    };
+    const QVariantList transactions{
+        QVariantMap{{"client_id", 1},
+                    {"preferred_name", QStringLiteral("Ama Mosieri")},
+                    {"purpose", QStringLiteral("Dodger tickets")},
+                    {"amount", 420.00},
+                    {"payment_method", "cash"}},
+        QVariantMap{{"client_id", 2},
+                    {"preferred_name", QStringLiteral("Bob Martin")},
+                    {"purpose", QStringLiteral("Clean code and TDD!")},
+                    {"amount", 420.00},
+                    {"payment_method", "cash"}}};
 
-    auto databaseWillReturn = [this](const QVariantList &transactions) {
+    auto databaseWillReturn = [this](const QVariantList& transactions) {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariantMap { { "transactions", transactions } });
+        m_thread->result().setOutcome(
+            QVariantMap{{"transactions", transactions}});
     };
-    QSignalSpy successSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::success);
-    QSignalSpy errorSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::error);
-    QSignalSpy busyChangedSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::busyChanged);
+    QSignalSpy successSpy(m_incomeTransactionModel,
+                          &QMLIncomeTransactionModel::success);
+    QSignalSpy errorSpy(m_incomeTransactionModel,
+                        &QMLIncomeTransactionModel::error);
+    QSignalSpy busyChangedSpy(m_incomeTransactionModel,
+                              &QMLIncomeTransactionModel::busyChanged);
 
     QCOMPARE(m_incomeTransactionModel->rowCount(), 0);
 
@@ -66,17 +66,28 @@ void QMLIncomeTransactionModelTest::testViewIncomeTransactions()
     QCOMPARE(busyChangedSpy.count(), 2);
 
     QCOMPARE(m_incomeTransactionModel->rowCount(), 2);
-    QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, QMLIncomeTransactionModel::TransactionIdColumn),
-                                             QMLIncomeTransactionModel::TransactionIdRole).toInt(),
+    QCOMPARE(m_incomeTransactionModel
+                 ->data(m_incomeTransactionModel->index(
+                            0, QMLIncomeTransactionModel::TransactionIdColumn),
+                        QMLIncomeTransactionModel::TransactionIdRole)
+                 .toInt(),
              transactions[0].toMap()["income_transaction_id"].toInt());
-    QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, 0),
-                                             QMLIncomeTransactionModel::ClientIdRole).toInt(),
+    QCOMPARE(m_incomeTransactionModel
+                 ->data(m_incomeTransactionModel->index(0, 0),
+                        QMLIncomeTransactionModel::ClientIdRole)
+                 .toInt(),
              transactions[0].toMap()["client_id"].toInt());
-    QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, QMLIncomeTransactionModel::ClientNameColumn),
-                                             QMLIncomeTransactionModel::ClientNameRole).toInt(),
+    QCOMPARE(m_incomeTransactionModel
+                 ->data(m_incomeTransactionModel->index(
+                            0, QMLIncomeTransactionModel::ClientNameColumn),
+                        QMLIncomeTransactionModel::ClientNameRole)
+                 .toInt(),
              transactions[0].toMap()["preferred_name"].toInt());
-    QCOMPARE(m_incomeTransactionModel->data(m_incomeTransactionModel->index(0, QMLIncomeTransactionModel::AmountColumn),
-                                             QMLIncomeTransactionModel::AmountRole).toInt(),
+    QCOMPARE(m_incomeTransactionModel
+                 ->data(m_incomeTransactionModel->index(
+                            0, QMLIncomeTransactionModel::AmountColumn),
+                        QMLIncomeTransactionModel::AmountRole)
+                 .toInt(),
              transactions[0].toMap()["amount"].toInt());
 }
 
@@ -85,9 +96,12 @@ void QMLIncomeTransactionModelTest::testError()
     auto databaseWillReturnError = [this]() {
         m_thread->result().setSuccessful(false);
     };
-    QSignalSpy successSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::success);
-    QSignalSpy errorSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::error);
-    QSignalSpy busyChangedSpy(m_incomeTransactionModel, &QMLIncomeTransactionModel::busyChanged);
+    QSignalSpy successSpy(m_incomeTransactionModel,
+                          &QMLIncomeTransactionModel::success);
+    QSignalSpy errorSpy(m_incomeTransactionModel,
+                        &QMLIncomeTransactionModel::error);
+    QSignalSpy busyChangedSpy(m_incomeTransactionModel,
+                              &QMLIncomeTransactionModel::busyChanged);
 
     QCOMPARE(m_incomeTransactionModel->rowCount(), 0);
 

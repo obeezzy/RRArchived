@@ -6,8 +6,9 @@
 class UserPreviouslyArchivedException : public DatabaseException
 {
 public:
-    explicit UserPreviouslyArchivedException(const QString &message = QString());
+    explicit UserPreviouslyArchivedException(
+        const QString& message = QString());
     QString toString() const override;
 };
 
-#endif // USERPREVIOUSLYARCHIVEDEXCEPTION_H
+#endif  // USERPREVIOUSLYARCHIVEDEXCEPTION_H

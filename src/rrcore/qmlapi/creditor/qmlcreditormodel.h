@@ -7,19 +7,24 @@ class QMLCreditorModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
-    enum SuccessCode {
+    enum SuccessCode
+    {
         UnknownSuccess,
         ViewCreditorsSuccess,
         UndoRemoveCreditorSuccess,
         RemoveCreditorSuccess
-    }; Q_ENUM(SuccessCode)
+    };
+    Q_ENUM(SuccessCode)
 
-    enum ErrorCode {
+    enum ErrorCode
+    {
         UnknownError,
         InvalidCreditorError
-    }; Q_ENUM(ErrorCode)
+    };
+    Q_ENUM(ErrorCode)
 
-    enum Roles {
+    enum Roles
+    {
         ClientIdRole = Qt::UserRole,
         CreditorIdRole,
         ImageSourceRole,
@@ -31,20 +36,26 @@ public:
         UserRole
     };
 
-    enum FilterColumn {
-        PreferredNameColumn, TotalCreditColumn
-    }; Q_ENUM(FilterColumn)
+    enum FilterColumn
+    {
+        PreferredNameColumn,
+        TotalCreditColumn
+    };
+    Q_ENUM(FilterColumn)
 
-    explicit QMLCreditorModel(QObject *parent = nullptr);
-    explicit QMLCreditorModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLCreditorModel(QObject* parent = nullptr);
+    explicit QMLCreditorModel(DatabaseThread& thread,
+                              QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override;
-    void processResult(const QueryResult &result) override;
+    bool canProcessResult(const QueryResult& result) const override;
+    void processResult(const QueryResult& result) override;
 };
 
-#endif // QMLCREDITORMODEL_H
+#endif  // QMLCREDITORMODEL_H

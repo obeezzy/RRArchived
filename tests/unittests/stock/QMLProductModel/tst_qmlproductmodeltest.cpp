@@ -1,7 +1,7 @@
-#include "qmlapi/stock/qmlproductmodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/stock/qmlproductmodel.h"
 
 class QMLProductModelTest : public QObject
 {
@@ -16,9 +16,10 @@ private slots:
     void testRemoveProduct();
     void testUndoRemoveProduct();
     void testFilterProduct();
+
 private:
-    QMLProductModel *m_productModel;
-    MockDatabaseThread *m_thread;
+    QMLProductModel* m_productModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLProductModelTest::init()
@@ -35,55 +36,46 @@ void QMLProductModelTest::cleanup()
 
 void QMLProductModelTest::testModel()
 {
-    QAbstractItemModelTester(m_productModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_productModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+        this);
 }
 
 void QMLProductModelTest::testViewProducts()
 {
-    const QVariantMap product1 {
-        { "category_id", 1 },
-        { "category", "Category1" },
-        { "product_id", 1 },
-        { "product", "Product1" },
-        { "description", "Description1" },
-        { "quantity", 1.0 },
-        { "unit_id", 1 },
-        { "unit", "Unit1" },
-        { "cost_price", 11.0 },
-        { "retail_price", 10.0 },
-        { "unit_price", 13.0 },
-        { "available_quantity", 10.0 }
-    };
+    const QVariantMap product1{{"category_id", 1},
+                               {"category", "Category1"},
+                               {"product_id", 1},
+                               {"product", "Product1"},
+                               {"description", "Description1"},
+                               {"quantity", 1.0},
+                               {"unit_id", 1},
+                               {"unit", "Unit1"},
+                               {"cost_price", 11.0},
+                               {"retail_price", 10.0},
+                               {"unit_price", 13.0},
+                               {"available_quantity", 10.0}};
 
-    const QVariantMap product2 {
-        { "category_id", 1 },
-        { "category", "Category1" },
-        { "product_id", 2 },
-        { "product", "Product2" },
-        { "description", "Description2" },
-        { "quantity", 1.0 },
-        { "unit_id", 2 },
-        { "unit", "Unit2" },
-        { "cost_price", 11.0 },
-        { "retail_price", 10.0 },
-        { "unit_price", 13.0 },
-        { "available_quantity", 10.0 }
-    };
+    const QVariantMap product2{{"category_id", 1},
+                               {"category", "Category1"},
+                               {"product_id", 2},
+                               {"product", "Product2"},
+                               {"description", "Description2"},
+                               {"quantity", 1.0},
+                               {"unit_id", 2},
+                               {"unit", "Unit2"},
+                               {"cost_price", 11.0},
+                               {"retail_price", 10.0},
+                               {"unit_price", 13.0},
+                               {"available_quantity", 10.0}};
 
-    const QVariantList products {
-        product1,
-        product2
-    };
+    const QVariantList products{product1, product2};
 
-    auto databaseWillReturn = [this](const QVariantList &products) {
+    auto databaseWillReturn = [this](const QVariantList& products) {
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariant());
-        m_thread->result().setOutcome(QVariantMap {
-                                { "products", products },
-                                { "record_count", products.count() }
-                            });
+        m_thread->result().setOutcome(QVariantMap{
+            {"products", products}, {"record_count", products.count()}});
     };
     QSignalSpy successSpy(m_productModel, &QMLProductModel::success);
     QSignalSpy busyChangedSpy(m_productModel, &QMLProductModel::busyChanged);
@@ -95,39 +87,80 @@ void QMLProductModelTest::testViewProducts()
     m_productModel->setCategoryId(1);
     QCOMPARE(busyChangedSpy.count(), 2);
     QCOMPARE(successSpy.count(), 1);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLProductModel::ViewProductsSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLProductModel::ViewProductsSuccess);
     successSpy.clear();
 
     QCOMPARE(m_productModel->rowCount(), 2);
     QCOMPARE(products.count(), 2);
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::CategoryRole).toString(),
-             products.at(0).toMap()["product_category"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::ProductRole).toString(),
-             products.at(0).toMap()["product"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::DescriptionRole).toString(),
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(0, 0), QMLProductModel::CategoryRole)
+            .toString(),
+        products.at(0).toMap()["product_category"].toString());
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(0, 0), QMLProductModel::ProductRole)
+            .toString(),
+        products.at(0).toMap()["product"].toString());
+    QCOMPARE(m_productModel
+                 ->data(m_productModel->index(0, 0),
+                        QMLProductModel::DescriptionRole)
+                 .toString(),
              products.at(0).toMap()["description"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::QuantityRole).toDouble(),
-             products.at(0).toMap()["quantity"].toDouble());
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::UnitRole).toString(),
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(0, 0), QMLProductModel::QuantityRole)
+            .toDouble(),
+        products.at(0).toMap()["quantity"].toDouble());
+    QCOMPARE(m_productModel
+                 ->data(m_productModel->index(0, 0), QMLProductModel::UnitRole)
+                 .toString(),
              products.at(0).toMap()["product_unit"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::CostPriceRole).toDouble(),
-             products.at(0).toMap()["cost_price"].toDouble());
-    QCOMPARE(m_productModel->data(m_productModel->index(0, 0), QMLProductModel::RetailPriceRole).toDouble(),
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(0, 0), QMLProductModel::CostPriceRole)
+            .toDouble(),
+        products.at(0).toMap()["cost_price"].toDouble());
+    QCOMPARE(m_productModel
+                 ->data(m_productModel->index(0, 0),
+                        QMLProductModel::RetailPriceRole)
+                 .toDouble(),
              products.at(0).toMap()["retail_price"].toDouble());
 
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::CategoryRole).toString(),
-             products.at(1).toMap()["product_category"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::ProductRole).toString(),
-             products.at(1).toMap()["product"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::DescriptionRole).toString(),
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(1, 0), QMLProductModel::CategoryRole)
+            .toString(),
+        products.at(1).toMap()["product_category"].toString());
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(1, 0), QMLProductModel::ProductRole)
+            .toString(),
+        products.at(1).toMap()["product"].toString());
+    QCOMPARE(m_productModel
+                 ->data(m_productModel->index(1, 0),
+                        QMLProductModel::DescriptionRole)
+                 .toString(),
              products.at(1).toMap()["description"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::QuantityRole).toDouble(),
-             products.at(1).toMap()["quantity"].toDouble());
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::UnitRole).toString(),
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(1, 0), QMLProductModel::QuantityRole)
+            .toDouble(),
+        products.at(1).toMap()["quantity"].toDouble());
+    QCOMPARE(m_productModel
+                 ->data(m_productModel->index(1, 0), QMLProductModel::UnitRole)
+                 .toString(),
              products.at(1).toMap()["product_unit"].toString());
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::CostPriceRole).toDouble(),
-             products.at(1).toMap()["cost_price"].toDouble());
-    QCOMPARE(m_productModel->data(m_productModel->index(1, 0), QMLProductModel::RetailPriceRole).toDouble(),
+    QCOMPARE(
+        m_productModel
+            ->data(m_productModel->index(1, 0), QMLProductModel::CostPriceRole)
+            .toDouble(),
+        products.at(1).toMap()["cost_price"].toDouble());
+    QCOMPARE(m_productModel
+                 ->data(m_productModel->index(1, 0),
+                        QMLProductModel::RetailPriceRole)
+                 .toDouble(),
              products.at(1).toMap()["retail_price"].toDouble());
 }
 
@@ -141,27 +174,23 @@ void QMLProductModelTest::testRefresh()
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariant());
 
-        const QVariantMap product {
-            { "category_id", 1 },
-            { "category", "Category1" },
-            { "product_id", 1 },
-            { "product", "Product1" },
-            { "description", "Description1" },
-            { "quantity", 1.0 },
-            { "unit_id", 1 },
-            { "unit", "Unit1" },
-            { "cost_price", 11.0 },
-            { "retail_price", 10.0 },
-            { "unit_price", 13.0 },
-            { "available_quantity", 10.0 }
-        };
+        const QVariantMap product{{"category_id", 1},
+                                  {"category", "Category1"},
+                                  {"product_id", 1},
+                                  {"product", "Product1"},
+                                  {"description", "Description1"},
+                                  {"quantity", 1.0},
+                                  {"unit_id", 1},
+                                  {"unit", "Unit1"},
+                                  {"cost_price", 11.0},
+                                  {"retail_price", 10.0},
+                                  {"unit_price", 13.0},
+                                  {"available_quantity", 10.0}};
 
-        const QVariantList products { product };
+        const QVariantList products{product};
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "products", products },
-                                { "record_count", products.count() }
-                            });
+        m_thread->result().setOutcome(QVariantMap{
+            {"products", products}, {"record_count", products.count()}});
     };
 
     databaseWillReturnEmptyResult();
@@ -185,36 +214,30 @@ void QMLProductModelTest::testRemoveProduct()
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariant());
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "category_id", 1 },
-                                { "product_id", 1 }
-                            });
+        m_thread->result().setOutcome(
+            QVariantMap{{"category_id", 1}, {"product_id", 1}});
     };
     auto databaseWillReturnSingleProduct = [this]() {
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariant());
 
-        const QVariantMap product {
-            { "category_id", 1 },
-            { "category", "Category1" },
-            { "product_id", 1 },
-            { "product", "Product1" },
-            { "description", "Description1" },
-            { "quantity", 1.0 },
-            { "unit_id", 1 },
-            { "unit", "Unit1" },
-            { "cost_price", 11.0 },
-            { "retail_price", 10.0 },
-            { "unit_price", 13.0 },
-            { "available_quantity", 10.0 }
-        };
+        const QVariantMap product{{"category_id", 1},
+                                  {"category", "Category1"},
+                                  {"product_id", 1},
+                                  {"product", "Product1"},
+                                  {"description", "Description1"},
+                                  {"quantity", 1.0},
+                                  {"unit_id", 1},
+                                  {"unit", "Unit1"},
+                                  {"cost_price", 11.0},
+                                  {"retail_price", 10.0},
+                                  {"unit_price", 13.0},
+                                  {"available_quantity", 10.0}};
 
-        const QVariantList products { product };
+        const QVariantList products{product};
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "products", products },
-                                { "record_count", products.count() }
-                            });
+        m_thread->result().setOutcome(QVariantMap{
+            {"products", products}, {"record_count", products.count()}});
     };
     QSignalSpy successSpy(m_productModel, &QMLProductModel::success);
     QSignalSpy errorSpy(m_productModel, &QMLProductModel::error);
@@ -232,7 +255,8 @@ void QMLProductModelTest::testRemoveProduct()
     m_productModel->removeProduct(0);
     QCOMPARE(successSpy.count(), 1);
     QCOMPARE(m_productModel->rowCount(), 0);
-    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(), QMLProductModel::RemoveProductSuccess);
+    QCOMPARE(successSpy.takeFirst().first().value<ModelResult>().code(),
+             QMLProductModel::RemoveProductSuccess);
     successSpy.clear();
     QCOMPARE(errorSpy.count(), 0);
 
@@ -250,35 +274,29 @@ void QMLProductModelTest::testUndoRemoveProduct()
     auto databaseWillReturnRemovedProduct = [this]() {
         m_thread->result().setSuccessful(true);
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "category_id", 1 },
-                                { "product_id", 1 }
-                            });
+        m_thread->result().setOutcome(
+            QVariantMap{{"category_id", 1}, {"product_id", 1}});
     };
     auto databaseWillReturnSingleProduct = [this]() {
         m_thread->result().setSuccessful(true);
 
-        const QVariantMap product {
-            { "category_id", 1 },
-            { "category", "Category1" },
-            { "product_id", 1 },
-            { "product", "Product1" },
-            { "description", "Description1" },
-            { "quantity", 1.0 },
-            { "unit_id", 1 },
-            { "unit", "Unit1" },
-            { "cost_price", 11.0 },
-            { "retail_price", 10.0 },
-            { "unit_price", 13.0 },
-            { "available_quantity", 10.0 }
-        };
+        const QVariantMap product{{"category_id", 1},
+                                  {"category", "Category1"},
+                                  {"product_id", 1},
+                                  {"product", "Product1"},
+                                  {"description", "Description1"},
+                                  {"quantity", 1.0},
+                                  {"unit_id", 1},
+                                  {"unit", "Unit1"},
+                                  {"cost_price", 11.0},
+                                  {"retail_price", 10.0},
+                                  {"unit_price", 13.0},
+                                  {"available_quantity", 10.0}};
 
-        const QVariantList products { product };
+        const QVariantList products{product};
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "products", products },
-                                { "record_count", products.count() }
-                            });
+        m_thread->result().setOutcome(QVariantMap{
+            {"products", products}, {"record_count", products.count()}});
     };
     QSignalSpy successSpy(m_productModel, &QMLProductModel::success);
 
@@ -321,27 +339,23 @@ void QMLProductModelTest::testFilterProduct()
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(QVariant());
 
-        const QVariantMap product {
-            { "category_id", 1 },
-            { "category", "Category1" },
-            { "product_id", 1 },
-            { "product", "Product1" },
-            { "description", "Description1" },
-            { "quantity", 1.0 },
-            { "unit_id", 1 },
-            { "unit", "Unit1" },
-            { "cost_price", 11.0 },
-            { "retail_price", 10.0 },
-            { "unit_price", 13.0 },
-            { "available_quantity", 10.0 }
-        };
+        const QVariantMap product{{"category_id", 1},
+                                  {"category", "Category1"},
+                                  {"product_id", 1},
+                                  {"product", "Product1"},
+                                  {"description", "Description1"},
+                                  {"quantity", 1.0},
+                                  {"unit_id", 1},
+                                  {"unit", "Unit1"},
+                                  {"cost_price", 11.0},
+                                  {"retail_price", 10.0},
+                                  {"unit_price", 13.0},
+                                  {"available_quantity", 10.0}};
 
-        const QVariantList products { product };
+        const QVariantList products{product};
 
-        m_thread->result().setOutcome(QVariantMap {
-                                { "products", products },
-                                { "record_count", products.count() }
-                            });
+        m_thread->result().setOutcome(QVariantMap{
+            {"products", products}, {"record_count", products.count()}});
     };
     QSignalSpy successSpy(m_productModel, &QMLProductModel::success);
 

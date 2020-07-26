@@ -1,11 +1,10 @@
 #include "qmlsettings.h"
 #include "singletons/settings.h"
 
-QMLSettings::QMLSettings(QObject *parent) :
-    QObject(parent)
+QMLSettings::QMLSettings(QObject* parent) : QObject(parent)
 {
-    connect(&Settings::instance(), &Settings::darkModeActiveChanged,
-            this, &QMLSettings::darkModeActiveChanged);
+    connect(&Settings::instance(), &Settings::darkModeActiveChanged, this,
+            &QMLSettings::darkModeActiveChanged);
 }
 
 bool QMLSettings::darkModeActive() const

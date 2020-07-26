@@ -1,6 +1,6 @@
-#include "qmlapi/util/qmldoublevalidator.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "qmlapi/util/qmldoublevalidator.h"
 
 class QMLDoubleValidatorTest : public QObject
 {
@@ -12,8 +12,9 @@ private slots:
     void testRandomInput_data();
     void testRandomInput();
     void testDisallowNegativeInput();
+
 private:
-    QMLDoubleValidator *m_doubleValidator;
+    QMLDoubleValidator* m_doubleValidator;
 };
 Q_DECLARE_METATYPE(QValidator::State);
 
@@ -34,8 +35,10 @@ void QMLDoubleValidatorTest::testRandomInput_data()
     QTest::addColumn<QValidator::State>("state");
 
     QTest::newRow("Number within range") << "50" << 0 << QValidator::Acceptable;
-    QTest::newRow("Number with 2 decimals") << "40.44" << 0 << QValidator::Acceptable;
-    QTest::newRow("Number with 4 decimals") << "10.3823" << 0 << QValidator::Acceptable;
+    QTest::newRow("Number with 2 decimals")
+        << "40.44" << 0 << QValidator::Acceptable;
+    QTest::newRow("Number with 4 decimals")
+        << "10.3823" << 0 << QValidator::Acceptable;
     QTest::newRow("Minimum") << "1.0000" << 0 << QValidator::Acceptable;
     QTest::newRow("Maximum") << "100.0000" << 0 << QValidator::Acceptable;
 
@@ -45,9 +48,12 @@ void QMLDoubleValidatorTest::testRandomInput_data()
     QTest::newRow("Negative number") << "-10" << 0 << QValidator::Invalid;
     QTest::newRow("Number below range") << "0.3" << 0 << QValidator::Invalid;
     QTest::newRow("Number above range") << "101" << 0 << QValidator::Invalid;
-    QTest::newRow("Number with 5 decimals") << "2.35382" << 0 << QValidator::Invalid;
-    QTest::newRow("Alphabetic characters") << "Not gonna work" << 0 << QValidator::Invalid;
-    QTest::newRow("Alphanumeric characters") << "9ja" << 0 << QValidator::Invalid;
+    QTest::newRow("Number with 5 decimals")
+        << "2.35382" << 0 << QValidator::Invalid;
+    QTest::newRow("Alphabetic characters")
+        << "Not gonna work" << 0 << QValidator::Invalid;
+    QTest::newRow("Alphanumeric characters")
+        << "9ja" << 0 << QValidator::Invalid;
     QTest::newRow("Random characters") << "@!$8($" << 0 << QValidator::Invalid;
 }
 

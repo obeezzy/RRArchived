@@ -4,20 +4,21 @@
 #include "dashboardexecutor.h"
 
 namespace Query {
-    namespace Dashboard {
-    class ViewDashboard : public DashboardExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_dashboard");
+namespace Dashboard {
+class ViewDashboard : public DashboardExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("view_dashboard");
 
-        explicit ViewDashboard(QObject *receiver);
-        QueryResult execute() override;
-    private:
-        void fetchWelcomeMessage(QVariantList &homeRecords);
-        void fetchEmptyStockMessage(QVariantList &homeRecords);
-    };
-}
-}
+    explicit ViewDashboard(QObject* receiver);
+    QueryResult execute() override;
 
-#endif // VIEWDASHBOARD_H
+private:
+    void fetchWelcomeMessage(QVariantList& homeRecords);
+    void fetchEmptyStockMessage(QVariantList& homeRecords);
+};
+}  // namespace Dashboard
+}  // namespace Query
+
+#endif  // VIEWDASHBOARD_H

@@ -10,19 +10,23 @@ class QMLSalePaymentModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         AmountRole = Qt::UserRole,
         MethodRole,
         NoteRole
-    }; Q_ENUM(Roles)
+    };
+    Q_ENUM(Roles)
 
-    explicit QMLSalePaymentModel(QObject *parent = nullptr);
-    explicit QMLSalePaymentModel(DatabaseThread &thread,
-                                 QObject *parent = nullptr);
+    explicit QMLSalePaymentModel(QObject* parent = nullptr);
+    explicit QMLSalePaymentModel(DatabaseThread& thread,
+                                 QObject* parent = nullptr);
     ~QMLSalePaymentModel() override = default;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
+    int rowCount(
+        const QModelIndex& parent = QModelIndex()) const override final;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
 
     void addPayment(Utility::Sales::SalePayment payment);
@@ -31,10 +35,11 @@ public:
 
     int cashPaymentCount() const;
     int cardPaymentCount() const;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override;
-    void processResult(const QueryResult &result) override;
+    bool canProcessResult(const QueryResult& result) const override;
+    void processResult(const QueryResult& result) override;
 signals:
     void totalCostChanged();
     void amountPaidChanged();
@@ -42,6 +47,7 @@ signals:
     void totalAmountChanged();
     void cashPaymentCountChanged();
     void cardPaymentCountChanged();
+
 private:
     Utility::Sales::SalePaymentList m_payments;
     Utility::Money m_totalAmount;
@@ -50,4 +56,4 @@ private:
     void calculateTotalAmount();
 };
 
-#endif // QMLSALEPAYMENTMODEL_H
+#endif  // QMLSALEPAYMENTMODEL_H

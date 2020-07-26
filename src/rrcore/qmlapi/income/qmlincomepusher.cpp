@@ -4,12 +4,12 @@
 
 Q_LOGGING_CATEGORY(lcqmlincomepusher, "rrcore.qmlapi.qmlincomepusher")
 
-QMLIncomePusher::QMLIncomePusher(QObject *parent) :
-    QMLIncomePusher(DatabaseThread::instance(), parent)
+QMLIncomePusher::QMLIncomePusher(QObject* parent)
+    : QMLIncomePusher(DatabaseThread::instance(), parent)
 {}
 
-QMLIncomePusher::QMLIncomePusher(DatabaseThread &thread, QObject *parent) :
-    AbstractPusher(thread, parent)
+QMLIncomePusher::QMLIncomePusher(DatabaseThread& thread, QObject* parent)
+    : AbstractPusher(thread, parent)
 {}
 
 QString QMLIncomePusher::clientName() const
@@ -17,7 +17,7 @@ QString QMLIncomePusher::clientName() const
     return m_transaction.client.preferredName;
 }
 
-void QMLIncomePusher::setClientName(const QString &clientName)
+void QMLIncomePusher::setClientName(const QString& clientName)
 {
     if (m_transaction.client.preferredName == clientName)
         return;
@@ -31,7 +31,7 @@ QString QMLIncomePusher::purpose() const
     return m_transaction.purpose;
 }
 
-void QMLIncomePusher::setPurpose(const QString &purpose)
+void QMLIncomePusher::setPurpose(const QString& purpose)
 {
     if (m_transaction.purpose == purpose)
         return;
@@ -68,12 +68,15 @@ QMLIncomePusher::PaymentMethod QMLIncomePusher::paymentMethod() const
     return PaymentMethod::Cash;
 }
 
-void QMLIncomePusher::setPaymentMethod(QMLIncomePusher::PaymentMethod paymentMethod)
+void QMLIncomePusher::setPaymentMethod(
+    QMLIncomePusher::PaymentMethod paymentMethod)
 {
-    if (m_transaction.paymentMethod == Utility::PaymentMethod{ static_cast<int>(paymentMethod) })
+    if (m_transaction.paymentMethod ==
+        Utility::PaymentMethod{static_cast<int>(paymentMethod)})
         return;
 
-    m_transaction.paymentMethod = Utility::PaymentMethod{ static_cast<int>(paymentMethod) };
+    m_transaction.paymentMethod =
+        Utility::PaymentMethod{static_cast<int>(paymentMethod)};
     emit paymentMethodChanged();
 }
 
@@ -83,7 +86,7 @@ void QMLIncomePusher::push()
     emit execute(new Query::Income::AddIncomeTransaction(m_transaction, this));
 }
 
-bool QMLIncomePusher::canProcessResult(const QueryResult &result)
+bool QMLIncomePusher::canProcessResult(const QueryResult& result)
 {
     Q_UNUSED(result)
     return true;
@@ -94,8 +97,9 @@ void QMLIncomePusher::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        if (result.request().command() == Query::Income::AddIncomeTransaction::COMMAND)
-            emit success(ModelResult{ AddIncomeSuccess });
+        if (result.request().command() ==
+            Query::Income::AddIncomeTransaction::COMMAND)
+            emit success(ModelResult{AddIncomeSuccess});
     } else {
         emit error();
     }
