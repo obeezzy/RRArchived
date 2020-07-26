@@ -1,0 +1,13 @@
+{
+  "C++": {
+    "beautifiers": [
+      "ClangFormat"
+    ],
+    "ClangFormat": {
+      "prefer_beautifier_config": true,
+      "ClangFormat": {
+        "path": "./.clang-format"
+      }
+    }
+  }
+}
