@@ -2,14 +2,14 @@
 #include <QDateTime>
 #include <QVariantList>
 
-using namespace Utility;
+using namespace Utility::Purchase;
 
 PurchaseCartProduct::PurchaseCartProduct(const QString &product,
-                                         const StockProductCategory &category,
+                                         const Utility::Stock::ProductCategory &category,
                                          const QString &description,
                                          const QUrl &imageUrl,
-                                         const StockProductQuantity &quantity,
-                                         const StockProductUnit &unit,
+                                         const Utility::Stock::ProductQuantity &quantity,
+                                         const Utility::Stock::ProductUnit &unit,
                                          const PurchaseMonies &monies,
                                          const RecordGroup::Flags &flags,
                                          const Note &note) :
@@ -26,9 +26,9 @@ PurchaseCartProduct::PurchaseCartProduct(const QString &product,
 
 PurchaseCartProduct::PurchaseCartProduct(int id,
                                          const QString &product,
-                                         const StockProductCategory &category,
-                                         const StockProductQuantity &quantity,
-                                         const StockProductUnit &unit,
+                                         const Utility::Stock::ProductCategory &category,
+                                         const Utility::Stock::ProductQuantity &quantity,
+                                         const Utility::Stock::ProductUnit &unit,
                                          const PurchaseMonies &monies,
                                          const Note &note) :
     id(id),
@@ -48,7 +48,7 @@ PurchaseCartProduct::PurchaseCartProduct(int id) :
 PurchaseCartProduct::PurchaseCartProduct(const QVariantMap &map) :
     id(map.value("product_id").toInt()),
     product(map.value("product").toString()),
-    category(StockProductCategory{
+    category(Stock::ProductCategory{
              map.value("category_id").toInt(),
              map.value("category").toString(),
              Note{
@@ -60,13 +60,13 @@ PurchaseCartProduct::PurchaseCartProduct(const QVariantMap &map) :
     imageUrl(map.value("image_url").toUrl()),
     quantity(map.value("quantity").toDouble()),
     availableQuantity(map.value("available_quantity").toDouble()),
-    unit(StockProductUnit{ map }),
+    unit(Stock::ProductUnit{ map }),
     monies(PurchaseMonies{ map }),
     flags((map.value("tracked").toBool() ? RecordGroup::Tracked : RecordGroup::None)
           | (map.value("divisible").toBool() ? RecordGroup::Divisible : RecordGroup::None)),
     note(Note{ map }),
     timestamp(RecordTimestamp{ map }),
-    user(User{ map })
+    user(User::User{ map })
 {}
 
 QVariantMap PurchaseCartProduct::toVariantMap() const

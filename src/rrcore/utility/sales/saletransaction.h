@@ -4,66 +4,68 @@
 #include "salecartproduct.h"
 #include "salepayment.h"
 #include "singletons/settings.h"
+#include "utility/common/customer.h"
 #include "utility/common/note.h"
 #include <QDateTime>
 #include <QString>
 
 namespace Utility {
-struct SaleTransaction
-{
-    int id {0};
-    Customer customer;
-    SaleMonies monies;
-    SaleCartProductList products;
-    SalePaymentList payments;
-    RecordGroup::Flags flags;
-    QDateTime dueDateTime;
-    QString action;
-    Note note;
-    RecordTimestamp timestamp;
-    User user;
-    int row {-1};
-
-    explicit SaleTransaction() = default;
-    explicit SaleTransaction(const QVariantMap &map);
-    explicit SaleTransaction(int id);
-    explicit SaleTransaction(int id,
-                             const Customer &customer,
-                             const SaleMonies &monies,
-                             const SaleCartProductList &products,
-                             const SalePaymentList &payments,
-                             const RecordGroup::Flags &flags,
-                             const QDateTime &dueDateTime,
-                             const QString &action,
-                             const Note &note);
-    explicit SaleTransaction(int id,
-                             const Customer &customer,
-                             const SaleMonies &monies,
-                             const RecordGroup::Flags &flags,
-                             const Note &note = Note());
-
-    QVariantMap toVariantMap() const;
-
-    friend QDebug operator<<(QDebug debug, const SaleTransaction &transaction)
+    namespace Sales {
+    struct SaleTransaction
     {
-        debug.nospace() << "SaleTransaction("
-                        << "id=" << transaction.id
-                        << ", customer=" << transaction.customer
-                        << ", totalCost=" << transaction.monies.totalCost
-                        << ", amountPaid=" << transaction.monies.amountPaid
-                        << ", balance=" << transaction.monies.balance
-                        << ", discount=" << transaction.monies.discount
-                        << ", payments=" << transaction.payments
-                        << ", products=" << transaction.products
-                        << ", flags=" << transaction.flags
-                        << ", dueDateTime=" << transaction.dueDateTime
-                        << ", action=" << transaction.action
-                        << ", note=" << transaction.note
-                        << ", row=" << transaction.row
-                        << ")";
+        int id {0};
+        Customer customer;
+        SaleMonies monies;
+        SaleCartProductList products;
+        SalePaymentList payments;
+        RecordGroup::Flags flags;
+        QDateTime dueDateTime;
+        QString action;
+        Note note;
+        RecordTimestamp timestamp;
+        User::User user;
+        int row {-1};
 
-        return debug.nospace();
-    }
+        explicit SaleTransaction() = default;
+        explicit SaleTransaction(const QVariantMap &map);
+        explicit SaleTransaction(int id);
+        explicit SaleTransaction(int id,
+                                 const Customer &customer,
+                                 const SaleMonies &monies,
+                                 const SaleCartProductList &products,
+                                 const SalePaymentList &payments,
+                                 const RecordGroup::Flags &flags,
+                                 const QDateTime &dueDateTime,
+                                 const QString &action,
+                                 const Note &note);
+        explicit SaleTransaction(int id,
+                                 const Customer &customer,
+                                 const SaleMonies &monies,
+                                 const RecordGroup::Flags &flags,
+                                 const Note &note = Note());
+
+        QVariantMap toVariantMap() const;
+
+        friend QDebug operator<<(QDebug debug, const SaleTransaction &transaction)
+        {
+            debug.nospace() << "SaleTransaction("
+                            << "id=" << transaction.id
+                            << ", customer=" << transaction.customer
+                            << ", totalCost=" << transaction.monies.totalCost
+                            << ", amountPaid=" << transaction.monies.amountPaid
+                            << ", balance=" << transaction.monies.balance
+                            << ", discount=" << transaction.monies.discount
+                            << ", payments=" << transaction.payments
+                            << ", products=" << transaction.products
+                            << ", flags=" << transaction.flags
+                            << ", dueDateTime=" << transaction.dueDateTime
+                            << ", action=" << transaction.action
+                            << ", note=" << transaction.note
+                            << ", row=" << transaction.row
+                            << ")";
+
+            return debug.nospace();
+        }
 };
 
 class SaleTransactionList : public QList<SaleTransaction>
@@ -86,6 +88,7 @@ public:
     }
 };
 }
-Q_DECLARE_TYPEINFO(Utility::SaleTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::Sales::SaleTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // SALETRANSACTION_H

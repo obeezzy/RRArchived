@@ -2,7 +2,7 @@
 #include "utility/common/recordtimestamp.h"
 #include <QString>
 
-using namespace Utility;
+using namespace Utility::User;
 
 User::User(const QVariantMap &map) :
     id(map.value("user_id").toInt()),

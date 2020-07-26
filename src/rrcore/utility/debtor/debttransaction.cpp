@@ -1,6 +1,6 @@
 #include "debttransaction.h"
 
-using namespace Utility;
+using namespace Utility::Debtor;
 
 DebtTransaction::DebtTransaction()
 {}

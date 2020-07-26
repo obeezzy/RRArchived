@@ -6,9 +6,11 @@
 #include "utility/common/note.h"
 #include "utility/common/recordgroup.h"
 #include "utility/common/recordtimestamp.h"
+#include "utility/common/vendor.h"
 #include <QString>
 
 namespace Utility {
+namespace Purchase {
 struct PurchaseTransaction {
     int id {0};
     Vendor vendor;
@@ -20,7 +22,7 @@ struct PurchaseTransaction {
     RecordGroup::Flags flags;
     Note note;
     RecordTimestamp timestamp;
-    User user;
+    User::User user;
     int row {-1};
 
     explicit PurchaseTransaction() = default;
@@ -64,6 +66,7 @@ public:
     }
 };
 }
-Q_DECLARE_TYPEINFO(Utility::PurchaseTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::Purchase::PurchaseTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASETRANSACTION_H

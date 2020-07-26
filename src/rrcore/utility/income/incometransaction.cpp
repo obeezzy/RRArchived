@@ -1,7 +1,7 @@
 #include "incometransaction.h"
-#include "utility/commonutils.h"
+#include "utility/common/paymentmethod.h"
 
-using namespace Utility;
+using namespace Utility::Income;
 
 IncomeTransaction::IncomeTransaction(const QVariantMap &map) :
     id(map.value("income_transaction_id").toInt()),

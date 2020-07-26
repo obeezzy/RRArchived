@@ -16,7 +16,7 @@ UserProfile::UserProfile(QObject *parent) :
     setAccessToken(QByteArray());
 }
 
-void UserProfile::setUser(const Utility::User &user)
+void UserProfile::setUser(const Utility::User::User &user)
 {
     m_user = user;
 }
@@ -49,7 +49,7 @@ void UserProfile::setServerTunnelingEnabled(bool enabled)
 
 void UserProfile::clearUser()
 {
-    UserProfile::instance().setUser(Utility::User());
+    UserProfile::instance().setUser(Utility::User::User());
 }
 
 UserProfile &UserProfile::instance()

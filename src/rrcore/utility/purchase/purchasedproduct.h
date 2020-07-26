@@ -5,23 +5,24 @@
 #include "utility/common/recordgroup.h"
 #include "utility/common/recordtimestamp.h"
 #include "utility/purchase/purchasetransaction.h"
-#include "utility/stock/stockproduct.h"
-#include "utility/stock/stockproductcategory.h"
+#include "utility/stock/product.h"
+#include "utility/stock/productcategory.h"
 #include "utility/user/user.h"
 #include <QVariantList>
 
 namespace Utility {
+namespace Purchase {
 struct PurchasedProduct
 {
     int id {0};
     PurchaseTransaction transaction;
-    StockProductCategory category;
-    StockProduct product;
+    Stock::ProductCategory category;
+    Stock::Product product;
     PurchaseMonies monies;
     RecordGroup::Flags flags;
     Note note;
     RecordTimestamp timestamp;
-    User user;
+    User::User user;
     int row {-1};
 
     explicit PurchasedProduct() = default;
@@ -52,6 +53,7 @@ public:
     }
 };
 }
-Q_DECLARE_TYPEINFO(Utility::PurchasedProduct, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::Purchase::PurchasedProduct, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASEDPRODUCT_H

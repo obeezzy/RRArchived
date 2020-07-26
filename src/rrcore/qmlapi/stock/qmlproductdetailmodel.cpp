@@ -1,7 +1,6 @@
 #include "qmlproductdetailmodel.h"
 #include "database/databasethread.h"
-#include "queryexecutors/stock.h"
-#include "utility/stockutils.h"
+#include "query/stock/fetchproduct.h"
 #include <QDateTime>
 
 QMLProductDetailModel::QMLProductDetailModel(QObject *parent) :
@@ -149,7 +148,7 @@ void QMLProductDetailModel::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new StockQuery::FetchProduct(m_product.id,
+    emit execute(new Query::Stock::FetchProduct(m_product.id,
                                                    this));
 }
 
@@ -165,7 +164,7 @@ void QMLProductDetailModel::processResult(const QueryResult &result)
 
     if (result.isSuccessful()) {
         beginResetModel();
-        const auto product = Utility::StockProduct{ result.outcome().toMap().value("product").toMap() };
+        const auto product = Utility::Stock::Product{ result.outcome().toMap().value("product").toMap() };
         m_productDetails.clear();
         m_productDetails.append(QVariantMap{
                 { "title", tr("Category") },
@@ -291,10 +290,10 @@ void QMLProductDetailModel::setImageUrl(const QUrl &imageUrl)
 
 void QMLProductDetailModel::setQuantity(double quantity)
 {
-    if (m_product.quantity == Utility::StockProductQuantity(quantity))
+    if (m_product.quantity == Utility::Stock::ProductQuantity(quantity))
         return;
 
-    m_product.quantity = Utility::StockProductQuantity(quantity);
+    m_product.quantity = Utility::Stock::ProductQuantity(quantity);
     emit quantityChanged();
 }
 

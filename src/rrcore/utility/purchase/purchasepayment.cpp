@@ -1,10 +1,10 @@
 #include "purchasepayment.h"
 
-using namespace Utility;
+using namespace Utility::Purchase;
 
-PurchasePayment::PurchasePayment(const Money &amount,
-                                 const PaymentMethod &method,
-                                 const Note &note) :
+PurchasePayment::PurchasePayment(const Utility::Money &amount,
+                                 const Utility::PaymentMethod &method,
+                                 const Utility::Note &note) :
     amount(amount),
     method(method),
     note(note)
@@ -26,7 +26,7 @@ QVariantMap PurchasePayment::toVariantMap() const
     };
 }
 
-int PurchasePaymentList::count(const PaymentMethod &method) const
+int PurchasePaymentList::count(const Utility::PaymentMethod &method) const
 {
     int counted = 0;
     for (const auto &payment : *this)
@@ -35,10 +35,10 @@ int PurchasePaymentList::count(const PaymentMethod &method) const
     return counted;
 }
 
-Money PurchasePaymentList::total() const
+Utility::Money PurchasePaymentList::total() const
 {
-    Money totalAmount;
+    Utility::Money totalAmount;
     for (const auto &payment : *this)
         totalAmount += payment.amount;
-    return Money{ totalAmount };
+    return Utility::Money{ totalAmount };
 }

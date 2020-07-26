@@ -4,21 +4,21 @@
 #include <QVariantList>
 #include <QVariantMap>
 
-using namespace Utility;
+using namespace Utility::Sales;
 
 SaleCartProduct::SaleCartProduct(int id) :
     id(id)
 {}
 
 SaleCartProduct::SaleCartProduct(const QString &product,
-                                 const StockProductCategory &category,
+                                 const Utility::Stock::ProductCategory &category,
                                  const QString &description,
                                  const QUrl &imageUrl,
-                                 const StockProductQuantity &quantity,
-                                 const StockProductUnit &unit,
+                                 const Utility::Stock::ProductQuantity &quantity,
+                                 const Stock::ProductUnit &unit,
                                  const SaleMonies &monies,
-                                 const RecordGroup::Flags &flags,
-                                 const Note &note) :
+                                 const Utility::RecordGroup::Flags &flags,
+                                 const Utility::Note &note) :
     product(product),
     category(category),
     description(description),
@@ -32,25 +32,25 @@ SaleCartProduct::SaleCartProduct(const QString &product,
 
 SaleCartProduct::SaleCartProduct(int id,
                                  const QString &product,
-                                 const StockProductCategory &category,
-                                 const StockProductQuantity &quantity,
-                                 const StockProductUnit &unit,
+                                 const Utility::Stock::ProductCategory &category,
+                                 const Utility::Stock::ProductQuantity &quantity,
+                                 const Utility::Stock::ProductUnit &unit,
                                  const SaleMonies &monies,
-                                 const Note &note) :
+                                 const Utility::Note &note) :
     id(id),
     product(product),
     category(category),
     quantity(quantity),
     unit(unit),
     monies(monies),
-    flags(RecordGroup::Tracked | RecordGroup::Divisible),
+    flags(Utility::RecordGroup::Tracked | Utility::RecordGroup::Divisible),
     note(note)
 {}
 
 SaleCartProduct::SaleCartProduct(const QVariantMap &map) :
     id(map.value("product_id").toInt()),
     product(map.value("product").toString()),
-    category(StockProductCategory{
+    category(Utility::Stock::ProductCategory{
              map.value("category_id").toInt(),
              map.value("category").toString(),
              Note{
@@ -61,16 +61,16 @@ SaleCartProduct::SaleCartProduct(const QVariantMap &map) :
     description(map.value("description").toString()),
     imageUrl(map.value("image_url").toUrl()),
     quantity(map.value("quantity").toDouble()),
-    availableQuantity(StockProductQuantity{ QVariantMap {
+    availableQuantity(Utility::Stock::ProductQuantity{ QVariantMap {
                         { "quantity", map.value("available_quantity").toDouble() }
                       }}),
-    unit(StockProductUnit{ map }),
+    unit(Utility::Stock::ProductUnit{ map }),
     monies(SaleMonies{ map }),
-    flags((map.value("tracked").toBool() ? RecordGroup::Tracked : RecordGroup::None)
-          | (map.value("divisible").toBool() ? RecordGroup::Divisible : RecordGroup::None)),
-    note(Note{ map }),
+    flags((map.value("tracked").toBool() ? Utility::RecordGroup::Tracked : Utility::RecordGroup::None)
+          | (map.value("divisible").toBool() ? Utility::RecordGroup::Divisible : Utility::RecordGroup::None)),
+    note(Utility::Note{ map }),
     timestamp(RecordTimestamp{ map }),
-    user(User{ map })
+    user(User::User{ map })
 {}
 
 QVariantMap SaleCartProduct::toVariantMap() const

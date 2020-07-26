@@ -1,6 +1,6 @@
 #include "salemonies.h"
 
-using namespace Utility;
+using namespace Utility::Sales;
 
 SaleMonies::SaleMonies()
 {}

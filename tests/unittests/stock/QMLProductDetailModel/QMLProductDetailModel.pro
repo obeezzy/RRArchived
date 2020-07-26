@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT       += core qml quick quickcontrols2 widgets sql testlib
-
 QT       -= gui
 
 TARGET = tst_qmlproductdetailmodeltest
@@ -13,7 +12,7 @@ CONFIG   += console testcase
 CONFIG   -= app_bundle
 
 INCLUDEPATH += $$top_srcdir/src/rrcore \
-                $$top_srcdir/tests/unittests/utils
+        $$top_srcdir/tests/unittests/testutils
 
 LIBS += -L$$top_builddir/src/rrcore -lrrcore
 
@@ -25,4 +24,4 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 SOURCES += \
         tst_qmlproductdetailmodeltest.cpp
 
-include($$top_srcdir/tests/unittests/utils/utils.pri)
+include($$top_srcdir/tests/unittests/testutils/testutils.pri)

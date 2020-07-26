@@ -34,13 +34,13 @@ public:
 signals:
     void adminChanged();
 private:
-    Utility::User m_user;
+    Utility::User::User m_user;
     BusinessDetails *m_businessDetails;
     BusinessAdmin *m_businessAdmin;
 
     explicit UserProfile(QObject *parent = nullptr);
     explicit UserProfile(const UserProfile &other) = delete;
-    void setUser(const Utility::User &user);
+    void setUser(const Utility::User::User &user);
     void setDatabaseReady(bool databaseReady);
     void setRackId(const QString &rackId);
     void setUserId(int userId);

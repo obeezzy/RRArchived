@@ -7,6 +7,7 @@
 #include <QDebug>
 
 namespace Utility {
+inline namespace Common {
 struct Client {
     int id {0};
     QString preferredName;
@@ -73,6 +74,7 @@ public:
         return list;
     }
 };
+}
 }
 Q_DECLARE_TYPEINFO(Utility::Client, Q_PRIMITIVE_TYPE);
 

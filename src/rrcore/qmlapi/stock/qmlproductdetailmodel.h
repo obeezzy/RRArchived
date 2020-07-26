@@ -2,7 +2,7 @@
 #define QMLPRODUCTDETAILRECORD_H
 
 #include "models/abstractvisuallistmodel.h"
-#include "utility/stock/stockproduct.h"
+#include "utility/stock/product.h"
 #include <QVariantList>
 
 class QMLProductDetailModel : public AbstractVisualListModel
@@ -83,7 +83,7 @@ protected:
     bool canProcessResult(const QueryResult &result) const override;
     void processResult(const QueryResult &result) override; 
 private:
-    Utility::StockProduct m_product;
+    Utility::Stock::Product m_product;
     QVariantList m_productDetails;
 
     void setCategoryId(int categoryId);

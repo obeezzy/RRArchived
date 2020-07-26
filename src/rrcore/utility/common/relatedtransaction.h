@@ -4,16 +4,18 @@
 #include <QString>
 
 namespace Utility {
-struct RelatedTransaction {
-    int id {0};
-    QString tableName;
+    inline namespace Common {
+    struct RelatedTransaction {
+        int id {0};
+        QString tableName;
 
-    explicit RelatedTransaction() = default;
-    explicit RelatedTransaction(int id,
-                                const QString &tableName);
+        explicit RelatedTransaction() = default;
+        explicit RelatedTransaction(int id,
+                                    const QString &tableName);
 
-    QString toString() const;
-};
+        QString toString() const;
+    };
+}
 }
 Q_DECLARE_TYPEINFO(Utility::RelatedTransaction, Q_PRIMITIVE_TYPE);
 

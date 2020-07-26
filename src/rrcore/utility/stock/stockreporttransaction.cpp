@@ -1,10 +1,10 @@
 #include "stockreporttransaction.h"
 
-using namespace Utility;
+using namespace Utility::Stock;
 
 StockReportTransaction::StockReportTransaction(const QVariantMap &map) :
-    category(StockProductCategory{ map }),
-    product(StockProduct{ map }),
+    category(ProductCategory{ map }),
+    product(Product{ map }),
     openingStockQuantity(map.value("opening_stock_quantity").toDouble()),
     quantitySold(map.value("quantity_sold").toDouble()),
     quantityBought(map.value("quantity_bought").toDouble()),

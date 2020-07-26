@@ -1,7 +1,7 @@
 #include "purchasemonies.h"
 #include <QVariantMap>
 
-using namespace Utility;
+using namespace Utility::Purchase;
 
 PurchaseMonies::PurchaseMonies()
 {}

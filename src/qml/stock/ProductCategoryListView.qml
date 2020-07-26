@@ -39,19 +39,19 @@ ListView {
     clip: true
     visible: !model.busy
 
-    model: RRModels.StockProductCategoryModel {
+    model: RRModels.ProductCategoryModel {
         id: stockProductCategoryModel
         filterText: productCategoryListView.filterColumn === -1 ? productCategoryListView.filterText : ""
-        productFilterText: productCategoryListView.filterColumn === RRModels.StockProductModel.ProductColumn ? productCategoryListView.filterText
+        productFilterText: productCategoryListView.filterColumn === RRModels.ProductModel.ProductColumn ? productCategoryListView.filterText
                                                                                                              : ""
         onSuccess: {
             switch (result.code) {
-            case RRModels.StockProductCategoryModel.RemoveCategorySuccess:
-                productCategoryListView.success(RRModels.StockProductModel.RemoveProductSuccess);
+            case RRModels.ProductCategoryModel.RemoveCategorySuccess:
+                productCategoryListView.success(RRModels.ProductModel.RemoveProductSuccess);
                 break;
-            case RRModels.StockProductCategoryModel.UnarchiveProductSuccess:
+            case RRModels.ProductCategoryModel.UnarchiveProductSuccess:
                 privateProperties.lastRemovedProductId = 0;
-                productCategoryListView.success(RRModels.StockProductModel.UndoRemoveProductSuccess);
+                productCategoryListView.success(RRModels.ProductModel.UndoRemoveProductSuccess);
                 break;
             }
         }
@@ -114,7 +114,7 @@ ListView {
                 onProductRemoved: privateProperties.lastRemovedProductId = productId;
                 onSuccess: {
                     switch (result.code) {
-                    case RRModels.StockProductModel.RemoveProductSuccess:
+                    case RRModels.ProductModel.RemoveProductSuccess:
                         if (productTableView.rows === 1)
                             stockProductCategoryModel.removeCategory(categoryCard.row);
                     }

@@ -1,6 +1,6 @@
 #include "purchasedproduct.h"
 
-using namespace Utility;
+using namespace Utility::Purchase;
 
 PurchasedProduct::PurchasedProduct(int id,
                                    int purchaseTransactionId) :
@@ -11,13 +11,13 @@ PurchasedProduct::PurchasedProduct(int id,
 PurchasedProduct::PurchasedProduct(const QVariantMap &map) :
     id(map.value("purchased_product_id").toInt()),
     transaction(PurchaseTransaction{ map.value("purchase_transaction_id").toInt() }),
-    category(StockProductCategory{ map }),
-    product(StockProduct{ map }),
+    category(Stock::ProductCategory{ map }),
+    product(Stock::Product{ map }),
     monies(PurchaseMonies{ map }),
     flags(map.value("archived").toBool() ? RecordGroup::Archived : RecordGroup::None),
     note(Note{ map }),
     timestamp(RecordTimestamp{ map }),
-    user(User{ map })
+    user(User::User{ map })
 {}
 
 QVariantMap PurchasedProduct::toVariantMap() const
