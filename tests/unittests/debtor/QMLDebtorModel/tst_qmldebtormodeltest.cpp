@@ -1,8 +1,8 @@
-#include "mockdatabasethread.h"
-#include "qmlapi/debtor/qmldebtormodel.h"
 #include <QCoreApplication>
 #include <QString>
 #include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/debtor/qmldebtormodel.h"
 
 class QMLDebtorModelTest : public QObject
 {
@@ -15,9 +15,10 @@ private Q_SLOTS:
     void testViewDebtors();
     void testRemoveDebtor();
     void testUndoRemoveDebtor();
+
 private:
-    QMLDebtorModel *m_debtorModel;
-    MockDatabaseThread *m_thread;
+    QMLDebtorModel* m_debtorModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLDebtorModelTest::init()
@@ -34,27 +35,24 @@ void QMLDebtorModelTest::cleanup()
 
 void QMLDebtorModelTest::testModel()
 {
-    QAbstractItemModelTester(m_debtorModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_debtorModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+        this);
 }
 
 void QMLDebtorModelTest::testViewDebtors()
 {
-    const QVariantList debtors {
-        QVariantMap {
-            { "client_id", 1 },
-            { "debtor_id", 1 },
-            { "image_url", QUrl("file:///image/source") },
-            { "preferred_name", QStringLiteral("Preferred name") },
-            { "total_debt", 1234.56 },
-            { "note", QStringLiteral("Note") }
-        }
-    };
+    const QVariantList debtors{
+        QVariantMap{{"client_id", 1},
+                    {"debtor_id", 1},
+                    {"image_url", QUrl("file:///image/source")},
+                    {"preferred_name", QStringLiteral("Preferred name")},
+                    {"total_debt", 1234.56},
+                    {"note", QStringLiteral("Note")}}};
 
-    auto databaseWillReturn = [this](const QVariantList &debtors) {
+    auto databaseWillReturn = [this](const QVariantList& debtors) {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariantMap { { "debtors", debtors } });
+        m_thread->result().setOutcome(QVariantMap{{"debtors", debtors}});
     };
 
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
@@ -63,7 +61,8 @@ void QMLDebtorModelTest::testViewDebtors()
 
     databaseWillReturn(debtors);
 
-    // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
+    // STEP: Instantiate model in QML and ensure that debtors are fetched from
+    // the database.
     m_debtorModel->componentComplete();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 2);
@@ -79,40 +78,36 @@ void QMLDebtorModelTest::testViewDebtors()
              debtors.first().toMap()["client_id"].toInt());
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::ImageUrlRole).toUrl(),
              debtors.first().toMap()["image_url"].toUrl());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(),
+    QCOMPARE(m_debtorModel->index(0)
+                 .data(QMLDebtorModel::PreferredNameRole)
+                 .toString(),
              debtors.first().toMap()["preferred_name"].toString());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(),
-             debtors.first().toMap()["total_debt"].toDouble());
+    QCOMPARE(
+        m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(),
+        debtors.first().toMap()["total_debt"].toDouble());
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(),
              debtors.first().toMap()["note"].toString());
 }
 
 void QMLDebtorModelTest::testRemoveDebtor()
 {
-    QVariantList debtors {
-        QVariantMap {
-            { "client_id", 1 },
-            { "debtor_id", 1 },
-            { "image_url", QStringLiteral("image/source") },
-            { "preferred_name", QStringLiteral("Preferred name") },
-            { "total_debt", 1234.56 },
-            { "note", QStringLiteral("Note") }
-        }
-    };
+    QVariantList debtors{
+        QVariantMap{{"client_id", 1},
+                    {"debtor_id", 1},
+                    {"image_url", QStringLiteral("image/source")},
+                    {"preferred_name", QStringLiteral("Preferred name")},
+                    {"total_debt", 1234.56},
+                    {"note", QStringLiteral("Note")}}};
 
-    auto databaseWillReturn = [this](const QVariantList &debtors) {
+    auto databaseWillReturn = [this](const QVariantList& debtors) {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariantMap {
-                                { "debtors", debtors },
-                                { "record_count", debtors.count() }
-                            });
+        m_thread->result().setOutcome(QVariantMap{
+            {"debtors", debtors}, {"record_count", debtors.count()}});
     };
     auto databaseWillReturnRemovedDebtor = [this]() {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariantMap {
-                                { "debtor_id", 1 },
-                                { "row", 0 }
-                            });
+        m_thread->result().setOutcome(
+            QVariantMap{{"debtor_id", 1}, {"row", 0}});
     };
     QSignalSpy successSpy(m_debtorModel, &QMLDebtorModel::success);
     QSignalSpy errorSpy(m_debtorModel, &QMLDebtorModel::error);
@@ -121,7 +116,8 @@ void QMLDebtorModelTest::testRemoveDebtor()
     // STEP: Add a debtor to the database.
     databaseWillReturn(debtors);
 
-    // STEP: Instantiate model in QML and ensure that debtors are fetched from the database.
+    // STEP: Instantiate model in QML and ensure that debtors are fetched from
+    // the database.
     m_debtorModel->componentComplete();
     QCOMPARE(errorSpy.count(), 0);
     QCOMPARE(busyChangedSpy.count(), 2);
@@ -147,7 +143,7 @@ void QMLDebtorModelTest::testRemoveDebtor()
     successSpy.clear();
     QCOMPARE(m_debtorModel->rowCount(), 0);
 
-    databaseWillReturn({ });
+    databaseWillReturn({});
 
     // STEP: Ensure debtor is removed even after model is re-populated.
     m_debtorModel->refresh();
@@ -162,27 +158,24 @@ void QMLDebtorModelTest::testRemoveDebtor()
 
 void QMLDebtorModelTest::testUndoRemoveDebtor()
 {
-    const QVariantList debtors {
-        QVariantMap {
-            { "client_id", 1 },
-            { "debtor_id", 1 },
-            { "image_url", QStringLiteral("image/source") },
-            { "preferred_name", QStringLiteral("Preferred name") },
-            { "total_debt", 1234.56 },
-            { "note", QStringLiteral("Note") },
-            { "row", 0 }
-        }
-    };
+    const QVariantList debtors{
+        QVariantMap{{"client_id", 1},
+                    {"debtor_id", 1},
+                    {"image_url", QStringLiteral("image/source")},
+                    {"preferred_name", QStringLiteral("Preferred name")},
+                    {"total_debt", 1234.56},
+                    {"note", QStringLiteral("Note")},
+                    {"row", 0}}};
 
-    auto databaseWillReturn = [this](const QVariantList &debtors) {
+    auto databaseWillReturn = [this](const QVariantList& debtors) {
         m_thread->result().setSuccessful(true);
-        m_thread->result().setOutcome(QVariantMap{ { "debtors", debtors } });
+        m_thread->result().setOutcome(QVariantMap{{"debtors", debtors}});
     };
-    auto databaseWillReturnRemovedDebtor = [this](const QVariantMap &debtor) {
+    auto databaseWillReturnRemovedDebtor = [this](const QVariantMap& debtor) {
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(debtor);
     };
-    auto databaseWillReturnReaddedDebtor = [this](const QVariantMap &debtor) {
+    auto databaseWillReturnReaddedDebtor = [this](const QVariantMap& debtor) {
         m_thread->result().setSuccessful(true);
         m_thread->result().setOutcome(debtor);
     };
@@ -235,12 +228,15 @@ void QMLDebtorModelTest::testUndoRemoveDebtor()
              debtors.first().toMap()["client_id"].toInt());
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::DebtorIdRole).toInt(),
              debtors.first().toMap()["debtor_id"].toInt());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::PreferredNameRole).toString(),
+    QCOMPARE(m_debtorModel->index(0)
+                 .data(QMLDebtorModel::PreferredNameRole)
+                 .toString(),
              debtors.first().toMap()["preferred_name"].toString());
     QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::NoteRole).toString(),
              debtors.first().toMap()["note"].toString());
-    QCOMPARE(m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(),
-             debtors.first().toMap()["total_debt"].toDouble());
+    QCOMPARE(
+        m_debtorModel->index(0).data(QMLDebtorModel::TotalDebtRole).toDouble(),
+        debtors.first().toMap()["total_debt"].toDouble());
 }
 
 QTEST_GUILESS_MAIN(QMLDebtorModelTest)

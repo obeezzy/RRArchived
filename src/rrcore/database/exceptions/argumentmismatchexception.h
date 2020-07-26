@@ -6,8 +6,8 @@
 class ArgumentMismatchException : public DatabaseException
 {
 public:
-    explicit ArgumentMismatchException(const QString &message = QString());
+    explicit ArgumentMismatchException(const QString& message = QString());
     QString toString() const override;
 };
 
-#endif // ARGUMENTMISMATCHEXCEPTION_H
+#endif  // ARGUMENTMISMATCHEXCEPTION_H

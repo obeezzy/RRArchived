@@ -6,9 +6,9 @@
 class ProcedureCallFailedException : public DatabaseException
 {
 public:
-    explicit ProcedureCallFailedException(const QString &message,
-                                          const QSqlError &error = QSqlError());
+    explicit ProcedureCallFailedException(const QString& message,
+                                          const QSqlError& error = QSqlError());
     QString toString() const override;
 };
 
-#endif // PROCEDURECALLFAILEDEXCEPTION_H
+#endif  // PROCEDURECALLFAILEDEXCEPTION_H

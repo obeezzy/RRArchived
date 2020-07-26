@@ -3,4 +3,4 @@
 
 #include "network/exceptions/indeterminatedestinationurlexception.h"
 
-#endif // EXCEPTIONS_H
+#endif  // EXCEPTIONS_H

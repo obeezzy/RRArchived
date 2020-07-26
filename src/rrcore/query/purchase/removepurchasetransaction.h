@@ -7,30 +7,34 @@ namespace Utility {
 namespace Purchase {
 class PurchaseTransaction;
 }
-}
+}  // namespace Utility
 
 namespace Query {
-    namespace Purchase {
-    class RemovePurchaseTransaction : public PurchaseExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("remove_purchase_transaction");
-        static inline const QString UNDO_COMMAND = QStringLiteral("undo_remove_purchase_transaction");
+namespace Purchase {
+class RemovePurchaseTransaction : public PurchaseExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("remove_purchase_transaction");
+    static inline const QString UNDO_COMMAND =
+        QStringLiteral("undo_remove_purchase_transaction");
 
-        explicit RemovePurchaseTransaction(const Utility::Purchase::PurchaseTransaction &transaction,
-                                           QObject *receiver);
-        QueryResult execute() override;
-    private:
-        QueryResult removePurchaseTransaction();
-        QueryResult undoRemovePurchaseTransaction();
+    explicit RemovePurchaseTransaction(
+        const Utility::Purchase::PurchaseTransaction& transaction,
+        QObject* receiver);
+    QueryResult execute() override;
 
-        void archivePurchaseTransaction();
-        void archiveDebtTransaction();
-        void archiveCreditTransaction();
-        void revertProductQuantityUpdate();
-    };
-}
-}
+private:
+    QueryResult removePurchaseTransaction();
+    QueryResult undoRemovePurchaseTransaction();
 
-#endif // REMOVEPURCHASETRANSACTION_H
+    void archivePurchaseTransaction();
+    void archiveDebtTransaction();
+    void archiveCreditTransaction();
+    void revertProductQuantityUpdate();
+};
+}  // namespace Purchase
+}  // namespace Query
+
+#endif  // REMOVEPURCHASETRANSACTION_H

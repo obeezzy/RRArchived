@@ -4,14 +4,14 @@
 #include <QString>
 
 namespace Schema {
-    namespace Common {
-        static inline const QString INIT_SQL_FILE(":/schema/rr-schema/sql/common/init.sql");
-        static inline const QString PROCEDURE_DIR(":/schema/rr-schema/sql/common/procedures");
-    }
+namespace Common {
+static inline const QString INIT_SQL_FILE(
+    ":/schema/rr-schema/sql/common/init.sql");
+static inline const QString PROCEDURE_DIR(
+    ":/schema/rr-schema/sql/common/procedures");
+}  // namespace Common
 
-    namespace Client {
+namespace Client {}
+}  // namespace Schema
 
-    }
-}
-
-#endif // SCHEMA_H
+#endif  // SCHEMA_H

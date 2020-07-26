@@ -6,10 +6,12 @@
 class AbstractTransactionItemModel : public AbstractVisualTableModel
 {
     Q_OBJECT
-    Q_PROPERTY(int transactionId READ transactionId WRITE setTransactionId NOTIFY transactionIdChanged)
+    Q_PROPERTY(int transactionId READ transactionId WRITE setTransactionId
+                   NOTIFY transactionIdChanged)
 public:
-    explicit AbstractTransactionItemModel(QObject *parent = nullptr);
-    explicit AbstractTransactionItemModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit AbstractTransactionItemModel(QObject* parent = nullptr);
+    explicit AbstractTransactionItemModel(DatabaseThread& thread,
+                                          QObject* parent = nullptr);
 
     int transactionId() const;
     void setTransactionId(int transactionId);
@@ -17,8 +19,9 @@ public:
     bool isExistingTransaction() const;
 signals:
     void transactionIdChanged();
+
 private:
-    int m_transactionId {0};
+    int m_transactionId{0};
 };
 
-#endif // ABSTRACTTRANSACTIONITEMMODEL_H
+#endif  // ABSTRACTTRANSACTIONITEMMODEL_H

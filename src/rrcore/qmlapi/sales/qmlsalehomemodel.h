@@ -9,25 +9,31 @@ class QMLSaleHomeModel : public AbstractVisualListModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         DataTypeRole = Qt::UserRole,
         DataModelRole
     };
 
-    explicit QMLSaleHomeModel(QObject *parent = nullptr);
-    explicit QMLSaleHomeModel(DatabaseThread &thread,
-                              QObject *parent = nullptr);
+    explicit QMLSaleHomeModel(QObject* parent = nullptr);
+    explicit QMLSaleHomeModel(DatabaseThread& thread,
+                              QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override final;
+    int rowCount(
+        const QModelIndex& parent = QModelIndex()) const override final;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override final;
     QHash<int, QByteArray> roleNames() const override final;
+
 protected:
     virtual void tryQuery() override final;
-    virtual bool canProcessResult(const QueryResult &result) const override final;
-    virtual void processResult(const QueryResult &result) override final;
+    virtual bool canProcessResult(
+        const QueryResult& result) const override final;
+    virtual void processResult(const QueryResult& result) override final;
+
 private:
     QVariantList m_records;
-    QList<AbstractVisualListModel *> m_dataModels;
+    QList<AbstractVisualListModel*> m_dataModels;
 };
 
-#endif // QMLSALEHOMEMODEL_H
+#endif  // QMLSALEHOMEMODEL_H

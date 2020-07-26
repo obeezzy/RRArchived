@@ -10,4 +10,4 @@ public:
     QString toString() const override;
 };
 
-#endif // AMOUNTOVERPAIDEXCEPTION_H
+#endif  // AMOUNTOVERPAIDEXCEPTION_H

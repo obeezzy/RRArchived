@@ -1,34 +1,40 @@
 #include "abstractvisuallistmodel.h"
+#include <QLoggingCategory>
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
-#include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(lcabstractvisuallistmodel, "rrcore.models.abstractvisuallistmodel");
+Q_LOGGING_CATEGORY(lcabstractvisuallistmodel,
+                   "rrcore.models.abstractvisuallistmodel");
 
-AbstractVisualListModel::AbstractVisualListModel(QObject *parent) :
-    AbstractVisualListModel(DatabaseThread::instance(), parent)
+AbstractVisualListModel::AbstractVisualListModel(QObject* parent)
+    : AbstractVisualListModel(DatabaseThread::instance(), parent)
 {}
 
-AbstractVisualListModel::AbstractVisualListModel(DatabaseThread &thread,
-                                                 QObject *parent) :
-    QAbstractListModel(parent),
-    m_autoQuery(true),
-    m_busy(false)
+AbstractVisualListModel::AbstractVisualListModel(DatabaseThread& thread,
+                                                 QObject* parent)
+    : QAbstractListModel(parent),
+      m_autoQuery(true),
+      m_busy(false)
 {
-    connect(this, &AbstractVisualListModel::execute, &thread, &DatabaseThread::execute);
-    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::processResult);
+    connect(this, &AbstractVisualListModel::execute, &thread,
+            &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this,
+            &AbstractVisualListModel::processResult);
 
-    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualListModel::saveRequest);
+    connect(&thread, &DatabaseThread::resultReady, this,
+            &AbstractVisualListModel::saveRequest);
 
-    connect(this, &AbstractVisualListModel::filterTextChanged, this, &AbstractVisualListModel::filter);
-    connect(this, &AbstractVisualListModel::filterColumnChanged, this, &AbstractVisualListModel::filter);
-    connect(this, &AbstractVisualListModel::sortOrderChanged, this, &AbstractVisualListModel::filter);
-    connect(this, &AbstractVisualListModel::sortColumnChanged, this, &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::filterTextChanged, this,
+            &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::filterColumnChanged, this,
+            &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::sortOrderChanged, this,
+            &AbstractVisualListModel::filter);
+    connect(this, &AbstractVisualListModel::sortColumnChanged, this,
+            &AbstractVisualListModel::filter);
 }
 
-AbstractVisualListModel::~AbstractVisualListModel()
-{
-}
+AbstractVisualListModel::~AbstractVisualListModel() {}
 
 bool AbstractVisualListModel::autoQuery() const
 {
@@ -58,7 +64,7 @@ QString AbstractVisualListModel::filterText() const
     return m_filterCriteria.text;
 }
 
-void AbstractVisualListModel::setFilterText(const QString &filterText)
+void AbstractVisualListModel::setFilterText(const QString& filterText)
 {
     if (m_filterCriteria.text == filterText)
         return;
@@ -124,10 +130,7 @@ void AbstractVisualListModel::setSortColumn(int sortColumn)
     emit sortColumnChanged();
 }
 
-void AbstractVisualListModel::classBegin()
-{
-
-}
+void AbstractVisualListModel::classBegin() {}
 
 void AbstractVisualListModel::componentComplete()
 {
@@ -135,15 +138,9 @@ void AbstractVisualListModel::componentComplete()
         tryQuery();
 }
 
-void AbstractVisualListModel::undoLastCommit()
-{
+void AbstractVisualListModel::undoLastCommit() {}
 
-}
-
-void AbstractVisualListModel::filter()
-{
-
-}
+void AbstractVisualListModel::filter() {}
 
 QString AbstractVisualListModel::columnName(int column) const
 {
@@ -151,21 +148,21 @@ QString AbstractVisualListModel::columnName(int column) const
     return QString();
 }
 
-const QueryRequest &AbstractVisualListModel::lastSuccessfulRequest() const
+const QueryRequest& AbstractVisualListModel::lastSuccessfulRequest() const
 {
     return m_lastSuccessfulRequest;
 }
 
-void AbstractVisualListModel::saveRequest(const QueryResult &result)
+void AbstractVisualListModel::saveRequest(const QueryResult& result)
 {
-    if (result.isSuccessful() && result.request().receiver() == this
-            && result.request().canUndo()
-            && !result.request().isUndoSet()) {
+    if (result.isSuccessful() && result.request().receiver() == this &&
+        result.request().canUndo() && !result.request().isUndoSet()) {
         m_lastSuccessfulRequest = result.request();
-        QVariantMap params{ result.request().params() };
+        QVariantMap params{result.request().params()};
         params.insert("outcome", result.outcome());
         m_lastSuccessfulRequest.setParams(params);
-        qCDebug(lcabstractvisuallistmodel) << "Request saved:" << result.request().command() << this;
+        qCDebug(lcabstractvisuallistmodel)
+            << "Request saved:" << result.request().command() << this;
     }
 }
 
@@ -196,10 +193,12 @@ void AbstractVisualListModel::validateResult(const QueryResult result)
     if (canProcessResult(result))
         processResult(result);
     else
-        qFatal("Validation failed for %s.\nActual returned keys: %s.\nExpected returned keys: %s",
-               result.request().command().toStdString().c_str(),
-               result.outcome().toMap().keys().join(", ").toStdString().c_str(),
-               result.errorDetails().toStdString().c_str());
+        qFatal(
+            "Validation failed for %s.\nActual returned keys: %s.\nExpected "
+            "returned keys: %s",
+            result.request().command().toStdString().c_str(),
+            result.outcome().toMap().keys().join(", ").toStdString().c_str(),
+            result.errorDetails().toStdString().c_str());
 }
 
 void AbstractVisualListModel::refresh()

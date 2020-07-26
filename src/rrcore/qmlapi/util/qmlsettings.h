@@ -7,16 +7,18 @@
 class QMLSettings : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool darkModeActive READ darkModeActive WRITE setDarkModeActive NOTIFY darkModeActiveChanged)
+    Q_PROPERTY(bool darkModeActive READ darkModeActive WRITE setDarkModeActive
+                   NOTIFY darkModeActiveChanged)
 public:
-    explicit QMLSettings(QObject *parent = nullptr);
+    explicit QMLSettings(QObject* parent = nullptr);
 
     bool darkModeActive() const;
     void setDarkModeActive(bool darkModeActive);
 signals:
     void darkModeActiveChanged();
+
 private:
     QSettings m_settings;
 };
 
-#endif // QMLSETTINGS_H
+#endif  // QMLSETTINGS_H

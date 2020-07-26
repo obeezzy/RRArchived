@@ -7,19 +7,20 @@ namespace Utility {
 class FilterCriteria;
 class SortCriteria;
 class DateTimeSpan;
-}
+}  // namespace Utility
 
 class FilterExpenseReport : public ExpenseExecutor
 {
     Q_OBJECT
 public:
-    inline static const QString COMMAND = QStringLiteral("filter_expense_report");
+    inline static const QString COMMAND =
+        QStringLiteral("filter_expense_report");
 
-    explicit FilterExpenseReport(const Utility::FilterCriteria &filterCriteria,
-                                 const Utility::SortCriteria &sortCriteria,
-                                 const Utility::DateTimeSpan &dateTimeSpan,
-                                 QObject *receiver);
+    explicit FilterExpenseReport(const Utility::FilterCriteria& filterCriteria,
+                                 const Utility::SortCriteria& sortCriteria,
+                                 const Utility::DateTimeSpan& dateTimeSpan,
+                                 QObject* receiver);
     QueryResult execute() override;
 };
 
-#endif // FILTEREXPENSEREPORT_H
+#endif  // FILTEREXPENSEREPORT_H

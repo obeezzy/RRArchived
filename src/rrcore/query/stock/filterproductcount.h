@@ -8,19 +8,19 @@ class FilterCriteria;
 }
 
 namespace Query {
-    namespace Stock {
-    class FilterProductCount : public StockExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("filter_product_count");
+namespace Stock {
+class FilterProductCount : public StockExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("filter_product_count");
 
-        explicit FilterProductCount(const Utility::FilterCriteria &filterCriteria,
-                                         int categoryId,
-                                         QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit FilterProductCount(const Utility::FilterCriteria& filterCriteria,
+                                int categoryId, QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Stock
+}  // namespace Query
 
-#endif // FILTERPRODUCTCOUNT_H
+#endif  // FILTERPRODUCTCOUNT_H

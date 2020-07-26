@@ -1,43 +1,42 @@
 #include "serverresponse.h"
-#include "serverrequest.h"
-#include <QJsonObject>
 #include <QJsonDocument>
-#include "database/queryresult.h"
+#include <QJsonObject>
 #include "database/databaseerror.h"
+#include "database/queryresult.h"
 #include "network/networkerror.h"
+#include "serverrequest.h"
 
-ServerResponse::ServerResponse(QObject *parent) :
-    QObject(parent),
-    m_request(ServerRequest()),
-    m_successful(false),
-    m_errorCode(-1),
-    m_statusCode(200)
+ServerResponse::ServerResponse(QObject* parent)
+    : QObject(parent),
+      m_request(ServerRequest()),
+      m_successful(false),
+      m_errorCode(-1),
+      m_statusCode(200)
 {
     qRegisterMetaType<ServerResponse>("ServerResponse");
 }
 
-ServerResponse::ServerResponse(const ServerRequest &request) :
-    QObject(nullptr),
-    m_request(request),
-    m_successful(false),
-    m_errorCode(-1),
-    m_statusCode(200)
+ServerResponse::ServerResponse(const ServerRequest& request)
+    : QObject(nullptr),
+      m_request(request),
+      m_successful(false),
+      m_errorCode(-1),
+      m_statusCode(200)
 {
     qRegisterMetaType<ServerResponse>("ServerResponse");
 }
 
-ServerResponse::ServerResponse(const QueryResult &queryResult) :
-    QObject(nullptr),
-    m_queryResult(queryResult),
-    m_successful(false),
-    m_errorCode(-1),
-    m_statusCode(200)
+ServerResponse::ServerResponse(const QueryResult& queryResult)
+    : QObject(nullptr),
+      m_queryResult(queryResult),
+      m_successful(false),
+      m_errorCode(-1),
+      m_statusCode(200)
 {
     qRegisterMetaType<ServerResponse>("ServerResponse");
 }
 
-ServerResponse::ServerResponse(const ServerResponse &other) :
-    QObject(nullptr)
+ServerResponse::ServerResponse(const ServerResponse& other) : QObject(nullptr)
 {
     setSuccessful(other.isSuccessful());
     setQueryResult(other.queryResult());
@@ -50,7 +49,7 @@ ServerResponse::ServerResponse(const ServerResponse &other) :
     setData(other.data());
 }
 
-ServerResponse &ServerResponse::operator=(const ServerResponse &other)
+ServerResponse& ServerResponse::operator=(const ServerResponse& other)
 {
     setSuccessful(other.isSuccessful());
     setQueryResult(other.queryResult());
@@ -77,7 +76,8 @@ void ServerResponse::setSuccessful(bool successful)
 
 bool ServerResponse::isValid() const
 {
-    return !m_request.action().trimmed().isEmpty() || !m_queryResult.request().command().trimmed().isEmpty();
+    return !m_request.action().trimmed().isEmpty() ||
+           !m_queryResult.request().command().trimmed().isEmpty();
 }
 
 QVariantMap ServerResponse::data() const
@@ -85,7 +85,7 @@ QVariantMap ServerResponse::data() const
     return m_data;
 }
 
-void ServerResponse::setData(const QVariantMap &data)
+void ServerResponse::setData(const QVariantMap& data)
 {
     m_data = data;
 }
@@ -110,7 +110,7 @@ QString ServerResponse::serverErrorCode() const
     return m_serverErrorCode;
 }
 
-void ServerResponse::setServerErrorCode(const QString &serverErrorCode)
+void ServerResponse::setServerErrorCode(const QString& serverErrorCode)
 {
     m_serverErrorCode = serverErrorCode;
 }
@@ -120,7 +120,7 @@ QString ServerResponse::errorMessage() const
     return m_errorMessage;
 }
 
-void ServerResponse::setErrorMessage(const QString &errorMessage)
+void ServerResponse::setErrorMessage(const QString& errorMessage)
 {
     m_errorMessage = errorMessage;
 }
@@ -140,7 +140,7 @@ QString ServerResponse::statusMessage() const
     return m_statusMessage;
 }
 
-void ServerResponse::setStatusMessage(const QString &statusMessage)
+void ServerResponse::setStatusMessage(const QString& statusMessage)
 {
     m_statusMessage = statusMessage;
 }
@@ -150,7 +150,7 @@ ServerRequest ServerResponse::request() const
     return m_request;
 }
 
-void ServerResponse::setRequest(const ServerRequest &request)
+void ServerResponse::setRequest(const ServerRequest& request)
 {
     m_request = request;
 }
@@ -160,42 +160,50 @@ QueryResult ServerResponse::queryResult() const
     return m_queryResult;
 }
 
-void ServerResponse::setQueryResult(const QueryResult &queryResult)
+void ServerResponse::setQueryResult(const QueryResult& queryResult)
 {
     m_queryResult = queryResult;
 }
 
-ServerResponse ServerResponse::fromJson(const QByteArray &json, const ServerRequest &request)
+ServerResponse ServerResponse::fromJson(const QByteArray& json,
+                                        const ServerRequest& request)
 {
     ServerResponse response;
-    QJsonObject jsonObject{ QJsonDocument::fromJson(json).object() };
+    QJsonObject jsonObject{QJsonDocument::fromJson(json).object()};
 
     response.setSuccessful(jsonObject.value("successful").toBool());
     response.setRequest(request);
     response.setData(jsonObject.value("data").toObject().toVariantMap());
-    response.setServerErrorCode(jsonObject.value("error").toObject().value("code").toString());
-    response.setErrorCode(serverErrorCodeAsInteger(jsonObject.value("error").toObject().value("code").toString()));
-    response.setErrorMessage(jsonObject.value("error").toObject().value("message").toString());
+    response.setServerErrorCode(
+        jsonObject.value("error").toObject().value("code").toString());
+    response.setErrorCode(serverErrorCodeAsInteger(
+        jsonObject.value("error").toObject().value("code").toString()));
+    response.setErrorMessage(
+        jsonObject.value("error").toObject().value("message").toString());
 
     return response;
 }
 
-ServerResponse ServerResponse::fromJson(const QByteArray &json, const QueryRequest &request)
+ServerResponse ServerResponse::fromJson(const QByteArray& json,
+                                        const QueryRequest& request)
 {
     ServerResponse response;
-    QJsonObject jsonObject{ QJsonDocument::fromJson(json).object() };
+    QJsonObject jsonObject{QJsonDocument::fromJson(json).object()};
 
     response.setSuccessful(jsonObject.value("successful").toBool());
     response.setData(jsonObject.value("data").toObject().toVariantMap());
-    response.setServerErrorCode(jsonObject.value("error").toObject().value("code").toString());
-    response.setErrorCode(queryErrorCodeAsInteger(jsonObject.value("error").toObject().value("code").toString()));
-    response.setErrorMessage(jsonObject.value("error").toObject().value("message").toString());
+    response.setServerErrorCode(
+        jsonObject.value("error").toObject().value("code").toString());
+    response.setErrorCode(queryErrorCodeAsInteger(
+        jsonObject.value("error").toObject().value("code").toString()));
+    response.setErrorMessage(
+        jsonObject.value("error").toObject().value("message").toString());
 
-    const QJsonObject queryResultObject {
-        { "successful", jsonObject.value("successful") },
-        { "outcome", jsonObject.value("outcome") }
-    };
-    QueryResult result(QueryResult::fromJson(QJsonDocument(queryResultObject).toJson(), request));
+    const QJsonObject queryResultObject{
+        {"successful", jsonObject.value("successful")},
+        {"outcome", jsonObject.value("outcome")}};
+    QueryResult result(QueryResult::fromJson(
+        QJsonDocument(queryResultObject).toJson(), request));
     result.setErrorCode(response.errorCode());
     result.setErrorMessage(response.errorMessage());
     response.setQueryResult(result);
@@ -203,22 +211,22 @@ ServerResponse ServerResponse::fromJson(const QByteArray &json, const QueryReque
     return response;
 }
 
-int ServerResponse::serverErrorCodeAsInteger(const QString &errorCode)
+int ServerResponse::serverErrorCodeAsInteger(const QString& errorCode)
 {
     if (errorCode.trimmed().isEmpty())
         return -1;
 
-    NetworkError::ServerErrorCode code = NetworkError::serverErrorHash.value(errorCode,
-                                                                             NetworkError::ServerErrorCode::UnknownError);
+    NetworkError::ServerErrorCode code = NetworkError::serverErrorHash.value(
+        errorCode, NetworkError::ServerErrorCode::UnknownError);
     return static_cast<int>(code);
 }
 
-int ServerResponse::queryErrorCodeAsInteger(const QString &errorCode)
+int ServerResponse::queryErrorCodeAsInteger(const QString& errorCode)
 {
     if (errorCode.trimmed().isEmpty())
         return -1;
 
-    DatabaseError::QueryErrorCode code = DatabaseError::queryErrorHash.value(errorCode,
-                                                                             DatabaseError::QueryErrorCode::UnknownError);
+    DatabaseError::QueryErrorCode code = DatabaseError::queryErrorHash.value(
+        errorCode, DatabaseError::QueryErrorCode::UnknownError);
     return static_cast<int>(code);
 }

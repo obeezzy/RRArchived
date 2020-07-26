@@ -1,15 +1,16 @@
 #ifndef BUSINESSSTORE_H
 #define BUSINESSSTORE_H
 
-#include <QObject>
-#include <QUrl>
-#include <QString>
-#include <QVariantMap>
 #include <QDebug>
+#include <QObject>
+#include <QString>
+#include <QUrl>
+#include <QVariantMap>
 
 class QMLUserProfile;
 
-class BusinessStore : public QObject {
+class BusinessStore : public QObject
+{
     friend class QMLUserProfile;
     Q_OBJECT
     Q_PROPERTY(QString name READ name CONSTANT)
@@ -20,11 +21,11 @@ class BusinessStore : public QObject {
     Q_PROPERTY(QUrl logoUrl READ logoUrl CONSTANT)
     Q_PROPERTY(QString rackId READ rackId CONSTANT)
 public:
-    explicit BusinessStore(QObject *parent = nullptr);
-    BusinessStore(const BusinessStore &other);
-    BusinessStore &operator= (const BusinessStore &other);
+    explicit BusinessStore(QObject* parent = nullptr);
+    BusinessStore(const BusinessStore& other);
+    BusinessStore& operator=(const BusinessStore& other);
 
-    bool operator==(const BusinessStore &other);
+    bool operator==(const BusinessStore& other);
 
     int id() const;
     QString name() const;
@@ -35,41 +36,42 @@ public:
     QUrl logoUrl() const;
     QString rackId() const;
 
-    static BusinessStore fromVariantMap(const QVariantMap &map);
+    static BusinessStore fromVariantMap(const QVariantMap& map);
     QVariantMap toVariantMap() const;
 
-    friend QDebug operator<<(QDebug debug, const BusinessStore &businessStore)
+    friend QDebug operator<<(QDebug debug, const BusinessStore& businessStore)
     {
-       debug.nospace() << "BusinessStore("
-                            << "name=" << businessStore.name()
-                            << ", address=" << businessStore.address()
-                            << ", businessFamily=" << businessStore.businessFamily()
-                            << ", establishmentYear=" << businessStore.establishmentYear()
-                            << ", phoneNumber=" << businessStore.phoneNumber()
-                            << ", logoUrl=" << businessStore.logoUrl()
-                            << ", rackId=" << businessStore.rackId()
-                            << ")";
+        debug.nospace() << "BusinessStore("
+                        << "name=" << businessStore.name()
+                        << ", address=" << businessStore.address()
+                        << ", businessFamily=" << businessStore.businessFamily()
+                        << ", establishmentYear="
+                        << businessStore.establishmentYear()
+                        << ", phoneNumber=" << businessStore.phoneNumber()
+                        << ", logoUrl=" << businessStore.logoUrl()
+                        << ", rackId=" << businessStore.rackId() << ")";
 
         return debug;
     }
+
 private:
-    int m_id {0};
+    int m_id{0};
     QString m_name;
     QString m_address;
     QString m_businessFamily;
-    int m_establishmentYear {1901};
+    int m_establishmentYear{1901};
     QString m_phoneNumber;
     QUrl m_logoUrl;
     QString m_rackId;
 
     void setId(int id);
-    void setName(const QString &name);
-    void setAddress(const QString &address);
-    void setBusinessFamily(const QString &businessFamily);
+    void setName(const QString& name);
+    void setAddress(const QString& address);
+    void setBusinessFamily(const QString& businessFamily);
     void setEstablishmentYear(int establishmentYear);
-    void setPhoneNumber(const QString &phoneNumber);
-    void setLogoUrl(const QUrl &logoUrl);
-    void setRackId(const QString &rackId);
+    void setPhoneNumber(const QString& phoneNumber);
+    void setLogoUrl(const QUrl& logoUrl);
+    void setRackId(const QString& rackId);
 };
 
-#endif // BUSINESSSTORE_H
+#endif  // BUSINESSSTORE_H

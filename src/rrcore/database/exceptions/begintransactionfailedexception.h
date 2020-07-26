@@ -6,8 +6,8 @@
 class BeginTransactionFailedException : public DatabaseException
 {
 public:
-    explicit BeginTransactionFailedException(const QSqlError &error);
+    explicit BeginTransactionFailedException(const QSqlError& error);
     QString toString() const override;
 };
 
-#endif // BEGINTRANSACTIONFAILEDEXCEPTION_H
+#endif  // BEGINTRANSACTIONFAILEDEXCEPTION_H

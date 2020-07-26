@@ -6,9 +6,9 @@
 class InvalidCredentialsException : public DatabaseException
 {
 public:
-    explicit InvalidCredentialsException(const QString &message,
-                                         const QSqlError &error);
+    explicit InvalidCredentialsException(const QString& message,
+                                         const QSqlError& error);
     QString toString() const override;
 };
 
-#endif // INVALIDCREDENTIALSEXCEPTION_H
+#endif  // INVALIDCREDENTIALSEXCEPTION_H

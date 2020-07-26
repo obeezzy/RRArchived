@@ -6,9 +6,9 @@
 class ConnectionFailedException : public DatabaseException
 {
 public:
-    explicit ConnectionFailedException(const QString &message,
-                                       const QSqlError &error);
+    explicit ConnectionFailedException(const QString& message,
+                                       const QSqlError& error);
     QString toString() const override;
 };
 
-#endif // CONNECTIONFAILEDEXCEPTION_H
+#endif  // CONNECTIONFAILEDEXCEPTION_H

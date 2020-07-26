@@ -1,17 +1,18 @@
 #include "qmldebtordetailrecord.h"
+#include <QDateTime>
 #include "database/databasethread.h"
 #include "query/debtor/fetchdebtor.h"
-#include <QDateTime>
 
-QMLDebtorDetailRecord::QMLDebtorDetailRecord(QObject *parent) :
-    AbstractDetailRecord(DatabaseThread::instance(), parent)
-{ }
+QMLDebtorDetailRecord::QMLDebtorDetailRecord(QObject* parent)
+    : AbstractDetailRecord(DatabaseThread::instance(), parent)
+{}
 
-QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread &thread, QObject *parent) :
-    AbstractDetailRecord(thread, parent)
+QMLDebtorDetailRecord::QMLDebtorDetailRecord(DatabaseThread& thread,
+                                             QObject* parent)
+    : AbstractDetailRecord(thread, parent)
 {
-    connect(this, &QMLDebtorDetailRecord::debtorIdChanged,
-            this, &QMLDebtorDetailRecord::tryQuery);
+    connect(this, &QMLDebtorDetailRecord::debtorIdChanged, this,
+            &QMLDebtorDetailRecord::tryQuery);
 }
 
 int QMLDebtorDetailRecord::debtorId() const
@@ -33,7 +34,7 @@ QString QMLDebtorDetailRecord::preferredName() const
     return m_debtor.client.preferredName;
 }
 
-void QMLDebtorDetailRecord::setPreferredName(const QString &preferredName)
+void QMLDebtorDetailRecord::setPreferredName(const QString& preferredName)
 {
     if (m_debtor.client.preferredName == preferredName)
         return;
@@ -47,7 +48,7 @@ QString QMLDebtorDetailRecord::firstName() const
     return m_debtor.client.firstName;
 }
 
-void QMLDebtorDetailRecord::setFirstName(const QString &firstName)
+void QMLDebtorDetailRecord::setFirstName(const QString& firstName)
 {
     if (m_debtor.client.firstName == firstName)
         return;
@@ -61,7 +62,7 @@ QString QMLDebtorDetailRecord::lastName() const
     return m_debtor.client.lastName;
 }
 
-void QMLDebtorDetailRecord::setLastName(const QString &lastName)
+void QMLDebtorDetailRecord::setLastName(const QString& lastName)
 {
     if (m_debtor.client.lastName == lastName)
         return;
@@ -75,7 +76,7 @@ QString QMLDebtorDetailRecord::phoneNumber() const
     return m_debtor.client.phoneNumber;
 }
 
-void QMLDebtorDetailRecord::setPhoneNumber(const QString &phoneNumber)
+void QMLDebtorDetailRecord::setPhoneNumber(const QString& phoneNumber)
 {
     if (m_debtor.client.phoneNumber == phoneNumber)
         return;
@@ -89,7 +90,7 @@ QStringList QMLDebtorDetailRecord::addressModel() const
     return QStringList();
 }
 
-void QMLDebtorDetailRecord::setAddressModel(const QStringList &addressModel)
+void QMLDebtorDetailRecord::setAddressModel(const QStringList& addressModel)
 {
     Q_UNUSED(addressModel);
 }
@@ -99,7 +100,7 @@ QStringList QMLDebtorDetailRecord::emailModel() const
     return QStringList();
 }
 
-void QMLDebtorDetailRecord::setEmailModel(const QStringList &emailModel)
+void QMLDebtorDetailRecord::setEmailModel(const QStringList& emailModel)
 {
     Q_UNUSED(emailModel);
 }
@@ -109,7 +110,7 @@ QUrl QMLDebtorDetailRecord::imageUrl() const
     return m_debtor.client.imageUrl;
 }
 
-void QMLDebtorDetailRecord::setImageUrl(const QUrl &imageUrl)
+void QMLDebtorDetailRecord::setImageUrl(const QUrl& imageUrl)
 {
     if (m_debtor.client.imageUrl == imageUrl)
         return;
@@ -123,7 +124,7 @@ QDateTime QMLDebtorDetailRecord::created() const
     return m_debtor.timestamp.created;
 }
 
-void QMLDebtorDetailRecord::setCreated(const QDateTime &created)
+void QMLDebtorDetailRecord::setCreated(const QDateTime& created)
 {
     if (m_debtor.timestamp.created == created)
         return;
@@ -137,7 +138,7 @@ QDateTime QMLDebtorDetailRecord::lastEdited() const
     return m_debtor.timestamp.lastEdited;
 }
 
-void QMLDebtorDetailRecord::setLastEdited(const QDateTime &lastEdited)
+void QMLDebtorDetailRecord::setLastEdited(const QDateTime& lastEdited)
 {
     if (m_debtor.timestamp.lastEdited == lastEdited)
         return;
@@ -165,7 +166,7 @@ QString QMLDebtorDetailRecord::user() const
     return m_debtor.user.user;
 }
 
-void QMLDebtorDetailRecord::setUser(const QString &user)
+void QMLDebtorDetailRecord::setUser(const QString& user)
 {
     if (m_debtor.user.user == user)
         return;
@@ -180,8 +181,7 @@ void QMLDebtorDetailRecord::tryQuery()
         return;
 
     setBusy(true);
-    emit execute(new Query::Debtor::FetchDebtor(m_debtor.id,
-                                                  this));
+    emit execute(new Query::Debtor::FetchDebtor(m_debtor.id, this));
 }
 
 void QMLDebtorDetailRecord::processResult(const QueryResult result)
@@ -190,7 +190,7 @@ void QMLDebtorDetailRecord::processResult(const QueryResult result)
 
     if (result.isSuccessful()) {
         if (result.request().command() == Query::Debtor::FetchDebtor::COMMAND) {
-            const Utility::Debtor::Debtor debtor{ result.outcome().toMap() };
+            const Utility::Debtor::Debtor debtor{result.outcome().toMap()};
             setPreferredName(debtor.client.preferredName);
             setFirstName(debtor.client.firstName);
             setLastName(debtor.client.lastName);

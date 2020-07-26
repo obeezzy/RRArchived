@@ -1,7 +1,7 @@
-#include "qmlapi/expense/qmlexpensereportmodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/expense/qmlexpensereportmodel.h"
 
 class QMLExpenseReportModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLExpenseReportModel *m_expenseReportModel;
-    MockDatabaseThread *m_thread;
+    QMLExpenseReportModel* m_expenseReportModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLExpenseReportModelTest::init()
@@ -29,9 +30,9 @@ void QMLExpenseReportModelTest::cleanup()
 
 void QMLExpenseReportModelTest::testModel()
 {
-    QAbstractItemModelTester(m_expenseReportModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_expenseReportModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLExpenseReportModelTest)

@@ -1,7 +1,7 @@
-#include "qmlapi/creditor/qmlcreditormodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/creditor/qmlcreditormodel.h"
 
 class QMLCreditorModelTest : public QObject
 {
@@ -11,9 +11,10 @@ private slots:
     void cleanup();
 
     void testModel();
+
 private:
-    QMLCreditorModel *m_creditorModel;
-    MockDatabaseThread *m_thread;
+    QMLCreditorModel* m_creditorModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLCreditorModelTest::init()
@@ -30,9 +31,9 @@ void QMLCreditorModelTest::cleanup()
 
 void QMLCreditorModelTest::testModel()
 {
-    QAbstractItemModelTester(m_creditorModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_creditorModel, QAbstractItemModelTester::FailureReportingMode::Fatal,
+        this);
 }
 
 QTEST_GUILESS_MAIN(QMLCreditorModelTest)

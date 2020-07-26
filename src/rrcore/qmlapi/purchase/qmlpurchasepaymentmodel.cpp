@@ -1,10 +1,10 @@
 #include "qmlpurchasepaymentmodel.h"
 
-QMLPurchasePaymentModel::QMLPurchasePaymentModel(QObject *parent) :
-    AbstractVisualListModel(parent)
+QMLPurchasePaymentModel::QMLPurchasePaymentModel(QObject* parent)
+    : AbstractVisualListModel(parent)
 {}
 
-int QMLPurchasePaymentModel::rowCount(const QModelIndex &parent) const
+int QMLPurchasePaymentModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -12,18 +12,18 @@ int QMLPurchasePaymentModel::rowCount(const QModelIndex &parent) const
     return m_payments.count();
 }
 
-QVariant QMLPurchasePaymentModel::data(const QModelIndex &index, int role) const
+QVariant QMLPurchasePaymentModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case AmountRole:
-        return m_payments.at(index.row()).amount.toDouble();
-    case MethodRole:
-        return m_payments.at(index.row()).method.toString();
-    case NoteRole:
-        return m_payments.at(index.row()).note.note;
+        case AmountRole:
+            return m_payments.at(index.row()).amount.toDouble();
+        case MethodRole:
+            return m_payments.at(index.row()).method.toString();
+        case NoteRole:
+            return m_payments.at(index.row()).note.note;
     }
 
     return QVariant();
@@ -31,11 +31,7 @@ QVariant QMLPurchasePaymentModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLPurchasePaymentModel::roleNames() const
 {
-    return {
-        { AmountRole, "amount" },
-        { MethodRole, "method" },
-        { NoteRole, "note" }
-    };
+    return {{AmountRole, "amount"}, {MethodRole, "method"}, {NoteRole, "note"}};
 }
 
 double QMLPurchasePaymentModel::totalAmount() const
@@ -43,7 +39,8 @@ double QMLPurchasePaymentModel::totalAmount() const
     return m_totalAmount.toDouble();
 }
 
-void QMLPurchasePaymentModel::addPayment(const Utility::Purchase::PurchasePayment &payment)
+void QMLPurchasePaymentModel::addPayment(
+    const Utility::Purchase::PurchasePayment& payment)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_payments.append(payment);
@@ -74,8 +71,8 @@ int QMLPurchasePaymentModel::cashPaymentCount() const
 
 int QMLPurchasePaymentModel::cardPaymentCount() const
 {
-    return m_payments.count(Utility::PaymentMethod::DebitCard)
-            + m_payments.count(Utility::PaymentMethod::CreditCard);
+    return m_payments.count(Utility::PaymentMethod::DebitCard) +
+           m_payments.count(Utility::PaymentMethod::CreditCard);
 }
 
 void QMLPurchasePaymentModel::calculateTotalAmount()
@@ -83,18 +80,15 @@ void QMLPurchasePaymentModel::calculateTotalAmount()
     setTotalAmount(m_payments.total().toDouble());
 }
 
-void QMLPurchasePaymentModel::tryQuery()
-{
+void QMLPurchasePaymentModel::tryQuery() {}
 
-}
-
-bool QMLPurchasePaymentModel::canProcessResult(const QueryResult &result) const
+bool QMLPurchasePaymentModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLPurchasePaymentModel::processResult(const QueryResult &result)
+void QMLPurchasePaymentModel::processResult(const QueryResult& result)
 {
     Q_UNUSED(result)
 }

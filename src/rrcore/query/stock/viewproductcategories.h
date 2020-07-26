@@ -9,18 +9,19 @@ class SortCriteria;
 }
 
 namespace Query {
-    namespace Stock {
-    class ViewProductCategories : public StockExecutor
-    {
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_product_categories");
+namespace Stock {
+class ViewProductCategories : public StockExecutor
+{
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("view_product_categories");
 
-        explicit ViewProductCategories(const Utility::SortCriteria &sortCriteria,
-                                        const Utility::RecordGroup::Flags &flags,
-                                        QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit ViewProductCategories(const Utility::SortCriteria& sortCriteria,
+                                   const Utility::RecordGroup::Flags& flags,
+                                   QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Stock
+}  // namespace Query
 
-#endif // VIEWPRODUCTCATEGORIES_H
+#endif  // VIEWPRODUCTCATEGORIES_H

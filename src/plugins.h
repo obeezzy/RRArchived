@@ -1,7 +1,6 @@
 #ifndef PLUGINS_H
 #define PLUGINS_H
 
-
 class Plugins
 {
 public:
@@ -11,4 +10,4 @@ public:
     static void registerFonts();
 };
 
-#endif // PLUGINS_H
+#endif  // PLUGINS_H

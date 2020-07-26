@@ -7,46 +7,42 @@
 
 using namespace Query::User;
 
-FetchUserPrivileges::FetchUserPrivileges(int userId,
-                                         QObject *receiver) :
-    UserExecutor(COMMAND, {
-                    { "user_id", userId }
-                 }, receiver)
-{
-
-}
+FetchUserPrivileges::FetchUserPrivileges(int userId, QObject* receiver)
+    : UserExecutor(COMMAND, {{"user_id", userId}}, receiver)
+{}
 
 QueryResult FetchUserPrivileges::execute()
 {
-    QueryResult result{ request() };
+    QueryResult result{request()};
     result.setSuccessful(true);
-    const QVariantMap &params = request().params();
+    const QVariantMap& params = request().params();
 
     try {
-        const QList<QSqlRecord> &records(callProcedure("FetchUserPrivileges", {
-                                                           ProcedureArgument {
-                                                               ProcedureArgument::Type::In,
-                                                               "user_id",
-                                                               params.value("user_id")
-                                                           }
-                                                       }));
+        const QList<QSqlRecord>& records(callProcedure(
+            "FetchUserPrivileges",
+            {ProcedureArgument{ProcedureArgument::Type::In, "user_id",
+                               params.value("user_id")}}));
 
         QVariantMap userPrivileges;
         if (!records.isEmpty()) {
-            userPrivileges = QJsonDocument::fromJson(recordToMap(records.first())
-                                                     .value("user_privileges").toString().toUtf8()).object().toVariantMap();
+            userPrivileges =
+                QJsonDocument::fromJson(recordToMap(records.first())
+                                            .value("user_privileges")
+                                            .toString()
+                                            .toUtf8())
+                    .object()
+                    .toVariantMap();
         } else {
             UserPrivilegeCenter userPrivilegeCenter;
             userPrivileges = userPrivilegeCenter.getPrivileges().toMap();
         }
 
-        result.setOutcome(QVariantMap {
-                              { "user_privileges", userPrivileges },
-                              { "record_count", userPrivileges.count() }
-                          });
+        result.setOutcome(
+            QVariantMap{{"user_privileges", userPrivileges},
+                        {"record_count", userPrivileges.count()}});
 
         return result;
-    } catch (const DatabaseException &) {
+    } catch (const DatabaseException&) {
         throw;
     }
 }

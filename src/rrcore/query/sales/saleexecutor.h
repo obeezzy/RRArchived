@@ -7,10 +7,10 @@ class SaleExecutor : public TransactionExecutor
 {
     Q_OBJECT
 public:
-    explicit SaleExecutor(const QString &command,
-                          const QVariantMap &params,
-                          QObject *receiver);
+    explicit SaleExecutor(const QString& command, const QVariantMap& params,
+                          QObject* receiver);
     virtual ~SaleExecutor() = default;
+
 protected:
     QueryResult addSaleTransaction(TransactionMode mode);
 
@@ -20,7 +20,7 @@ protected:
     void addSalePayments(int saleTransactionId);
     void addSoldProducts(int saleTransactionId);
 
-    void deductFromStockProductQuantity(const QVariantMap &product);
+    void deductFromStockProductQuantity(const QVariantMap& product);
 };
 
-#endif // SALEEXECUTOR_H
+#endif  // SALEEXECUTOR_H

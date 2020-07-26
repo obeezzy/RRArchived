@@ -8,66 +8,78 @@ class QMLPurchaseTransactionModel : public AbstractTransactionModel
 {
     Q_OBJECT
 public:
-    enum SuccessCode {
+    enum SuccessCode
+    {
         UnknownSuccess,
         ViewTransactionSuccess,
         RemoveTransactionSuccess,
         UndoRemoveTransactionSuccess
-    }; Q_ENUM(SuccessCode)
+    };
+    Q_ENUM(SuccessCode)
 
-    enum ErrorCode {
+    enum ErrorCode
+    {
         UnknownError,
-                ViewTransactionError,
-                RemoveTransactionError,
-                UndoRemoveTransactionError
-    }; Q_ENUM(ErrorCode)
+        ViewTransactionError,
+        RemoveTransactionError,
+        UndoRemoveTransactionError
+    };
+    Q_ENUM(ErrorCode)
 
-    enum Columns {
+    enum Columns
+    {
         TransactionIdColumn,
-                CustomerNameColumn,
-                TotalCostColumn,
-                ActionColumn,
-                ColumnCount
-    }; Q_ENUM(Columns)
+        CustomerNameColumn,
+        TotalCostColumn,
+        ActionColumn,
+        ColumnCount
+    };
+    Q_ENUM(Columns)
 
-    enum Roles {
+    enum Roles
+    {
         TransactionIdRole = Qt::UserRole,
-                ClientIdRole,
-                CustomerNameRole,
-                TotalCostRole,
-                AmountPaidRole,
-                BalanceRole,
-                DiscountRole,
-                NoteIdRole,
-                NoteRole,
-                SuspendedRole,
-                ArchivedRole,
-                CreatedRole,
-                LastEditedRole,
-                UserIdRole
+        ClientIdRole,
+        CustomerNameRole,
+        TotalCostRole,
+        AmountPaidRole,
+        BalanceRole,
+        DiscountRole,
+        NoteIdRole,
+        NoteRole,
+        SuspendedRole,
+        ArchivedRole,
+        CreatedRole,
+        LastEditedRole,
+        UserIdRole
     };
 
-    explicit QMLPurchaseTransactionModel(QObject *parent = nullptr);
-    explicit QMLPurchaseTransactionModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLPurchaseTransactionModel(QObject* parent = nullptr);
+    explicit QMLPurchaseTransactionModel(DatabaseThread& thread,
+                                         QObject* parent = nullptr);
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section,
-                        Qt::Orientation orientation,
+    QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override final;
-    void processResult(const QueryResult &result) override final;
+    bool canProcessResult(const QueryResult& result) const override final;
+    void processResult(const QueryResult& result) override final;
 public slots:
     void removeTransaction(int row);
+
 private:
     Utility::Purchase::PurchaseTransactionList m_transactions;
 
-    void removeTransactionFromModel(const Utility::Purchase::PurchaseTransaction &transaction);
-    void undoRemoveTransactionFromModel(const Utility::Purchase::PurchaseTransaction &transaction);
+    void removeTransactionFromModel(
+        const Utility::Purchase::PurchaseTransaction& transaction);
+    void undoRemoveTransactionFromModel(
+        const Utility::Purchase::PurchaseTransaction& transaction);
 };
 
-#endif // QMLPURCHASETRANSACTIONMODEL_H
+#endif  // QMLPURCHASETRANSACTIONMODEL_H

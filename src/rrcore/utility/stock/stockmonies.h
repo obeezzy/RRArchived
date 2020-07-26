@@ -4,17 +4,17 @@
 #include "utility/common/money.h"
 
 namespace Utility {
-    namespace Stock {
-    struct StockMonies
-    {
-        Money costPrice;
-        Money retailPrice;
-        Money unitPrice;
+namespace Stock {
+struct StockMonies
+{
+    Money costPrice;
+    Money retailPrice;
+    Money unitPrice;
 
-        explicit StockMonies();
-        explicit StockMonies(const QVariantMap &map);
-    };
-}
-}
+    explicit StockMonies();
+    explicit StockMonies(const QVariantMap& map);
+};
+}  // namespace Stock
+}  // namespace Utility
 
-#endif // STOCKMONIES_H
+#endif  // STOCKMONIES_H

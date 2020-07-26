@@ -4,15 +4,15 @@
 #include <QDateTime>
 
 namespace Utility {
-struct DateTimeSpan {
+struct DateTimeSpan
+{
     QDateTime from;
     QDateTime to;
 
     explicit DateTimeSpan() = default;
-    explicit DateTimeSpan(const QDateTime &from,
-                          const QDateTime &to);
+    explicit DateTimeSpan(const QDateTime& from, const QDateTime& to);
 };
-}
+}  // namespace Utility
 Q_DECLARE_TYPEINFO(Utility::DateTimeSpan, Q_PRIMITIVE_TYPE);
 
-#endif // DATETIMESPAN_H
+#endif  // DATETIMESPAN_H

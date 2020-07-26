@@ -7,7 +7,7 @@ namespace Utility {
 class FilterCriteria;
 class SortCriteria;
 class DateTimeSpan;
-}
+}  // namespace Utility
 
 class FilterStockReport : public StockExecutor
 {
@@ -15,11 +15,11 @@ class FilterStockReport : public StockExecutor
 public:
     inline static const QString COMMAND = QStringLiteral("filter_stock_report");
 
-    explicit FilterStockReport(const Utility::FilterCriteria &filterCriteria,
-                               const Utility::SortCriteria &sortCriteria,
-                               const Utility::DateTimeSpan &dateTimeSpan,
-                               QObject *receiver);
+    explicit FilterStockReport(const Utility::FilterCriteria& filterCriteria,
+                               const Utility::SortCriteria& sortCriteria,
+                               const Utility::DateTimeSpan& dateTimeSpan,
+                               QObject* receiver);
     QueryResult execute() override;
 };
 
-#endif // FILTERSTOCKREPORT_H
+#endif  // FILTERSTOCKREPORT_H

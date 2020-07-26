@@ -1,16 +1,16 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <QSettings>
 #include <QFile>
+#include <QSettings>
 
 class Logger
 {
 public:
-    static Logger &instance();
+    static Logger& instance();
 
-    Logger(Logger const &) = delete;
-    void operator=(Logger const &) = delete;
+    Logger(Logger const&) = delete;
+    void operator=(Logger const&) = delete;
     ~Logger();
 
     void start();
@@ -21,7 +21,8 @@ public:
     bool isFileLoggingEnabled() const;
     void setFileLoggingEnabled(bool enabled);
 
-    void logToFile(const QByteArray &log);
+    void logToFile(const QByteArray& log);
+
 private:
     QSettings m_settings;
     QFile m_logFile;
@@ -31,4 +32,4 @@ private:
     explicit Logger();
 };
 
-#endif // LOGGER_H
+#endif  // LOGGER_H

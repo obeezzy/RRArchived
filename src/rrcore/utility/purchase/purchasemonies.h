@@ -1,28 +1,28 @@
 #ifndef PURCHASEMONIES_H
 #define PURCHASEMONIES_H
 
-#include "utility/common/money.h"
 #include <QVariantMap>
+#include "utility/common/money.h"
 
 namespace Utility {
-    namespace Purchase {
-    struct PurchaseMonies
-    {
-        Money amountPaid;
-        Money balance;
-        Money cost;
-        Money costPrice;
-        Money discount;
-        Money retailPrice;
-        Money totalCost;
-        Money unitPrice;
+namespace Purchase {
+struct PurchaseMonies
+{
+    Money amountPaid;
+    Money balance;
+    Money cost;
+    Money costPrice;
+    Money discount;
+    Money retailPrice;
+    Money totalCost;
+    Money unitPrice;
 
-        explicit PurchaseMonies();
-        explicit PurchaseMonies(const QVariantMap &map);
+    explicit PurchaseMonies();
+    explicit PurchaseMonies(const QVariantMap& map);
 
-        QVariantMap toVariantMap() const;
-    };
-}
-}
+    QVariantMap toVariantMap() const;
+};
+}  // namespace Purchase
+}  // namespace Utility
 
-#endif // PURCHASEMONIES_H
+#endif  // PURCHASEMONIES_H

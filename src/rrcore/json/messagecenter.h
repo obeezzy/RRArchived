@@ -7,9 +7,9 @@ class MessageCenter : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageCenter(QObject *parent = nullptr);
+    explicit MessageCenter(QObject* parent = nullptr);
 
-    QVariant getMessage(const QString &key) const;
+    QVariant getMessage(const QString& key) const;
 };
 
-#endif // MESSAGECENTER_H
+#endif  // MESSAGECENTER_H

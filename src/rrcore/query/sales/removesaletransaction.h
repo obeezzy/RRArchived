@@ -7,22 +7,24 @@ namespace Utility {
 namespace Sales {
 class SaleTransaction;
 }
-}
+}  // namespace Utility
 
 namespace Query {
-    namespace Sales {
-    class RemoveSaleTransaction : public SaleExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("remove_sale_transaction");
-        static inline const QString UNDO_COMMAND = QStringLiteral("undo_remove_sale_transaction");
+namespace Sales {
+class RemoveSaleTransaction : public SaleExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("remove_sale_transaction");
+    static inline const QString UNDO_COMMAND =
+        QStringLiteral("undo_remove_sale_transaction");
 
-        explicit RemoveSaleTransaction(const Utility::Sales::SaleTransaction &transaction,
-                                       QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit RemoveSaleTransaction(
+        const Utility::Sales::SaleTransaction& transaction, QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Sales
+}  // namespace Query
 
-#endif // REMOVESALETRANSACTION_H
+#endif  // REMOVESALETRANSACTION_H

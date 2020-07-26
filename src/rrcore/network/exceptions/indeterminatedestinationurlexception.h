@@ -6,7 +6,7 @@
 class IndeterminateDestinationUrlException : public NetworkException
 {
 public:
-    explicit IndeterminateDestinationUrlException(const QString &command);
+    explicit IndeterminateDestinationUrlException(const QString& command);
 };
 
-#endif // INDETERMINATEDESTINATIONURLEXCEPTION_H
+#endif  // INDETERMINATEDESTINATIONURLEXCEPTION_H

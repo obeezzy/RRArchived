@@ -1,32 +1,34 @@
 #include "requestlogger.h"
 
-#include <QStandardPaths>
+#include <QDebug>
 #include <QDir>
-#include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QSettings>
+#include <QJsonObject>
 #include <QLoggingCategory>
-#include <QDebug>
+#include <QSettings>
+#include <QStandardPaths>
 
 #include "serverrequest.h"
 
 Q_LOGGING_CATEGORY(requestLogger, "rrcore.network.requestlogger", QtWarningMsg);
 
-const QString BACKUP_LOCATION = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/RecordRack/backup";
+const QString BACKUP_LOCATION =
+    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+    "/RecordRack/backup";
 const QString BACKUP_FILEPATH = BACKUP_LOCATION + "/rr.json";
-const int MAX_BACKUP_SIZE = 1024 * 1000 * 5; // 5 MB
+const int MAX_BACKUP_SIZE = 1024 * 1000 * 5;  // 5 MB
 
-RequestLogger::RequestLogger(QObject *parent) :
-    QObject(parent)
+RequestLogger::RequestLogger(QObject* parent) : QObject(parent)
 {
     QDir(BACKUP_LOCATION).mkpath(BACKUP_LOCATION);
     m_backupArray = readBackupArray();
 }
 
-void RequestLogger::push(const ServerRequest &request)
+void RequestLogger::push(const ServerRequest& request)
 {
-    const QJsonObject &jsonObject{ QJsonDocument::fromJson(request.toJson()).object() };
+    const QJsonObject& jsonObject{
+        QJsonDocument::fromJson(request.toJson()).object()};
 
     m_backupArray.append(jsonObject);
 
@@ -41,7 +43,8 @@ bool RequestLogger::hasNext() const
 ServerRequest RequestLogger::nextRequest()
 {
     if (!m_backupArray.isEmpty())
-        return ServerRequest::fromJson(QJsonDocument(m_backupArray.first().toObject()).toJson());
+        return ServerRequest::fromJson(
+            QJsonDocument(m_backupArray.first().toObject()).toJson());
 
     return ServerRequest();
 }
@@ -73,7 +76,8 @@ QJsonArray RequestLogger::readBackupArray() const
     file.open(QFile::ReadOnly);
 
     if (isFull()) {
-        qCWarning(requestLogger) << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
+        qCWarning(requestLogger)
+            << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
     }
 
     return QJsonDocument::fromJson(file.readAll()).array();
@@ -85,7 +89,8 @@ void RequestLogger::writeBackupArray()
     file.open(QFile::WriteOnly);
 
     if (file.size() > MAX_BACKUP_SIZE) {
-        qWarning(requestLogger) << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
+        qWarning(requestLogger)
+            << "Backup size is larger than" << MAX_BACKUP_SIZE << "MB.";
         m_settings.setValue("sql_dump_needed", true);
         return;
     }

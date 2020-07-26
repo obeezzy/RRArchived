@@ -8,18 +8,18 @@ class DateTimeSpan;
 }
 
 namespace Query {
-    namespace Income {
-    class ViewIncomeReport : public IncomeExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_income_report");
+namespace Income {
+class ViewIncomeReport : public IncomeExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("view_income_report");
 
-        explicit ViewIncomeReport(const Utility::DateTimeSpan &dateTimeSpan,
-                                  QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit ViewIncomeReport(const Utility::DateTimeSpan& dateTimeSpan,
+                              QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Income
+}  // namespace Query
 
-#endif // VIEWINCOMEREPORT_H
+#endif  // VIEWINCOMEREPORT_H

@@ -9,19 +9,20 @@ class DateTimeSpan;
 }
 
 namespace Query {
-    namespace Sales {
-    class ViewSaleTransactions : public SaleExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_sale_transactions");
+namespace Sales {
+class ViewSaleTransactions : public SaleExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("view_sale_transactions");
 
-        explicit ViewSaleTransactions(const Utility::DateTimeSpan &dateTimeSpan,
-                                      const Utility::RecordGroup::Flags &flags,
-                                      QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit ViewSaleTransactions(const Utility::DateTimeSpan& dateTimeSpan,
+                                  const Utility::RecordGroup::Flags& flags,
+                                  QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Sales
+}  // namespace Query
 
-#endif // VIEWSALETRANSACTIONS_H
+#endif  // VIEWSALETRANSACTIONS_H

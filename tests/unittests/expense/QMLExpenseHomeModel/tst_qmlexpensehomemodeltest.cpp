@@ -1,7 +1,7 @@
-#include "qmlapi/expense/qmlexpensehomemodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/expense/qmlexpensehomemodel.h"
 
 class QMLExpenseHomeModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLExpenseHomeModel *m_expenseHomeModel;
-    MockDatabaseThread *m_thread;
+    QMLExpenseHomeModel* m_expenseHomeModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLExpenseHomeModelTest::init()
@@ -29,9 +30,9 @@ void QMLExpenseHomeModelTest::cleanup()
 
 void QMLExpenseHomeModelTest::testModel()
 {
-    QAbstractItemModelTester(m_expenseHomeModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_expenseHomeModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLExpenseHomeModelTest)

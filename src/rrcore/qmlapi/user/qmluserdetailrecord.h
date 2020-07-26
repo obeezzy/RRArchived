@@ -14,11 +14,13 @@ class QMLUserDetailRecord : public AbstractDetailRecord
     Q_PROPERTY(QString lastName READ lastName NOTIFY lastNameChanged)
     Q_PROPERTY(QString userName READ userName NOTIFY userNameChanged)
     Q_PROPERTY(QString phoneNumber READ phoneNumber NOTIFY phoneNumberChanged)
-    Q_PROPERTY(QString emailAddress READ emailAddress NOTIFY emailAddressChanged)
+    Q_PROPERTY(
+        QString emailAddress READ emailAddress NOTIFY emailAddressChanged)
     Q_PROPERTY(QUrl imageUrl READ imageUrl NOTIFY imageUrlChanged)
 public:
-    explicit QMLUserDetailRecord(QObject *parent = nullptr);
-    explicit QMLUserDetailRecord(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLUserDetailRecord(QObject* parent = nullptr);
+    explicit QMLUserDetailRecord(DatabaseThread& thread,
+                                 QObject* parent = nullptr);
 
     int userId() const;
     void setUserId(int userId);
@@ -38,18 +40,20 @@ signals:
     void phoneNumberChanged();
     void emailAddressChanged();
     void imageUrlChanged();
+
 protected:
     void tryQuery() override;
     void processResult(const QueryResult result) override;
+
 private:
     Utility::User::User m_user;
 
-    void setFirstName(const QString &firstName);
-    void setLastName(const QString &lastName);
-    void setUserName(const QString &userName);
-    void setPhoneNumber(const QString &phoneNumber);
-    void setEmailAddress(const QString &emailAddress);
-    void setImageUrl(const QUrl &imageUrl);
+    void setFirstName(const QString& firstName);
+    void setLastName(const QString& lastName);
+    void setUserName(const QString& userName);
+    void setPhoneNumber(const QString& phoneNumber);
+    void setEmailAddress(const QString& emailAddress);
+    void setImageUrl(const QUrl& imageUrl);
 };
 
-#endif // QMLUSERDETAILRECORD_H
+#endif  // QMLUSERDETAILRECORD_H

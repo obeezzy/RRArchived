@@ -1,18 +1,19 @@
 #include "settings.h"
-#include <QFileInfo>
 #include <QDebug>
+#include <QFileInfo>
 
 const int CASH_PAYMENT_LIMIT = 1;
 const int CARD_PAYMENT_LIMIT = 2;
 
-Settings::Settings(QObject *parent) :
-    QObject(parent),
-    m_darkModeActive(m_settings.value("appearance/theme").toString() == "dark")
+Settings::Settings(QObject* parent)
+    : QObject(parent),
+      m_darkModeActive(m_settings.value("appearance/theme").toString() ==
+                       "dark")
 {
     QLocale::setDefault(QLocale(QLocale::English, QLocale::Nigeria));
 }
 
-Settings &Settings::instance()
+Settings& Settings::instance()
 {
     static Settings instance;
     return instance;

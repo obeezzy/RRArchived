@@ -1,8 +1,8 @@
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
 
-#include "qmlapi/purchase/qmlpurchasereportmodel.h"
 #include "mockdatabasethread.h"
+#include "qmlapi/purchase/qmlpurchasereportmodel.h"
 
 class QMLPurchaseReportModelTest : public QObject
 {
@@ -11,9 +11,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLPurchaseReportModel *m_purchaseReportModel;
-    MockDatabaseThread *m_thread;
+    QMLPurchaseReportModel* m_purchaseReportModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLPurchaseReportModelTest::init()
@@ -30,9 +31,9 @@ void QMLPurchaseReportModelTest::cleanup()
 
 void QMLPurchaseReportModelTest::testModel()
 {
-    QAbstractItemModelTester(m_purchaseReportModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_purchaseReportModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLPurchaseReportModelTest)

@@ -1,8 +1,8 @@
-#include "qmlapi/purchase/qmlpurchasehomemodel.h"
+#include <QCoreApplication>
+#include <QtTest>
 #include "database/databasethread.h"
 #include "mockdatabasethread.h"
-#include <QtTest>
-#include <QCoreApplication>
+#include "qmlapi/purchase/qmlpurchasehomemodel.h"
 
 class QMLPurchaseHomeModelTest : public QObject
 {
@@ -11,9 +11,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLPurchaseHomeModel *m_purchaseHomeModel;
-    MockDatabaseThread *m_thread;
+    QMLPurchaseHomeModel* m_purchaseHomeModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLPurchaseHomeModelTest::init()
@@ -30,9 +31,9 @@ void QMLPurchaseHomeModelTest::cleanup()
 
 void QMLPurchaseHomeModelTest::testModel()
 {
-    QAbstractItemModelTester(m_purchaseHomeModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_purchaseHomeModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLPurchaseHomeModelTest)

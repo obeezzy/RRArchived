@@ -1,7 +1,7 @@
-#include "qmlapi/purchase/qmlpurchasecartmodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/purchase/qmlpurchasecartmodel.h"
 
 class QMLPurchaseCartModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLPurchaseCartModel *m_purchaseCartModel;
-    MockDatabaseThread *m_thread;
+    QMLPurchaseCartModel* m_purchaseCartModel;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLPurchaseCartModelTest::init()
@@ -29,9 +30,9 @@ void QMLPurchaseCartModelTest::cleanup()
 
 void QMLPurchaseCartModelTest::testModel()
 {
-    QAbstractItemModelTester(m_purchaseCartModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_purchaseCartModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLPurchaseCartModelTest)

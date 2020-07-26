@@ -1,7 +1,7 @@
-#include "qmlapi/income/qmlincomereportmodel.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/income/qmlincomereportmodel.h"
 
 class QMLIncomeReportModelTest : public QObject
 {
@@ -10,9 +10,10 @@ private slots:
     void init();
     void cleanup();
     void testModel();
+
 private:
-    QMLIncomeReportModel *m_incomeReportModel;
-    MockDatabaseThread *m_thread;
+    QMLIncomeReportModel* m_incomeReportModel;
+    MockDatabaseThread* m_thread;
     QueryResult m_result;
 };
 
@@ -30,9 +31,9 @@ void QMLIncomeReportModelTest::cleanup()
 
 void QMLIncomeReportModelTest::testModel()
 {
-    QAbstractItemModelTester(m_incomeReportModel,
-                             QAbstractItemModelTester::FailureReportingMode::Fatal,
-                             this);
+    QAbstractItemModelTester(
+        m_incomeReportModel,
+        QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 QTEST_GUILESS_MAIN(QMLIncomeReportModelTest)

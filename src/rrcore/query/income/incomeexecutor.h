@@ -7,10 +7,9 @@ class IncomeExecutor : public QueryExecutor
 {
     Q_OBJECT
 public:
-    explicit IncomeExecutor(const QString &command,
-                            const QVariantMap &params,
-                            QObject *receiver);
+    explicit IncomeExecutor(const QString& command, const QVariantMap& params,
+                            QObject* receiver);
     virtual ~IncomeExecutor() = default;
 };
 
-#endif // INCOMEEXECUTOR_H
+#endif  // INCOMEEXECUTOR_H

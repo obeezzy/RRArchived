@@ -6,8 +6,8 @@
 class NoExistingRecordException : public DatabaseException
 {
 public:
-    explicit NoExistingRecordException(const QString &message);
+    explicit NoExistingRecordException(const QString& message);
     QString toString() const override;
 };
 
-#endif // NOEXISTINGRECORDEXCEPTION_H
+#endif  // NOEXISTINGRECORDEXCEPTION_H

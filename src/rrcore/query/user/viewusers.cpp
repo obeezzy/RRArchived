@@ -4,40 +4,34 @@
 
 using namespace Query::User;
 
-ViewUsers::ViewUsers(const Utility::RecordGroup::Flags &flags,
-                     QObject *receiver) :
-    UserExecutor(COMMAND, {
-                    { "archived", flags.testFlag(Utility::RecordGroup::Archived) }
-                 }, receiver)
-{
-
-}
+ViewUsers::ViewUsers(const Utility::RecordGroup::Flags& flags,
+                     QObject* receiver)
+    : UserExecutor(
+          COMMAND,
+          {{"archived", flags.testFlag(Utility::RecordGroup::Archived)}},
+          receiver)
+{}
 
 QueryResult ViewUsers::execute()
 {
-    QueryResult result{ request() };
+    QueryResult result{request()};
     result.setSuccessful(true);
-    const QVariantMap &params = request().params();
+    const QVariantMap& params = request().params();
 
     try {
-        const auto &records(callProcedure("ViewUsers", {
-                                              ProcedureArgument {
-                                                  ProcedureArgument::Type::In,
-                                                  "archived",
-                                                  params.value("archived")
-                                              }
-                                          }));
+        const auto& records(callProcedure(
+            "ViewUsers",
+            {ProcedureArgument{ProcedureArgument::Type::In, "archived",
+                               params.value("archived")}}));
 
         QVariantList users;
-        for (const auto &record : records)
+        for (const auto& record : records)
             users.append(recordToMap(record));
 
-        result.setOutcome(QVariantMap {
-                              { "users", users },
-                              { "record_count", users.count() }
-                          });
+        result.setOutcome(
+            QVariantMap{{"users", users}, {"record_count", users.count()}});
         return result;
-    } catch (const DatabaseException &) {
+    } catch (const DatabaseException&) {
         throw;
     }
 }

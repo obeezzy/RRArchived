@@ -7,22 +7,23 @@
 namespace Utility {
 class FilterCriteria;
 class SortCriteria;
-}
+}  // namespace Utility
 
 namespace Query {
-    namespace Stock {
-    class FilterProductCategories : public StockExecutor
-    {
-    public:
-        static inline const QString COMMAND = QStringLiteral("filter_stock_categories");
+namespace Stock {
+class FilterProductCategories : public StockExecutor
+{
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("filter_stock_categories");
 
-        explicit FilterProductCategories(const Utility::FilterCriteria &filterCriteria,
-                                       const Utility::SortCriteria &sortCriteria,
-                                       const Utility::RecordGroup::Flags &flags,
-                                       QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit FilterProductCategories(
+        const Utility::FilterCriteria& filterCriteria,
+        const Utility::SortCriteria& sortCriteria,
+        const Utility::RecordGroup::Flags& flags, QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Stock
+}  // namespace Query
 
-#endif // FILTERSTOCKCATEGORIES_H
+#endif  // FILTERSTOCKCATEGORIES_H

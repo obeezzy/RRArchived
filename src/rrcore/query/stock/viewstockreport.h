@@ -8,18 +8,18 @@ class DateTimeSpan;
 }
 
 namespace Query {
-    namespace Stock {
-    class ViewStockReport : public StockExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_stock_report");
+namespace Stock {
+class ViewStockReport : public StockExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("view_stock_report");
 
-        explicit ViewStockReport(const Utility::DateTimeSpan &dateTimeSpan,
-                                 QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit ViewStockReport(const Utility::DateTimeSpan& dateTimeSpan,
+                             QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace Stock
+}  // namespace Query
 
-#endif // VIEWSTOCKREPORT_H
+#endif  // VIEWSTOCKREPORT_H

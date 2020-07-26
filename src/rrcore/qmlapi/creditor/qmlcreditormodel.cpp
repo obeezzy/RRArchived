@@ -1,17 +1,15 @@
 #include "qmlcreditormodel.h"
 #include "database/databasethread.h"
 
-QMLCreditorModel::QMLCreditorModel(QObject *parent) :
-    QMLCreditorModel(DatabaseThread::instance(), parent)
+QMLCreditorModel::QMLCreditorModel(QObject* parent)
+    : QMLCreditorModel(DatabaseThread::instance(), parent)
 {}
 
-QMLCreditorModel::QMLCreditorModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualListModel(thread, parent)
-{
+QMLCreditorModel::QMLCreditorModel(DatabaseThread& thread, QObject* parent)
+    : AbstractVisualListModel(thread, parent)
+{}
 
-}
-
-int QMLCreditorModel::rowCount(const QModelIndex &parent) const
+int QMLCreditorModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -19,7 +17,7 @@ int QMLCreditorModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-QVariant QMLCreditorModel::data(const QModelIndex &index, int role) const
+QVariant QMLCreditorModel::data(const QModelIndex& index, int role) const
 {
     Q_UNUSED(role)
     if (!index.isValid())
@@ -30,20 +28,15 @@ QVariant QMLCreditorModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLCreditorModel::roleNames() const
 {
-    return { };
+    return {};
 }
 
-void QMLCreditorModel::tryQuery()
-{
+void QMLCreditorModel::tryQuery() {}
 
-}
-
-bool QMLCreditorModel::canProcessResult(const QueryResult &result) const
+bool QMLCreditorModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLCreditorModel::processResult(const QueryResult &result)
-{
-}
+void QMLCreditorModel::processResult(const QueryResult& result) {}

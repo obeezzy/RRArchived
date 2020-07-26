@@ -6,8 +6,8 @@
 class MissingArgumentException : public DatabaseException
 {
 public:
-    explicit MissingArgumentException(const QString &message = QString());
+    explicit MissingArgumentException(const QString& message = QString());
     QString toString() const override;
 };
 
-#endif // MISSINGARGUMENTEXCEPTION_H
+#endif  // MISSINGARGUMENTEXCEPTION_H

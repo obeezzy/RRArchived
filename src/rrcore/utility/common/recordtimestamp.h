@@ -5,19 +5,19 @@
 #include <QVariantMap>
 
 namespace Utility {
-    inline namespace Common {
-    struct RecordTimestamp
-    {
-        QDateTime created;
-        QDateTime lastEdited;
+inline namespace Common {
+struct RecordTimestamp
+{
+    QDateTime created;
+    QDateTime lastEdited;
 
-        explicit RecordTimestamp();
-        explicit RecordTimestamp(const QDateTime &created,
-                                 const QDateTime &lastEdited);
-        explicit RecordTimestamp(const QVariantMap &map);
-        QVariantMap toVariantMap() const;
-    };
-}
-}
+    explicit RecordTimestamp();
+    explicit RecordTimestamp(const QDateTime& created,
+                             const QDateTime& lastEdited);
+    explicit RecordTimestamp(const QVariantMap& map);
+    QVariantMap toVariantMap() const;
+};
+}  // namespace Common
+}  // namespace Utility
 
-#endif // RECORDTIMESTAMP_H
+#endif  // RECORDTIMESTAMP_H

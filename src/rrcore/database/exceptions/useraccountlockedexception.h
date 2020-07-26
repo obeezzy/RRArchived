@@ -6,9 +6,9 @@
 class UserAccountLockedException : public DatabaseException
 {
 public:
-    explicit UserAccountLockedException(const QString &message,
-                                        const QSqlError &error);
+    explicit UserAccountLockedException(const QString& message,
+                                        const QSqlError& error);
     QString toString() const override;
 };
 
-#endif // USERACCOUNTLOCKEDEXCEPTION_H
+#endif  // USERACCOUNTLOCKEDEXCEPTION_H

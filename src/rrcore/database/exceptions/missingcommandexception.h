@@ -6,8 +6,8 @@
 class MissingCommandException : public DatabaseException
 {
 public:
-    explicit MissingCommandException(const QString &command);
+    explicit MissingCommandException(const QString& command);
     QString toString() const override;
 };
 
-#endif // MISSINGCOMMANDEXCEPTION_H
+#endif  // MISSINGCOMMANDEXCEPTION_H

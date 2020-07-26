@@ -1,28 +1,37 @@
 #include "abstractvisualtablemodel.h"
+#include <QLoggingCategory>
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
 #include "utility/common/filtercriteria.h"
 #include "utility/common/sortcriteria.h"
-#include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(lcabstractvisualtablemodel, "rrcore.models.abstractvisualtablemodel");
+Q_LOGGING_CATEGORY(lcabstractvisualtablemodel,
+                   "rrcore.models.abstractvisualtablemodel");
 
-AbstractVisualTableModel::AbstractVisualTableModel(QObject *parent) :
-    AbstractVisualTableModel(DatabaseThread::instance(), parent)
+AbstractVisualTableModel::AbstractVisualTableModel(QObject* parent)
+    : AbstractVisualTableModel(DatabaseThread::instance(), parent)
 {}
 
-AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread &thread, QObject *parent) :
-    QAbstractTableModel(parent)
+AbstractVisualTableModel::AbstractVisualTableModel(DatabaseThread& thread,
+                                                   QObject* parent)
+    : QAbstractTableModel(parent)
 {
-    connect(this, &AbstractVisualTableModel::execute, &thread, &DatabaseThread::execute);
-    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::validateResult);
+    connect(this, &AbstractVisualTableModel::execute, &thread,
+            &DatabaseThread::execute);
+    connect(&thread, &DatabaseThread::resultReady, this,
+            &AbstractVisualTableModel::validateResult);
 
-    connect(&thread, &DatabaseThread::resultReady, this, &AbstractVisualTableModel::saveRequest);
+    connect(&thread, &DatabaseThread::resultReady, this,
+            &AbstractVisualTableModel::saveRequest);
 
-    connect(this, &AbstractVisualTableModel::filterTextChanged, this, &AbstractVisualTableModel::filter);
-    connect(this, &AbstractVisualTableModel::filterColumnChanged, this, &AbstractVisualTableModel::filter);
-    connect(this, &AbstractVisualTableModel::sortOrderChanged, this, &AbstractVisualTableModel::filter);
-    connect(this, &AbstractVisualTableModel::sortColumnChanged, this, &AbstractVisualTableModel::filter);
+    connect(this, &AbstractVisualTableModel::filterTextChanged, this,
+            &AbstractVisualTableModel::filter);
+    connect(this, &AbstractVisualTableModel::filterColumnChanged, this,
+            &AbstractVisualTableModel::filter);
+    connect(this, &AbstractVisualTableModel::sortOrderChanged, this,
+            &AbstractVisualTableModel::filter);
+    connect(this, &AbstractVisualTableModel::sortColumnChanged, this,
+            &AbstractVisualTableModel::filter);
 }
 
 bool AbstractVisualTableModel::autoQuery() const
@@ -53,7 +62,7 @@ QString AbstractVisualTableModel::filterText() const
     return m_filterCriteria.text;
 }
 
-void AbstractVisualTableModel::setFilterText(const QString &filterText)
+void AbstractVisualTableModel::setFilterText(const QString& filterText)
 {
     if (m_filterCriteria.text == filterText)
         return;
@@ -134,10 +143,7 @@ void AbstractVisualTableModel::setTableViewWidth(double tableViewWidth)
     emit tableViewWidthChanged();
 }
 
-void AbstractVisualTableModel::classBegin()
-{
-
-}
+void AbstractVisualTableModel::classBegin() {}
 
 void AbstractVisualTableModel::componentComplete()
 {
@@ -145,23 +151,18 @@ void AbstractVisualTableModel::componentComplete()
         tryQuery();
 }
 
-void AbstractVisualTableModel::undoLastCommit()
-{
-}
+void AbstractVisualTableModel::undoLastCommit() {}
 
-void AbstractVisualTableModel::filter()
-{
+void AbstractVisualTableModel::filter() {}
 
-}
-
-void AbstractVisualTableModel::saveRequest(const QueryResult &result)
+void AbstractVisualTableModel::saveRequest(const QueryResult& result)
 {
-    if (result.isSuccessful() && result.request().receiver() == this
-            && result.request().canUndo()
-            && !result.request().isUndoSet()) {
+    if (result.isSuccessful() && result.request().receiver() == this &&
+        result.request().canUndo() && !result.request().isUndoSet()) {
         m_lastSuccessfulRequest = result.request();
         m_lastSuccessfulRequest.params().insert("outcome", result.outcome());
-        qCDebug(lcabstractvisualtablemodel) << "Request saved:" << result.request().command() << this;
+        qCDebug(lcabstractvisualtablemodel)
+            << "Request saved:" << result.request().command() << this;
     }
 }
 
@@ -174,7 +175,7 @@ void AbstractVisualTableModel::setBusy(bool busy)
     emit busyChanged();
 }
 
-const QueryRequest &AbstractVisualTableModel::lastSuccessfulRequest() const
+const QueryRequest& AbstractVisualTableModel::lastSuccessfulRequest() const
 {
     return m_lastSuccessfulRequest;
 }
@@ -197,10 +198,12 @@ void AbstractVisualTableModel::validateResult(const QueryResult result)
     if (canProcessResult(result))
         processResult(result);
     else
-        qFatal("Validation failed for %s.\nActual returned keys: %s.\nExpected returned keys: %s",
-               result.request().command().toStdString().c_str(),
-               result.outcome().toMap().keys().join(", ").toStdString().c_str(),
-               result.errorDetails().toStdString().c_str());
+        qFatal(
+            "Validation failed for %s.\nActual returned keys: %s.\nExpected "
+            "returned keys: %s",
+            result.request().command().toStdString().c_str(),
+            result.outcome().toMap().keys().join(", ").toStdString().c_str(),
+            result.errorDetails().toStdString().c_str());
 }
 
 void AbstractVisualTableModel::refresh()

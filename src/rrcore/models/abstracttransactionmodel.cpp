@@ -1,16 +1,15 @@
 #include "abstracttransactionmodel.h"
-#include "database/databasethread.h"
 #include <QDateTime>
+#include "database/databasethread.h"
 
-AbstractTransactionModel::AbstractTransactionModel(QObject *parent) :
-    AbstractTransactionModel(DatabaseThread::instance(), parent)
+AbstractTransactionModel::AbstractTransactionModel(QObject* parent)
+    : AbstractTransactionModel(DatabaseThread::instance(), parent)
 {}
 
-AbstractTransactionModel::AbstractTransactionModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent)
-{
-
-}
+AbstractTransactionModel::AbstractTransactionModel(DatabaseThread& thread,
+                                                   QObject* parent)
+    : AbstractVisualTableModel(thread, parent)
+{}
 
 int AbstractTransactionModel::keys() const
 {
@@ -31,7 +30,7 @@ QDateTime AbstractTransactionModel::from() const
     return m_dateTimeSpan.from;
 }
 
-void AbstractTransactionModel::setFrom(const QDateTime &from)
+void AbstractTransactionModel::setFrom(const QDateTime& from)
 {
     if (m_dateTimeSpan.from == from)
         return;
@@ -45,7 +44,7 @@ QDateTime AbstractTransactionModel::to() const
     return m_dateTimeSpan.to;
 }
 
-void AbstractTransactionModel::setTo(const QDateTime &to)
+void AbstractTransactionModel::setTo(const QDateTime& to)
 {
     if (m_dateTimeSpan.to == to)
         return;
@@ -68,10 +67,14 @@ Utility::DateTimeSpan AbstractTransactionModel::dateTimeSpan() const
 void AbstractTransactionModel::toggleConnections()
 {
     if (autoQuery()) {
-        connect(this, &AbstractTransactionModel::fromChanged, this, &AbstractTransactionModel::tryQuery);
-        connect(this, &AbstractTransactionModel::toChanged, this, &AbstractTransactionModel::tryQuery);
+        connect(this, &AbstractTransactionModel::fromChanged, this,
+                &AbstractTransactionModel::tryQuery);
+        connect(this, &AbstractTransactionModel::toChanged, this,
+                &AbstractTransactionModel::tryQuery);
     } else {
-        disconnect(this, &AbstractTransactionModel::fromChanged, this, &AbstractTransactionModel::tryQuery);
-        disconnect(this, &AbstractTransactionModel::toChanged, this, &AbstractTransactionModel::tryQuery);
+        disconnect(this, &AbstractTransactionModel::fromChanged, this,
+                   &AbstractTransactionModel::tryQuery);
+        disconnect(this, &AbstractTransactionModel::toChanged, this,
+                   &AbstractTransactionModel::tryQuery);
     }
 }

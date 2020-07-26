@@ -5,18 +5,18 @@
 #include "query/stock/fetchproductcount.h"
 #include "query/stock/filterproductcount.h"
 
-QMLProductCountRecord::QMLProductCountRecord(QObject *parent) :
-    QMLProductCountRecord(DatabaseThread::instance(), parent)
+QMLProductCountRecord::QMLProductCountRecord(QObject* parent)
+    : QMLProductCountRecord(DatabaseThread::instance(), parent)
 {}
 
-QMLProductCountRecord::QMLProductCountRecord(DatabaseThread &thread,
-                                                       QObject *parent) :
-    AbstractDetailRecord(thread, parent)
+QMLProductCountRecord::QMLProductCountRecord(DatabaseThread& thread,
+                                             QObject* parent)
+    : AbstractDetailRecord(thread, parent)
 {
-    connect(this, &QMLProductCountRecord::filterTextChanged,
-            this, &QMLProductCountRecord::filter);
-    connect(this, &QMLProductCountRecord::filterColumnChanged,
-            this, &QMLProductCountRecord::filter);
+    connect(this, &QMLProductCountRecord::filterTextChanged, this,
+            &QMLProductCountRecord::filter);
+    connect(this, &QMLProductCountRecord::filterColumnChanged, this,
+            &QMLProductCountRecord::filter);
 }
 
 int QMLProductCountRecord::categoryId() const
@@ -38,7 +38,7 @@ QString QMLProductCountRecord::filterText() const
     return m_filterCriteria.text;
 }
 
-void QMLProductCountRecord::setFilterText(const QString &filterText)
+void QMLProductCountRecord::setFilterText(const QString& filterText)
 {
     if (m_filterCriteria.text == filterText)
         return;
@@ -77,13 +77,10 @@ void QMLProductCountRecord::tryQuery()
     setBusy(true);
 
     if (m_filterCriteria.isValid())
-        emit execute(new Query::Stock::FilterProductCount(
-                         m_filterCriteria,
-                         m_categoryId,
-                         this));
+        emit execute(new Query::Stock::FilterProductCount(m_filterCriteria,
+                                                          m_categoryId, this));
     else
-        emit execute(new Query::Stock::FetchProductCount(m_categoryId,
-                                                            this));
+        emit execute(new Query::Stock::FetchProductCount(m_categoryId, this));
 }
 
 void QMLProductCountRecord::processResult(const QueryResult result)
@@ -91,7 +88,8 @@ void QMLProductCountRecord::processResult(const QueryResult result)
     setBusy(false);
 
     if (result.isSuccessful()) {
-        setProductCount(result.outcome().toMap().value("product_count").toInt());
+        setProductCount(
+            result.outcome().toMap().value("product_count").toInt());
         emit success();
     } else {
         emit error();
@@ -115,10 +113,10 @@ void QMLProductCountRecord::filter()
 QString QMLProductCountRecord::columnName(int column) const
 {
     switch (column) {
-    case CategoryColumn:
-        return QStringLiteral("product_category");
-    case ProductColumn:
-        return QStringLiteral("product");
+        case CategoryColumn:
+            return QStringLiteral("product_category");
+        case ProductColumn:
+            return QStringLiteral("product");
     }
 
     return QString();

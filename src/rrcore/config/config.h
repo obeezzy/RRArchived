@@ -6,20 +6,21 @@
 class Config
 {
 public:
-    static Config &instance();
+    static Config& instance();
 
     ~Config() = default;
-    Config(Config const &) = delete;
-    Config &operator=(const Config &) = delete;
+    Config(Config const&) = delete;
+    Config& operator=(const Config&) = delete;
 
     QString hostName();
     int port();
     QString userName();
     QString password();
     QString databaseName();
+
 private:
     QSettings m_settings;
     Config();
 };
 
-#endif // CONFIG_H
+#endif  // CONFIG_H

@@ -1,19 +1,15 @@
 #include "messagecenter.h"
 
 #include <QFile>
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QVariantMap>
 
 const QString MESSAGE_FILE(":/json/messages.json");
 
-MessageCenter::MessageCenter(QObject *parent) :
-    QObject(parent)
-{
+MessageCenter::MessageCenter(QObject* parent) : QObject(parent) {}
 
-}
-
-QVariant MessageCenter::getMessage(const QString &key) const
+QVariant MessageCenter::getMessage(const QString& key) const
 {
     if (key.trimmed().isEmpty())
         return QVariant();

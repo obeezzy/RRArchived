@@ -1,24 +1,20 @@
 #include "viewsalehome.h"
+#include <QDateTime>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 #include "database/databaseexception.h"
 #include "user/userprofile.h"
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QDateTime>
 
 using namespace Query::Sales;
 
-ViewSaleHome::ViewSaleHome(QObject *receiver) :
-    SaleExecutor(COMMAND, {
-                    { "limit", 5 }
-                 }, receiver)
-{
-
-}
+ViewSaleHome::ViewSaleHome(QObject* receiver)
+    : SaleExecutor(COMMAND, {{"limit", 5}}, receiver)
+{}
 
 QueryResult ViewSaleHome::execute()
 {
-    QueryResult result{ request() };
+    QueryResult result{request()};
     result.setSuccessful(true);
 
     QVariantList homeRecords;
@@ -30,34 +26,25 @@ QueryResult ViewSaleHome::execute()
         fetchTotalRevenue(homeRecords);
         fetchMostSoldProducts(homeRecords);
 
-        result.setOutcome(QVariantMap {
-                              { "records", homeRecords },
-                              { "record_count", homeRecords.count() }
-                          });
+        result.setOutcome(QVariantMap{{"records", homeRecords},
+                                      {"record_count", homeRecords.count()}});
         return result;
-    } catch (const DatabaseException &) {
+    } catch (const DatabaseException&) {
         throw;
     }
 }
 
-void ViewSaleHome::fetchTotalRevenue(QVariantList &homeRecords)
+void ViewSaleHome::fetchTotalRevenue(QVariantList& homeRecords)
 {
-    const QVariantMap &params{ request().params() };
-    const auto &records(callProcedure("FetchTotalRevenue", {
-                                          ProcedureArgument {
-                                              ProcedureArgument::Type::In,
-                                              "from",
-                                              params.value("from")
-                                          },
-                                          ProcedureArgument {
-                                              ProcedureArgument::Type::In,
-                                              "to",
-                                              params.value("to")
-                                          }
-                                      }));
+    const QVariantMap& params{request().params()};
+    const auto& records(callProcedure(
+        "FetchTotalRevenue", {ProcedureArgument{ProcedureArgument::Type::In,
+                                                "from", params.value("from")},
+                              ProcedureArgument{ProcedureArgument::Type::In,
+                                                "to", params.value("to")}}));
 
     QVariantList revenues;
-    for (const auto &record : records)
+    for (const auto& record : records)
         revenues.append(recordToMap(record));
 
     QVariantMap totalRevenueInfo;
@@ -68,29 +55,20 @@ void ViewSaleHome::fetchTotalRevenue(QVariantList &homeRecords)
         homeRecords.append(totalRevenueInfo);
 }
 
-void ViewSaleHome::fetchMostSoldProducts(QVariantList &homeRecords)
+void ViewSaleHome::fetchMostSoldProducts(QVariantList& homeRecords)
 {
-    const QVariantMap &params{ request().params() };
-    const auto &records(callProcedure("FetchMostSoldProducts", {
-                                          ProcedureArgument {
-                                              ProcedureArgument::Type::In,
-                                              "from",
-                                              params.value("from")
-                                          },
-                                          ProcedureArgument {
-                                              ProcedureArgument::Type::In,
-                                              "to",
-                                              params.value("to")
-                                          },
-                                          ProcedureArgument {
-                                              ProcedureArgument::Type::In,
-                                              "limit",
-                                              params.value("limit")
-                                          }
-                                      }));
+    const QVariantMap& params{request().params()};
+    const auto& records(
+        callProcedure("FetchMostSoldProducts",
+                      {ProcedureArgument{ProcedureArgument::Type::In, "from",
+                                         params.value("from")},
+                       ProcedureArgument{ProcedureArgument::Type::In, "to",
+                                         params.value("to")},
+                       ProcedureArgument{ProcedureArgument::Type::In, "limit",
+                                         params.value("limit")}}));
 
     QVariantList mostSoldProducts;
-    for (const auto &record : records)
+    for (const auto& record : records)
         mostSoldProducts.append(recordToMap(record));
 
     QVariantMap mostSoldProductsInfo;

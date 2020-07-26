@@ -1,7 +1,7 @@
-#include "qmlapi/income/qmlincomepusher.h"
-#include "mockdatabasethread.h"
-#include <QtTest>
 #include <QCoreApplication>
+#include <QtTest>
+#include "mockdatabasethread.h"
+#include "qmlapi/income/qmlincomepusher.h"
 
 class QMLIncomePusherTest : public QObject
 {
@@ -9,9 +9,10 @@ class QMLIncomePusherTest : public QObject
 private slots:
     void init();
     void cleanup();
+
 private:
-    QMLIncomePusher *m_incomePusher;
-    MockDatabaseThread *m_thread;
+    QMLIncomePusher* m_incomePusher;
+    MockDatabaseThread* m_thread;
 };
 
 void QMLIncomePusherTest::init()

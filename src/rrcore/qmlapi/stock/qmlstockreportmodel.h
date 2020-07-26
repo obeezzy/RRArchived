@@ -8,7 +8,8 @@ class QMLStockReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         CategoryRole = Qt::UserRole,
         ProductRole,
         OpeningStockQuantityRole,
@@ -18,7 +19,8 @@ public:
         UnitRole
     };
 
-    enum Columns {
+    enum Columns
+    {
         CategoryColumn,
         ProductColumn,
         OpeningStockQuantityColumn,
@@ -26,25 +28,28 @@ public:
         QuantityBoughtColumn,
         QuantityInStockColumn,
         ColumnCount
-    }; Q_ENUM(Columns)
+    };
+    Q_ENUM(Columns)
 
-    explicit QMLStockReportModel(QObject *parent = nullptr);
-    explicit QMLStockReportModel(DatabaseThread &thread,
-                                 QObject *parent = nullptr);
+    explicit QMLStockReportModel(QObject* parent = nullptr);
+    explicit QMLStockReportModel(DatabaseThread& thread,
+                                 QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section,
-                        Qt::Orientation orientation,
+    QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override final;
-    void processResult(const QueryResult &result) override final;
+    bool canProcessResult(const QueryResult& result) const override final;
+    void processResult(const QueryResult& result) override final;
+
 private:
     Utility::Stock::StockReportTransactionList m_transactions;
 };
 
-#endif // QMLSTOCKREPORTMODEL_H
+#endif  // QMLSTOCKREPORTMODEL_H

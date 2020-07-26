@@ -6,12 +6,12 @@
 #include "query/user/viewusers.h"
 #include "utility/user/user.h"
 
-QMLUserModel::QMLUserModel(QObject *parent) :
-    QMLUserModel(DatabaseThread::instance(), parent)
+QMLUserModel::QMLUserModel(QObject* parent)
+    : QMLUserModel(DatabaseThread::instance(), parent)
 {}
 
-QMLUserModel::QMLUserModel(DatabaseThread &thread, QObject *parent) :
-    AbstractVisualTableModel(thread, parent)
+QMLUserModel::QMLUserModel(DatabaseThread& thread, QObject* parent)
+    : AbstractVisualTableModel(thread, parent)
 {}
 
 int QMLUserModel::keys() const
@@ -28,7 +28,7 @@ void QMLUserModel::setKeys(int keys)
     emit keysChanged();
 }
 
-int QMLUserModel::rowCount(const QModelIndex &parent) const
+int QMLUserModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -36,7 +36,7 @@ int QMLUserModel::rowCount(const QModelIndex &parent) const
     return m_users.count();
 }
 
-int QMLUserModel::columnCount(const QModelIndex &parent) const
+int QMLUserModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -44,20 +44,21 @@ int QMLUserModel::columnCount(const QModelIndex &parent) const
     return ColumnCount;
 }
 
-QVariant QMLUserModel::data(const QModelIndex &index, int role) const
+QVariant QMLUserModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     switch (role) {
-    case UserIdRole:
-        return m_users.at(index.row()).id;
-    case UserRole:
-        return m_users.at(index.row()).user;
-    case ActiveRole:
-        return m_users.at(index.row()).flags.testFlag(Utility::RecordGroup::Active);
-    case PresetRole:
-        return m_users.at(index.row()).preset;
+        case UserIdRole:
+            return m_users.at(index.row()).id;
+        case UserRole:
+            return m_users.at(index.row()).user;
+        case ActiveRole:
+            return m_users.at(index.row())
+                .flags.testFlag(Utility::RecordGroup::Active);
+        case PresetRole:
+            return m_users.at(index.row()).preset;
     }
 
     return QVariant();
@@ -65,47 +66,46 @@ QVariant QMLUserModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QMLUserModel::roleNames() const
 {
-    return {
-        { UserIdRole, "user_id" },
-        { UserRole, "user" },
-        { ActiveRole, "active" },
-        { PresetRole, "preset" }
-    };
+    return {{UserIdRole, "user_id"},
+            {UserRole, "user"},
+            {ActiveRole, "active"},
+            {PresetRole, "preset"}};
 }
 
-QVariant QMLUserModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QMLUserModel::headerData(int section, Qt::Orientation orientation,
+                                  int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
             switch (section) {
-            case UserColumn:
-                return tr("User");
-            case ActiveColumn:
-                return tr("Active");
-            case PresetColumn:
-                return tr("Preset");
-            case ActionColumn:
-                return tr("Action");
+                case UserColumn:
+                    return tr("User");
+                case ActiveColumn:
+                    return tr("Active");
+                case PresetColumn:
+                    return tr("Preset");
+                case ActionColumn:
+                    return tr("Action");
             }
         } else if (role == Qt::TextAlignmentRole) {
             switch (section) {
-            case UserColumn:
-            case ActiveColumn:
-            case PresetColumn:
-                return Qt::AlignLeft;
-            case ActionColumn:
-                return Qt::AlignHCenter;
+                case UserColumn:
+                case ActiveColumn:
+                case PresetColumn:
+                    return Qt::AlignLeft;
+                case ActionColumn:
+                    return Qt::AlignHCenter;
             }
         } else if (role == Qt::SizeHintRole) {
             switch (section) {
-            case UserColumn:
-                return tableViewWidth() - 100 - 100 - 130;
-            case ActiveColumn:
-                return 100;
-            case PresetColumn:
-                return 100;
-            case ActionColumn:
-                return 130;
+                case UserColumn:
+                    return tableViewWidth() - 100 - 100 - 130;
+                case ActiveColumn:
+                    return 100;
+                case PresetColumn:
+                    return 100;
+                case ActionColumn:
+                    return 130;
             }
         }
     }
@@ -116,33 +116,35 @@ QVariant QMLUserModel::headerData(int section, Qt::Orientation orientation, int 
 void QMLUserModel::tryQuery()
 {
     setBusy(true);
-    emit execute(new Query::User::ViewUsers(Utility::RecordGroup::None,
-                                              this));
+    emit execute(new Query::User::ViewUsers(Utility::RecordGroup::None, this));
 }
 
-bool QMLUserModel::canProcessResult(const QueryResult &result) const
+bool QMLUserModel::canProcessResult(const QueryResult& result) const
 {
     Q_UNUSED(result)
     return true;
 }
 
-void QMLUserModel::processResult(const QueryResult &result)
+void QMLUserModel::processResult(const QueryResult& result)
 {
     setBusy(false);
     if (result.isSuccessful()) {
         if (result.request().command() == Query::User::ActivateUser::COMMAND) {
-            emit success(ModelResult{ ActivateUserSuccess });
+            emit success(ModelResult{ActivateUserSuccess});
         } else {
             beginResetModel();
             if (result.request().command() == Query::User::ViewUsers::COMMAND) {
-                m_users = Utility::User::UserList{ result.outcome().toMap().value("users").toList() };
-                emit success(ModelResult{ ViewUsersSuccess });
-            } else if (result.request().command() == Query::User::RemoveUser::COMMAND) {
-                const auto user = Utility::User::User{ result.outcome().toMap() };
+                m_users = Utility::User::UserList{
+                    result.outcome().toMap().value("users").toList()};
+                emit success(ModelResult{ViewUsersSuccess});
+            } else if (result.request().command() ==
+                       Query::User::RemoveUser::COMMAND) {
+                const auto user = Utility::User::User{result.outcome().toMap()};
                 removeUserFromModel(user);
-                emit success(ModelResult{ RemoveUserSuccess });
-            } else if (result.request().command() == Query::User::RemoveUser::UNDO_COMMAND) {
-                emit success(ModelResult{ UndoRemoveUserSuccess });
+                emit success(ModelResult{RemoveUserSuccess});
+            } else if (result.request().command() ==
+                       Query::User::RemoveUser::UNDO_COMMAND) {
+                emit success(ModelResult{UndoRemoveUserSuccess});
             }
             endResetModel();
         }
@@ -151,7 +153,7 @@ void QMLUserModel::processResult(const QueryResult &result)
     }
 }
 
-void QMLUserModel::removeUserFromModel(const Utility::User::User &user)
+void QMLUserModel::removeUserFromModel(const Utility::User::User& user)
 {
     beginRemoveRows(QModelIndex(), user.row, user.row);
     m_users.removeAt(user.row);
@@ -161,18 +163,15 @@ void QMLUserModel::removeUserFromModel(const Utility::User::User &user)
 void QMLUserModel::removeUser(int row)
 {
     setBusy(true);
-    auto &user{ m_users[row] };
+    auto& user{m_users[row]};
     user.row = row;
-    emit execute(new Query::User::RemoveUser(user,
-                                               this));
+    emit execute(new Query::User::RemoveUser(user, this));
 }
 
 void QMLUserModel::activateUser(int row, bool active)
 {
     setBusy(true);
-    auto &user{ m_users[row] };
+    auto& user{m_users[row]};
     user.row = row;
-    emit execute(new Query::User::ActivateUser(active,
-                                                 user,
-                                                 this));
+    emit execute(new Query::User::ActivateUser(active, user, this));
 }

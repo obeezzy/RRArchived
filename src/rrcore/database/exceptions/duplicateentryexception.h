@@ -6,8 +6,8 @@
 class DuplicateEntryException : public DatabaseException
 {
 public:
-    explicit DuplicateEntryException(const QString &message = QString());
+    explicit DuplicateEntryException(const QString& message = QString());
     QString toString() const override;
 };
 
-#endif // DUPLICATEENTRYEXCEPTION_H
+#endif  // DUPLICATEENTRYEXCEPTION_H

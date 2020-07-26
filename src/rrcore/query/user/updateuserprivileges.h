@@ -7,22 +7,23 @@ namespace Utility {
 namespace User {
 class UserPrivilegeList;
 }
-}
+}  // namespace Utility
 
 namespace Query {
-    namespace User {
-    class UpdateUserPrivileges : public UserExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("update_user_privileges");
+namespace User {
+class UpdateUserPrivileges : public UserExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND =
+        QStringLiteral("update_user_privileges");
 
-        explicit UpdateUserPrivileges(int userId,
-                                      const Utility::User::UserPrivilegeList &privilege,
-                                      QObject *receiver);
-        QueryResult execute() override;
-    };
-}
-}
+    explicit UpdateUserPrivileges(
+        int userId, const Utility::User::UserPrivilegeList& privilege,
+        QObject* receiver);
+    QueryResult execute() override;
+};
+}  // namespace User
+}  // namespace Query
 
-#endif // UPDATEUSERPRIVILEGES_H
+#endif  // UPDATEUSERPRIVILEGES_H

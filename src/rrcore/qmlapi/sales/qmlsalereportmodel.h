@@ -8,7 +8,8 @@ class QMLSaleReportModel : public AbstractReportModel
 {
     Q_OBJECT
 public:
-    enum Roles {
+    enum Roles
+    {
         CategoryRole = Qt::UserRole,
         ProductRole,
         QuantitySoldRole,
@@ -16,28 +17,35 @@ public:
         UnitRole
     };
 
-    enum Columns {
+    enum Columns
+    {
         CategoryColumn,
         ProductColumn,
         QuantitySoldColumn,
         TotalRevenueColumn,
         ColumnCount
-    }; Q_ENUM(Columns)
+    };
+    Q_ENUM(Columns)
 
-    explicit QMLSaleReportModel(QObject *parent = nullptr);
-    explicit QMLSaleReportModel(DatabaseThread &thread, QObject *parent = nullptr);
+    explicit QMLSaleReportModel(QObject* parent = nullptr);
+    explicit QMLSaleReportModel(DatabaseThread& thread,
+                                QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &index = QModelIndex()) const override;
-    int columnCount(const QModelIndex &index = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& index = QModelIndex()) const override;
+    int columnCount(const QModelIndex& index = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+
 protected:
     void tryQuery() override;
-    bool canProcessResult(const QueryResult &result) const override final;
-    void processResult(const QueryResult &result) override final;
+    bool canProcessResult(const QueryResult& result) const override final;
+    void processResult(const QueryResult& result) override final;
+
 private:
     Utility::Sales::SaleReportTransactionList m_transactions;
 };
 
-#endif // QMLSALEREPORTMODEL_H
+#endif  // QMLSALEREPORTMODEL_H

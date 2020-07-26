@@ -8,21 +8,22 @@ class FilterCriteria;
 }
 
 namespace Query {
-    namespace Debtor {
-    class FilterDebtors : public DebtorExecutor
-    {
-        Q_OBJECT
-    public:
-        static inline const QString COMMAND = QStringLiteral("view_debtors");
+namespace Debtor {
+class FilterDebtors : public DebtorExecutor
+{
+    Q_OBJECT
+public:
+    static inline const QString COMMAND = QStringLiteral("view_debtors");
 
-        explicit FilterDebtors(const Utility::FilterCriteria &filterCriteria,
-                               QObject *receiver);
-        QueryResult execute() override;
-    private:
-        void filterDebtors(QVariantList &debtors);
-        void filterDebtorsByName(QVariantList &debtors);
-    };
-}
-}
+    explicit FilterDebtors(const Utility::FilterCriteria& filterCriteria,
+                           QObject* receiver);
+    QueryResult execute() override;
 
-#endif // FILTERDEBTORS_H
+private:
+    void filterDebtors(QVariantList& debtors);
+    void filterDebtorsByName(QVariantList& debtors);
+};
+}  // namespace Debtor
+}  // namespace Query
+
+#endif  // FILTERDEBTORS_H
