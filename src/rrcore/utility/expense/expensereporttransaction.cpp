@@ -1,6 +1,6 @@
 #include "expensereporttransaction.h"
 
-using namespace Utility;
+using namespace Utility::Expense;
 
 ExpenseReportTransaction::ExpenseReportTransaction(const QVariantMap &map) :
     client(Client {

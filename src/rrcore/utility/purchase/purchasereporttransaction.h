@@ -1,44 +1,46 @@
 #ifndef PURCHASEREPORTTRANSACTION_H
 #define PURCHASEREPORTTRANSACTION_H
 
-#include "utility/stock/stockproduct.h"
-#include "utility/stock/stockproductcategory.h"
+#include "utility/stock/product.h"
+#include "utility/stock/productcategory.h"
 #include <QVariantList>
 
 namespace Utility {
-struct PurchaseReportTransaction
-{
-    StockProductCategory category;
-    StockProduct product;
-    StockProductQuantity quantityBought;
-    Money totalExpenditure;
+    namespace Purchase {
+    struct PurchaseReportTransaction
+    {
+        Stock::ProductCategory category;
+        Stock::Product product;
+        Stock::ProductQuantity quantityBought;
+        Money totalExpenditure;
 
-    explicit PurchaseReportTransaction() = default;
-    explicit PurchaseReportTransaction(const QVariantMap &map);
+        explicit PurchaseReportTransaction() = default;
+        explicit PurchaseReportTransaction(const QVariantMap &map);
 
-    QVariantMap toVariantMap() const;
-};
+        QVariantMap toVariantMap() const;
+    };
 
-class PurchaseReportTransactionList : public QList<PurchaseReportTransaction>
-{
-public:
-    explicit PurchaseReportTransactionList() = default;
-    PurchaseReportTransactionList(std::initializer_list<PurchaseReportTransaction> transactions) :
-        QList<PurchaseReportTransaction>(transactions) { }
-    explicit PurchaseReportTransactionList(const QVariantList &list) :
-        QList<PurchaseReportTransaction>() {
-        for (const auto &variant : list)
-            append(PurchaseReportTransaction{ variant.toMap() });
-    }
+    class PurchaseReportTransactionList : public QList<PurchaseReportTransaction>
+    {
+    public:
+        explicit PurchaseReportTransactionList() = default;
+        PurchaseReportTransactionList(std::initializer_list<PurchaseReportTransaction> transactions) :
+            QList<PurchaseReportTransaction>(transactions) { }
+        explicit PurchaseReportTransactionList(const QVariantList &list) :
+            QList<PurchaseReportTransaction>() {
+            for (const auto &variant : list)
+                append(PurchaseReportTransaction{ variant.toMap() });
+        }
 
-    QVariantList toVariantList() const {
-        QVariantList list;
-        for (const auto &transaction : *this)
-            list.append(transaction.toVariantMap());
-        return list;
-    }
-};
+        QVariantList toVariantList() const {
+            QVariantList list;
+            for (const auto &transaction : *this)
+                list.append(transaction.toVariantMap());
+            return list;
+        }
+    };
 }
-Q_DECLARE_TYPEINFO(Utility::PurchaseReportTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::Purchase::PurchaseReportTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // PURCHASEREPORTTRANSACTION_H

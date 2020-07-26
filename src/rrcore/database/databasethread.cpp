@@ -4,7 +4,7 @@
 #include "queryresult.h"
 #include "network/networkthread.h"
 #include "user/userprofile.h"
-#include "queryexecutors/user/userexecutor.h"
+#include "query/user/userexecutor.h"
 #include "database/exceptions/exceptions.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>

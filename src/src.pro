@@ -4,7 +4,7 @@ TARGET = rr
 QT += qml quick quickcontrols2 sql charts
 QT += core svg printsupport
 
-CONFIG += c++14
+CONFIG += c++17
 
 INCLUDEPATH += rrcore
 LIBS += -L$$OUT_PWD/rrcore -lrrcore

@@ -1,6 +1,6 @@
 #include "stockmonies.h"
 
-using namespace Utility;
+using namespace Utility::Stock;
 
 StockMonies::StockMonies()
 {}

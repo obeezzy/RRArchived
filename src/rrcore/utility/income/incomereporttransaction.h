@@ -7,38 +7,40 @@
 #include <QVariantList>
 
 namespace Utility {
-struct IncomeReportTransaction
-{
-    Client client;
-    QString purpose;
-    Money amount;
+    namespace Income {
+    struct IncomeReportTransaction
+    {
+        Client client;
+        QString purpose;
+        Money amount;
 
-    explicit IncomeReportTransaction() = default;
-    explicit IncomeReportTransaction(const QVariantMap &map);
+        explicit IncomeReportTransaction() = default;
+        explicit IncomeReportTransaction(const QVariantMap &map);
 
-    QVariantMap toVariantMap() const;
-};
+        QVariantMap toVariantMap() const;
+    };
 
-class IncomeReportTransactionList : public QList<IncomeReportTransaction>
-{
-public:
-    explicit IncomeReportTransactionList() = default;
-    IncomeReportTransactionList(std::initializer_list<IncomeReportTransaction> transactions) :
-        QList<IncomeReportTransaction>(transactions) { }
-    explicit IncomeReportTransactionList(const QVariantList &list) :
-        QList<IncomeReportTransaction>() {
-        for (const auto &variant : list)
-            append(IncomeReportTransaction{variant.toMap()});
-    }
+    class IncomeReportTransactionList : public QList<IncomeReportTransaction>
+    {
+    public:
+        explicit IncomeReportTransactionList() = default;
+        IncomeReportTransactionList(std::initializer_list<IncomeReportTransaction> transactions) :
+            QList<IncomeReportTransaction>(transactions) { }
+        explicit IncomeReportTransactionList(const QVariantList &list) :
+            QList<IncomeReportTransaction>() {
+            for (const auto &variant : list)
+                append(IncomeReportTransaction{variant.toMap()});
+        }
 
-    QVariantList toVariantList() const {
-        QVariantList list;
-        for (const auto &transaction : *this)
-            list.append(transaction.toVariantMap());
-        return list;
-    }
-};
+        QVariantList toVariantList() const {
+            QVariantList list;
+            for (const auto &transaction : *this)
+                list.append(transaction.toVariantMap());
+            return list;
+        }
+    };
 }
-Q_DECLARE_TYPEINFO(Utility::IncomeReportTransaction, Q_PRIMITIVE_TYPE);
+}
+Q_DECLARE_TYPEINFO(Utility::Income::IncomeReportTransaction, Q_PRIMITIVE_TYPE);
 
 #endif // INCOMEREPORTTRANSACTION_H

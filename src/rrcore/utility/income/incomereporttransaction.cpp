@@ -1,6 +1,6 @@
 #include "incomereporttransaction.h"
 
-using namespace Utility;
+using namespace Utility::Income;
 
 IncomeReportTransaction::IncomeReportTransaction(const QVariantMap &map) :
     client(Client {

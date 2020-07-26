@@ -1,12 +1,12 @@
 #include "purchasereporttransaction.h"
-#include "utility/stock/stockproductcategory.h"
-#include "utility/stock/stockproduct.h"
+#include "utility/stock/productcategory.h"
+#include "utility/stock/product.h"
 
-using namespace Utility;
+using namespace Utility::Purchase;
 
 PurchaseReportTransaction::PurchaseReportTransaction(const QVariantMap &map) :
-    category(StockProductCategory{ map }),
-    product(StockProduct{ map }),
+    category(Stock::ProductCategory{ map }),
+    product(Stock::Product{ map }),
     quantityBought(map.value("quantity_bought").toDouble()),
     totalExpenditure(map.value("total_expenditure").toDouble())
 {

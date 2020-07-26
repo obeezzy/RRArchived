@@ -1,7 +1,7 @@
 #include "soldproduct.h"
 #include <QVariantMap>
 
-using namespace Utility;
+using namespace Utility::Sales;
 
 SoldProduct::SoldProduct(int saleTransactionId) :
     transaction(SaleTransaction{ saleTransactionId })
@@ -9,7 +9,7 @@ SoldProduct::SoldProduct(int saleTransactionId) :
 
 SoldProduct::SoldProduct(const QVariantMap &map) :
     transaction(SaleTransaction{ map.value("sale_transaction_id").toInt() }),
-    product(StockProduct {
+    product(Stock::Product {
             map.value("product_id").toInt(),
             map.value("product").toString()
             }),
@@ -27,17 +27,17 @@ SoldProduct::SoldProduct(const QVariantMap &map) :
               map.value("created").toDateTime(),
               map.value("last_edited").toDateTime()
               }),
-    user(User {
+    user(User::User {
          map.value("user_id").toInt(),
          map.value("user").toString()
          }),
     row(map.value("row", -1).toInt())
 {
-    product.category = StockProductCategory {
+    product.category = Stock::ProductCategory {
             map.value("product_category_id").toInt(),
             map.value("product_category").toString()
     };
-    product.unit = StockProductUnit {
+    product.unit = Stock::ProductUnit {
             map.value("product_unit_id").toInt(),
             map.value("product_unit").toString()
     };

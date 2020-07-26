@@ -1,6 +1,6 @@
 #include "utility/debtor/debtor.h"
 
-using namespace Utility;
+using namespace Utility::Debtor;
 
 Debtor::Debtor(const QVariantMap &map) :
     id(map.value("debtor_id").toInt()),
@@ -8,7 +8,7 @@ Debtor::Debtor(const QVariantMap &map) :
     totalDebt(map.value("total_debt").toDouble()),
     note(Note{ map }),
     timestamp(RecordTimestamp{ map }),
-    user(User{ map }),
+    user(User::User{ map }),
     row(map.value("row", -1).toInt())
 {}
 

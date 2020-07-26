@@ -1,11 +1,11 @@
 #include "debtpayment.h"
 
-using namespace Utility;
+using namespace Utility::Debtor;
 
 int DebtPayment::temporaryId = 1;
 const QString DEFAULT_CURRENCY = Utility::Currency::DEFAULT_CURRENCY;
 
-DebtPayment::DebtPayment(const DebtMonies &monies,
+DebtPayment::DebtPayment(const DebtorMonies &monies,
                          const QDateTime &dueDateTime,
                          const Note &note) :
     id(temporaryId++),
@@ -15,7 +15,7 @@ DebtPayment::DebtPayment(const DebtMonies &monies,
 {}
 
 DebtPayment::DebtPayment(int id,
-                         const DebtMonies &monies,
+                         const DebtorMonies &monies,
                          const QDateTime &dueDateTime,
                          const RecordGroup::Flags &flags,
                          State state,
@@ -30,7 +30,7 @@ DebtPayment::DebtPayment(int id,
 
 DebtPayment::DebtPayment(const QVariantMap &map) :
     id(map.value("debt_payment_id").toInt()),
-    monies(DebtMonies{ map }),
+    monies(DebtorMonies{ map }),
     dueDateTime(map.value("due_date").toDateTime()),
     flags(map.value("archived").toBool() ? RecordGroup::Archived : RecordGroup::None),
     note(Note{ map }),
@@ -54,4 +54,3 @@ QVariantMap DebtPayment::toVariantMap() const {
         { "last_edited", timestamp.lastEdited }
     };
 }
-

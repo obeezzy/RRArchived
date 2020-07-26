@@ -1,6 +1,6 @@
 #include "userprivilege.h"
 
-using namespace Utility;
+using namespace Utility::User;
 
 UserPrivilege::UserPrivilege(int userId) :
     userId(userId)

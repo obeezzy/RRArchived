@@ -1,6 +1,6 @@
 #include "expensetransaction.h"
 
-using namespace Utility;
+using namespace Utility::Expense;
 
 ExpenseTransaction::ExpenseTransaction(const QVariantMap &map) :
     id(map.value("expense_transaction_id").toInt()),

@@ -1,6 +1,6 @@
 #include "purchasetransaction.h"
 
-using namespace Utility;
+using namespace Utility::Purchase;
 
 PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
     id(transaction.value("purchase_transaction_id").toLongLong()),
@@ -22,10 +22,10 @@ PurchaseTransaction::PurchaseTransaction(const QVariantMap &transaction) :
               transaction.value("created").toDateTime(),
               transaction.value("last_edited").toDateTime()
               }),
-    user(User{ transaction.value("user_id").toInt() })
+    user(User::User{ transaction.value("user_id").toInt() })
 {
-    flags.setFlag(RecordGroup::Suspended, transaction.value("suspended").toBool());
-    flags.setFlag(RecordGroup::Archived, transaction.value("archived").toBool());
+    flags.setFlag(Utility::RecordGroup::Suspended, transaction.value("suspended").toBool());
+    flags.setFlag(Utility::RecordGroup::Archived, transaction.value("archived").toBool());
 }
 
 PurchaseTransaction::PurchaseTransaction(int id) :
@@ -37,10 +37,10 @@ PurchaseTransaction::PurchaseTransaction(int id,
                                          const PurchaseMonies &monies,
                                          const PurchaseCartProductList &products,
                                          const PurchasePaymentList &payments,
-                                         const RecordGroup::Flags &flags,
+                                         const Utility::RecordGroup::Flags &flags,
                                          const QDateTime &dueDateTime,
                                          const QString &action,
-                                         const Note &note) :
+                                         const Utility::Note &note) :
     id(id),
     vendor(vendor),
     monies(monies),
@@ -57,8 +57,8 @@ PurchaseTransaction::PurchaseTransaction(int id,
                                          const PurchaseMonies &monies,
                                          const PurchaseCartProductList &products,
                                          const PurchasePaymentList &payments,
-                                         const RecordGroup::Flags &flags,
-                                         const Note &note) :
+                                         const Utility::RecordGroup::Flags &flags,
+                                         const Utility::Note &note) :
     id(id),
     vendor(vendor),
     monies(monies),

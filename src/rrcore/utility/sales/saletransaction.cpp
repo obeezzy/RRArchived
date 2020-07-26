@@ -1,12 +1,12 @@
 #include "saletransaction.h"
 
-using namespace Utility;
+using namespace Utility::Sales;
 
 SaleTransaction::SaleTransaction(const QVariantMap &map) :
     id(map.value("sale_transaction_id").toInt()),
-    customer(Customer {
+    customer(Utility::Customer {
              map.value("customer_id").toInt(),
-             Client{ map.value("customer_name").toString() }
+             Utility::Client{ map.value("customer_name").toString() }
              }),
     monies(SaleMonies { QVariantMap {
             { "total_cost", map.value("total_cost").toDouble() },
@@ -16,13 +16,13 @@ SaleTransaction::SaleTransaction(const QVariantMap &map) :
            }}),
     products(SaleCartProductList{ map.value("products").toList() }),
     payments(SalePaymentList{ map.value("payments").toList() }),
-    flags((map.value("suspended").toBool() ? RecordGroup::Suspended : RecordGroup::None)
-          | (map.value("archived").toBool() ? RecordGroup::Archived : RecordGroup::None)),
+    flags((map.value("suspended").toBool() ? Utility::RecordGroup::Suspended : Utility::RecordGroup::None)
+          | (map.value("archived").toBool() ? Utility::RecordGroup::Archived : Utility::RecordGroup::None)),
     dueDateTime(map.value("due_date_time").toDateTime()),
     action(map.value("action").toString()),
     note(Note{ map }),
-    timestamp(RecordTimestamp{ map }),
-    user(User{ map }),
+    timestamp(Utility::RecordTimestamp{ map }),
+    user(User::User{ map }),
     row(map.value("row", -1).toInt())
 {}
 
@@ -31,14 +31,14 @@ SaleTransaction::SaleTransaction(int id) :
 {}
 
 SaleTransaction::SaleTransaction(int id,
-                                 const Customer &customer,
+                                 const Utility::Customer &customer,
                                  const SaleMonies &monies,
                                  const SaleCartProductList &products,
                                  const SalePaymentList &payments,
-                                 const RecordGroup::Flags &flags,
+                                 const Utility::RecordGroup::Flags &flags,
                                  const QDateTime &dueDateTime,
                                  const QString &action,
-                                 const Note &note) :
+                                 const Utility::Note &note) :
     id(id),
     customer(customer),
     monies(monies),
@@ -51,10 +51,10 @@ SaleTransaction::SaleTransaction(int id,
 {}
 
 SaleTransaction::SaleTransaction(int id,
-                                 const Customer &customer,
+                                 const Utility::Customer &customer,
                                  const SaleMonies &monies,
-                                 const RecordGroup::Flags &flags,
-                                 const Note &note) :
+                                 const Utility::RecordGroup::Flags &flags,
+                                 const Utility::Note &note) :
     id(id),
     customer(customer),
     monies(monies),
@@ -74,8 +74,8 @@ QVariantMap SaleTransaction::toVariantMap() const
         { "discount", monies.discount.toDouble() },
         { "payments", payments.toVariantList() },
         { "products", products.toVariantList() },
-        { "suspended", flags.testFlag(RecordGroup::Suspended) },
-        { "archived", flags.testFlag(RecordGroup::Archived) },
+        { "suspended", flags.testFlag(Utility::RecordGroup::Suspended) },
+        { "archived", flags.testFlag(Utility::RecordGroup::Archived) },
         { "due_date_time", dueDateTime },
         { "action", action },
         { "note_id", note.id },

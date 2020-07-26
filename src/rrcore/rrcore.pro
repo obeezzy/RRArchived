@@ -35,116 +35,116 @@ SOURCES += \
     database/queryexecutor.cpp \
     models/abstractkpimodel.cpp \
     models/abstractreportmodel.cpp \
-    qmlapi/qmlmostsoldproductmodel.cpp \
-    qmlapi/qmlpurchasepaymentmodel.cpp \
-    qmlapi/qmlsalepaymentmodel.cpp \
-    qmlapi/qmltotalrevenuemodel.cpp \
-    queryexecutors/client/filterclients.cpp \
-    queryexecutors/debtor/filterdebtors.cpp \
-    queryexecutors/expense/filterexpensereport.cpp \
-    queryexecutors/income/filterincomereport.cpp \
-    queryexecutors/purchase/filterpurchasereport.cpp \
-    queryexecutors/sales/filtersalereport.cpp \
-    queryexecutors/sales/viewmostsoldproducts.cpp \
-    queryexecutors/sales/viewsoldproducts.cpp \
-    queryexecutors/stock/filterstockreport.cpp \
-    queryexecutors/transaction/transactionexecutor.cpp \
+    qmlapi/kpi/qmlmostsoldproductmodel.cpp \
+    qmlapi/purchase/qmlpurchasepaymentmodel.cpp \
+    qmlapi/sales/qmlsalepaymentmodel.cpp \
+    qmlapi/kpi/qmltotalrevenuemodel.cpp \
+    query/client/filterclients.cpp \
+    query/debtor/filterdebtors.cpp \
+    query/expense/filterexpensereport.cpp \
+    query/income/filterincomereport.cpp \
+    query/purchase/filterpurchasereport.cpp \
+    query/sales/filtersalereport.cpp \
+    query/sales/viewmostsoldproducts.cpp \
+    query/sales/viewsoldproducts.cpp \
+    query/stock/filterstockreport.cpp \
+    query/transaction/transactionexecutor.cpp \
     network/exceptions/indeterminatedestinationurlexception.cpp \
     network/networkexception.cpp \
     network/networkthread.cpp \
     network/requestlogger.cpp \
     network/serverrequest.cpp \
     network/serverresponse.cpp \
-    qmlapi/qmldebtpaymentmodel.cpp \
-    qmlapi/qmlexpensetransactionmodel.cpp \
-    qmlapi/qmlstockproductcategorymodel.cpp \
-    qmlapi/qmlstockproductcountrecord.cpp \
+    qmlapi/debtor/qmldebtpaymentmodel.cpp \
+    qmlapi/expense/qmlexpensetransactionmodel.cpp \
+    qmlapi/stock/qmlproductcategorymodel.cpp \
+    qmlapi/stock/qmlproductcountrecord.cpp \
     qmlapi/stock/qmlproductdetailmodel.cpp \
-    qmlapi/qmlstockproductmodel.cpp \
-    qmlapi/qmlstockproductpusher.cpp \
-    qmlapi/qmluserprofile.cpp \
-    queryexecutors/client/clientexecutor.cpp \
-    queryexecutors/client/viewclients.cpp \
-    queryexecutors/dashboard/dashboardexecutor.cpp \
-    queryexecutors/dashboard/viewdashboard.cpp \
-    queryexecutors/debtor/adddebtor.cpp \
-    queryexecutors/debtor/debtorexecutor.cpp \
-    queryexecutors/debtor/fetchdebtor.cpp \
-    queryexecutors/debtor/removedebtor.cpp \
-    queryexecutors/debtor/updatedebtor.cpp \
-    queryexecutors/debtor/viewdebtors.cpp \
-    queryexecutors/debtor/viewdebtpayments.cpp \
-    queryexecutors/debtor/viewdebttransactions.cpp \
-    queryexecutors/expense/addexpensetransaction.cpp \
-    queryexecutors/expense/expenseexecutor.cpp \
-    queryexecutors/expense/viewexpensereport.cpp \
-    queryexecutors/expense/viewexpensetransactions.cpp \
-    queryexecutors/income/addincometransaction.cpp \
-    queryexecutors/income/incomeexecutor.cpp \
-    queryexecutors/income/viewincomereport.cpp \
-    queryexecutors/income/viewincometransactions.cpp \
-    queryexecutors/purchase/addpurchasetransaction.cpp \
-    queryexecutors/purchase/purchaseexecutor.cpp \
-    queryexecutors/purchase/removepurchasedproduct.cpp \
-    queryexecutors/purchase/removepurchasetransaction.cpp \
-    queryexecutors/purchase/updatesuspendedpurchasetransaction.cpp \
-    queryexecutors/purchase/viewpurchasecart.cpp \
-    queryexecutors/purchase/viewpurchasedproducts.cpp \
-    queryexecutors/purchase/viewpurchasehome.cpp \
-    queryexecutors/purchase/viewpurchasereport.cpp \
-    queryexecutors/purchase/viewpurchasetransactions.cpp \
-    queryexecutors/sales/addsaletransaction.cpp \
-    queryexecutors/sales/removesaletransaction.cpp \
-    queryexecutors/sales/saleexecutor.cpp \
-    queryexecutors/sales/updatesuspendedsaletransaction.cpp \
-    queryexecutors/sales/viewsalecart.cpp \
-    queryexecutors/sales/viewsalehome.cpp \
-    queryexecutors/sales/viewsalereport.cpp \
-    queryexecutors/sales/viewsaletransactions.cpp \
-    queryexecutors/stock/addproduct.cpp \
-    queryexecutors/stock/fetchproduct.cpp \
-    queryexecutors/stock/fetchproductcount.cpp \
-    queryexecutors/stock/filterstockcategories.cpp \
-    queryexecutors/stock/filterstockcategoriesbyproduct.cpp \
-    queryexecutors/stock/filterstockproductcount.cpp \
-    queryexecutors/stock/filterstockproducts.cpp \
-    queryexecutors/stock/removestockproduct.cpp \
-    queryexecutors/stock/stockexecutor.cpp \
-    queryexecutors/stock/updatestockproduct.cpp \
-    queryexecutors/stock/viewproductcategories.cpp \
-    queryexecutors/stock/viewproducts.cpp \
-    queryexecutors/stock/viewstockreport.cpp \
-    queryexecutors/user/activateuser.cpp \
-    queryexecutors/user/adduser.cpp \
-    queryexecutors/user/changepassword.cpp \
-    queryexecutors/user/fetchuser.cpp \
-    queryexecutors/user/fetchuserprivileges.cpp \
-    queryexecutors/user/removeuser.cpp \
-    queryexecutors/user/signinuser.cpp \
-    queryexecutors/user/signoutuser.cpp \
-    queryexecutors/user/signupuser.cpp \
-    queryexecutors/user/updateuserprivileges.cpp \
-    queryexecutors/user/userexecutor.cpp \
-    queryexecutors/user/viewusers.cpp \
+    qmlapi/stock/qmlproductmodel.cpp \
+    qmlapi/stock/qmlproductpusher.cpp \
+    qmlapi/user/qmluserprofile.cpp \
+    query/client/clientexecutor.cpp \
+    query/client/viewclients.cpp \
+    query/dashboard/dashboardexecutor.cpp \
+    query/dashboard/viewdashboard.cpp \
+    query/debtor/adddebtor.cpp \
+    query/debtor/debtorexecutor.cpp \
+    query/debtor/fetchdebtor.cpp \
+    query/debtor/removedebtor.cpp \
+    query/debtor/updatedebtor.cpp \
+    query/debtor/viewdebtors.cpp \
+    query/debtor/viewdebtpayments.cpp \
+    query/debtor/viewdebttransactions.cpp \
+    query/expense/addexpensetransaction.cpp \
+    query/expense/expenseexecutor.cpp \
+    query/expense/viewexpensereport.cpp \
+    query/expense/viewexpensetransactions.cpp \
+    query/income/addincometransaction.cpp \
+    query/income/incomeexecutor.cpp \
+    query/income/viewincomereport.cpp \
+    query/income/viewincometransactions.cpp \
+    query/purchase/addpurchasetransaction.cpp \
+    query/purchase/purchaseexecutor.cpp \
+    query/purchase/removepurchasedproduct.cpp \
+    query/purchase/removepurchasetransaction.cpp \
+    query/purchase/updatesuspendedpurchasetransaction.cpp \
+    query/purchase/viewpurchasecart.cpp \
+    query/purchase/viewpurchasedproducts.cpp \
+    query/purchase/viewpurchasehome.cpp \
+    query/purchase/viewpurchasereport.cpp \
+    query/purchase/viewpurchasetransactions.cpp \
+    query/sales/addsaletransaction.cpp \
+    query/sales/removesaletransaction.cpp \
+    query/sales/saleexecutor.cpp \
+    query/sales/updatesuspendedsaletransaction.cpp \
+    query/sales/viewsalecart.cpp \
+    query/sales/viewsalehome.cpp \
+    query/sales/viewsalereport.cpp \
+    query/sales/viewsaletransactions.cpp \
+    query/stock/addproduct.cpp \
+    query/stock/fetchproduct.cpp \
+    query/stock/fetchproductcount.cpp \
+    query/stock/filterproductcategories.cpp \
+    query/stock/filtercategoriesbyproduct.cpp \
+    query/stock/filterproductcount.cpp \
+    query/stock/filterproducts.cpp \
+    query/stock/removeproduct.cpp \
+    query/stock/stockexecutor.cpp \
+    query/stock/updateproduct.cpp \
+    query/stock/viewproductcategories.cpp \
+    query/stock/viewproducts.cpp \
+    query/stock/viewstockreport.cpp \
+    query/user/activateuser.cpp \
+    query/user/adduser.cpp \
+    query/user/changepassword.cpp \
+    query/user/fetchuser.cpp \
+    query/user/fetchuserprivileges.cpp \
+    query/user/removeuser.cpp \
+    query/user/signinuser.cpp \
+    query/user/signoutuser.cpp \
+    query/user/signupuser.cpp \
+    query/user/updateuserprivileges.cpp \
+    query/user/userexecutor.cpp \
+    query/user/viewusers.cpp \
     database/databasethread.cpp \
     database/databaseserver.cpp \
     database/databasecreator.cpp \
     database/databaseexception.cpp \
     database/queryrequest.cpp \
     database/queryresult.cpp \
-    qmlapi/qmldashboardhomemodel.cpp \
+    qmlapi/dashboard/qmldashboardhomemodel.cpp \
     user/businessadmin.cpp \
     user/businessstore.cpp \
     user/businessstoremodel.cpp \
     user/userprofile.cpp \
     models/abstractvisuallistmodel.cpp \
     pusher/abstractpusher.cpp \
-    qmlapi/qmlsalecartmodel.cpp \
-    qmlapi/qmlsaletransactionmodel.cpp \
-    qmlapi/qmldoublevalidator.cpp \
-    qmlapi/qmlsaletransactionitemmodel.cpp \
-    qmlapi/qmldebtormodel.cpp \
-    qmlapi/qmlsalehomemodel.cpp \
+    qmlapi/sales/qmlsalecartmodel.cpp \
+    qmlapi/sales/qmlsaletransactionmodel.cpp \
+    qmlapi/util/qmldoublevalidator.cpp \
+    qmlapi/sales/qmlsaletransactionitemmodel.cpp \
+    qmlapi/debtor/qmldebtormodel.cpp \
+    qmlapi/sales/qmlsalehomemodel.cpp \
     detailrecord/abstractdetailrecord.cpp \
     models/abstracttransactionmodel.cpp \
     models/abstracttransactionitemmodel.cpp \
@@ -162,7 +162,7 @@ SOURCES += \
     utility/common/relatedtransaction.cpp \
     utility/common/sortcriteria.cpp \
     utility/common/vendor.cpp \
-    utility/debtor/debtmonies.cpp \
+    utility/debtor/debtormonies.cpp \
     utility/debtor/debtor.cpp \
     utility/debtor/debtpayment.cpp \
     utility/debtor/debttransaction.cpp \
@@ -183,46 +183,46 @@ SOURCES += \
     utility/sales/saletransaction.cpp \
     utility/sales/soldproduct.cpp \
     utility/stock/stockmonies.cpp \
-    utility/stock/stockproduct.cpp \
-    utility/stock/stockproductcategory.cpp \
-    utility/stock/stockproductquantity.cpp \
-    utility/stock/stockproductunit.cpp \
+    utility/stock/product.cpp \
+    utility/stock/productcategory.cpp \
+    utility/stock/productquantity.cpp \
+    utility/stock/productunit.cpp \
     utility/stock/stockreporttransaction.cpp \
     utility/user/user.cpp \
     utility/user/userprivilege.cpp \
     widgets/dialogs.cpp \
-    qmlapi/qmlclientmodel.cpp \
-    qmlapi/qmldebttransactionmodel.cpp \
-    qmlapi/qmldebtordetailrecord.cpp \
-    qmlapi/qmldatabasecreator.cpp \
+    qmlapi/client/qmlclientmodel.cpp \
+    qmlapi/debtor/qmldebttransactionmodel.cpp \
+    qmlapi/debtor/qmldebtordetailrecord.cpp \
+    qmlapi/util/qmldatabasecreator.cpp \
     config/config.cpp \
     json/messagecenter.cpp \
     models/abstracthomemodel.cpp \
-    qmlapi/qmlnotifier.cpp \
-    qmlapi/qmlpurchasehomemodel.cpp \
-    qmlapi/qmlpurchasecartmodel.cpp \
-    qmlapi/qmlincomehomemodel.cpp \
-    qmlapi/qmlincomepusher.cpp \
-    qmlapi/qmlexpensepusher.cpp \
-    qmlapi/qmlexpensehomemodel.cpp \
-    qmlapi/qmlcreditormodel.cpp \
+    qmlapi/util/qmlnotifier.cpp \
+    qmlapi/purchase/qmlpurchasehomemodel.cpp \
+    qmlapi/purchase/qmlpurchasecartmodel.cpp \
+    qmlapi/income/qmlincomehomemodel.cpp \
+    qmlapi/income/qmlincomepusher.cpp \
+    qmlapi/expense/qmlexpensepusher.cpp \
+    qmlapi/expense/qmlexpensehomemodel.cpp \
+    qmlapi/creditor/qmlcreditormodel.cpp \
     models/abstractvisualtablemodel.cpp \
-    qmlapi/qmlincometransactionmodel.cpp \
-    qmlapi/qmlusermodel.cpp \
-    qmlapi/qmluserprivilegemodel.cpp \
+    qmlapi/income/qmlincometransactionmodel.cpp \
+    qmlapi/user/qmlusermodel.cpp \
+    qmlapi/user/qmluserprivilegemodel.cpp \
     json/userprivilegecenter.cpp \
-    qmlapi/qmluserdetailrecord.cpp \
-    qmlapi/qmlsettings.cpp \
+    qmlapi/user/qmluserdetailrecord.cpp \
+    qmlapi/util/qmlsettings.cpp \
     singletons/settings.cpp \
-    qmlapi/qmlpurchasetransactionmodel.cpp \
-    qmlapi/qmlpurchasetransactionitemmodel.cpp \
-    qmlapi/qmlreceiptprinter.cpp \
+    qmlapi/purchase/qmlpurchasetransactionmodel.cpp \
+    qmlapi/purchase/qmlpurchasetransactionitemmodel.cpp \
+    qmlapi/util/qmlreceiptprinter.cpp \
     singletons/logger.cpp \
-    qmlapi/qmlstockreportmodel.cpp \
-    qmlapi/qmlsalereportmodel.cpp \
-    qmlapi/qmlpurchasereportmodel.cpp \
-    qmlapi/qmlexpensereportmodel.cpp \
-    qmlapi/qmlincomereportmodel.cpp \
+    qmlapi/stock/qmlstockreportmodel.cpp \
+    qmlapi/sales/qmlsalereportmodel.cpp \
+    qmlapi/purchase/qmlpurchasereportmodel.cpp \
+    qmlapi/expense/qmlexpensereportmodel.cpp \
+    qmlapi/income/qmlincomereportmodel.cpp \
     models/modelresult.cpp
 
 HEADERS += \
@@ -254,20 +254,20 @@ HEADERS += \
     database/queryexecutor.h \
     models/abstractkpimodel.h \
     models/abstractreportmodel.h \
-    qmlapi/qmlmostsoldproductmodel.h \
-    qmlapi/qmlpurchasepaymentmodel.h \
-    qmlapi/qmlsalepaymentmodel.h \
-    qmlapi/qmltotalrevenuemodel.h \
-    queryexecutors/client/filterclients.h \
-    queryexecutors/debtor/filterdebtors.h \
-    queryexecutors/expense/filterexpensereport.h \
-    queryexecutors/income/filterincomereport.h \
-    queryexecutors/purchase/filterpurchasereport.h \
-    queryexecutors/sales/filtersalereport.h \
-    queryexecutors/sales/viewmostsoldproducts.h \
-    queryexecutors/sales/viewsoldproducts.h \
-    queryexecutors/stock/filterstockreport.h \
-    queryexecutors/transaction/transactionexecutor.h \
+    qmlapi/kpi/qmlmostsoldproductmodel.h \
+    qmlapi/purchase/qmlpurchasepaymentmodel.h \
+    qmlapi/sales/qmlsalepaymentmodel.h \
+    qmlapi/kpi/qmltotalrevenuemodel.h \
+    query/client/filterclients.h \
+    query/debtor/filterdebtors.h \
+    query/expense/filterexpensereport.h \
+    query/income/filterincomereport.h \
+    query/purchase/filterpurchasereport.h \
+    query/sales/filtersalereport.h \
+    query/sales/viewmostsoldproducts.h \
+    query/sales/viewsoldproducts.h \
+    query/stock/filterstockreport.h \
+    query/transaction/transactionexecutor.h \
     network/exceptions/exceptions.h \
     network/exceptions/indeterminatedestinationurlexception.h \
     network/networkerror.h \
@@ -277,86 +277,77 @@ HEADERS += \
     network/requestlogger.h \
     network/serverrequest.h \
     network/serverresponse.h \
-    qmlapi/qmldebtpaymentmodel.h \
-    qmlapi/qmlexpensetransactionmodel.h \
-    qmlapi/qmlstockproductcategorymodel.h \
-    qmlapi/qmlstockproductcountrecord.h \
+    qmlapi/debtor/qmldebtpaymentmodel.h \
+    qmlapi/expense/qmlexpensetransactionmodel.h \
+    qmlapi/stock/qmlproductcategorymodel.h \
+    qmlapi/stock/qmlproductcountrecord.h \
     qmlapi/stock/qmlproductdetailmodel.h \
-    qmlapi/qmlstockproductmodel.h \
-    qmlapi/qmlstockproductpusher.h \
-    qmlapi/qmluserprofile.h \
-    queryexecutors/client.h \
-    queryexecutors/client/clientexecutor.h \
-    queryexecutors/client/viewclients.h \
-    queryexecutors/dashboard.h \
-    queryexecutors/dashboard/dashboardexecutor.h \
-    queryexecutors/dashboard/viewdashboard.h \
-    queryexecutors/debtor.h \
-    queryexecutors/debtor/adddebtor.h \
-    queryexecutors/debtor/debtorexecutor.h \
-    queryexecutors/debtor/fetchdebtor.h \
-    queryexecutors/debtor/removedebtor.h \
-    queryexecutors/debtor/updatedebtor.h \
-    queryexecutors/debtor/viewdebtors.h \
-    queryexecutors/debtor/viewdebtpayments.h \
-    queryexecutors/debtor/viewdebttransactions.h \
-    queryexecutors/expense.h \
-    queryexecutors/expense/addexpensetransaction.h \
-    queryexecutors/expense/expenseexecutor.h \
-    queryexecutors/expense/viewexpensereport.h \
-    queryexecutors/expense/viewexpensetransactions.h \
-    queryexecutors/income.h \
-    queryexecutors/income/addincometransaction.h \
-    queryexecutors/income/incomeexecutor.h \
-    queryexecutors/income/viewincomereport.h \
-    queryexecutors/income/viewincometransactions.h \
-    queryexecutors/purchase.h \
-    queryexecutors/purchase/addpurchasetransaction.h \
-    queryexecutors/purchase/purchaseexecutor.h \
-    queryexecutors/purchase/removepurchasedproduct.h \
-    queryexecutors/purchase/removepurchasetransaction.h \
-    queryexecutors/purchase/updatesuspendedpurchasetransaction.h \
-    queryexecutors/purchase/viewpurchasecart.h \
-    queryexecutors/purchase/viewpurchasedproducts.h \
-    queryexecutors/purchase/viewpurchasehome.h \
-    queryexecutors/purchase/viewpurchasereport.h \
-    queryexecutors/purchase/viewpurchasetransactions.h \
-    queryexecutors/sales.h \
-    queryexecutors/sales/addsaletransaction.h \
-    queryexecutors/sales/removesaletransaction.h \
-    queryexecutors/sales/saleexecutor.h \
-    queryexecutors/sales/updatesuspendedsaletransaction.h \
-    queryexecutors/sales/viewsalecart.h \
-    queryexecutors/sales/viewsalehome.h \
-    queryexecutors/sales/viewsalereport.h \
-    queryexecutors/sales/viewsaletransactions.h \
-    queryexecutors/stock.h \
-    queryexecutors/stock/addproduct.h \
-    queryexecutors/stock/fetchproduct.h \
-    queryexecutors/stock/fetchproductcount.h \
-    queryexecutors/stock/filterstockcategories.h \
-    queryexecutors/stock/filterstockcategoriesbyproduct.h \
-    queryexecutors/stock/filterstockproductcount.h \
-    queryexecutors/stock/filterstockproducts.h \
-    queryexecutors/stock/removestockproduct.h \
-    queryexecutors/stock/stockexecutor.h \
-    queryexecutors/stock/updatestockproduct.h \
-    queryexecutors/stock/viewproductcategories.h \
-    queryexecutors/stock/viewproducts.h \
-    queryexecutors/stock/viewstockreport.h \
-    queryexecutors/user.h \
-    queryexecutors/user/activateuser.h \
-    queryexecutors/user/adduser.h \
-    queryexecutors/user/changepassword.h \
-    queryexecutors/user/fetchuser.h \
-    queryexecutors/user/fetchuserprivileges.h \
-    queryexecutors/user/removeuser.h \
-    queryexecutors/user/signinuser.h \
-    queryexecutors/user/signoutuser.h \
-    queryexecutors/user/signupuser.h \
-    queryexecutors/user/updateuserprivileges.h \
-    queryexecutors/user/userexecutor.h \
-    queryexecutors/user/viewusers.h \
+    qmlapi/stock/qmlproductmodel.h \
+    qmlapi/stock/qmlproductpusher.h \
+    qmlapi/user/qmluserprofile.h \
+    query/client/clientexecutor.h \
+    query/client/viewclients.h \
+    query/dashboard/dashboardexecutor.h \
+    query/dashboard/viewdashboard.h \
+    query/debtor/adddebtor.h \
+    query/debtor/debtorexecutor.h \
+    query/debtor/fetchdebtor.h \
+    query/debtor/removedebtor.h \
+    query/debtor/updatedebtor.h \
+    query/debtor/viewdebtors.h \
+    query/debtor/viewdebtpayments.h \
+    query/debtor/viewdebttransactions.h \
+    query/expense/addexpensetransaction.h \
+    query/expense/expenseexecutor.h \
+    query/expense/viewexpensereport.h \
+    query/expense/viewexpensetransactions.h \
+    query/income/addincometransaction.h \
+    query/income/incomeexecutor.h \
+    query/income/viewincomereport.h \
+    query/income/viewincometransactions.h \
+    query/purchase/addpurchasetransaction.h \
+    query/purchase/purchaseexecutor.h \
+    query/purchase/removepurchasedproduct.h \
+    query/purchase/removepurchasetransaction.h \
+    query/purchase/updatesuspendedpurchasetransaction.h \
+    query/purchase/viewpurchasecart.h \
+    query/purchase/viewpurchasedproducts.h \
+    query/purchase/viewpurchasehome.h \
+    query/purchase/viewpurchasereport.h \
+    query/purchase/viewpurchasetransactions.h \
+    query/sales/addsaletransaction.h \
+    query/sales/removesaletransaction.h \
+    query/sales/saleexecutor.h \
+    query/sales/updatesuspendedsaletransaction.h \
+    query/sales/viewsalecart.h \
+    query/sales/viewsalehome.h \
+    query/sales/viewsalereport.h \
+    query/sales/viewsaletransactions.h \
+    query/stock/addproduct.h \
+    query/stock/fetchproduct.h \
+    query/stock/fetchproductcount.h \
+    query/stock/filterproductcategories.h \
+    query/stock/filtercategoriesbyproduct.h \
+    query/stock/filterproductcount.h \
+    query/stock/filterproducts.h \
+    query/stock/removeproduct.h \
+    query/stock/stockexecutor.h \
+    query/stock/updateproduct.h \
+    query/stock/viewproductcategories.h \
+    query/stock/viewproducts.h \
+    query/stock/viewstockreport.h \
+    query/user/activateuser.h \
+    query/user/adduser.h \
+    query/user/changepassword.h \
+    query/user/fetchuser.h \
+    query/user/fetchuserprivileges.h \
+    query/user/removeuser.h \
+    query/user/signinuser.h \
+    query/user/signoutuser.h \
+    query/user/signupuser.h \
+    query/user/updateuserprivileges.h \
+    query/user/userexecutor.h \
+    query/user/viewusers.h \
     schema/schema.h \
     database/databasethread.h \
     database/databaseserver.h \
@@ -364,19 +355,19 @@ HEADERS += \
     database/databaseexception.h \
     database/queryrequest.h \
     database/queryresult.h \
-    qmlapi/qmldashboardhomemodel.h \
+    qmlapi/dashboard/qmldashboardhomemodel.h \
     user/businessadmin.h \
     user/businessstore.h \
     user/businessstoremodel.h \
     user/userprofile.h \
     models/abstractvisuallistmodel.h \
     pusher/abstractpusher.h \
-    qmlapi/qmlsalecartmodel.h \
-    qmlapi/qmlsaletransactionmodel.h \
-    qmlapi/qmldoublevalidator.h \
-    qmlapi/qmlsaletransactionitemmodel.h \
-    qmlapi/qmldebtormodel.h \
-    qmlapi/qmlsalehomemodel.h \
+    qmlapi/sales/qmlsalecartmodel.h \
+    qmlapi/sales/qmlsaletransactionmodel.h \
+    qmlapi/util/qmldoublevalidator.h \
+    qmlapi/sales/qmlsaletransactionitemmodel.h \
+    qmlapi/debtor/qmldebtormodel.h \
+    qmlapi/sales/qmlsalehomemodel.h \
     detailrecord/abstractdetailrecord.h \
     models/abstracttransactionmodel.h \
     models/abstracttransactionitemmodel.h \
@@ -394,24 +385,20 @@ HEADERS += \
     utility/common/relatedtransaction.h \
     utility/common/sortcriteria.h \
     utility/common/vendor.h \
-    utility/commonutils.h \
-    utility/debtor/debtmonies.h \
+    utility/debtor/debtormonies.h \
     utility/debtor/debtor.h \
     utility/debtor/debtpayment.h \
     utility/debtor/debttransaction.h \
     utility/expense/expensereporttransaction.h \
     utility/expense/expensetransaction.h \
-    utility/expenseutils.h \
     utility/income/incomereporttransaction.h \
     utility/income/incometransaction.h \
-    utility/incomeutils.h \
     utility/purchase/purchasecartproduct.h \
     utility/purchase/purchasedproduct.h \
     utility/purchase/purchasemonies.h \
     utility/purchase/purchasepayment.h \
     utility/purchase/purchasereporttransaction.h \
     utility/purchase/purchasetransaction.h \
-    utility/purchaseutils.h \
     utility/sales/salecartproduct.h \
     utility/sales/salemonies.h \
     utility/sales/salepayment.h \
@@ -419,50 +406,46 @@ HEADERS += \
     utility/sales/saletransaction.h \
     utility/sales/soldproduct.h \
     utility/stock/stockmonies.h \
-    utility/stock/stockproduct.h \
-    utility/stock/stockproductcategory.h \
-    utility/stock/stockproductquantity.h \
-    utility/stock/stockproductunit.h \
+    utility/stock/product.h \
+    utility/stock/productcategory.h \
+    utility/stock/productquantity.h \
+    utility/stock/productunit.h \
     utility/stock/stockreporttransaction.h \
-    utility/stockutils.h \
     utility/user/user.h \
     utility/user/userprivilege.h \
-    utility/userutils.h \
     widgets/dialogs.h \
-    qmlapi/qmlclientmodel.h \
-    qmlapi/qmldebttransactionmodel.h \
-    qmlapi/qmldebtordetailrecord.h \
-    utility/debtorutils.h \
-    utility/saleutils.h \
-    qmlapi/qmldatabasecreator.h \
+    qmlapi/client/qmlclientmodel.h \
+    qmlapi/debtor/qmldebttransactionmodel.h \
+    qmlapi/debtor/qmldebtordetailrecord.h \
+    qmlapi/util/qmldatabasecreator.h \
     config/config.h \
     json/messagecenter.h \
     models/abstracthomemodel.h \
-    qmlapi/qmlnotifier.h \
-    qmlapi/qmlpurchasehomemodel.h \
-    qmlapi/qmlpurchasecartmodel.h \
-    qmlapi/qmlincomehomemodel.h \
-    qmlapi/qmlincomepusher.h \
-    qmlapi/qmlexpensepusher.h \
-    qmlapi/qmlexpensehomemodel.h \
-    qmlapi/qmlcreditormodel.h \
+    qmlapi/util/qmlnotifier.h \
+    qmlapi/purchase/qmlpurchasehomemodel.h \
+    qmlapi/purchase/qmlpurchasecartmodel.h \
+    qmlapi/income/qmlincomehomemodel.h \
+    qmlapi/income/qmlincomepusher.h \
+    qmlapi/expense/qmlexpensepusher.h \
+    qmlapi/expense/qmlexpensehomemodel.h \
+    qmlapi/creditor/qmlcreditormodel.h \
     models/abstractvisualtablemodel.h \
-    qmlapi/qmlincometransactionmodel.h \
-    qmlapi/qmlusermodel.h \
-    qmlapi/qmluserprivilegemodel.h \
+    qmlapi/income/qmlincometransactionmodel.h \
+    qmlapi/user/qmlusermodel.h \
+    qmlapi/user/qmluserprivilegemodel.h \
     json/userprivilegecenter.h \
-    qmlapi/qmluserdetailrecord.h \
-    qmlapi/qmlsettings.h \
+    qmlapi/user/qmluserdetailrecord.h \
+    qmlapi/util/qmlsettings.h \
     singletons/settings.h \
-    qmlapi/qmlpurchasetransactionmodel.h \
-    qmlapi/qmlpurchasetransactionitemmodel.h \
-    qmlapi/qmlreceiptprinter.h \
+    qmlapi/purchase/qmlpurchasetransactionmodel.h \
+    qmlapi/purchase/qmlpurchasetransactionitemmodel.h \
+    qmlapi/util/qmlreceiptprinter.h \
     singletons/logger.h \
-    qmlapi/qmlstockreportmodel.h \
-    qmlapi/qmlsalereportmodel.h \
-    qmlapi/qmlpurchasereportmodel.h \
-    qmlapi/qmlexpensereportmodel.h \
-    qmlapi/qmlincomereportmodel.h \
+    qmlapi/stock/qmlstockreportmodel.h \
+    qmlapi/sales/qmlsalereportmodel.h \
+    qmlapi/purchase/qmlpurchasereportmodel.h \
+    qmlapi/expense/qmlexpensereportmodel.h \
+    qmlapi/income/qmlincomereportmodel.h \
     models/modelresult.h
 
 DISTFILES +=

@@ -26,7 +26,7 @@ RRUi.DataTableView {
     flickableDirection: TableView.VerticalFlick
     interactive: false
 
-    model: RRModels.StockProductModel {
+    model: RRModels.ProductModel {
         id: stockProductModel
         tableViewWidth: productTableView.contentItem.width - productTableView.leftMargin * 2
         categoryId: productTableView.categoryId
@@ -41,7 +41,7 @@ RRUi.DataTableView {
 
     delegate: DelegateChooser {
         DelegateChoice {
-            column: RRModels.StockProductModel.ImageColumn
+            column: RRModels.ProductModel.ImageColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: productTableView.columnHeader.children[column].width
                 implicitHeight: productTableView.rowHeader.children[row].height
@@ -56,7 +56,7 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.StockProductModel.ProductColumn
+            column: RRModels.ProductModel.ProductColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: productTableView.columnHeader.children[column].width
                 implicitHeight: productTableView.rowHeader.children[row].height
@@ -76,7 +76,7 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.StockProductModel.QuantityColumn
+            column: RRModels.ProductModel.QuantityColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: productTableView.columnHeader.children[column].width
                 implicitHeight: productTableView.rowHeader.children[row].height
@@ -96,7 +96,7 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.StockProductModel.CostPriceColumn
+            column: RRModels.ProductModel.CostPriceColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: productTableView.columnHeader.children[column].width
                 implicitHeight: productTableView.rowHeader.children[row].height
@@ -116,7 +116,7 @@ RRUi.DataTableView {
         }
 
         DelegateChoice {
-            column: RRModels.StockProductModel.ActionColumn
+            column: RRModels.ProductModel.ActionColumn
             delegate: RRUi.TableDelegate {
                 implicitWidth: productTableView.columnHeader.children[column].width
                 implicitHeight: productTableView.rowHeader.children[row].height

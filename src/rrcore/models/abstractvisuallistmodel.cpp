@@ -1,7 +1,6 @@
 #include "abstractvisuallistmodel.h"
 #include "database/databasethread.h"
 #include "database/queryexecutor.h"
-#include "queryexecutors/sales.h"
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(lcabstractvisuallistmodel, "rrcore.models.abstractvisuallistmodel");

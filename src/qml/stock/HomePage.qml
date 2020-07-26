@@ -36,7 +36,7 @@ RRUi.Page {
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
     }
 
-    RRModels.StockProductCountRecord {
+    RRModels.ProductCountRecord {
         id: stockProductCountRecord
         filterText: productCategoryListView.filterText
         filterColumn: productCategoryListView.filterColumn
@@ -110,7 +110,7 @@ RRUi.Page {
 
             filterText: searchBar.text
             filterColumn: RRModels.StockProductModel.ProductColumn
-            sortColumn: RRModels.StockProductModel.ProductColumn
+            sortColumn: RRModels.ProductModel.ProductColumn
             bottomMargin: 100
             clip: true
 
@@ -148,10 +148,10 @@ RRUi.Page {
 
             onSuccess: {
                 switch (result.code) {
-                case RRModels.StockProductModel.RemoveProductSuccess:
+                case RRModels.ProductModel.RemoveProductSuccess:
                     MainWindow.snackBar.show(qsTr("Product removed successfully."), qsTr("Undo"));
                     break;
-                case RRModels.StockProductModel.UndoRemoveProductSuccess:
+                case RRModels.ProductModel.UndoRemoveProductSuccess:
                     MainWindow.snackBar.show(qsTr("Undo successful."));
                     break;
                 }

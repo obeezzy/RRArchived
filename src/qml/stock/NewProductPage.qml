@@ -101,7 +101,7 @@ RRUi.Page {
                         }
                     }
 
-                    RRModels.StockProductPusher {
+                    RRModels.ProductPusher {
                         id: stockProductPusher
                         productId: newProductPage.productId
                         imageUrl: productImage.source
@@ -119,11 +119,11 @@ RRUi.Page {
 
                         onSuccess: {
                             switch (result.code) {
-                            case RRModels.StockProductPusher.AddProductSuccess:
+                            case RRModels.ProductPusher.AddProductSuccess:
                                 MainWindow.snackBar.show(qsTr("Product was successfully added!"));
                                 transitionView.trigger();
                                 break;
-                            case RRModels.StockProductPusher.UpdateProductSuccess:
+                            case RRModels.ProductPusher.UpdateProductSuccess:
                                 MainWindow.snackBar.show(qsTr("Product was successfully updated!"));
                                 newProductPage.pop();
                                 break;
@@ -131,11 +131,11 @@ RRUi.Page {
                         }
                         onError: {
                             switch (result.code) {
-                            case RRModels.StockProductPusher.DuplicateEntryError:
+                            case RRModels.ProductPusher.DuplicateEntryError:
                                 errorDialog.show(qsTr("A product of the same name already exists."),
                                                  qsTr("Failed to add product"));
                                 break;
-                            case RRModels.StockProductPusher.ImageTooLargeError:
+                            case RRModels.ProductPusher.ImageTooLargeError:
                                 errorDialog.show(qsTr("The image selected for the product is too large. "
                                                       + "Please choose an image less than 2 MB."),
                                                  qsTr("Failed to add product"));
