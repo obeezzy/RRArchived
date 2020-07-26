@@ -1,13 +1,7 @@
-{
-  "C++": {
-    "beautifiers": [
-      "ClangFormat"
-    ],
-    "ClangFormat": {
-      "prefer_beautifier_config": true,
-      "ClangFormat": {
-        "path": "./.clang-format"
-      }
-    }
-  }
-}
+C++: # Language
+  beautifiers: # Enable beautifier
+    - ClangFormat
+  ClangFormat: # Beautifier options
+    prefer_beautifier_config: true
+    ClangFormat: # Executable options
+      path: "./.clang-format"
