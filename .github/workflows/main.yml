@@ -30,7 +30,7 @@ jobs:
         source: 'src tests'
         exclude: './thirdparty'
         extensions: 'h,cpp'
-        clangFormatVersion: 9
+        clangFormatVersion: 10
         style: './.clang-format'
 
     - name: Install Qt
