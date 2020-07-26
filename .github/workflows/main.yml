@@ -31,7 +31,6 @@ jobs:
         exclude: './thirdparty'
         extensions: 'h,cpp'
         clangFormatVersion: 10
-        style: './.clang-format'
 
     - name: Install Qt
       run: |
