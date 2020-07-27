@@ -18,8 +18,8 @@ RRUi.DataTableView {
     signal productRemoved(int productId)
     signal modelReset
 
-    function removeProduct(row) { stockProductModel.removeProduct(row); }
-    function refresh() { stockProductModel.refresh(); }
+    function removeProduct(row) { productModel.removeProduct(row); }
+    function refresh() { productModel.refresh(); }
 
     height: contentHeight + topMargin + bottomMargin
     columnSpacing: 8
@@ -27,7 +27,7 @@ RRUi.DataTableView {
     interactive: false
 
     model: RRModels.ProductModel {
-        id: stockProductModel
+        id: productModel
         tableViewWidth: productTableView.contentItem.width - productTableView.leftMargin * 2
         categoryId: productTableView.categoryId
         filterText: productTableView.filterText

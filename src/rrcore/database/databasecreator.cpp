@@ -93,7 +93,7 @@ void DatabaseCreator::executeSqlFile(const QString& fileName)
 
         // Extract queries
         QStringList extractedQueries =
-            sqlData.split(';', QString::SkipEmptyParts);
+            sqlData.split(';', Qt::SkipEmptyParts);
 
         // Initialize regular expression for detecting special queries (`begin
         // transaction` and `commit`).

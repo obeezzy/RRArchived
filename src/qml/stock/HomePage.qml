@@ -4,7 +4,6 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import Fluid.Core 1.0 as FluidCore
 import com.gecko.rr.models 1.0 as RRModels
-import com.gecko.rr.models.stock 1.0 as StockModels
 import "../rrui" as RRUi
 import "../common"
 import "../singletons"
@@ -37,7 +36,7 @@ RRUi.Page {
     }
 
     RRModels.ProductCountRecord {
-        id: stockProductCountRecord
+        id: productCountRecord
         filterText: productCategoryListView.filterText
         filterColumn: productCategoryListView.filterColumn
     }
@@ -94,7 +93,7 @@ RRUi.Page {
                 margins: 8
             }
             //visible: searchBar.text.trim() != ""
-            text: qsTr("%1 result%2 found.").arg(stockProductCountRecord.productCount).arg(stockProductCountRecord.productCount === 1 ? "" : "s")
+            text: qsTr("%1 result%2 found.").arg(productCountRecord.productCount).arg(productCountRecord.productCount === 1 ? "" : "s")
             font.bold: true
         }
 
@@ -109,12 +108,12 @@ RRUi.Page {
             }
 
             filterText: searchBar.text
-            filterColumn: RRModels.StockProductModel.ProductColumn
+            filterColumn: RRModels.ProductModel.ProductColumn
             sortColumn: RRModels.ProductModel.ProductColumn
             bottomMargin: 100
             clip: true
 
-            onModelReset: stockProductCountRecord.refresh();
+            onModelReset: productCountRecord.refresh();
 
             buttonRow: Row {
                 RRUi.ToolButton {

@@ -102,7 +102,7 @@ RRUi.Page {
                     }
 
                     RRModels.ProductPusher {
-                        id: stockProductPusher
+                        id: productPusher
                         productId: newProductPage.productId
                         imageUrl: productImage.source
                         category: productDetails.category
@@ -150,7 +150,7 @@ RRUi.Page {
 
                     RRUi.ErrorDialog { id: errorDialog }
 
-                    RRUi.BusyOverlay { visible: stockProductPusher.busy }
+                    RRUi.BusyOverlay { visible: productPusher.busy }
                 }
             }
 
@@ -174,7 +174,7 @@ RRUi.Page {
 
             function submit() {
                 if (validateUserInput())
-                    stockProductPusher.push();
+                    productPusher.push();
             }
         }
 
