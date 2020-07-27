@@ -7,8 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  # Semver (e.g. 5.13.1)
-  QT_VERSION: 5.13.1
+  QT_VERSION: 5.15.0
 
 jobs:
   build:

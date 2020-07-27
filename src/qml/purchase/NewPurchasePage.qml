@@ -117,7 +117,7 @@ RRUi.Page {
             function suspendTransaction(params) { cartListView.suspendTransaction(params); }
 
             RRUi.Card {
-                id: stockItemCard
+                id: productCard
                 width: parent.width * .66 - 8
                 anchors {
                     left: parent.left
@@ -177,7 +177,7 @@ RRUi.Page {
                         }
 
                         filterText: searchBar.text
-                        filterColumn: RRModels.StockProductModel.ProductColumn
+                        filterColumn: RRModels.ProductModel.ProductColumn
 
                         buttonRow: Row {
                             spacing: 0
@@ -218,7 +218,7 @@ RRUi.Page {
             FocusScope {
                 width: parent.width *.33
                 anchors {
-                    left: stockItemCard.right
+                    left: productCard.right
                     right: parent.right
                     top: parent.top
                     bottom: parent.bottom

@@ -4,7 +4,7 @@ import QtQuick.Controls.Material 2.3
 import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 import "../rrui" as RRUi
-import com.gecko.rr.models.stock 1.0 as StockModels
+import com.gecko.rr.models 1.0 as RRModels
 import "../singletons"
 
 RRUi.Popup {
@@ -31,11 +31,10 @@ RRUi.Popup {
             anchors.fill: parent
             clip: true
             header: headerComponent
-            model: StockModels.ProductDetailModel {
+            model: RRModels.ProductDetailModel {
                 id: productDetailModel
                 productId: productDetailPopup.productId
             }
-            headerPositioning: ListView.PullBackHeader
             delegate: FluidControls.ListItem {
                 QQLayouts.RowLayout {
                     anchors {

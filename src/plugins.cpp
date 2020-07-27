@@ -137,7 +137,7 @@ void Plugins::registerTypes()
                                              "ProductCategoryModel");
     qmlRegisterType<QMLProductCountRecord>("com.gecko.rr.models", 1, 0,
                                            "ProductCountRecord");
-    qmlRegisterType<QMLProductDetailModel>("com.gecko.rr.models.stock", 1, 0,
+    qmlRegisterType<QMLProductDetailModel>("com.gecko.rr.models", 1, 0,
                                            "ProductDetailModel");
     qmlRegisterType<QMLProductPusher>("com.gecko.rr.models", 1, 0,
                                       "ProductPusher");

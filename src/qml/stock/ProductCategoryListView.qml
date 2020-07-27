@@ -19,14 +19,14 @@ ListView {
     property string filterText: ""
     property int filterColumn: -1
     property int sortColumn: -1
-    property alias busy: stockProductCategoryModel.busy
+    property alias busy: productCategoryModel.busy
 
     signal success(var result)
     signal error(var result)
     signal modelReset
 
     function refresh() { productCategoryListView.model.refresh(); }
-    function undoLastCommit() { stockProductCategoryModel.unarchiveProduct(privateProperties.lastRemovedProductId); }
+    function undoLastCommit() { productCategoryModel.unarchiveProduct(privateProperties.lastRemovedProductId); }
 
     QtObject {
         id: privateProperties
@@ -40,7 +40,7 @@ ListView {
     visible: !model.busy
 
     model: RRModels.ProductCategoryModel {
-        id: stockProductCategoryModel
+        id: productCategoryModel
         filterText: productCategoryListView.filterColumn === -1 ? productCategoryListView.filterText : ""
         productFilterText: productCategoryListView.filterColumn === RRModels.ProductModel.ProductColumn ? productCategoryListView.filterText
                                                                                                              : ""
@@ -74,7 +74,7 @@ ListView {
         Material.elevation: 0
 
         Connections {
-            target: stockProductCategoryModel
+            target: productCategoryModel
             onDataChanged: if (topLeft.row === categoryCard.row) productTableView.refresh();
         }
 
@@ -116,7 +116,7 @@ ListView {
                     switch (result.code) {
                     case RRModels.ProductModel.RemoveProductSuccess:
                         if (productTableView.rows === 1)
-                            stockProductCategoryModel.removeCategory(categoryCard.row);
+                            productCategoryModel.removeCategory(categoryCard.row);
                     }
 
                     productCategoryListView.success(result);
