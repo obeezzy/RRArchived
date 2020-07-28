@@ -1,21 +1,23 @@
-import QtQuick 2.12
-import QtQuick.Controls.Material 2.3
-import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import "../models"
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.3
 
 FluidControls.Sidebar {
     id: sidebar
 
     property int currentIndex: 0
-    readonly property ListModel model: NavMenuModel { }
+    readonly property ListModel
+    model: NavMenuModel {
+    }
 
     function findIndexFromFileName(fileName) {
         for (var i = 0; i < sidebar.model.count; ++i) {
             if (fileName === sidebar.model.get(i).fileName)
                 return i;
-        }
 
+        }
         return -1;
     }
 
@@ -23,6 +25,7 @@ FluidControls.Sidebar {
 
     Column {
         id: column
+
         anchors {
             left: parent.left
             right: parent.right
@@ -30,12 +33,21 @@ FluidControls.Sidebar {
 
         Repeater {
             model: sidebar.model
+
             delegate: QQC2.ItemDelegate {
                 id: control
+
                 width: sidebar.availableWidth
                 height: 40
                 highlighted: index === sidebar.currentIndex
-                onClicked: sidebar.currentIndex = index;
+                onClicked: sidebar.currentIndex = index
+
+                FluidControls.Ripple {
+                    //onClicked: control.clicked();
+
+                    anchors.fill: parent
+                    control: control
+                }
 
                 contentItem: FocusScope {
                     Row {
@@ -52,15 +64,15 @@ FluidControls.Sidebar {
                             anchors.verticalCenter: parent.verticalCenter
                             verticalAlignment: Qt.AlignVCenter
                         }
+
                     }
+
                 }
 
-                FluidControls.Ripple {
-                    anchors.fill: parent
-                    control: control
-                    //onClicked: control.clicked();
-                }
             }
+
         }
+
     }
+
 }

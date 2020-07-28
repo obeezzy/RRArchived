@@ -1,11 +1,11 @@
+import "../common"
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../rrui" as RRUi
-import "../common"
-import "../singletons"
 
 RRUi.Dialog {
     id: saleTransactionDetailDialog
@@ -14,27 +14,28 @@ RRUi.Dialog {
     property string customerName: ""
     property string customerPhoneNumber: ""
 
-    implicitWidth: 840
-    implicitHeight: 640
-    title: qsTr("Transaction details")
-    standardButtons: RRUi.Dialog.Ok
-
     function show(transaction) {
         if (Object(transactionInfo).hasOwnProperty("transaction_id"))
             saleTransactionDetailDialog.transactionId = transaction.transaction_id;
+
         if (Object(transactionInfo).hasOwnProperty("customer_name"))
             saleTransactionDetailDialog.customerName = transaction.customer_name;
 
         open();
     }
 
-    onAboutToShow: tableView.refresh();
+    implicitWidth: 840
+    implicitHeight: 640
+    title: qsTr("Transaction details")
+    standardButtons: RRUi.Dialog.Ok
+    onAboutToShow: tableView.refresh()
 
     contentItem: FocusScope {
         focus: true
 
         Column {
             id: dialogHeader
+
             anchors {
                 left: parent.left
                 right: parent.right
@@ -43,6 +44,7 @@ RRUi.Dialog {
 
             Row {
                 spacing: 4
+
                 FluidControls.SubheadingLabel {
                     text: qsTr("Transaction ID:")
                 }
@@ -50,6 +52,7 @@ RRUi.Dialog {
                 FluidControls.SubheadingLabel {
                     text: saleTransactionDetailDialog.transactionId
                 }
+
             }
 
             Row {
@@ -60,7 +63,11 @@ RRUi.Dialog {
                     verticalAlignment: Qt.AlignVCenter
                 }
 
-                Item { width: 8; height: 1 } // Spacer
+                // Spacer
+                Item {
+                    width: 8
+                    height: 1
+                }
 
                 FluidControls.SubheadingLabel {
                     anchors.verticalCenter: parent.verticalCenter
@@ -68,7 +75,11 @@ RRUi.Dialog {
                     text: saleTransactionDetailDialog.customerName
                 }
 
-                Item { width: 16; height: 1 } // Spacer
+                // Spacer
+                Item {
+                    width: 16
+                    height: 1
+                }
 
                 RRUi.ToolButton {
                     visible: false
@@ -77,6 +88,7 @@ RRUi.Dialog {
                     width: FluidControls.Units.iconSizes.medium
                     height: width
                 }
+
             }
 
             Row {
@@ -89,7 +101,11 @@ RRUi.Dialog {
                     verticalAlignment: Qt.AlignVCenter
                 }
 
-                Item { width: 8; height: 1 } // Spacer
+                // Spacer
+                Item {
+                    width: 8
+                    height: 1
+                }
 
                 FluidControls.SubheadingLabel {
                     anchors.verticalCenter: parent.verticalCenter
@@ -97,7 +113,11 @@ RRUi.Dialog {
                     text: saleTransactionDetailDialog.customerPhoneNumber
                 }
 
-                Item { width: 16; height: 1 } // Spacer
+                // Spacer
+                Item {
+                    width: 16
+                    height: 1
+                }
 
                 RRUi.ToolButton {
                     anchors.verticalCenter: parent.verticalCenter
@@ -105,11 +125,16 @@ RRUi.Dialog {
                     width: FluidControls.Units.iconSizes.medium
                     height: width
                 }
+
             }
+
         }
 
         SaleTransactionDetailTableView {
             id: tableView
+
+            transactionId: saleTransactionDetailDialog.transactionId
+
             anchors {
                 top: dialogHeader.bottom
                 left: parent.left
@@ -117,7 +142,9 @@ RRUi.Dialog {
                 bottom: parent.bottom
                 topMargin: 24
             }
-            transactionId: saleTransactionDetailDialog.transactionId
+
         }
+
     }
+
 }

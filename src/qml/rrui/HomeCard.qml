@@ -1,9 +1,9 @@
+import "../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Controls.Material 2.3
-import "../rrui" as RRUi
 
 RRUi.Card {
     id: homeCard
@@ -19,7 +19,7 @@ RRUi.Card {
     default property alias content: dataColumn.data
 
     signal viewRequested(var breadcrumbs)
-    signal dismissRequested
+    signal dismissRequested()
 
     implicitWidth: 200
     implicitHeight: dataColumn.height + topPadding + bottomPadding + buttonRow.height
@@ -27,21 +27,27 @@ RRUi.Card {
 
     Column {
         id: dataColumn
+
         spacing: 0
+
         anchors {
             left: parent.left
             right: parent.right
         }
 
         FluidControls.HeadlineLabel {
+            text: homeCard.cardTitle
+            visible: text != ""
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: homeCard.cardTitle
-            visible: text != ""
 
             FluidControls.Icon {
+                source: homeCard.iconUrl
+                width: height
+
                 anchors {
                     margins: 2
                     right: parent.right
@@ -49,9 +55,8 @@ RRUi.Card {
                     bottom: parent.bottom
                 }
 
-                source: homeCard.iconUrl
-                width: height
             }
+
         }
 
         Image {
@@ -61,32 +66,42 @@ RRUi.Card {
         }
 
         FluidControls.SubheadingLabel {
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
             text: homeCard.subtitle
             color: "darkgray"
             visible: text != ""
-        }
 
-        Item { width: 1; height: 16 }
-
-        FluidControls.BodyLabel {
             anchors {
                 left: parent.left
                 right: parent.right
             }
+
+        }
+
+        Item {
+            width: 1
+            height: 16
+        }
+
+        FluidControls.BodyLabel {
             text: homeCard.shortDescription
             visible: text != ""
             wrapMode: Text.WordWrap
             maximumLineCount: 6
+
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+
         }
+
     }
 
     Row {
         id: buttonRow
+
         spacing: 8
+
         anchors {
             bottom: parent.bottom
             right: parent.right
@@ -97,13 +112,15 @@ RRUi.Card {
             flat: true
             visible: homeCard.dismissable
             text: qsTr("Dismiss")
-            onClicked: homeCard.dismissRequested();
+            onClicked: homeCard.dismissRequested()
         }
 
         QQC2.Button {
             flat: true
             text: qsTr("View")
-            onClicked: homeCard.viewRequested(homeCard.breadcrumb);
+            onClicked: homeCard.viewRequested(homeCard.breadcrumb)
         }
+
     }
+
 }

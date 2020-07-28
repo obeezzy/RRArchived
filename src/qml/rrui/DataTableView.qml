@@ -1,10 +1,10 @@
-import QtQuick 2.13
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.12
-import Fluid.Controls 1.0 as FluidControls
-import QtQuick.Controls.Material 2.3
 import "../rrui" as RRUi
 import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.13
+import QtQuick.Controls 2.5
+import QtQuick.Controls.Material 2.3
+import QtQuick.Layouts 1.12
 
 TableView {
     id: dataTableView
@@ -17,7 +17,9 @@ TableView {
 
     topMargin: columnHeader.implicitHeight
     leftMargin: rowHeader.implicitWidth
-    columnWidthProvider: function (column) { return dataTableView.model.headerData(column, Qt.Horizontal, Qt.SizeHintRole); }
+    columnWidthProvider: function(column) {
+        return dataTableView.model.headerData(column, Qt.Horizontal, Qt.SizeHintRole);
+    }
 
     TableDelegate {
         x: -width
@@ -29,6 +31,7 @@ TableView {
 
     Row {
         id: columnHeader
+
         y: dataTableView.contentY
         z: 2
         spacing: dataTableView.columnSpacing
@@ -43,6 +46,7 @@ TableView {
 
                 FluidControls.SubheadingLabel {
                     id: columnLabel
+
                     anchors.fill: parent
                     text: dataTableView.model.headerData(modelData, Qt.Horizontal)
                     color: dataTableView.headerTextColor
@@ -53,14 +57,20 @@ TableView {
                     elide: Qt.ElideRight
                     font.bold: true
 
-                    background: Item { }
+                    background: Item {
+                    }
+
                 }
+
             }
+
         }
+
     }
 
     Column {
         id: rowHeader
+
         x: dataTableView.contentX
         z: 2
         spacing: dataTableView.rowSpacing
@@ -75,16 +85,22 @@ TableView {
 
                 FluidControls.SubheadingLabel {
                     id: rowLabel
+
                     anchors.fill: parent
                     text: dataTableView.model.headerData(modelData, Qt.Vertical)
                     color: dataTableView.headerTextColor
                     padding: 10
                     verticalAlignment: Text.AlignVCenter
 
-                    background: Item { }
+                    background: Item {
+                    }
+
                 }
+
             }
+
         }
+
     }
 
     // Row delegates
@@ -96,14 +112,17 @@ TableView {
         visible: dataTableView.rows > 0
 
         Rectangle {
+            color: Stylesheet.tableViewDivider
+            height: 1
+
             anchors {
                 left: parent.left
                 right: parent.right
                 bottom: parent.bottom
             }
-            color: Stylesheet.tableViewDivider
-            height: 1
+
         }
+
     }
 
     ListView {
@@ -114,7 +133,6 @@ TableView {
         interactive: false
         clip: true
         visible: dataTableView.rows > 0
-
         model: dataTableView.rows >= 0 ? dataTableView.rows : 0
 
         delegate: ItemDelegate {
@@ -122,14 +140,19 @@ TableView {
             height: columnHeader.height
 
             Rectangle {
+                color: Stylesheet.tableViewDivider
+                height: 1
+
                 anchors {
                     left: parent.left
                     right: parent.right
                     bottom: parent.bottom
                 }
-                color: Stylesheet.tableViewDivider
-                height: 1
+
             }
+
         }
+
     }
+
 }

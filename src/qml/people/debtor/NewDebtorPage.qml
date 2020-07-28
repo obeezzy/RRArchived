@@ -1,14 +1,14 @@
+import "../../common"
+import "../../rrui" as RRUi
+import "../../wizard"
+import Fluid.Controls 1.0 as FluidControls
+import Fluid.Core 1.0 as FluidCore
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import QtQuick.Layouts 1.3 as QQLayouts
-import Fluid.Controls 1.0 as FluidControls
-import Fluid.Core 1.0 as FluidCore
-import com.gecko.rr.models 1.0 as RRModels
 import com.gecko.rr.components 1.0 as RRComponents
-import "../../rrui" as RRUi
-import "../../common"
-import "../../wizard"
+import com.gecko.rr.models 1.0 as RRModels
 
 RRUi.Page {
     id: newDebtorPage
@@ -28,32 +28,44 @@ RRUi.Page {
 
         RRUi.TransitionView {
             id: transitionView
+
+            width: 800
+
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top
                 bottom: parent.bottom
             }
-            width: 800
 
             component: RRUi.Card {
                 id: transitionItem
+
                 padding: 0
                 bottomPadding: 0
 
                 QQC2.TabBar {
                     id: tabBar
+
+                    currentIndex: swipeView.currentIndex
+
                     anchors {
                         left: parent.left
                         right: parent.right
                     }
-                    currentIndex: swipeView.currentIndex
 
-                    QQC2.TabButton { text: qsTr("Client details") }
-                    QQC2.TabButton { text: qsTr("Transactions") }
+                    QQC2.TabButton {
+                        text: qsTr("Client details")
+                    }
+
+                    QQC2.TabButton {
+                        text: qsTr("Transactions")
+                    }
+
                 }
 
                 QQC2.SwipeView {
                     id: swipeView
+
                     clip: true
                     currentIndex: tabBar.currentIndex
                     interactive: false
@@ -65,12 +77,25 @@ RRUi.Page {
                         bottom: pageFooter.top
                     }
 
-                    ClientDetailSubView { id: clientDetailSubView; debtorId: newDebtorPage.debtorId }
-                    DebtTransactionSubView { id: debtTransactionSubView; debtorId: newDebtorPage.debtorId }
+                    ClientDetailSubView {
+                        id: clientDetailSubView
+
+                        debtorId: newDebtorPage.debtorId
+                    }
+
+                    DebtTransactionSubView {
+                        id: debtTransactionSubView
+
+                        debtorId: newDebtorPage.debtorId
+                    }
+
                 }
 
                 Column {
                     id: pageFooter
+
+                    spacing: 0
+
                     anchors {
                         left: parent.left
                         right: parent.right
@@ -79,13 +104,12 @@ RRUi.Page {
                         rightMargin: 4
                     }
 
-                    spacing: 0
-
                     FluidControls.ThinDivider {
                         anchors {
                             left: parent.left
                             right: parent.right
                         }
+
                     }
 
                     QQLayouts.RowLayout {
@@ -98,7 +122,7 @@ RRUi.Page {
                             visible: tabBar.currentIndex === 1
                             QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                             text: qsTr("Add transaction")
-                            onClicked: newDebtTransactionWizard.show();
+                            onClicked: newDebtTransactionWizard.show()
                         }
 
                         QQC2.Button {
@@ -110,11 +134,14 @@ RRUi.Page {
                                 debtTransactionSubView.listView.submit();
                             }
                         }
+
                     }
+
                 }
 
                 NewDebtTransactionWizard {
                     id: newDebtTransactionWizard
+
                     onAccepted: {
                         if (isExistingDebt)
                             debtModelData.due_date = dueDate;
@@ -125,6 +152,7 @@ RRUi.Page {
 
                 AmountPaidDialog {
                     id: amountPaidDialog
+
                     onAccepted: {
                         if (isExistingPayment)
                             paymentModelData.amount_paid = amountPaid;
@@ -135,6 +163,7 @@ RRUi.Page {
 
                 RemoveDebtConfirmationDialog {
                     id: removeDebtConfirmationDialog
+
                     onAccepted: {
                         if (isPayment)
                             paymentModel.removePayment(paymentIndex);
@@ -145,6 +174,7 @@ RRUi.Page {
 
                 RRUi.ErrorDialog {
                     id: errorDialog
+
                     onAboutToHide: {
                         switch (result.code) {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:
@@ -161,7 +191,6 @@ RRUi.Page {
 
                 Connections {
                     target: debtTransactionSubView.listView
-
                     onSuccess: {
                         switch (result.code) {
                         case RRModels.DebtTransactionModel.AddDebtorSuccess:
@@ -174,20 +203,16 @@ RRUi.Page {
                             break;
                         }
                     }
-
                     onError: {
                         switch (result.code) {
                         case RRModels.DebtTransactionModel.NoPreferredNameError:
-                            errorDialog.show(qsTr("The debtor's name must be provided."),
-                                             qsTr("Error"));
+                            errorDialog.show(qsTr("The debtor's name must be provided."), qsTr("Error"));
                             break;
                         case RRModels.DebtTransactionModel.NoPhoneNumberError:
-                            errorDialog.show(qsTr("The debtor's primary phone number must be provided."),
-                                             qsTr("Error"));
+                            errorDialog.show(qsTr("The debtor's primary phone number must be provided."), qsTr("Error"));
                             break;
                         case RRModels.DebtTransactionModel.DataUnchangedError:
-                            errorDialog.show(qsTr("No changes have been made to this debtor."),
-                                             qsTr("Error"));
+                            errorDialog.show(qsTr("No changes have been made to this debtor."), qsTr("Error"));
                             break;
                         case RRModels.DebtTransactionModel.DuplicateEntryError:
                             errorDialog.show(qsTr("This debtor already exists."));
@@ -196,29 +221,23 @@ RRUi.Page {
                             errorDialog.show(qsTr("The amount paid by the debtor has exceeded the amount owed."));
                             break;
                         case RRModels.DebtTransactionModel.InvalidDueDateError:
-                            errorDialog.show(qsTr("The due date provided is earlier than today's date. "
-                                                  + "Please update all exceeded due dates (highlighted in red) and try again."));
+                            errorDialog.show(qsTr("The due date provided is earlier than today's date. " + "Please update all exceeded due dates (highlighted in red) and try again."));
                             break;
                         default:
                             errorDialog.show();
                         }
                     }
-
-                    onEditTransactionRequested: newDebtTransactionWizard.show(debtModelData);
-
-                    onRemoveTransactionRequested: removeDebtConfirmationDialog.show("Transaction #" + (debtIndex + 1),
-                                                                                    debtIndex);
-
-                    onAddPaymentRequested: amountPaidDialog.show(null, paymentModel);
-
-                    onEditPaymentRequested: amountPaidDialog.show(paymentModelData);
-
-                    onRemovePaymentRequested: removeDebtConfirmationDialog.show("Payment #" + (paymentIndex + 1),
-                                                                                debtIndex,
-                                                                                paymentIndex,
-                                                                                paymentModel);
+                    onEditTransactionRequested: newDebtTransactionWizard.show(debtModelData)
+                    onRemoveTransactionRequested: removeDebtConfirmationDialog.show("Transaction #" + (debtIndex + 1), debtIndex)
+                    onAddPaymentRequested: amountPaidDialog.show(null, paymentModel)
+                    onEditPaymentRequested: amountPaidDialog.show(paymentModelData)
+                    onRemovePaymentRequested: removeDebtConfirmationDialog.show("Payment #" + (paymentIndex + 1), debtIndex, paymentIndex, paymentModel)
                 }
+
             }
+
         }
+
     }
+
 }

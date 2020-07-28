@@ -1,16 +1,15 @@
+import ".."
+import "../../rrui" as RRUi
+import "../../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.3 as QQLayouts
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
 import com.gecko.rr.models 1.0 as RRModels
-import "../../rrui" as RRUi
-import "../../singletons"
-import ".."
 
 RRUi.WizardPage {
     id: paymentSummaryPage
-    objectName: "paymentSummaryPage"
 
     property string customerName: ""
     property string customerPhoneNumber: ""
@@ -20,9 +19,21 @@ RRUi.WizardPage {
     property real amountPaid: 0
     readonly property real balance: totalCost - amountPaid
 
+    objectName: "paymentSummaryPage"
     padding: FluidControls.Units.smallSpacing
     title: qsTr("View payment details")
     hasNext: false
+    onNext: {
+        if (printCheckBox.checked)
+            receiptPrinter.print(cartModel.toPrintableFormat());
+
+        paymentSummaryPage.nextPage.component = Qt.resolvedUrl("PaymentFinishPage.qml");
+        paymentSummaryPage.finish();
+    }
+
+    RR.ReceiptPrinter {
+        id: receiptPrinter
+    }
 
     contentItem: Item {
         QQLayouts.GridLayout {
@@ -81,24 +92,21 @@ RRUi.WizardPage {
                 text: Number(paymentSummaryPage.balance).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
                 horizontalAlignment: Qt.AlignRight
             }
+
         }
 
         QQC2.CheckBox {
             id: printCheckBox
+
+            text: qsTr("Print receipt")
+
             anchors {
                 bottom: parent.bottom
                 horizontalCenter: parent.horizontalCenter
             }
-            text: qsTr("Print receipt")
+
         }
+
     }
 
-    onNext: {
-        if (printCheckBox.checked)
-            receiptPrinter.print(cartModel.toPrintableFormat());
-        paymentSummaryPage.nextPage.component = Qt.resolvedUrl("PaymentFinishPage.qml");
-        paymentSummaryPage.finish();
-    }
-
-    RR.ReceiptPrinter { id: receiptPrinter }
 }

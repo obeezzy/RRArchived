@@ -7,7 +7,9 @@ QQC2.StackView {
     property Component component: null
     readonly property Item item: currentItem
 
-    initialItem: component
+    function trigger() {
+        transitionView.replace(null, transitionView.component);
+    }
 
-    function trigger() { transitionView.replace(null, transitionView.component); }
+    initialItem: component
 }

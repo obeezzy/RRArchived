@@ -1,6 +1,6 @@
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 
 QQC2.Dialog {
@@ -21,9 +21,15 @@ QQC2.Dialog {
 
     ListView {
         id: listView
+
         anchors.fill: parent
         currentIndex: 0
 
-        delegate: QQC2.RadioButton { text: modelData; checked: ListView.isCurrentItem }
+        delegate: QQC2.RadioButton {
+            text: modelData
+            checked: ListView.isCurrentItem
+        }
+
     }
+
 }

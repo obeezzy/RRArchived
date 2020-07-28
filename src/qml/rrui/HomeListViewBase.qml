@@ -22,10 +22,13 @@ ListView {
 
             PropertyAction {
                 property: "opacity"
-                value: .01
+                value: 0.01
             }
 
-            PauseAnimation { duration: 300 }
+            PauseAnimation {
+                duration: 300
+            }
+
             ParallelAnimation {
                 YAnimator {
                     duration: 300
@@ -40,7 +43,11 @@ ListView {
                     to: 1
                     easing.type: Easing.OutCubic
                 }
+
             }
+
         }
+
     }
+
 }

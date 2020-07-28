@@ -1,32 +1,38 @@
+import Fluid.Controls 1.0 as FluidControls
+import QtCharts 2.2 as QCharts
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import QtCharts 2.2 as QCharts
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 
 ListView {
     id: tableView
 
     property var headerData: null
     property var colorModel: null
+
     signal rowEntered(int row)
     signal rowExited(int row)
 
     implicitWidth: headerItem.width
     implicitHeight: 400
-
     contentWidth: headerItem.width
+    model: null
 
     header: Column {
-        function itemAt(index) { return repeater.itemAt(index) }
+
+        function itemAt(index) {
+            return repeater.itemAt(index);
+        }
 
         spacing: 0
         width: tableView.width
 
         Row {
             spacing: 1
+
             Repeater {
                 id: repeater
+
                 model: tableView.headerData
 
                 FluidControls.SubheadingLabel {
@@ -34,7 +40,9 @@ ListView {
                     width: modelData.width === undefined ? contentWidth : modelData.width
                     horizontalAlignment: modelData.horizontalAlignment
                 }
+
             }
+
         }
 
         FluidControls.ThinDivider {
@@ -42,24 +50,33 @@ ListView {
                 left: parent.left
                 right: parent.right
             }
+
         }
+
     }
 
-    model: null
     delegate: FluidControls.ListItem {
         id: delegate
+
         readonly property int row: model.index
 
         width: ListView.view.width
         height: 30
         showDivider: true
+        onHoveredChanged: {
+            if (hovered)
+                tableView.rowEntered(index);
+            else
+                tableView.rowExited(index);
+        }
 
         Row {
+            spacing: 1
+
             anchors {
                 top: parent.top
                 bottom: parent.bottom
             }
-            spacing: 1
 
             Repeater {
                 model: tableView.headerData
@@ -67,20 +84,20 @@ ListView {
                 Loader {
                     readonly property int column: index
 
+                    sourceComponent: {
+                        if (modelData.type === "color")
+                            rectDelegate;
+                        else if (modelData.type === "date")
+                            dateDelegate;
+                        else if (modelData.type === "money")
+                            moneyDelegate;
+                        else
+                            textDelegate;
+                    }
+
                     anchors {
                         top: parent.top
                         bottom: parent.bottom
-                    }
-
-                    sourceComponent: {
-                        if (modelData.type === "color")
-                            rectDelegate
-                        else if (modelData.type === "date")
-                            dateDelegate
-                        else if (modelData.type === "money")
-                            moneyDelegate
-                        else
-                            textDelegate
                     }
 
                     Component {
@@ -93,10 +110,12 @@ ListView {
                             width: modelData.width !== undefined ? modelData.width : tableView.headerItem.itemAt(column).width
                             clip: true
                         }
+
                     }
 
                     Component {
                         id: rectDelegate
+
                         Item {
                             readonly property int column: index
 
@@ -111,7 +130,9 @@ ListView {
                                 height: width
                                 radius: width / 2
                             }
+
                         }
+
                     }
 
                     Component {
@@ -124,6 +145,7 @@ ListView {
                             width: modelData.width !== undefined ? modelData.width : tableView.headerItem.itemAt(column).width
                             clip: true
                         }
+
                     }
 
                     Component {
@@ -136,19 +158,21 @@ ListView {
                             width: modelData.width !== undefined ? modelData.width : tableView.headerItem.itemAt(column).width
                             clip: true
                         }
+
                     }
+
                 }
+
             }
+
         }
 
-        onHoveredChanged: {
-            if (hovered)
-                tableView.rowEntered(index);
-            else
-                tableView.rowExited(index);
-        }
     }
 
-    QQC2.ScrollIndicator.horizontal: QQC2.ScrollIndicator { }
-    QQC2.ScrollIndicator.vertical: QQC2.ScrollIndicator { }
+    QQC2.ScrollIndicator.horizontal: QQC2.ScrollIndicator {
+    }
+
+    QQC2.ScrollIndicator.vertical: QQC2.ScrollIndicator {
+    }
+
 }

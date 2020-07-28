@@ -1,10 +1,10 @@
+import "../../rrui" as RRUi
+import "../../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import "../../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
-import "../../singletons"
 
 ListView {
     id: debtPaymentListView
@@ -55,22 +55,35 @@ ListView {
         }
     }
 
-    anchors {
-        left: parent.left
-        right: parent.right
-    }
-
     leftMargin: 24
     rightMargin: 24
     spacing: 16
     orientation: ListView.Horizontal
     height: contentItem.childrenRect.height + topPadding + bottomPadding
+    visible: debtPaymentListView.parentDelegate.ListView.view.count > 0
+
+    anchors {
+        left: parent.left
+        right: parent.right
+    }
+
+    RRUi.PlaceholderLabel {
+        visible: debtPaymentListView.count === 0 && !debtPaymentListView.parentDelegate.ListView.view.model.busy
+        text: qsTr("No payment made for this transaction.")
+
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            right: parent.right
+        }
+
+    }
+
     model: RRModels.DebtPaymentModel {
         debtTransactionId: debtPaymentListView.parentDelegate.modelData.transaction_id
         debtTransactionRef: debtPaymentListView.parentDelegate.modelData.ref
     }
 
-    visible: debtPaymentListView.parentDelegate.ListView.view.count > 0
     delegate: RRUi.Card {
         id: paymentDelegate
 
@@ -89,9 +102,9 @@ ListView {
         Connections {
             target: parentDelegate.ListView.view.model
             onDataChanged: {
-                if (topLeft.row === parentDelegate.debtIndex
-                        && (paymentDelegate.fresh || paymentDelegate.dirty))
+                if (topLeft.row === parentDelegate.debtIndex && (paymentDelegate.fresh || paymentDelegate.dirty))
                     paymentDelegate.modelData.due_date = parentDelegate.modelData.due_date;
+
             }
         }
 
@@ -103,38 +116,45 @@ ListView {
             }
 
             FluidControls.SubheadingLabel {
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                }
                 horizontalAlignment: Qt.AlignHCenter
                 text: qsTr("Payment #%1").arg(index + 1)
                 font.bold: true
-            }
 
-            FluidControls.SubheadingLabel {
                 anchors {
                     left: parent.left
                     right: parent.right
                 }
+
+            }
+
+            FluidControls.SubheadingLabel {
                 horizontalAlignment: Qt.AlignHCenter
                 text: qsTr("Made on %1").arg(Qt.formatDateTime(created, "ddd MMM d, yyyy"))
                 font.italic: true
-            }
 
-            FluidControls.SubheadingLabel {
                 anchors {
                     left: parent.left
                     right: parent.right
                 }
-                horizontalAlignment: Qt.AlignHCenter
-                text: qsTr("Paid %1").arg(Number(amount_paid)
-                                          .toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)))
+
             }
+
+            FluidControls.SubheadingLabel {
+                horizontalAlignment: Qt.AlignHCenter
+                text: qsTr("Paid %1").arg(Number(amount_paid).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName)))
+
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                }
+
+            }
+
         }
 
         Row {
             spacing: 0
+
             anchors {
                 right: parent.right
                 bottom: parent.bottom
@@ -153,7 +173,7 @@ ListView {
                 height: width
                 visible: paymentDelegate.isLastItem && (paymentDelegate.fresh || paymentDelegate.dirty)
                 text: qsTr("Edit payment")
-                onClicked: debtPaymentListView.editPaymentRequested(paymentDelegate.modelData);
+                onClicked: debtPaymentListView.editPaymentRequested(paymentDelegate.modelData)
             }
 
             RRUi.ToolButton {
@@ -162,44 +182,65 @@ ListView {
                 height: width
                 visible: isLastItem && (paymentDelegate.fresh || paymentDelegate.dirty)
                 text: qsTr("Remove payment")
-                onClicked: debtPaymentListView.removePaymentRequested(debtPaymentListView.parentDelegate.debtIndex,
-                                                                      paymentDelegate.paymentIndex,
-                                                                      paymentDelegate.ListView.view.model);
+                onClicked: debtPaymentListView.removePaymentRequested(debtPaymentListView.parentDelegate.debtIndex, paymentDelegate.paymentIndex, paymentDelegate.ListView.view.model)
             }
-        }
-    }
 
-    RRUi.PlaceholderLabel {
-        anchors {
-            verticalCenter: parent.verticalCenter
-            left: parent.left
-            right: parent.right
         }
-        visible: debtPaymentListView.count === 0 && !debtPaymentListView.parentDelegate.ListView.view.model.busy
-        text: qsTr("No payment made for this transaction.");
+
     }
 
     add: Transition {
         SequentialAnimation {
             ParallelAnimation {
-                NumberAnimation { property: "y"; from: 100; duration: 300; easing.type: Easing.OutCubic }
-                NumberAnimation { property: "opacity"; to: 1; duration: 300; easing.type: Easing.OutCubic }
+                NumberAnimation {
+                    property: "y"
+                    from: 100
+                    duration: 300
+                    easing.type: Easing.OutCubic
+                }
+
+                NumberAnimation {
+                    property: "opacity"
+                    to: 1
+                    duration: 300
+                    easing.type: Easing.OutCubic
+                }
+
             }
 
-            ScriptAction { script: debtPaymentListView.scrollToEnd(); }
+            ScriptAction {
+                script: debtPaymentListView.scrollToEnd()
+            }
+
         }
+
     }
 
     remove: Transition {
-        NumberAnimation { property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            property: "opacity"
+            to: 0
+            duration: 300
+            easing.type: Easing.OutCubic
+        }
+
     }
 
     removeDisplaced: Transition {
-        NumberAnimation { properties: "x,y"; duration: 300 }
+        NumberAnimation {
+            properties: "x,y"
+            duration: 300
+        }
+
     }
 
     Behavior on contentX {
         enabled: !debtPaymentListView.dragging && !debtPaymentListView.flicking && debtPaymentListView.animationEnabled
-        NumberAnimation { easing.type: Easing.OutCubic }
+
+        NumberAnimation {
+            easing.type: Easing.OutCubic
+        }
+
     }
+
 }

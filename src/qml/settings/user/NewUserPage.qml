@@ -1,25 +1,13 @@
+import "../../rrui" as RRUi
+import "../../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Layouts 1.3 as QQLayouts
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import "../../rrui" as RRUi
+import QtQuick.Layouts 1.3 as QQLayouts
 import com.gecko.rr.models 1.0 as RRModels
-import "../../singletons"
 
 RRUi.Page {
-    id: newUserPage
-
-    property int userId: 0
-    property RRModels.UserModel model: null
-    readonly property bool isExistingUser: userId > 0
-
-    title: newUserPage.isExistingUser ? qsTr("Edit user") : qsTr("Add user")
-    topPadding: 10
-    bottomPadding: 10
-    leftPadding: 20
-    rightPadding: 20
-
     /*!
         \qmlsignal void goBack(var event)
 
@@ -32,32 +20,37 @@ RRUi.Page {
         \c page.forcePop().
     */
 
-    actions: FluidControls.Action {
-        icon.source: FluidControls.Utils.iconUrl("action/note_add")
-        toolTip: qsTr("Add note")
-        text: qsTr("Add note")
-    }
+    id: newUserPage
+
+    property int userId: 0
+    property RRModels.UserModel model: null
+    readonly property bool isExistingUser: userId > 0
+
+    title: newUserPage.isExistingUser ? qsTr("Edit user") : qsTr("Add user")
+    topPadding: 10
+    bottomPadding: 10
+    leftPadding: 20
+    rightPadding: 20
 
     RRUi.TransitionView {
         id: transitionView
+
+        width: 800
+
         anchors {
             top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
         }
 
-        width: 800
-
         component: RRUi.Card {
             id: transitionItem
 
             function validateInput() {
                 if (userDetailSubView.password !== userDetailSubView.passwordConfirmation) {
-                    errorDialog.show(qsTr("The passwords provided do not match."),
-                                     qsTr("Error"));
+                    errorDialog.show(qsTr("The passwords provided do not match."), qsTr("Error"));
                     return false;
                 }
-
                 return true;
             }
 
@@ -66,18 +59,27 @@ RRUi.Page {
 
             QQC2.TabBar {
                 id: tabBar
+
+                currentIndex: swipeView.currentIndex
+
                 anchors {
                     left: parent.left
                     right: parent.right
                 }
-                currentIndex: swipeView.currentIndex
 
-                QQC2.TabButton { text: qsTr("User Details") }
-                QQC2.TabButton { text: qsTr("User Privileges") }
+                QQC2.TabButton {
+                    text: qsTr("User Details")
+                }
+
+                QQC2.TabButton {
+                    text: qsTr("User Privileges")
+                }
+
             }
 
             QQC2.SwipeView {
                 id: swipeView
+
                 clip: true
                 currentIndex: tabBar.currentIndex
                 interactive: false
@@ -89,12 +91,25 @@ RRUi.Page {
                     bottom: pageFooter.top
                 }
 
-                UserDetailSubView { id: userDetailSubView; userId: newUserPage.userId }
-                UserPrivilegeSubView { id: userPrivilegeSubView; userId: newUserPage.userId }
+                UserDetailSubView {
+                    id: userDetailSubView
+
+                    userId: newUserPage.userId
+                }
+
+                UserPrivilegeSubView {
+                    id: userPrivilegeSubView
+
+                    userId: newUserPage.userId
+                }
+
             }
 
             Column {
                 id: pageFooter
+
+                spacing: 0
+
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -103,13 +118,12 @@ RRUi.Page {
                     rightMargin: 4
                 }
 
-                spacing: 0
-
                 FluidControls.ThinDivider {
                     anchors {
                         left: parent.left
                         right: parent.right
                     }
+
                 }
 
                 QQLayouts.RowLayout {
@@ -123,6 +137,7 @@ RRUi.Page {
                         QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                         text: qsTr("Load preset")
                     }
+
                     QQC2.Button {
                         visible: tabBar.currentIndex === 1
                         QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
@@ -139,7 +154,7 @@ RRUi.Page {
                         text: newUserPage.isExistingUser ? qsTr("Update user") : qsTr("Add user")
                         onClicked: {
                             if (!validateInput())
-                                return;
+                                return ;
 
                             userPrivilegeSubView.listView.imageUrl = userDetailSubView.imageUrl;
                             userPrivilegeSubView.listView.firstName = userDetailSubView.firstName;
@@ -151,11 +166,14 @@ RRUi.Page {
                             userPrivilegeSubView.listView.submit();
                         }
                     }
+
                 }
+
             }
 
             RRUi.ErrorDialog {
-                id: errorDialog;
+                id: errorDialog
+
                 onAboutToHide: {
                     switch (result.code) {
                     case RRModels.UserPrivilegeModel.NoFirstNameSetError:
@@ -172,7 +190,6 @@ RRUi.Page {
 
             Connections {
                 target: userPrivilegeSubView.listView
-
                 onSuccess: {
                     switch (result.code) {
                     case RRModels.UserPrivilegeModel.AddUserSuccess:
@@ -185,24 +202,19 @@ RRUi.Page {
                         break;
                     }
                 }
-
                 onError: {
                     switch (result.code) {
                     case RRModels.UserPrivilegeModel.NoUserNameSetError:
-                        errorDialog.show(qsTr("The user's user name must be provided."),
-                                         qsTr("Error"));
+                        errorDialog.show(qsTr("The user's user name must be provided."), qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoFirstNameSetError:
-                        errorDialog.show(qsTr("The user's first name must be provided."),
-                                         qsTr("Error"));
+                        errorDialog.show(qsTr("The user's first name must be provided."), qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoLastNameSetError:
-                        errorDialog.show(qsTr("The user's last name must be provided."),
-                                         qsTr("Error"));
+                        errorDialog.show(qsTr("The user's last name must be provided."), qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoPasswordSetError:
-                        errorDialog.show(qsTr("The user's password must be provided."),
-                                         qsTr("Error"));
+                        errorDialog.show(qsTr("The user's password must be provided."), qsTr("Error"));
                         break;
                     case RRModels.UserPrivilegeModel.NoPhoneNumberSetError:
                         errorDialog.show(qsTr("The user's phone number must be provided."));
@@ -217,14 +229,22 @@ RRUi.Page {
                         errorDialog.show(qsTr("The image provided is too large. The image must be less than 2 MB."));
                         break;
                     case RRModels.UserPrivilegeModel.UserPreviouslyArchivedError:
-                        errorDialog.show(qsTr("A user with the same user name was previously archived. "
-                                              + "You must use a different user name or unarchive the user."));
+                        errorDialog.show(qsTr("A user with the same user name was previously archived. " + "You must use a different user name or unarchive the user."));
                         break;
                     default:
                         errorDialog.show();
                     }
                 }
             }
+
         }
+
     }
+
+    actions: FluidControls.Action {
+        icon.source: FluidControls.Utils.iconUrl("action/note_add")
+        toolTip: qsTr("Add note")
+        text: qsTr("Add note")
+    }
+
 }

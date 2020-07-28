@@ -1,13 +1,14 @@
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 
 Dialog {
     id: wizard
 
     property Component initialPage: null
-    signal finished
+
+    signal finished()
 
     x: (QQC2.ApplicationWindow.contentItem.width - width) / 2
     y: (QQC2.ApplicationWindow.contentItem.height - height) / 2
@@ -17,11 +18,17 @@ Dialog {
     width: 600
     height: 540
     closePolicy: QQC2.Popup.CloseOnEscape
+    onAboutToShow: if (stackView.depth === 0 && stackView.initialItem) {
+        stackView.push(stackView.initialItem);
+    }
+    onAboutToHide: stackView.clear()
 
     header: Item {
         implicitHeight: childrenRect.height
 
         QQLayouts.RowLayout {
+            height: backButton.height
+
             anchors {
                 top: parent.top
                 left: parent.left
@@ -30,10 +37,10 @@ Dialog {
                 leftMargin: 8
                 rightMargin: 8
             }
-            height: backButton.height
 
             ToolButton {
                 id: backButton
+
                 QQLayouts.Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                 QQLayouts.Layout.preferredWidth: FluidControls.Units.iconSizes.large
                 QQLayouts.Layout.preferredHeight: width
@@ -56,14 +63,17 @@ Dialog {
                 wrapMode: Text.WordWrap
                 text: stackView.currentItem !== null ? stackView.currentItem.title : ""
             }
+
         }
+
     }
 
     contentItem: StackView {
         id: stackView
 
         readonly property var wizard: wizard
-        signal finished
+
+        signal finished()
 
         clip: true
         initialItem: wizard.initialPage
@@ -73,13 +83,12 @@ Dialog {
         }
     }
 
-    onAboutToShow: if (stackView.depth === 0 && stackView.initialItem) stackView.push(stackView.initialItem);
-    onAboutToHide: stackView.clear();
-
     footer: Item {
         implicitHeight: childrenRect.height
 
         QQLayouts.RowLayout {
+            spacing: 8
+
             anchors {
                 left: parent.left
                 right: parent.right
@@ -88,7 +97,6 @@ Dialog {
                 rightMargin: 8
                 bottomMargin: 8
             }
-            spacing: 8
 
             Item {
                 QQLayouts.Layout.fillWidth: true
@@ -98,7 +106,7 @@ Dialog {
             QQC2.Button {
                 flat: true
                 text: qsTr("Cancel")
-                onClicked: wizard.close();
+                onClicked: wizard.close()
             }
 
             QQC2.Button {
@@ -107,10 +115,15 @@ Dialog {
                 onClicked: {
                     if (stackView.currentItem)
                         stackView.currentItem.next();
+
                     if (stackView.currentItem && stackView.currentItem.nextEnabled)
                         stackView.push(stackView.currentItem.nextPage.component, stackView.currentItem.nextPage.properties);
+
                 }
             }
+
         }
+
     }
+
 }

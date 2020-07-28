@@ -1,85 +1,82 @@
+import ".."
+import "../../common"
+import "../../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import QtQuick.Layouts 1.3 as QQLayouts
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../../rrui" as RRUi
-import "../../common"
-import ".."
 
 RRUi.Page {
+    //UserDetailDialog { id: userDetailDialog }
+
     id: otherUserAccountPage
 
     title: qsTr("Manage other user accounts")
+    QQC2.StackView.onActivating: {
+        searchBar.clear();
+        userTableView.refresh();
+    }
 
     RRUi.ViewPreferences {
         id: viewPreferences
 
-        filterModel: [
-            "Search by user name"
-        ]
-
-        sortColumnModel: [
-            "Sort by user name"
-        ]
+        filterModel: ["Search by user name"]
+        sortColumnModel: ["Sort by user name"]
     }
 
     contentItem: FocusScope {
         focus: true
 
         RRUi.Card {
+            topPadding: 4
+            bottomPadding: 0
+            leftPadding: 4
+            rightPadding: 4
+            width: 800
+
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top
                 bottom: parent.bottom
             }
 
-            topPadding: 4
-            bottomPadding: 0
-            leftPadding: 4
-            rightPadding: 4
-
-            width: 800
-
             contentItem: FocusScope {
                 focus: true
 
                 RRUi.SearchBar {
                     id: searchBar
+
                     focus: true
+
                     anchors {
                         top: parent.top
                         left: parent.left
                         right: parent.right
                     }
+
                 }
 
                 RRUi.ChipListView {
                     id: filterChipListView
+
                     height: 30
+                    model: viewPreferences.model
+
                     anchors {
                         top: searchBar.bottom
                         left: parent.left
                         right: parent.right
                     }
 
-                    model: viewPreferences.model
                 }
 
                 UserTableView {
                     id: userTableView
-                    anchors {
-                        top: filterChipListView.bottom
-                        left: parent.left
-                        right: parent.right
-                        bottom: parent.bottom
-                        topMargin: 20
-                    }
 
                     filterText: searchBar.text
                     filterColumn: RRModels.UserModel.UserColumn
-
                     onSuccess: {
                         switch (result.code) {
                         case RRModels.UserModel.RemoveUserSuccess:
@@ -92,12 +89,19 @@ RRUi.Page {
                             break;
                         }
                     }
-
                     onError: {
                         switch (result.code) {
                         case RRModels.UserModel.InsufficientPrivilegeError:
                             break;
                         }
+                    }
+
+                    anchors {
+                        top: filterChipListView.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                        topMargin: 20
                     }
 
                     buttonRow: Row {
@@ -115,8 +119,9 @@ RRUi.Page {
                             height: width
                             icon.source: FluidControls.Utils.iconUrl("image/edit")
                             text: qsTr("Edit user privileges")
-                            onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"),
-                                                                 { userId: modelData.user_id });
+                            onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"), {
+                                "userId": modelData.user_id
+                            })
                         }
 
                         RRUi.ToolButton {
@@ -124,54 +129,50 @@ RRUi.Page {
                             height: width
                             icon.source: FluidControls.Utils.iconUrl("action/delete")
                             text: qsTr("Delete user")
-                            onClicked: deleteConfirmationDialog.show(modelData);
+                            onClicked: deleteConfirmationDialog.show(modelData)
                         }
+
                     }
+
                 }
 
                 RRUi.FloatingActionButton {
+                    icon.source: FluidControls.Utils.iconUrl("content/add")
+                    text: qsTr("Add user")
+                    onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"))
+
                     anchors {
                         right: parent.right
                         bottom: parent.bottom
                         margins: 24
                     }
 
-                    icon.source: FluidControls.Utils.iconUrl("content/add")
-                    text: qsTr("Add user")
-                    onClicked: otherUserAccountPage.push(Qt.resolvedUrl("NewUserPage.qml"));
                 }
 
                 FluidControls.BottomSheetList {
                     id: bottomSheet
-                    title: qsTr("What would you like to do?")
 
+                    title: qsTr("What would you like to do?")
                     actions: [
                         FluidControls.Action {
                             icon.source: FluidControls.Utils.iconUrl("content/add")
                             text: qsTr("Add user.")
                         },
-
                         FluidControls.Action {
                             icon.source: FluidControls.Utils.iconUrl("image/edit")
                             text: qsTr("Manage income transactions.")
                         }
                     ]
                 }
+
             }
+
         }
 
         RRUi.AlertDialog {
             id: deleteConfirmationDialog
 
             property var modelData: null
-
-            width: 300
-            text: qsTr("Are you sure you want to remove this user?");
-            standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
-            onAccepted: {
-                userTableView.removeUser(modelData.user);
-                deleteConfirmationDialog.modelData = null;
-            }
 
             function show(modelData) {
                 if (Object(modelData).hasOwnProperty("user")) {
@@ -180,13 +181,16 @@ RRUi.Page {
                     open();
                 }
             }
+
+            width: 300
+            text: qsTr("Are you sure you want to remove this user?")
+            standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
+            onAccepted: {
+                userTableView.removeUser(modelData.user);
+                deleteConfirmationDialog.modelData = null;
+            }
         }
 
-        //UserDetailDialog { id: userDetailDialog }
     }
 
-    QQC2.StackView.onActivating: {
-        searchBar.clear();
-        userTableView.refresh();
-    }
 }

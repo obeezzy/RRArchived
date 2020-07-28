@@ -1,6 +1,6 @@
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import Fluid.Controls 1.0 as FluidControls
 
 Item {
     id: busyIndicator
@@ -12,6 +12,7 @@ Item {
 
     Column {
         id: column
+
         spacing: 16
 
         BusyIndicator {
@@ -23,5 +24,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             text: busyIndicator.text
         }
+
     }
+
 }

@@ -1,10 +1,10 @@
-import QtQuick 2.13
-import Fluid.Controls 1.0 as FluidControls
-import QtQuick.Layouts 1.3 as QQLayouts
 import "../../../rrui" as RRUi
 import "../../../stock" as Stock
-import com.gecko.rr.models 1.0 as RRModels
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.13
 import QtQuick.Controls.Material 2.3
+import QtQuick.Layouts 1.3 as QQLayouts
+import com.gecko.rr.models 1.0 as RRModels
 
 RRUi.Card {
     id: customerInfo
@@ -25,6 +25,7 @@ RRUi.Card {
 
     Column {
         id: column
+
         anchors {
             top: parent.top
             left: parent.left
@@ -34,6 +35,7 @@ RRUi.Card {
 
         QQLayouts.RowLayout {
             spacing: 2
+
             anchors {
                 left: parent.left
                 right: parent.right
@@ -47,10 +49,14 @@ RRUi.Card {
                 QQLayouts.Layout.preferredHeight: size
             }
 
-            Item { QQLayouts.Layout.preferredWidth: 8; QQLayouts.Layout.fillHeight: true }
+            Item {
+                QQLayouts.Layout.preferredWidth: 8
+                QQLayouts.Layout.fillHeight: true
+            }
 
             RRUi.TextField {
                 id: customerNameField
+
                 focus: true
                 QQLayouts.Layout.fillWidth: true
                 placeholderText: qsTr("Customer name")
@@ -58,9 +64,11 @@ RRUi.Card {
 
             RRUi.ToolButton {
                 id: customerOptionButton
+
                 icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
                 text: qsTr("More")
             }
+
         }
 
         Row {
@@ -75,9 +83,13 @@ RRUi.Card {
 
             RRUi.TextField {
                 id: customerPhoneNumberField
+
                 width: 300
                 placeholderText: qsTr("Customer phone number")
             }
+
         }
+
     }
+
 }

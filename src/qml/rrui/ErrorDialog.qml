@@ -1,6 +1,6 @@
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 
 FluidControls.AlertDialog {
     id: errorDialog
@@ -8,6 +8,7 @@ FluidControls.AlertDialog {
     function show(message, title) {
         if (message !== undefined)
             errorDialog.text = message;
+
         if (title !== undefined)
             errorDialog.title = title + "                                                                   ";
 
@@ -22,6 +23,5 @@ FluidControls.AlertDialog {
         title = qsTr("Error                                                                                ");
         text = qsTr("An unknown error occurred.");
     }
-
-    onAboutToShow: footer.contentItem.focus = true;
+    onAboutToShow: footer.contentItem.focus = true
 }
