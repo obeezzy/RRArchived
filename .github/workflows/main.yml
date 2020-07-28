@@ -23,7 +23,7 @@ jobs:
       with:
         python-version: 3.7
 
-    - name: Invalidate code formatting
+    - name: Invalidate C++ code
       uses: DoozyX/clang-format-lint-action@v0.8
       with:
         source: 'src tests'
@@ -40,6 +40,39 @@ jobs:
         export QT_INSTALL_DIR=$HOME/Qt
         mkdir $QT_INSTALL_DIR
         sudo aqt install --outputdir $QT_INSTALL_DIR $QT_VERSION linux desktop -m qtcharts
+
+    - name: Invalidate QML code
+      run: |
+        SUCCESS=0
+        export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
+        echo -e "\e[92mLint QML..."
+        for qml_file in $(find . -type f -name "*.qml")
+        do
+          $QTDIR/bin/qmllint qml_file
+          if [ $(echo $?) -ne 0 ]
+          then
+            echo "qmllint failed for $qml_file"
+            SUCCESS=1
+          fi
+        done
+        if [ $SUCCESS -eq 1 ]
+        then
+          exit $SUCCESS
+        fi
+        echo -e "\e[92mCheck QML formatting..."
+        for qml_file in $(find . -type f -name "*.qml")
+        do
+          $QTDIR/bin/qmlformat qml_file
+          if [ $(echo $?) -ne 0 ]
+          then
+            echo "qmlformat failed for $qml_file"
+            SUCCESS=1
+          fi
+        done
+        if [ $SUCCESS -eq 1 ]
+        then
+          exit $SUCCESS
+        fi
 
     - name: Build app and run tests
       run: |
