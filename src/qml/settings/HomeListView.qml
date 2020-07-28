@@ -1,16 +1,16 @@
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
-import "../rrui" as RRUi
-import "../singletons"
 
 Flickable {
     id: homeListView
 
     signal pushRequested(var page, var properties, int operation)
-    signal signedOut
+    signal signedOut()
 
     width: 800
     height: 800
@@ -21,6 +21,7 @@ Flickable {
 
     RR.UserProfile {
         id: userProfile
+
         onSuccess: {
             switch (result.code) {
             case RR.UserProfile.SignOutSuccess:
@@ -30,10 +31,13 @@ Flickable {
         }
     }
 
-    RR.Settings { id: settings }
+    RR.Settings {
+        id: settings
+    }
 
     Column {
         id: column
+
         width: parent.width
         spacing: 32
 
@@ -43,51 +47,54 @@ Flickable {
 
             HomeRow {
                 title: qsTr("Manage my account")
-                onClicked: console.log("Account clicked!");
+                onClicked: console.log("Account clicked!")
             }
 
             HomeRow {
                 title: qsTr("Manage other accounts")
-                onClicked: homeListView.pushRequested(Qt.resolvedUrl("user/OtherUserAccountPage.qml"), { },
-                                                      QQC2.StackView.Transition);
+                onClicked: homeListView.pushRequested(Qt.resolvedUrl("user/OtherUserAccountPage.qml"), {
+                }, QQC2.StackView.Transition)
             }
 
             HomeRow {
                 title: qsTr("Change password")
-                onClicked: homeListView.pushRequested(Qt.resolvedUrl("../user/PasswordChangePage.qml"),
-                                                      { isFirstTime: false },
-                                                      QQC2.StackView.Transition);
+                onClicked: homeListView.pushRequested(Qt.resolvedUrl("../user/PasswordChangePage.qml"), {
+                    "isFirstTime": false
+                }, QQC2.StackView.Transition)
             }
 
             HomeRow {
                 title: qsTr("Sign out")
                 subtitle: userProfile.userName
-                onClicked: signOutConfirmationDialog.open();
+                onClicked: signOutConfirmationDialog.open()
             }
+
         }
 
         HomeCard {
             width: parent.width
-
             title: qsTr("Appearance")
 
             HomeRow {
                 title: qsTr("Themes")
-                onClicked: console.log("Themes clicked!");
+                onClicked: console.log("Themes clicked!")
             }
 
             HomeRow {
                 title: qsTr("Dark mode")
+
                 control: RRUi.Switch {
                     checked: settings.darkModeActive
-                    onToggled: settings.darkModeActive = checked;
+                    onToggled: settings.darkModeActive = checked
                 }
+
             }
 
             HomeRow {
                 title: qsTr("Customize receipt")
                 subtitle: qsTr("Edit the appearance of the receipts")
             }
+
         }
 
         HomeCard {
@@ -96,13 +103,18 @@ Flickable {
 
             HomeRow {
                 title: qsTr("Turn on notifications")
-                control: RRUi.Switch { checked: true }
+
+                control: RRUi.Switch {
+                    checked: true
+                }
+
             }
 
             HomeRow {
                 title: qsTr("Manage notifications settings")
-                onClicked: console.log("Manage notifications clicked!");
+                onClicked: console.log("Manage notifications clicked!")
             }
+
         }
 
         HomeCard {
@@ -117,14 +129,23 @@ Flickable {
             HomeRow {
                 title: qsTr("Turn on discovery mode")
                 subtitle: qsTr("Allow users on the same local network to find you")
-                control: RRUi.Switch { checked: false }
+
+                control: RRUi.Switch {
+                    checked: false
+                }
+
             }
 
             HomeRow {
                 title: qsTr("Device lock")
                 subtitle: qsTr("Allow this device to access the remote server.")
-                control: RRUi.Switch { checked: false }
+
+                control: RRUi.Switch {
+                    checked: false
+                }
+
             }
+
         }
 
         HomeCard {
@@ -140,15 +161,18 @@ Flickable {
                 title: qsTr("About Record Rack")
                 subtitle: qsTr("Show information about Record Rack")
             }
+
         }
+
     }
 
     RRUi.AlertDialog {
         id: signOutConfirmationDialog
 
         title: Stylesheet.padText(qsTr("Sign out?"))
-        text: qsTr("Are you sure you want to sign out?");
+        text: qsTr("Are you sure you want to sign out?")
         standardButtons: RRUi.AlertDialog.Yes | RRUi.AlertDialog.No
-        onAccepted: userProfile.signOut();
+        onAccepted: userProfile.signOut()
     }
+
 }

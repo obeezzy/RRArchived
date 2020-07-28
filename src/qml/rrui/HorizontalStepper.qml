@@ -1,10 +1,10 @@
+import "."
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import QtQuick.Layouts 1.3 as QQLayouts
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr 1.0 as RR
-import "."
 
 QQC2.Pane {
     id: horizontalStepper
@@ -17,16 +17,8 @@ QQC2.Pane {
     implicitHeight: 64
     padding: 0
 
-    background: Rectangle { color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white" }
-
     Flickable {
         id: flickable
-
-        anchors {
-            verticalCenter: parent.verticalCenter
-            left: parent.left
-            right: parent.right
-        }
 
         leftMargin: 24
         rightMargin: 24
@@ -36,13 +28,21 @@ QQC2.Pane {
         flickableDirection: Flickable.HorizontalFlick
         clip: true
 
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            right: parent.right
+        }
+
         Row {
             id: layout
 
             Repeater {
                 id: repeater
+
                 delegate: Row {
                     id: row
+
                     anchors.verticalCenter: parent.verticalCenter
 
                     Rectangle {
@@ -64,16 +64,25 @@ QQC2.Pane {
                             color: "white"
                             visible: horizontalStepper.currentIndex <= index
                         }
+
                     }
 
-                    Item { width: 8; height: 1 } // Spacer
+                    // Spacer
+                    Item {
+                        width: 8
+                        height: 1
+                    }
 
                     FluidControls.TitleLabel {
                         text: modelData
                         font.bold: horizontalStepper.currentIndex === index
                     }
 
-                    Item { width: 8; height: 1 } // Spacer
+                    // Spacer
+                    Item {
+                        width: 8
+                        height: 1
+                    }
 
                     Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
@@ -83,11 +92,26 @@ QQC2.Pane {
                         visible: index !== repeater.count - 1
                     }
 
-                    Item { width: 8; height: 1 } // Spacer
+                    // Spacer
+                    Item {
+                        width: 8
+                        height: 1
+                    }
+
                 }
+
             }
+
         }
+
     }
 
-    FluidControls.ThinDivider { anchors.bottom: parent.bottom }
+    FluidControls.ThinDivider {
+        anchors.bottom: parent.bottom
+    }
+
+    background: Rectangle {
+        color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white"
+    }
+
 }

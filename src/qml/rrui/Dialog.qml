@@ -1,6 +1,6 @@
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.13
 import QtQuick.Controls 2.13 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
 
 QQC2.Dialog {

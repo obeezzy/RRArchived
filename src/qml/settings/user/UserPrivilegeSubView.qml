@@ -1,10 +1,10 @@
+import "../../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
 import QtQuick.Layouts 1.3 as QQLayouts
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../../rrui" as RRUi
 
 RRUi.SubView {
     id: userPrivilegeSubView
@@ -15,8 +15,11 @@ RRUi.SubView {
     contentItem: FocusScope {
         UserPrivilegeListView {
             id: listView
+
             anchors.fill: parent
             userId: userPrivilegeSubView.userId
         }
+
     }
+
 }

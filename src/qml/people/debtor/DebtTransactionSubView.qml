@@ -1,5 +1,5 @@
-import QtQuick 2.12
 import "../../rrui" as RRUi
+import QtQuick 2.12
 
 RRUi.SubView {
     id: debtTransactionSubView
@@ -10,8 +10,11 @@ RRUi.SubView {
     contentItem: FocusScope {
         DebtTransactionListView {
             id: debtTransactionListView
+
             anchors.fill: parent
             debtorId: debtTransactionSubView.debtorId
         }
+
     }
+
 }

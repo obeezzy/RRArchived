@@ -1,6 +1,6 @@
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 
 QQC2.RadioButton {
     id: radioButton
@@ -22,5 +22,7 @@ QQC2.RadioButton {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
+
     }
+
 }

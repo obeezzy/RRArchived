@@ -1,9 +1,9 @@
-import QtQuick 2.13
-import Fluid.Controls 1.0 as FluidControls
 import "../../../rrui" as RRUi
 import "../../../stock" as Stock
-import com.gecko.rr.models 1.0 as RRModels
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.13
 import QtQuick.Controls.Material 2.3
+import com.gecko.rr.models 1.0 as RRModels
 
 RRUi.Card {
     id: productSelectionSection
@@ -18,13 +18,13 @@ RRUi.Card {
 
     implicitWidth: 800
     implicitHeight: 300
-
     padding: 20
     bottomPadding: 0
     Material.elevation: 2
 
     RRUi.ViewPreferences {
         id: viewPreferences
+
         filterModel: ["Search by product name", "Search by category name"]
     }
 
@@ -34,27 +34,20 @@ RRUi.Card {
 
         RRUi.SearchBar {
             id: searchBar
+
             anchors {
                 top: parent.top
                 left: parent.left
                 right: parent.right
             }
+
         }
 
         RRUi.ChipListView {
             id: filterChipListView
+
             height: 30
-            anchors {
-                top: searchBar.bottom
-                left: parent.left
-                right: parent.right
-            }
-
-            model: [
-                viewPreferences.filterModel[viewPreferences.filterIndex],
-                viewPreferences.sortOrderModel[viewPreferences.sortOrderIndex]
-            ]
-
+            model: [viewPreferences.filterModel[viewPreferences.filterIndex], viewPreferences.sortOrderModel[viewPreferences.sortOrderIndex]]
             onClicked: {
                 switch (index) {
                 case 0:
@@ -65,10 +58,21 @@ RRUi.Card {
                     break;
                 }
             }
+
+            anchors {
+                top: searchBar.bottom
+                left: parent.left
+                right: parent.right
+            }
+
         }
 
         Stock.ProductCategoryListView {
             id: categoryListView
+
+            filterText: searchBar.text
+            filterColumn: RRModels.StockProductModel.ProductColumn
+
             anchors {
                 top: filterChipListView.bottom
                 left: parent.left
@@ -76,29 +80,30 @@ RRUi.Card {
                 bottom: parent.bottom
             }
 
-            filterText: searchBar.text
-            filterColumn: RRModels.StockProductModel.ProductColumn
-
             buttonRow: Row {
                 RRUi.ToolButton {
                     id: addToCartButton
+
                     width: FluidControls.Units.iconSizes.medium
                     height: width
                     icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
                     text: qsTr("Add to cart")
                     visible: modelData.quantity > 0
-                    onClicked: productSelectionSection.addRequested(modelData);
+                    onClicked: productSelectionSection.addRequested(modelData)
                 }
 
                 RRUi.ToolButton {
                     id: viewButton
+
                     width: FluidControls.Units.iconSizes.medium
                     height: width
                     icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                     text: qsTr("View details")
-                    onClicked: productSelectionSection.viewRequested(modelData.product_id);
+                    onClicked: productSelectionSection.viewRequested(modelData.product_id)
                 }
+
             }
+
         }
 
         FluidControls.Placeholder {
@@ -114,5 +119,7 @@ RRUi.Card {
             icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
             text: qsTr("No products available.")
         }
+
     }
+
 }

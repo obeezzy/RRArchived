@@ -46,7 +46,7 @@ jobs:
         SUCCESS=0
         export QTDIR=$HOME/Qt/$QT_VERSION/gcc_64
         echo -e "\e[92mLint QML..."
-        for qml_file in $(find . -type f -name "*.qml")
+        for qml_file in $(find ./src -type f -name "*.qml")
         do
           $QTDIR/bin/qmllint "$qml_file"
           if [ $(echo $?) -ne 0 ]
@@ -60,7 +60,7 @@ jobs:
           exit $SUCCESS
         fi
         echo -e "\e[92mCheck QML formatting..."
-        for qml_file in $(find . -type f -name "*.qml")
+        for qml_file in $(find ./src -type f -name "*.qml")
         do
           diff "$qml_file" <($QTDIR/bin/qmlformat "$qml_file")
           if [ $(echo $?) -ne 0 ]

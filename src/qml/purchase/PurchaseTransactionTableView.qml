@@ -1,11 +1,11 @@
-import QtQuick 2.12
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import Qt.labs.qmlmodels 1.0
+import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
-import "../singletons"
 
 RRUi.DataTableView {
     id: purchaseTransactionTableView
@@ -20,9 +20,17 @@ RRUi.DataTableView {
     signal success(var result)
     signal error(var result)
 
-    function refresh() { purchaseTransactionModel.refresh(); }
-    function undoLastCommit() { purchaseTransactionModel.undoLastCommit(); }
-    function removeTransaction(transactionId) { purchaseTransactionModel.removeTransaction(transactionId); }
+    function refresh() {
+        purchaseTransactionModel.refresh();
+    }
+
+    function undoLastCommit() {
+        purchaseTransactionModel.undoLastCommit();
+    }
+
+    function removeTransaction(transactionId) {
+        purchaseTransactionModel.removeTransaction(transactionId);
+    }
 
     bottomMargin: 20
     clip: true
@@ -41,16 +49,16 @@ RRUi.DataTableView {
 
     model: RRModels.PurchaseTransactionModel {
         id: purchaseTransactionModel
+
         tableViewWidth: purchaseTransactionTableView.widthWithoutMargins
         filterText: purchaseTransactionTableView.filterText
         filterColumn: purchaseTransactionTableView.filterColumn
         keys: purchaseTransactionTableView.keys
         from: purchaseTransactionTableView.from
         to: purchaseTransactionTableView.to
-        onSuccess: purchaseTransactionTableView.success(result);
-        onError: purchaseTransactionTableView.error(result);
+        onSuccess: purchaseTransactionTableView.success(result)
+        onError: purchaseTransactionTableView.error(result)
     }
-
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
         policy: QQC2.ScrollBar.AlwaysOn
@@ -60,70 +68,83 @@ RRUi.DataTableView {
     delegate: DelegateChooser {
         DelegateChoice {
             column: RRModels.PurchaseTransactionModel.TransactionIdColumn
+
             delegate: RRUi.TableDelegate {
                 implicitWidth: purchaseTransactionTableView.columnHeader.children[column].width
                 implicitHeight: purchaseTransactionTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
+                    elide: Text.ElideRight
+                    horizontalAlignment: Qt.AlignRight
+                    verticalAlignment: Qt.AlignVCenter
+                    text: ("0000000" + transaction_id).slice(-6)
+                    font.italic: true
+
                     anchors {
                         left: parent.left
                         right: parent.right
                         verticalCenter: parent.verticalCenter
                     }
 
-                    elide: Text.ElideRight
-                    horizontalAlignment: Qt.AlignRight
-                    verticalAlignment: Qt.AlignVCenter
-                    text: ('0000000' + transaction_id).slice(-6)
-                    font.italic: true
                 }
+
             }
+
         }
 
         DelegateChoice {
             column: RRModels.PurchaseTransactionModel.CustomerNameColumn
+
             delegate: RRUi.TableDelegate {
                 implicitWidth: purchaseTransactionTableView.columnHeader.children[column].width
                 implicitHeight: purchaseTransactionTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        verticalCenter: parent.verticalCenter
-                    }
-
                     elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: customer_name
-                }
-            }
-        }
 
-        DelegateChoice {
-            column: RRModels.PurchaseTransactionModel.TotalCostColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: purchaseTransactionTableView.columnHeader.children[column].width
-                implicitHeight: purchaseTransactionTableView.rowHeader.children[row].height
-
-                FluidControls.SubheadingLabel {
                     anchors {
                         left: parent.left
                         right: parent.right
                         verticalCenter: parent.verticalCenter
                     }
 
+                }
+
+            }
+
+        }
+
+        DelegateChoice {
+            column: RRModels.PurchaseTransactionModel.TotalCostColumn
+
+            delegate: RRUi.TableDelegate {
+                implicitWidth: purchaseTransactionTableView.columnHeader.children[column].width
+                implicitHeight: purchaseTransactionTableView.rowHeader.children[row].height
+
+                FluidControls.SubheadingLabel {
                     elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(total_cost).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName))
+
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+
                 }
+
             }
+
         }
 
         DelegateChoice {
             column: RRModels.PurchaseTransactionModel.ActionColumn
+
             delegate: RRUi.TableDelegate {
                 implicitWidth: purchaseTransactionTableView.columnHeader.children[column].width
                 implicitHeight: purchaseTransactionTableView.rowHeader.children[row].height
@@ -138,7 +159,11 @@ RRUi.DataTableView {
                     anchors.centerIn: parent
                     sourceComponent: purchaseTransactionTableView.buttonRow
                 }
+
             }
+
         }
+
     }
+
 }

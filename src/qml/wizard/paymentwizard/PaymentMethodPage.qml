@@ -1,13 +1,12 @@
+import ".."
+import "../../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../../rrui" as RRUi
-import ".."
 
 RRUi.WizardPage {
     id: paymentMethodPage
-    objectName: "paymentMethodPage"
 
     property string selectedOption: paymentMethodPage.canAcceptCash ? "cash" : "card"
     property bool canAcceptCash: true
@@ -15,10 +14,10 @@ RRUi.WizardPage {
     property RRModels.SaleCartModel cartModel: null
     property int reason: -1
 
+    objectName: "paymentMethodPage"
     title: qsTr("Choose payment method")
     leftPadding: 4
     hasNext: true
-
     onNext: {
         switch (paymentMethodPage.selectedOption) {
         case "cash":
@@ -45,11 +44,14 @@ RRUi.WizardPage {
     }
 
     contentItem: FocusScope {
-        QQC2.ButtonGroup { id: buttonGroup }
+        QQC2.ButtonGroup {
+            id: buttonGroup
+        }
 
         Column {
             Repeater {
                 anchors.fill: parent
+
                 model: PaymentOptionModel {
                     canAcceptCash: paymentMethodPage.canAcceptCash
                     canAcceptCard: paymentMethodPage.canAcceptCard
@@ -57,11 +59,11 @@ RRUi.WizardPage {
 
                 delegate: QQC2.RadioButton {
                     id: radioButton
+
                     checked: index === 0
                     text: model.text
                     QQC2.ButtonGroup.group: buttonGroup
-
-                    onClicked: paymentMethodPage.selectedOption = model.option;
+                    onClicked: paymentMethodPage.selectedOption = model.option
 
                     contentItem: Row {
                         leftPadding: radioButton.indicator.width + radioButton.spacing + 8
@@ -80,9 +82,15 @@ RRUi.WizardPage {
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
+
                     }
+
                 }
+
             }
+
         }
+
     }
+
 }

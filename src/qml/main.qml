@@ -1,12 +1,12 @@
-import QtQuick 2.12
-import QtQuick.Controls.Material 2.12
-import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.12
 import com.gecko.rr 1.0 as RR
-import "rrui" as RRUi
 import "common"
-import "user"
 import "models"
+import "rrui" as RRUi
+import "user"
 
 RRUi.ApplicationWindow {
     id: mainWindow
@@ -18,29 +18,39 @@ RRUi.ApplicationWindow {
 
     RRUi.Sidebar {
         id: sidebar
+
         expanded: false
-        onCurrentIndexChanged: mainWindow.pageStack.replace(null, model.get(currentIndex).fileName);
+        onCurrentIndexChanged: mainWindow.pageStack.replace(null, model.get(currentIndex).fileName)
     }
 
-    RR.UserProfile { id: userProfile }
-    RR.Settings { id: settings }
+    RR.UserProfile {
+        id: userProfile
+    }
+
+    RR.Settings {
+        id: settings
+    }
 
     Component {
         id: onboardingPage
 
-        OnboardingPage { onFinished: mainWindow.pageStack.replace(null, loginPage); }
+        OnboardingPage {
+            onFinished: mainWindow.pageStack.replace(null, loginPage)
+        }
+
     }
 
     Component {
         id: passwordChangePage
 
         PasswordChangePage {
-            onAccepted: mainWindow.pageStack.replace(null, sidebar.model.get(0).fileName);
+            onAccepted: mainWindow.pageStack.replace(null, sidebar.model.get(0).fileName)
             QQC2.StackView.onRemoved: {
                 mainWindow.appBar.visible = true;
                 sidebar.expanded = true;
             }
         }
+
     }
 
     Component {
@@ -60,12 +70,11 @@ RRUi.ApplicationWindow {
                     mainWindow.pageStack.replace(null, sidebar.model.get(0).fileName);
             }
         }
+
     }
 
     Connections {
-        target: mainWindow.pageStack.currentItem !== null
-                && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ? mainWindow.pageStack.currentItem
-                                                                                   : null
+        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "dashboardPage" ? mainWindow.pageStack.currentItem : null
         onPushRequested: {
             sidebar.currentIndex = sidebar.findIndexFromFileName(Array.isArray(link) ? link[0] : link);
             mainWindow.pageStack.replace(null, page, properties, operation);
@@ -73,9 +82,7 @@ RRUi.ApplicationWindow {
     }
 
     Connections {
-        target: mainWindow.pageStack.currentItem !== null
-                && mainWindow.pageStack.currentItem.objectName === "passwordChangePage" ? mainWindow.pageStack.currentItem
-                                                                                        : null
+        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "passwordChangePage" ? mainWindow.pageStack.currentItem : null
         onAccepted: {
             mainWindow.pageStack.pop();
             mainWindow.snackBar.show(qsTr("Password change successful."));
@@ -83,9 +90,7 @@ RRUi.ApplicationWindow {
     }
 
     Connections {
-        target: mainWindow.pageStack.currentItem !== null
-                && mainWindow.pageStack.currentItem.objectName === "settingsHomePage" ? mainWindow.pageStack.currentItem
-                                                                                      : null
+        target: mainWindow.pageStack.currentItem !== null && mainWindow.pageStack.currentItem.objectName === "settingsHomePage" ? mainWindow.pageStack.currentItem : null
         onSignedOut: {
             mainWindow.appBar.visible = false;
             sidebar.expanded = false;
@@ -93,4 +98,5 @@ RRUi.ApplicationWindow {
             mainWindow.pageStack.replace(null, loginPage);
         }
     }
+
 }

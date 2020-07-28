@@ -1,8 +1,8 @@
-import QtQuick 2.12
-import QtQuick.Controls.Material 2.3
-import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import "../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.3
 
 FluidControls.OverlayView {
     id: busyOverlay
@@ -21,16 +21,22 @@ FluidControls.OverlayView {
 
         Row {
             id: row
+
             anchors.centerIn: parent
             spacing: 8
 
-            QQC2.BusyIndicator { running: true }
+            QQC2.BusyIndicator {
+                running: true
+            }
 
             FluidControls.SubheadingLabel {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: busyOverlay.text !== ""
                 text: busyOverlay.text
             }
+
         }
+
     }
+
 }

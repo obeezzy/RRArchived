@@ -1,5 +1,5 @@
-import QtQuick 2.12
 import Qt.labs.qmlmodels 1.0 as QQModels
+import QtQuick 2.12
 import com.gecko.rr.models 1.0 as RRModels
 
 ReceiptTemplate {
@@ -7,25 +7,31 @@ ReceiptTemplate {
 
     height: column.height
 
-    Rectangle { anchors.fill: parent }
+    Rectangle {
+        anchors.fill: parent
+    }
 
     Column {
         id: column
+
+        topPadding: receiptTypeA.topMargin
+        bottomPadding: receiptTypeA.bottomMargin
+
         anchors {
             left: parent.left
             right: parent.right
         }
-        topPadding: receiptTypeA.topMargin
-        bottomPadding: receiptTypeA.bottomMargin
 
         // Barcode
         ReceiptText {
+            text: receiptTypeA.barcodeUrl
+            visible: receiptTypeA.barcodeUrl !== ""
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: receiptTypeA.barcodeUrl
-            visible: receiptTypeA.barcodeUrl !== ""
+
         }
 
         // Business logo
@@ -39,64 +45,81 @@ ReceiptTemplate {
 
         // Business name
         ReceiptText {
+            text: receiptTypeA.businessName
+            visible: receiptTypeA.businessName !== ""
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: receiptTypeA.businessName
-            visible: receiptTypeA.businessName !== ""
+
         }
 
         // Receipt number
         ReceiptText {
+            text: qsTr("Receipt no: %1").arg(receiptTypeA.receiptNumber)
+            visible: receiptTypeA.receiptNumber != 0
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: qsTr("Receipt no: %1").arg(receiptTypeA.receiptNumber)
-            visible: receiptTypeA.receiptNumber != 0
+
         }
 
         // Date/time
         ReceiptText {
+            text: qsTr("Date: %1").arg(receiptTypeA.formatDate(receiptTypeA.date))
+            visible: receiptTypeA.date
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: qsTr("Date: %1").arg(receiptTypeA.formatDate(receiptTypeA.date))
-            visible: receiptTypeA.date
+
         }
 
         // Cashier
         ReceiptText {
+            text: qsTr("Cashier: %1").arg(receiptTypeA.cashier)
+            visible: receiptTypeA.cashier !== ""
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: qsTr("Cashier: %1").arg(receiptTypeA.cashier)
-            visible: receiptTypeA.cashier !== ""
+
         }
 
         // Payment type
         ReceiptText {
+            text: qsTr("Payment type: %1").arg(receiptTypeA.paymentType)
+            visible: receiptTypeA.paymentType !== ""
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            text: qsTr("Payment type: %1").arg(receiptTypeA.paymentType)
-            visible: receiptTypeA.paymentType !== ""
+
         }
 
-        Item { width: 1; height: 8 }
+        Item {
+            width: 1
+            height: 8
+        }
 
         // Cart items
         ReceiptCartTableView {
+            visible: rows !== 0
+            model: receiptTypeA.cartModel
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            visible: rows !== 0
-            model: receiptTypeA.cartModel
+
         }
+
     }
+
 }

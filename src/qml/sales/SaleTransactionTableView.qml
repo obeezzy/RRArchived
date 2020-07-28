@@ -1,11 +1,11 @@
-import QtQuick 2.12
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import Qt.labs.qmlmodels 1.0
+import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
-import "../singletons"
 
 RRUi.DataTableView {
     id: saleTransactionTableView
@@ -20,17 +20,23 @@ RRUi.DataTableView {
     signal success(var result)
     signal error(var result)
 
+    function refresh() {
+        saleTransactionModel.refresh();
+    }
 
-    function refresh() { saleTransactionModel.refresh(); }
-    function undoLastCommit() { saleTransactionModel.undoLastCommit(); }
+    function undoLastCommit() {
+        saleTransactionModel.undoLastCommit();
+    }
+
+    function removeTransaction(transactionId) {
+        saleTransactionModel.removeTransaction(transactionId);
+    }
 
     flickableDirection: TableView.VerticalFlick
     bottomMargin: 20
     columnSpacing: 8
     clip: true
     visible: !saleTransactionModel.busy
-
-    function removeTransaction(transactionId) { saleTransactionModel.removeTransaction(transactionId); }
 
     FluidControls.Placeholder {
         visible: saleTransactionTableView.count === 0 && !saleTransactionModel.busy
@@ -46,14 +52,15 @@ RRUi.DataTableView {
 
     model: RRModels.SaleTransactionModel {
         id: saleTransactionModel
+
         tableViewWidth: saleTransactionTableView.widthWithoutMargins
         filterText: saleTransactionTableView.filterText
         filterColumn: saleTransactionTableView.filterColumn
         keys: saleTransactionTableView.keys
         from: saleTransactionTableView.from
         to: saleTransactionTableView.to
-        onSuccess: saleTransactionTableView.success(result);
-        onError: saleTransactionTableView.error(result);
+        onSuccess: saleTransactionTableView.success(result)
+        onError: saleTransactionTableView.error(result)
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
@@ -64,70 +71,83 @@ RRUi.DataTableView {
     delegate: DelegateChooser {
         DelegateChoice {
             column: RRModels.SaleTransactionModel.TransactionIdColumn
+
             delegate: RRUi.TableDelegate {
                 implicitWidth: saleTransactionTableView.columnHeader.children[column].width
                 implicitHeight: saleTransactionTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
+                    elide: Text.ElideRight
+                    horizontalAlignment: Qt.AlignRight
+                    verticalAlignment: Qt.AlignVCenter
+                    text: ("0000000" + transaction_id).slice(-6)
+                    font.italic: true
+
                     anchors {
                         left: parent.left
                         right: parent.right
                         verticalCenter: parent.verticalCenter
                     }
 
-                    elide: Text.ElideRight
-                    horizontalAlignment: Qt.AlignRight
-                    verticalAlignment: Qt.AlignVCenter
-                    text: ('0000000' + transaction_id).slice(-6)
-                    font.italic: true
                 }
+
             }
+
         }
 
         DelegateChoice {
             column: RRModels.SaleTransactionModel.CustomerNameColumn
+
             delegate: RRUi.TableDelegate {
                 implicitWidth: saleTransactionTableView.columnHeader.children[column].width
                 implicitHeight: saleTransactionTableView.rowHeader.children[row].height
 
                 FluidControls.SubheadingLabel {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        verticalCenter: parent.verticalCenter
-                    }
-
                     elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignLeft
                     verticalAlignment: Qt.AlignVCenter
                     text: customer_name
-                }
-            }
-        }
 
-        DelegateChoice {
-            column: RRModels.SaleTransactionModel.TotalCostColumn
-            delegate: RRUi.TableDelegate {
-                implicitWidth: saleTransactionTableView.columnHeader.children[column].width
-                implicitHeight: saleTransactionTableView.rowHeader.children[row].height
-
-                FluidControls.SubheadingLabel {
                     anchors {
                         left: parent.left
                         right: parent.right
                         verticalCenter: parent.verticalCenter
                     }
 
+                }
+
+            }
+
+        }
+
+        DelegateChoice {
+            column: RRModels.SaleTransactionModel.TotalCostColumn
+
+            delegate: RRUi.TableDelegate {
+                implicitWidth: saleTransactionTableView.columnHeader.children[column].width
+                implicitHeight: saleTransactionTableView.rowHeader.children[row].height
+
+                FluidControls.SubheadingLabel {
                     elide: Text.ElideRight
                     horizontalAlignment: Qt.AlignRight
                     verticalAlignment: Qt.AlignVCenter
                     text: Number(total_cost).toLocaleCurrencyString(Qt.locale(GlobalSettings.localeName))
+
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+
                 }
+
             }
+
         }
 
         DelegateChoice {
             column: RRModels.SaleTransactionModel.ActionColumn
+
             delegate: RRUi.TableDelegate {
                 implicitWidth: saleTransactionTableView.columnHeader.children[column].width
                 implicitHeight: saleTransactionTableView.rowHeader.children[row].height
@@ -143,7 +163,11 @@ RRUi.DataTableView {
                     anchors.centerIn: parent
                     sourceComponent: saleTransactionTableView.buttonRow
                 }
+
             }
+
         }
+
     }
+
 }

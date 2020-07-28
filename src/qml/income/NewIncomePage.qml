@@ -1,17 +1,12 @@
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
-import "../singletons"
 
 RRUi.Page {
-    id: newIncomePage
-
-    title: qsTr("New income entry")
-    padding: 10
-
     /*!
         \qmlsignal void goBack(var event)
 
@@ -24,26 +19,30 @@ RRUi.Page {
         \c page.forcePop().
     */
 
-    actions: FluidControls.Action {
-        icon.source: FluidControls.Utils.iconUrl("action/note_add")
-        toolTip: qsTr("Add note")
-        text: qsTr("Add note")
-    }
+    id: newIncomePage
+
+    title: qsTr("New income entry")
+    padding: 10
 
     RRUi.TransitionView {
         id: transitionView
+
+        width: 800
+
         anchors {
             top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
         }
 
-        width: 800
-
         component: Item {
             id: transitionItem
 
             Flickable {
+                contentWidth: detailCard.width
+                contentHeight: detailCard.height
+                flickableDirection: Flickable.VerticalFlick
+
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -52,12 +51,25 @@ RRUi.Page {
                     bottomMargin: 12
                 }
 
-                contentWidth: detailCard.width
-                contentHeight: detailCard.height
-                flickableDirection: Flickable.VerticalFlick
-
                 RRUi.Card {
                     id: detailCard
+
+                    function validateUserInput() {
+                        if (clientTextField.text.trim() === "") {
+                            failureAlertDialogLoader.message = qsTr("Name field is empty.           "); // Force dialog to stretch
+                            failureAlertDialogLoader.create();
+                            return false;
+                        } else if (purposeTextField.text.trim() === "") {
+                            failureAlertDialogLoader.message = qsTr("Purpose field is empty.        "); // Force dialog to stretch
+                            failureAlertDialogLoader.create();
+                            return false;
+                        } else if (amountSpinBox.value === 0) {
+                            failureAlertDialogLoader.message = qsTr("Amount field cannot be 0. "); // Force dialog to stretch
+                            failureAlertDialogLoader.create();
+                            return false;
+                        }
+                        return true;
+                    }
 
                     padding: 32
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -67,15 +79,19 @@ RRUi.Page {
 
                     FocusScope {
                         id: focusScope
+
+                        height: productColumn.height + 12
+
                         anchors {
                             left: parent.left
                             right: parent.right
                         }
 
-                        height: productColumn.height + 12
-
                         Column {
                             id: productColumn
+
+                            spacing: 16
+
                             anchors {
                                 left: parent.left
                                 right: parent.right
@@ -83,11 +99,12 @@ RRUi.Page {
                                 margins: 20
                                 leftMargin: 80
                             }
-                            spacing: 16
 
                             RRUi.SectionFragment {
                                 id: clientFragment
+
                                 title: qsTr("Client details")
+
                                 anchors {
                                     left: parent.left
                                     right: parent.right
@@ -95,14 +112,18 @@ RRUi.Page {
 
                                 RRUi.IconTextField {
                                     id: clientTextField
+
                                     icon.source: FluidControls.Utils.iconUrl("social/person")
-                                    textField.placeholderText: qsTr("Name");
+                                    textField.placeholderText: qsTr("Name")
                                 }
+
                             }
 
                             RRUi.SectionFragment {
                                 id: paymentMethodFragment
+
                                 title: qsTr("Method of payment")
+
                                 anchors {
                                     left: parent.left
                                     right: parent.right
@@ -110,6 +131,7 @@ RRUi.Page {
 
                                 RRUi.IconRadioButton {
                                     id: cashRadioButton
+
                                     icon.source: Qt.resolvedUrl("qrc:/icons/cash-usd.svg")
                                     text: qsTr("Cash")
                                     checked: true
@@ -117,20 +139,25 @@ RRUi.Page {
 
                                 RRUi.IconRadioButton {
                                     id: debitCardRadioButton
+
                                     icon.source: FluidControls.Utils.iconUrl("action/credit_card")
                                     text: qsTr("Debit card")
                                 }
 
                                 RRUi.IconRadioButton {
                                     id: creditCardRadioButton
+
                                     icon.source: FluidControls.Utils.iconUrl("action/credit_card")
                                     text: qsTr("Credit card")
                                 }
+
                             }
 
                             RRUi.SectionFragment {
                                 id: transactionFragment
+
                                 title: qsTr("Transaction details")
+
                                 anchors {
                                     left: parent.left
                                     right: parent.right
@@ -138,10 +165,10 @@ RRUi.Page {
 
                                 RRUi.IconTextField {
                                     id: purposeTextField
-                                    icon.source: Qt.resolvedUrl("qrc:/icons/file-document-box-outline.svg")
-                                    textField.placeholderText: qsTr("Purpose");
-                                }
 
+                                    icon.source: Qt.resolvedUrl("qrc:/icons/file-document-box-outline.svg")
+                                    textField.placeholderText: qsTr("Purpose")
+                                }
 
                                 Row {
                                     spacing: 12
@@ -153,42 +180,44 @@ RRUi.Page {
 
                                     QQC2.SpinBox {
                                         id: amountSpinBox
+
+                                        property int decimals: 2
+                                        property real realValue: value / 100
+
                                         down.indicator: null
                                         up.indicator: null
                                         width: 50
                                         editable: true
                                         to: 10000
-
-                                        property int decimals: 2
-                                        property real realValue: value / 100
+                                        textFromValue: function(value, locale) {
+                                            return "₦ " + Number(value).toLocaleString(locale, "f", amountSpinBox.decimals);
+                                        }
+                                        valueFromText: function(text, locale) {
+                                            return Number.fromLocaleString(locale, text.replace("₦ ", ""));
+                                        }
 
                                         validator: DoubleValidator {
                                             bottom: Math.min(amountSpinBox.from, amountSpinBox.to)
-                                            top:  Math.max(amountSpinBox.from, amountSpinBox.to)
+                                            top: Math.max(amountSpinBox.from, amountSpinBox.to)
                                         }
 
-                                        textFromValue: function(value, locale) {
-                                            return "\u20a6 " + Number(value).toLocaleString(locale, 'f', amountSpinBox.decimals)
-                                        }
-
-                                        valueFromText: function(text, locale) {
-                                            return Number.fromLocaleString(locale, text.replace("\u20a6 ", ""))
-                                        }
                                     }
+
                                 }
+
                             }
+
                         }
+
                     }
 
                     RRModels.IncomePusher {
                         id: incomePusher
+
                         clientName: clientTextField.text
                         purpose: purposeTextField.text
                         amount: amountSpinBox.value
-                        paymentMethod: creditCardRadioButton.checked ? RRModels.IncomePusher.CreditCard
-                                                                     : debitCardRadioButton.checked ? RRModels.IncomePusher.DebitCard
-                                                                                                    : RRModels.IncomePusher.Cash
-
+                        paymentMethod: creditCardRadioButton.checked ? RRModels.IncomePusher.CreditCard : debitCardRadioButton.checked ? RRModels.IncomePusher.DebitCard : RRModels.IncomePusher.Cash
                         onSuccess: {
                             switch (result.code) {
                             case RRModels.IncomePusher.AddIncomeSuccess:
@@ -210,80 +239,87 @@ RRUi.Page {
                                 failureAlertDialogLoader.message = qsTr("The cause of the error could not be determined.");
                                 break;
                             }
-
                             failureAlertDialogLoader.active = true;
                         }
                     }
 
                     RRUi.FailureAlertDialogLoader {
                         id: failureAlertDialogLoader
+
                         parent: QQC2.ApplicationWindow.contentItem
                         title: qsTr("Failed to add entry")
                     }
 
-                    RRUi.BusyOverlay { visible: incomePusher.busy }
-
-                    function validateUserInput() {
-                        if (clientTextField.text.trim() === "") {
-                            failureAlertDialogLoader.message = qsTr("Name field is empty.           "); // Force dialog to stretch
-                            failureAlertDialogLoader.create();
-                            return false;
-                        } else if (purposeTextField.text.trim() === "") {
-                            failureAlertDialogLoader.message = qsTr("Purpose field is empty.        "); // Force dialog to stretch
-                            failureAlertDialogLoader.create();
-                            return false;
-                        } else if (amountSpinBox.value === 0) {
-                            failureAlertDialogLoader.message = qsTr("Amount field cannot be 0. "); // Force dialog to stretch
-                            failureAlertDialogLoader.create();
-                            return false;
-                        }
-
-                        return true;
+                    RRUi.BusyOverlay {
+                        visible: incomePusher.busy
                     }
+
                 }
+
             }
 
             RRUi.Card {
                 id: buttonCard
+
+                height: buttonRow.height
+                leftPadding: 20
+                rightPadding: 20
+
                 anchors {
                     left: parent.left
                     right: parent.right
                     bottom: parent.bottom
                 }
-                height: buttonRow.height
-                leftPadding: 20
-                rightPadding: 20
 
                 QQC2.Button {
                     id: advancedButton
+
                     flat: true
+                    text: qsTr("Advanced")
+
                     anchors {
                         left: parent.left
                         verticalCenter: parent.verticalCenter
                     }
-                    text: qsTr("Advanced")
+
                 }
 
                 Row {
                     id: buttonRow
+
                     spacing: 12
                     anchors.right: parent.right
 
                     QQC2.Button {
                         id: cancelButton
+
                         flat: true
                         text: qsTr("Cancel")
-                        onClicked: newIncomePage.pop();
+                        onClicked: newIncomePage.pop()
                     }
 
                     QQC2.Button {
                         id: submitButton
+
                         Material.elevation: 1
                         text: qsTr("Submit")
-                        onClicked: if (detailCard.validateUserInput()) incomePusher.push();
+                        onClicked: if (detailCard.validateUserInput()) {
+                            incomePusher.push();
+                        }
                     }
+
                 }
+
             }
+
         }
+
     }
+
+    actions: FluidControls.Action {
+        icon.source: FluidControls.Utils.iconUrl("action/note_add")
+        toolTip: qsTr("Add note")
+        text: qsTr("Add note")
+    }
+
 }

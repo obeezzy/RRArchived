@@ -5,5 +5,6 @@ Item {
     property string title: ""
     property string subtitle: ""
     property Item control: null
-    signal clicked
+
+    signal clicked()
 }

@@ -60,4 +60,5 @@ ListModel {
         iconUrl: "qrc:/icons/tune.svg"
         fileName: "settings/HomePage.qml"
     }
+
 }

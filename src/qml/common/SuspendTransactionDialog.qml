@@ -1,8 +1,8 @@
+import "../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
-import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
-import "../rrui" as RRUi
 
 QQC2.Dialog {
     id: suspendTransactionDialog
@@ -13,15 +13,14 @@ QQC2.Dialog {
     x: (QQC2.ApplicationWindow.contentItem.width - width) / 2
     y: (QQC2.ApplicationWindow.contentItem.height - height) / 2
     parent: QQC2.ApplicationWindow.contentItem
-
     implicitWidth: 600
-
     focus: true
     modal: true
     title: qsTr("Suspend transaction")
 
     Column {
         id: column
+
         anchors {
             left: parent.left
             right: parent.right
@@ -29,23 +28,28 @@ QQC2.Dialog {
 
         FluidControls.SubheadingLabel {
             id: label
+
+            wrapMode: Text.Wrap
+            text: qsTr("Add a description of this transaction below, if you wish to.")
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            wrapMode: Text.Wrap
-            text: qsTr("Add a description of this transaction below, if you wish to.")
+
         }
 
         RRUi.TextField {
             id: noteField
+
+            placeholderText: qsTr("Add short description (optional)")
+            focus: true
+
             anchors {
                 left: parent.left
                 right: parent.right
             }
 
-            placeholderText: qsTr("Add short description (optional)")
-            focus: true
         }
 
         Row {
@@ -55,7 +59,7 @@ QQC2.Dialog {
             QQC2.Button {
                 flat: true
                 text: qsTr("Cancel")
-                onClicked: suspendTransactionDialog.reject();
+                onClicked: suspendTransactionDialog.reject()
             }
 
             QQC2.Button {
@@ -65,6 +69,9 @@ QQC2.Dialog {
                     suspendTransactionDialog.accept();
                 }
             }
+
         }
+
     }
+
 }

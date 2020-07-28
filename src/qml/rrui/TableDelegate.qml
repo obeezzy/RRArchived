@@ -1,5 +1,5 @@
-import QtQuick 2.13
 import "../singletons"
+import QtQuick 2.13
 
 Item {
     implicitWidth: 100

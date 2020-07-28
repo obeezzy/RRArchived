@@ -1,11 +1,11 @@
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.models 1.0 as RRModels
-import "../rrui" as RRUi
 import "fragments" as Fragments
-import "../singletons"
 
 RRUi.Page {
     id: newProductPage
@@ -15,7 +15,6 @@ RRUi.Page {
 
     title: isExistingProduct ? qsTr("Edit product") : qsTr("New product")
     padding: 10
-
     onGoBack: {
         if (transitionView.item.dirty && !isExistingProduct) {
             leaveConfirmationDialog.open();
@@ -25,21 +24,68 @@ RRUi.Page {
         }
     }
 
-    actions: FluidControls.Action {
-        icon.source: FluidControls.Utils.iconUrl("action/note_add")
-        toolTip: qsTr("Add note")
-        text: qsTr("Add note")
-    }
-
     RRUi.TransitionView {
         id: transitionView
+
+        width: 800
+
         anchors {
             top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
         }
 
-        width: 800
+        RRUi.Card {
+            id: buttonCard
+
+            height: buttonRow.height
+            leftPadding: 20
+            rightPadding: 20
+
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+
+            QQC2.Button {
+                id: advancedButton
+
+                flat: true
+                text: qsTr("Advanced")
+
+                anchors {
+                    left: parent.left
+                    verticalCenter: parent.verticalCenter
+                }
+
+            }
+
+            Row {
+                id: buttonRow
+
+                spacing: 12
+                anchors.right: parent.right
+
+                QQC2.Button {
+                    id: cancelButton
+
+                    flat: true
+                    text: qsTr("Cancel")
+                    onClicked: newProductPage.pop()
+                }
+
+                QQC2.Button {
+                    id: addProductButton
+
+                    Material.elevation: 1
+                    text: newProductPage.isExistingProduct ? qsTr("Update Product") : qsTr("Add Product")
+                    onClicked: transitionView.item.submit()
+                }
+
+            }
+
+        }
 
         component: Item {
             id: transitionItem
@@ -47,7 +93,31 @@ RRUi.Page {
             readonly property bool dirty: productImage.dirty || productDetails.dirty
             property url imageUrl: ""
 
+            function validateUserInput() {
+                if (productDetails.category.trim().length === 0) {
+                    errorDialog.show(qsTr("Category field is not set."), qsTr("Failed to add product")); // Force dialog to stretch
+                    return false;
+                } else if (productDetails.product.trim().length === 0) {
+                    errorDialog.show(qsTr("Product field is empty."), qsTr("Failed to add product")); // Force dialog to stretch
+                    return false;
+                } else if (productDetails.unit.trim().length === 0) {
+                    errorDialog.show(qsTr("Unit field is empty."), qsTr("Failed to add product")); // Force dialog to stretch
+                    return false;
+                }
+                return true;
+            }
+
+            function submit() {
+                if (validateUserInput())
+                    productPusher.push();
+
+            }
+
             Flickable {
+                contentWidth: detailCard.width
+                contentHeight: detailCard.height
+                flickableDirection: Flickable.VerticalFlick
+
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -55,10 +125,6 @@ RRUi.Page {
                     bottom: bottom.bottom
                     bottomMargin: 12
                 }
-
-                contentWidth: detailCard.width
-                contentHeight: detailCard.height
-                flickableDirection: Flickable.VerticalFlick
 
                 RRUi.Card {
                     id: detailCard
@@ -71,25 +137,32 @@ RRUi.Page {
 
                     FocusScope {
                         id: focusScope
+
+                        height: productDetails.height + 12
+
                         anchors {
                             left: parent.left
                             right: parent.right
                         }
 
-                        height: productDetails.height + 12
-
                         Fragments.ProductImage {
                             id: productImage
+
+                            name: productDetails.product
+                            source: productDetails.imageUrl
+
                             anchors {
                                 left: parent.left
                                 top: parent.top
                             }
-                            name: productDetails.product
-                            source: productDetails.imageUrl
+
                         }
 
                         Fragments.ProductDetails {
                             id: productDetails
+
+                            productId: newProductPage.productId
+
                             anchors {
                                 left: productImage.right
                                 right: parent.right
@@ -97,12 +170,14 @@ RRUi.Page {
                                 margins: 20
                                 leftMargin: 80
                             }
-                            productId: newProductPage.productId
+
                         }
+
                     }
 
                     RRModels.ProductPusher {
                         id: productPusher
+
                         productId: newProductPage.productId
                         imageUrl: productImage.source
                         category: productDetails.category
@@ -116,7 +191,6 @@ RRUi.Page {
                         retailPrice: productDetails.retailPrice
                         tracked: productDetails.tracked
                         divisible: productDetails.divisible
-
                         onSuccess: {
                             switch (result.code) {
                             case RRModels.ProductPusher.AddProductSuccess:
@@ -132,100 +206,47 @@ RRUi.Page {
                         onError: {
                             switch (result.code) {
                             case RRModels.ProductPusher.DuplicateEntryError:
-                                errorDialog.show(qsTr("A product of the same name already exists."),
-                                                 qsTr("Failed to add product"));
+                                errorDialog.show(qsTr("A product of the same name already exists."), qsTr("Failed to add product"));
                                 break;
                             case RRModels.ProductPusher.ImageTooLargeError:
-                                errorDialog.show(qsTr("The image selected for the product is too large. "
-                                                      + "Please choose an image less than 2 MB."),
-                                                 qsTr("Failed to add product"));
+                                errorDialog.show(qsTr("The image selected for the product is too large. " + "Please choose an image less than 2 MB."), qsTr("Failed to add product"));
                                 break;
                             default:
-                                errorDialog.show(qsTr("Product could not be inserted into the database."),
-                                                 qsTr("Failed to add product"));
+                                errorDialog.show(qsTr("Product could not be inserted into the database."), qsTr("Failed to add product"));
                                 break;
                             }
                         }
                     }
 
-                    RRUi.ErrorDialog { id: errorDialog }
+                    RRUi.ErrorDialog {
+                        id: errorDialog
+                    }
 
-                    RRUi.BusyOverlay { visible: productPusher.busy }
-                }
-            }
+                    RRUi.BusyOverlay {
+                        visible: productPusher.busy
+                    }
 
-            function validateUserInput() {
-                if (productDetails.category.trim().length === 0) {
-                    errorDialog.show(qsTr("Category field is not set."),
-                                     qsTr("Failed to add product")); // Force dialog to stretch
-                    return false;
-                } else if (productDetails.product.trim().length === 0) {
-                    errorDialog.show(qsTr("Product field is empty."),
-                                     qsTr("Failed to add product")); // Force dialog to stretch
-                    return false;
-                } else if (productDetails.unit.trim().length === 0) {
-                    errorDialog.show(qsTr("Unit field is empty."),
-                                     qsTr("Failed to add product")); // Force dialog to stretch
-                    return false;
                 }
 
-                return true;
             }
 
-            function submit() {
-                if (validateUserInput())
-                    productPusher.push();
-            }
         }
 
-        RRUi.Card {
-            id: buttonCard
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            height: buttonRow.height
-            leftPadding: 20
-            rightPadding: 20
-
-            QQC2.Button {
-                id: advancedButton
-                flat: true
-                anchors {
-                    left: parent.left
-                    verticalCenter: parent.verticalCenter
-                }
-                text: qsTr("Advanced")
-            }
-
-            Row {
-                id: buttonRow
-                spacing: 12
-                anchors.right: parent.right
-
-                QQC2.Button {
-                    id: cancelButton
-                    flat: true
-                    text: qsTr("Cancel")
-                    onClicked: newProductPage.pop();
-                }
-
-                QQC2.Button {
-                    id: addProductButton
-                    Material.elevation: 1
-                    text: newProductPage.isExistingProduct ? qsTr("Update Product") : qsTr("Add Product")
-                    onClicked: transitionView.item.submit();
-                }
-            }
-        }
     }
 
     FluidControls.AlertDialog {
         id: leaveConfirmationDialog
+
         title: Stylesheet.padText(qsTr("Leave?"))
         text: qsTr("Are you sure you want to leave?")
         standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
-        onAccepted: newProductPage.forcePop();
+        onAccepted: newProductPage.forcePop()
     }
+
+    actions: FluidControls.Action {
+        icon.source: FluidControls.Utils.iconUrl("action/note_add")
+        toolTip: qsTr("Add note")
+        text: qsTr("Add note")
+    }
+
 }

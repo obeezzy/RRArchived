@@ -1,13 +1,14 @@
-import QtQuick 2.12
-import QtQuick.Controls.Material 2.3
-import QtQuick.Controls 2.12 as QQC2
 import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.3
 
 Item {
     id: chip
 
     property string text: qsTr("Chip")
-    signal clicked
+
+    signal clicked()
 
     implicitWidth: row.width + 20
     implicitHeight: row.height + 10
@@ -21,21 +22,31 @@ Item {
 
     Row {
         id: row
+
         anchors.centerIn: parent
 
         FluidControls.CaptionLabel {
             text: chip.text
             color: "#444444"
         }
+
     }
 
     MouseArea {
         id: mouseArea
+
         anchors.fill: parent
-        onClicked: chip.clicked();
+        onClicked: chip.clicked()
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
     }
 
-    Behavior on scale { NumberAnimation { duration: 100; property: "scale" } }
+    Behavior on scale {
+        NumberAnimation {
+            duration: 100
+            property: "scale"
+        }
+
+    }
+
 }

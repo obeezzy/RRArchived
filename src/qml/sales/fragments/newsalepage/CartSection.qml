@@ -1,13 +1,13 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Layouts 1.3 as QQLayouts
-import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import com.gecko.rr.models 1.0 as RRModels
+import "../.."
+import "../../../common"
 import "../../../rrui" as RRUi
 import "../../../stock" as Stock
-import "../../../common"
-import "../.."
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.3
+import QtQuick.Layouts 1.3 as QQLayouts
+import com.gecko.rr.models 1.0 as RRModels
 
 FocusScope {
     id: cartSection
@@ -23,18 +23,28 @@ FocusScope {
     signal success(var result)
     signal error(var result)
     signal viewRequested(int productId)
-    signal checkoutRequested
+    signal checkoutRequested()
 
-    function addProduct(modelData) { cart.addProduct(modelData); }
-    function suspendTransaction(params) { cart.suspendTransaction(params); }
-    function submitTransaction(payment) { cart.submitTransaction(payment); }
-    function undoLastTransaction() { cart.undoLastTransaction(); }
+    function addProduct(modelData) {
+        cart.addProduct(modelData);
+    }
+
+    function suspendTransaction(params) {
+        cart.suspendTransaction(params);
+    }
+
+    function submitTransaction(payment) {
+        cart.submitTransaction(payment);
+    }
+
+    function undoLastTransaction() {
+        cart.undoLastTransaction();
+    }
 
     function clear() {
         cart.clearAll();
         customerInfo.clearAll();
     }
-
 
     implicitWidth: 600
     implicitHeight: 400
@@ -44,11 +54,13 @@ FocusScope {
 
         CustomerInfo {
             id: customerInfo
+
             QQLayouts.Layout.fillWidth: true
         }
 
         Cart {
             id: cart
+
             customerName: customerInfo.name
             QQLayouts.Layout.fillWidth: true
             QQLayouts.Layout.fillHeight: true
@@ -73,23 +85,24 @@ FocusScope {
                     transactionId = 0;
                     MainWindow.snackBar.show(qsTr("Transaction reverted."));
                 }
-
                 cartSection.success(result);
             }
-
-            onError: cartSection.error(result);
-            onEditRequested: cartProductEditorDialog.show(product);
-            onViewRequested: cartSection.viewRequested(productId);
+            onError: cartSection.error(result)
+            onEditRequested: cartProductEditorDialog.show(product)
+            onViewRequested: cartSection.viewRequested(productId)
         }
 
         Checkout {
             QQLayouts.Layout.fillWidth: true
             totalCost: cart.totalCost
-            onCheckoutRequested: cartSection.checkoutRequested();
+            onCheckoutRequested: cartSection.checkoutRequested()
         }
+
     }
 
-    RRUi.BusyOverlay { visible: cart.busy }
+    RRUi.BusyOverlay {
+        visible: cart.busy
+    }
 
     RRUi.RadioButtonDialog {
         title: qsTr("Choose filter sort")
@@ -101,10 +114,12 @@ FocusScope {
 
     CartProductEditorDialog {
         id: cartProductEditorDialog
+
         onAccepted: cart.updateProduct(productId, {
-                                           "quantity": quantity,
-                                           "unit_price": unitPrice,
-                                           "cost": cost
-                                       });
+            "quantity": quantity,
+            "unit_price": unitPrice,
+            "cost": cost
+        })
     }
+
 }

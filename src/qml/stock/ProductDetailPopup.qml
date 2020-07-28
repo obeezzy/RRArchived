@@ -1,22 +1,19 @@
+import "../rrui" as RRUi
+import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 import QtQuick.Layouts 1.3 as QQLayouts
-import "../rrui" as RRUi
 import com.gecko.rr.models 1.0 as RRModels
-import "../singletons"
 
 RRUi.Popup {
     id: productDetailPopup
 
     property int productId: 0
     property bool editButtonVisible: true
-    signal editRequested
 
-    implicitWidth: 640
-    implicitHeight: productDetailPopup.QQC2.ApplicationWindow.window.contentItem.height - 160
-    padding: 0
+    signal editRequested()
 
     function show(productId) {
         if (productId === undefined)
@@ -26,57 +23,9 @@ RRUi.Popup {
         open();
     }
 
-    contentItem: Item {
-        ListView {
-            anchors.fill: parent
-            clip: true
-            header: headerComponent
-            model: RRModels.ProductDetailModel {
-                id: productDetailModel
-                productId: productDetailPopup.productId
-            }
-            delegate: FluidControls.ListItem {
-                QQLayouts.RowLayout {
-                    anchors {
-                        leftMargin: 64
-                        rightMargin: 64
-                        fill: parent
-                    }
-                    spacing: 0
-
-                    FluidControls.SubheadingLabel {
-                        QQLayouts.Layout.preferredWidth: parent.width / 2
-                        QQLayouts.Layout.fillHeight: true
-                        text: title
-                        color: Material.theme === Material.Dark ? "darkgray" : Qt.darker("darkgray")
-                        horizontalAlignment: Qt.AlignHCenter
-                        verticalAlignment: Qt.AlignVCenter
-                    }
-
-                    FluidControls.SubheadingLabel {
-                        QQLayouts.Layout.preferredWidth: parent.width / 2
-                        QQLayouts.Layout.fillHeight: true
-                        text: {
-                            switch (datatype) {
-                            case "money":
-                                text: Number(detail).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName))
-                                break;
-                            case "datetime":
-                                Qt.formatDateTime(detail, "MMM d yyyy, h:mm AP")
-                                break;
-                            default:
-                                detail
-                            }
-                        }
-                        horizontalAlignment: Qt.AlignHCenter
-                        verticalAlignment: Qt.AlignVCenter
-                    }
-                }
-
-                showDivider: true
-            }
-        }
-    }
+    implicitWidth: 640
+    implicitHeight: productDetailPopup.QQC2.ApplicationWindow.window.contentItem.height - 160
+    padding: 0
 
     Component {
         id: headerComponent
@@ -91,28 +40,25 @@ RRUi.Popup {
                     right: parent.right
                     top: parent.top
                 }
+
                 RRUi.ToolButton {
                     visible: productDetailPopup.editButtonVisible
                     icon.source: FluidControls.Utils.iconUrl("image/edit")
                     icon.color: "white"
                     text: qsTr("Edit product")
-                    onClicked: productDetailPopup.editRequested();
+                    onClicked: productDetailPopup.editRequested()
                 }
 
                 RRUi.ToolButton {
                     icon.source: FluidControls.Utils.iconUrl("navigation/close")
                     icon.color: "white"
                     text: qsTr("Close")
-                    onClicked: productDetailPopup.close();
+                    onClicked: productDetailPopup.close()
                 }
+
             }
 
             RRUi.LetterCircleImage {
-                anchors {
-                    top: parent.top
-                    horizontalCenter: parent.horizontalCenter
-                    topMargin: 24
-                }
                 width: 160
                 height: width
                 backgroundColor: Qt.lighter("lightgray")
@@ -121,6 +67,13 @@ RRUi.Popup {
                 source: productDetailModel.imageUrl
                 sourceSize: Qt.size(width, height)
                 font.pixelSize: 24
+
+                anchors {
+                    top: parent.top
+                    horizontalCenter: parent.horizontalCenter
+                    topMargin: 24
+                }
+
             }
 
             Column {
@@ -139,7 +92,72 @@ RRUi.Popup {
                     text: productDetailModel.product
                     color: "white"
                 }
+
             }
+
         }
+
     }
+
+    contentItem: Item {
+        ListView {
+            anchors.fill: parent
+            clip: true
+            header: headerComponent
+
+            model: RRModels.ProductDetailModel {
+                id: productDetailModel
+
+                productId: productDetailPopup.productId
+            }
+
+            delegate: FluidControls.ListItem {
+                showDivider: true
+
+                QQLayouts.RowLayout {
+                    spacing: 0
+
+                    anchors {
+                        leftMargin: 64
+                        rightMargin: 64
+                        fill: parent
+                    }
+
+                    FluidControls.SubheadingLabel {
+                        QQLayouts.Layout.preferredWidth: parent.width / 2
+                        QQLayouts.Layout.fillHeight: true
+                        text: title
+                        color: Material.theme === Material.Dark ? "darkgray" : Qt.darker("darkgray")
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignVCenter
+                    }
+
+                    FluidControls.SubheadingLabel {
+                        QQLayouts.Layout.preferredWidth: parent.width / 2
+                        QQLayouts.Layout.fillHeight: true
+                        text: {
+                            switch (datatype) {
+                            case "money":
+                                text:
+                                Number(detail).toLocaleCurrencyString(Qt.locale(GlobalSettings.currencyLocaleName));
+                                break;
+                            case "datetime":
+                                Qt.formatDateTime(detail, "MMM d yyyy, h:mm AP");
+                                break;
+                            default:
+                                detail;
+                            }
+                        }
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignVCenter
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
 }

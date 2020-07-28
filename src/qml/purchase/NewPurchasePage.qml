@@ -1,27 +1,66 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Layouts 1.3 as QQLayouts
-import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import com.gecko.rr.models 1.0 as RRModels
+import "../common"
 import "../rrui" as RRUi
+import "../singletons"
 import "../stock" as Stock
 import "../wizard" as RRWizard
-import "../common"
-import "../singletons"
+import Fluid.Controls 1.0 as FluidControls
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.3
+import QtQuick.Layouts 1.3 as QQLayouts
+import com.gecko.rr.models 1.0 as RRModels
 
 RRUi.Page {
     id: newPurchasePage
+
     title: qsTr("New purchase entry")
     leftPadding: 10
     rightPadding: 10
-
     onGoBack: {
         if (transitionView.currentItem.isDirty) {
             leaveConfirmationDialog.open();
             event.accepted = true;
         }
     }
+    actions: [
+        FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("action/pan_tool")
+            toolTip: qsTr("Suspend transaction")
+            text: qsTr("Suspend transaction")
+            onTriggered: {
+                if (transitionView.currentItem.itemCount === 0)
+                    errorDialog.show(qsTr("There are no products in your cart."), qsTr("Failed to suspend transaction"));
+                else if (transitionView.currentItem.customerName === "")
+                    errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to suspend transaction"));
+                else
+                    suspendTransactionDialog.open();
+            }
+        },
+        FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("content/unarchive")
+            toolTip: qsTr("Load suspended transaction")
+            text: qsTr("Load suspended transaction")
+            onTriggered: retrieveTransactionDialog.open()
+        },
+        FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("action/note_add")
+            toolTip: qsTr("Add note")
+            text: qsTr("Add note")
+        },
+        FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("action/print")
+            toolTip: qsTr("Print last entry")
+            text: qsTr("Print last entry")
+        },
+        FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("action/delete")
+            toolTip: qsTr("Clear entry")
+            text: qsTr("Clear entry")
+            onTriggered: if (!transitionView.currentItem.isCartEmpty) {
+                clearEntryConfirmationDialog.open();
+            }
+        }
+    ]
 
     QtObject {
         id: privateProperties
@@ -30,54 +69,60 @@ RRUi.Page {
         property int sortIndex: 0
         property var filterModel: ["Search by product name", "Search by category name"]
         property var sortModel: ["Sort in ascending order", "Sort in descending order"]
-
         property int transactionId: 0
     }
 
-    actions: [
-        FluidControls.Action {
-            icon.source: FluidControls.Utils.iconUrl("action/pan_tool")
-            toolTip: qsTr("Suspend transaction")
-            text: qsTr("Suspend transaction")
-            onTriggered: {
-                if (transitionView.currentItem.itemCount === 0) {
-                    errorDialog.show(qsTr("There are no products in your cart."),
-                                     qsTr("Failed to suspend transaction"));
-                } else if (transitionView.currentItem.customerName === "") {
-                    errorDialog.show(qsTr("Customer name cannot be empty."),
-                                     qsTr("Failed to suspend transaction"));
-                } else {
-                    suspendTransactionDialog.open();
-                }
-            }
-        },
+    SuspendTransactionDialog {
+        id: suspendTransactionDialog
 
-        FluidControls.Action {
-            icon.source: FluidControls.Utils.iconUrl("content/unarchive")
-            toolTip: qsTr("Load suspended transaction")
-            text: qsTr("Load suspended transaction")
-            onTriggered: retrieveTransactionDialog.open();
-        },
+        transactionId: transitionView.currentItem.transactionId
+        note: transitionView.currentItem.note
+        onAccepted: transitionView.currentItem.suspendTransaction({
+            "note": note
+        })
+    }
 
-        FluidControls.Action {
-            icon.source: FluidControls.Utils.iconUrl("action/note_add")
-            toolTip: qsTr("Add note")
-            text: qsTr("Add note")
-        },
+    RetrieveTransactionDialog {
+        id: retrieveTransactionDialog
 
-        FluidControls.Action {
-            icon.source: FluidControls.Utils.iconUrl("action/print")
-            toolTip: qsTr("Print last entry")
-            text: qsTr("Print last entry")
-        },
+        onAccepted: privateProperties.transactionId = transactionId
+    }
 
-        FluidControls.Action {
-            icon.source: FluidControls.Utils.iconUrl("action/delete")
-            toolTip: qsTr("Clear entry")
-            text: qsTr("Clear entry")
-            onTriggered: if (!transitionView.currentItem.isCartEmpty) clearEntryConfirmationDialog.open();
+    RRUi.AlertDialog {
+        id: clearEntryConfirmationDialog
+
+        text: qsTr("Clear entry?")
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
+        onAccepted: transitionView.currentItem.clearCart()
+
+        FluidControls.BodyLabel {
+            text: qsTr("Are you sure you want to clear this entry?")
         }
-    ]
+
+    }
+
+    RRUi.AlertDialog {
+        id: leaveConfirmationDialog
+
+        text: qsTr("Leave?")
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
+        onAccepted: newPurchasePage.forcePop()
+
+        FluidControls.BodyLabel {
+            text: qsTr("Are you sure you want to leave?")
+        }
+
+    }
+
+    RRUi.ErrorDialog {
+        id: errorDialog
+    }
+
+    Stock.ProductDetailPopup {
+        id: productDetailPopup
+
+        editButtonVisible: false
+    }
 
     contentItem: RRUi.TransitionView {
         id: transitionView
@@ -102,59 +147,52 @@ RRUi.Page {
 
             function validateUserInput() {
                 if (customerNameField.text.trim() === "") {
-                    errorDialog.show(qsTr("Customer name cannot be empty."),
-                                     qsTr("Failed to complete transaction"));
+                    errorDialog.show(qsTr("Customer name cannot be empty."), qsTr("Failed to complete transaction"));
                     return false;
                 } else if (cartListView.count == 0) {
-                    errorDialog.show(qsTr("There are no items in your cart."),
-                                     qsTr("Failed to complete transaction"));
+                    errorDialog.show(qsTr("There are no items in your cart."), qsTr("Failed to complete transaction"));
                     return false;
                 }
-
                 return true;
             }
 
-            function suspendTransaction(params) { cartListView.suspendTransaction(params); }
+            function suspendTransaction(params) {
+                cartListView.suspendTransaction(params);
+            }
 
             RRUi.Card {
                 id: productCard
-                width: parent.width * .66 - 8
+
+                width: parent.width * 0.66 - 8
+                padding: 20
+                bottomPadding: 0
+                Material.elevation: 2
+
                 anchors {
                     left: parent.left
                     top: parent.top
                     bottom: parent.bottom
                 }
 
-                padding: 20
-                bottomPadding: 0
-                Material.elevation: 2
-
                 FocusScope {
                     anchors.fill: parent
 
                     RRUi.SearchBar {
                         id: searchBar
+
                         anchors {
                             top: parent.top
                             left: parent.left
                             right: parent.right
                         }
+
                     }
 
                     RRUi.ChipListView {
                         id: filterChipListView
+
                         height: 30
-                        anchors {
-                            top: searchBar.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        model: [
-                            privateProperties.filterModel[privateProperties.filterIndex],
-                            privateProperties.sortModel[privateProperties.sortIndex]
-                        ]
-
+                        model: [privateProperties.filterModel[privateProperties.filterIndex], privateProperties.sortModel[privateProperties.sortIndex]]
                         onClicked: {
                             switch (index) {
                             case 0:
@@ -165,10 +203,21 @@ RRUi.Page {
                                 break;
                             }
                         }
+
+                        anchors {
+                            top: searchBar.bottom
+                            left: parent.left
+                            right: parent.right
+                        }
+
                     }
 
                     Stock.ProductCategoryListView {
                         id: categoryListView
+
+                        filterText: searchBar.text
+                        filterColumn: RRModels.ProductModel.ProductColumn
+
                         anchors {
                             top: filterChipListView.bottom
                             left: parent.left
@@ -176,27 +225,28 @@ RRUi.Page {
                             bottom: parent.bottom
                         }
 
-                        filterText: searchBar.text
-                        filterColumn: RRModels.ProductModel.ProductColumn
-
                         buttonRow: Row {
                             spacing: 0
 
                             RRUi.ToolButton {
                                 id: addToCartButton
+
                                 icon.source: FluidControls.Utils.iconUrl("action/add_shopping_cart")
                                 text: qsTr("Add to cart")
                                 visible: parent.parent.modelData.quantity > 0
-                                onClicked: cartListView.addProduct(parent.parent.modelData);
+                                onClicked: cartListView.addProduct(parent.parent.modelData)
                             }
 
                             RRUi.ToolButton {
                                 id: viewButton
+
                                 icon.source: FluidControls.Utils.iconUrl("image/remove_red_eye")
                                 text: qsTr("View details")
-                                onClicked: productDetailPopup.show(parent.parent.modelData.product_id);
+                                onClicked: productDetailPopup.show(parent.parent.modelData.product_id)
                             }
+
                         }
+
                     }
 
                     FluidControls.Placeholder {
@@ -212,11 +262,14 @@ RRUi.Page {
                         icon.source: Qt.resolvedUrl("qrc:/icons/truck.svg")
                         text: qsTr("No products available.")
                     }
+
                 }
+
             }
 
             FocusScope {
-                width: parent.width *.33
+                width: parent.width * 0.33
+
                 anchors {
                     left: productCard.right
                     right: parent.right
@@ -233,13 +286,13 @@ RRUi.Page {
 
                         QQLayouts.Layout.fillWidth: true
                         QQLayouts.Layout.preferredHeight: textFieldColumn.height
-
                         padding: 0
                         leftPadding: 4
                         rightPadding: 4
 
                         Column {
                             id: textFieldColumn
+
                             anchors {
                                 top: parent.top
                                 left: parent.left
@@ -249,6 +302,7 @@ RRUi.Page {
 
                             QQLayouts.RowLayout {
                                 spacing: 2
+
                                 anchors {
                                     left: parent.left
                                     right: parent.right
@@ -256,6 +310,7 @@ RRUi.Page {
 
                                 RRUi.IconTextField {
                                     id: customerNameField
+
                                     QQLayouts.Layout.fillWidth: true
                                     focus: true
                                     icon.source: FluidControls.Utils.iconUrl("social/person")
@@ -263,25 +318,31 @@ RRUi.Page {
 
                                     Connections {
                                         target: customerNameField.textField
-                                        onTextEdited: cartListView.customerName = customerNameField.text;
+                                        onTextEdited: cartListView.customerName = customerNameField.text
                                     }
+
                                 }
 
                                 RRUi.ToolButton {
                                     id: customerOptionButton
+
                                     icon.source: FluidControls.Utils.iconUrl("navigation/more_vert")
                                     text: qsTr("More")
                                 }
+
                             }
 
                             RRUi.IconTextField {
                                 id: customerPhoneNumberField
+
                                 visible: false
                                 width: 300
                                 icon.source: FluidControls.Utils.iconUrl("communication/phone")
                                 textField.placeholderText: qsTr("Customer phone number")
                             }
+
                         }
+
                     }
 
                     RRUi.Card {
@@ -289,7 +350,6 @@ RRUi.Page {
 
                         QQLayouts.Layout.fillWidth: true
                         QQLayouts.Layout.fillHeight: true
-
                         padding: 0
                         leftPadding: 8
                         rightPadding: 8
@@ -297,20 +357,18 @@ RRUi.Page {
 
                         CartListView {
                             id: cartListView
+
                             anchors.fill: parent
                             customerName: customerNameField.text
                             transactionId: privateProperties.transactionId
-
-                            onViewRequested: productDetailPopup.show(productId);
-                            onEditRequested: cartProductEditorDialog.show(product);
-
+                            onViewRequested: productDetailPopup.show(productId)
+                            onEditRequested: cartProductEditorDialog.show(product)
                             onSuccess: {
                                 if (paymentWizard.opened)
                                     paymentWizard.accept();
 
                                 searchBar.clear();
                                 categoryListView.refresh();
-
                                 switch (result.code) {
                                 case RRModels.PurchaseCartModel.RetrieveTransactionSuccess:
                                     customerNameField.text = cartListView.customerName;
@@ -319,14 +377,12 @@ RRUi.Page {
                                 case RRModels.PurchaseCartModel.SuspendTransactionSuccess:
                                     customerNameField.clear();
                                     privateProperties.transactionId = -1;
-                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction suspended."),
-                                                                                                qsTr("Undo"));
+                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction suspended."), qsTr("Undo"));
                                     break;
                                 case RRModels.PurchaseCartModel.SubmitTransactionSuccess:
                                     customerNameField.clear();
                                     privateProperties.transactionId = -1;
-                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction submitted."),
-                                                                                                qsTr("Undo"));
+                                    newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Transaction submitted."), qsTr("Undo"));
                                     break;
                                 case RRModels.PurchaseCartModel.UndoSubmitTransactionSuccess:
                                     newPurchasePage.RRUi.ApplicationWindow.window.snackBar.show(qsTr("Undo successul."));
@@ -355,20 +411,17 @@ RRUi.Page {
                                     errorString = qsTr("An unknown error occurred.");
                                     break;
                                 }
-
-                                if (paymentWizard.opened) {
+                                if (paymentWizard.opened)
                                     paymentWizard.displayError(errorString);
-                                } else {
+                                else
                                     switch (result.code) {
-                                    default:
-                                        errorDialog.show(qsTr("An unknown error has occurred."),
-                                                         qsTr("Failed to save transaction"),
-                                                         result);
-                                        break;
-                                    }
-                                }
+                                default:
+                                    errorDialog.show(qsTr("An unknown error has occurred."), qsTr("Failed to save transaction"), result);
+                                    break;
+                                };
                             }
                         }
+
                     }
 
                     RRUi.Card {
@@ -376,12 +429,12 @@ RRUi.Page {
 
                         QQLayouts.Layout.fillWidth: true
                         QQLayouts.Layout.preferredHeight: totalsColumn.height
-
                         padding: 2
                         bottomPadding: 0
 
                         Column {
                             id: totalsColumn
+
                             anchors {
                                 left: parent.left
                                 right: parent.right
@@ -389,108 +442,85 @@ RRUi.Page {
 
                             FluidControls.SubheadingLabel {
                                 id: totalCostLabel
+
                                 anchors.right: parent.right
                                 text: qsTr("Total cost: %1").arg(Number(cartListView.totalCost).toLocaleCurrencyString(Qt.locale("en_NG")))
                             }
 
                             QQC2.Button {
                                 id: checkoutButton
+
                                 anchors.right: parent.right
                                 text: qsTr("Proceed to Checkout")
-                                onClicked: if (purchaseContentItem.validateUserInput()) paymentWizard.open();
+                                onClicked: if (purchaseContentItem.validateUserInput()) {
+                                    paymentWizard.open();
+                                }
                             }
+
                         }
+
                     }
+
                 }
 
-                RRUi.BusyOverlay { visible: cartListView.busy }
+                RRUi.BusyOverlay {
+                    visible: cartListView.busy
+                }
 
                 RRWizard.PaymentWizard {
                     id: paymentWizard
+
                     reason: PaymentWizard.Purchase
                     cartModel: cartListView.model
-                    onAccepted: cartListView.submitTransaction({ "due_date": paymentWizard.dueDate,
-                                                                   "action": paymentWizard.action });
+                    onAccepted: cartListView.submitTransaction({
+                        "due_date": paymentWizard.dueDate,
+                        "action": paymentWizard.action
+                    })
                 }
 
                 RRUi.RadioButtonDialog {
                     id: filterColumnDialog
+
                     title: qsTr("Choose filter sort")
                     model: privateProperties.filterModel
                     currentIndex: privateProperties.filterIndex
                     onAccepted: {
                         privateProperties.filterIndex = currentIndex;
-                        filterChipListView.model = [
-                                    privateProperties.filterModel[privateProperties.filterIndex],
-                                    privateProperties.sortModel[privateProperties.sortIndex]
-                                ];
+                        filterChipListView.model = [privateProperties.filterModel[privateProperties.filterIndex], privateProperties.sortModel[privateProperties.sortIndex]];
                     }
                 }
 
                 RRUi.RadioButtonDialog {
                     id: sortOrderDialog
+
                     title: qsTr("Choose sort order")
                     model: privateProperties.sortModel
                     currentIndex: privateProperties.sortIndex
                     onAccepted: {
                         privateProperties.sortIndex = currentIndex;
-                        filterChipListView.model = [
-                                    privateProperties.filterModel[privateProperties.filterIndex],
-                                    privateProperties.sortModel[privateProperties.sortIndex]
-                                ];
+                        filterChipListView.model = [privateProperties.filterModel[privateProperties.filterIndex], privateProperties.sortModel[privateProperties.sortIndex]];
                     }
                 }
 
                 CartProductEditorDialog {
                     id: cartProductEditorDialog
-                    onAccepted: cartListView.updateItem(productId, { "quantity": quantity,
-                                                            "unit_price": unitPrice,
-                                                            "cost": cost });
+
+                    onAccepted: cartListView.updateItem(productId, {
+                        "quantity": quantity,
+                        "unit_price": unitPrice,
+                        "cost": cost
+                    })
                 }
+
             }
 
             Connections {
-                target: newPurchasePage.RRUi.ApplicationWindow.window.snackBar !== undefined ?
-                            newPurchasePage.RRUi.ApplicationWindow.window.snackBar : null
-                onClicked: cartListView.undoLastTransaction();
+                target: newPurchasePage.RRUi.ApplicationWindow.window.snackBar !== undefined ? newPurchasePage.RRUi.ApplicationWindow.window.snackBar : null
+                onClicked: cartListView.undoLastTransaction()
             }
+
         }
+
     }
 
-    SuspendTransactionDialog {
-        id: suspendTransactionDialog
-        transactionId: transitionView.currentItem.transactionId
-        note: transitionView.currentItem.note
-        onAccepted: transitionView.currentItem.suspendTransaction( { "note": note } );
-    }
-
-    RetrieveTransactionDialog {
-        id: retrieveTransactionDialog
-        onAccepted: privateProperties.transactionId = transactionId;
-    }
-
-    RRUi.AlertDialog {
-        id: clearEntryConfirmationDialog
-        text: qsTr("Clear entry?")
-        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
-        onAccepted: transitionView.currentItem.clearCart();
-
-        FluidControls.BodyLabel { text: qsTr("Are you sure you want to clear this entry?") }
-    }
-
-    RRUi.AlertDialog {
-        id: leaveConfirmationDialog
-        text: qsTr("Leave?")
-        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.No
-        onAccepted: newPurchasePage.forcePop();
-
-        FluidControls.BodyLabel { text: qsTr("Are you sure you want to leave?") }
-    }
-
-    RRUi.ErrorDialog { id: errorDialog }
-
-    Stock.ProductDetailPopup {
-        id: productDetailPopup
-        editButtonVisible: false
-    }
 }

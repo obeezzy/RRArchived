@@ -1,9 +1,9 @@
+import "../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
 import com.gecko.rr.components 1.0 as RRComponents
-import "../rrui" as RRUi
 
 QQC2.Control {
     id: quantitySpinBox
@@ -20,20 +20,24 @@ QQC2.Control {
     background: Rectangle {
         color: Material.theme === Material.Dark ? Material.color(Material.Grey, Material.Shade800) : "white"
         radius: 2
+
         border {
             width: 2
             color: textField.activeFocus ? Material.accent : "darkgray"
         }
+
     }
 
     contentItem: FocusScope {
         Row {
-            anchors.centerIn: parent
             id: row
+
+            anchors.centerIn: parent
             spacing: 4
 
             RRUi.TextField {
                 id: textField
+
                 padding: 0
                 topPadding: 15
                 font.pixelSize: 14
@@ -41,8 +45,7 @@ QQC2.Control {
                 width: Math.max(contentWidth, 20)
                 text: quantitySpinBox.quantity
                 horizontalAlignment: Qt.AlignRight
-                onEditingFinished: quantitySpinBox.quantityUpdated(text);
-
+                onEditingFinished: quantitySpinBox.quantityUpdated(text)
                 background: null
 
                 validator: RRComponents.DoubleValidator {
@@ -50,10 +53,12 @@ QQC2.Control {
                     top: quantitySpinBox.maximumQuantity
                     decimals: 4
                 }
+
             }
 
             QQC2.Label {
                 id: label
+
                 anchors.verticalCenter: parent.verticalCenter
                 padding: 0
                 font.pixelSize: 14
@@ -62,9 +67,13 @@ QQC2.Control {
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: textField.forceActiveFocus();
+                    onClicked: textField.forceActiveFocus()
                 }
+
             }
+
         }
+
     }
+
 }

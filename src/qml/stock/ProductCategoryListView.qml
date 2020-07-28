@@ -1,11 +1,11 @@
-import QtQuick 2.12
-import Qt.labs.qmlmodels 1.0
-import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Layouts 1.3 as QQLayouts
-import QtQuick.Controls.Material 2.3
-import Fluid.Controls 1.0 as FluidControls
-import com.gecko.rr.models 1.0 as RRModels
 import "../rrui" as RRUi
+import Fluid.Controls 1.0 as FluidControls
+import Qt.labs.qmlmodels 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12 as QQC2
+import QtQuick.Controls.Material 2.3
+import QtQuick.Layouts 1.3 as QQLayouts
+import com.gecko.rr.models 1.0 as RRModels
 
 ListView {
     id: productCategoryListView
@@ -23,15 +23,14 @@ ListView {
 
     signal success(var result)
     signal error(var result)
-    signal modelReset
+    signal modelReset()
 
-    function refresh() { productCategoryListView.model.refresh(); }
-    function undoLastCommit() { productCategoryModel.unarchiveProduct(privateProperties.lastRemovedProductId); }
+    function refresh() {
+        productCategoryListView.model.refresh();
+    }
 
-    QtObject {
-        id: privateProperties
-
-        property int lastRemovedProductId: 0
+    function undoLastCommit() {
+        productCategoryModel.unarchiveProduct(privateProperties.lastRemovedProductId);
     }
 
     topMargin: 20
@@ -39,11 +38,17 @@ ListView {
     clip: true
     visible: !model.busy
 
+    QtObject {
+        id: privateProperties
+
+        property int lastRemovedProductId: 0
+    }
+
     model: RRModels.ProductCategoryModel {
         id: productCategoryModel
+
         filterText: productCategoryListView.filterColumn === -1 ? productCategoryListView.filterText : ""
-        productFilterText: productCategoryListView.filterColumn === RRModels.ProductModel.ProductColumn ? productCategoryListView.filterText
-                                                                                                             : ""
+        productFilterText: productCategoryListView.filterColumn === RRModels.ProductModel.ProductColumn ? productCategoryListView.filterText : ""
         onSuccess: {
             switch (result.code) {
             case RRModels.ProductCategoryModel.RemoveCategorySuccess:
@@ -55,8 +60,7 @@ ListView {
                 break;
             }
         }
-
-        onModelReset: productCategoryListView.modelReset();
+        onModelReset: productCategoryListView.modelReset()
     }
 
     QQC2.ScrollBar.vertical: RRUi.ScrollBar {
@@ -75,11 +79,14 @@ ListView {
 
         Connections {
             target: productCategoryModel
-            onDataChanged: if (topLeft.row === categoryCard.row) productTableView.refresh();
+            onDataChanged: if (topLeft.row === categoryCard.row) {
+                productTableView.refresh();
+            }
         }
 
         Column {
             id: column
+
             anchors {
                 left: parent.left
                 right: parent.right
@@ -94,11 +101,31 @@ ListView {
 
             FluidControls.HeadlineLabel {
                 id: titleLabel
+
                 text: category
             }
 
             ProductTableView {
                 id: productTableView
+
+                categoryId: product_category_id
+                filterText: productCategoryListView.filterText
+                filterColumn: productCategoryListView.filterColumn
+                sortColumn: productCategoryListView.sortColumn
+                buttonRow: productCategoryListView.buttonRow
+                onProductRemoved: privateProperties.lastRemovedProductId = productId
+                onSuccess: {
+                    switch (result.code) {
+                    case RRModels.ProductModel.RemoveProductSuccess:
+                        if (productTableView.rows === 1)
+                            productCategoryModel.removeCategory(categoryCard.row);
+
+                    }
+                    productCategoryListView.success(result);
+                }
+                onError: productCategoryListView.error(result)
+                onModelReset: productCategoryListView.modelReset()
+
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -106,24 +133,10 @@ ListView {
                     bottomMargin: 20
                 }
 
-                categoryId: product_category_id
-                filterText: productCategoryListView.filterText
-                filterColumn: productCategoryListView.filterColumn
-                sortColumn: productCategoryListView.sortColumn
-                buttonRow: productCategoryListView.buttonRow
-                onProductRemoved: privateProperties.lastRemovedProductId = productId;
-                onSuccess: {
-                    switch (result.code) {
-                    case RRModels.ProductModel.RemoveProductSuccess:
-                        if (productTableView.rows === 1)
-                            productCategoryModel.removeCategory(categoryCard.row);
-                    }
-
-                    productCategoryListView.success(result);
-                }
-                onError: productCategoryListView.error(result);
-                onModelReset: productCategoryListView.modelReset();
             }
+
         }
+
     }
+
 }
