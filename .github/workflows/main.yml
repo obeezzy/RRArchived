@@ -48,7 +48,7 @@ jobs:
         echo -e "\e[92mLint QML..."
         for qml_file in $(find . -type f -name "*.qml")
         do
-          $QTDIR/bin/qmllint qml_file
+          $QTDIR/bin/qmllint "$qml_file"
           if [ $(echo $?) -ne 0 ]
           then
             echo "qmllint failed for $qml_file"
@@ -62,7 +62,7 @@ jobs:
         echo -e "\e[92mCheck QML formatting..."
         for qml_file in $(find . -type f -name "*.qml")
         do
-          $QTDIR/bin/qmlformat qml_file
+          $QTDIR/bin/qmlformat "$qml_file"
           if [ $(echo $?) -ne 0 ]
           then
             echo "qmlformat failed for $qml_file"
